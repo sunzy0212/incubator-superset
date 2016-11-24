@@ -1,5 +1,5 @@
 {
-  "name": "Qiniu Pandora Dashboard",
+  "name": "dashboard",
   "version": "1.0.1",
   "description": "Qiniu Pandora Dashboard",
   "main": "index.js",
