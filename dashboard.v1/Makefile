@@ -1,6 +1,6 @@
 all:
 	rm -rf dist && mkdir dist
-	cd src/qiniu.com/report/; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o ../../../dist/reportd
+	cd src/qiniu.com/report/; CGO_ENABLED=0 go build -a -o ../../../dist/reportd
 	cp front/index.html dist/
 	cp -r front/static dist/
 
