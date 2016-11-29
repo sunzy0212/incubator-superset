@@ -5,6 +5,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe\n" > /etc/ap
 	echo "deb http://archive.ubuntu.com/ubuntu trusty-updates main universe\n" >> /etc/apt/sources.list
 
 WORKDIR /app
+
 RUN mkdir -p /app/report
 COPY dist /app/report
 
