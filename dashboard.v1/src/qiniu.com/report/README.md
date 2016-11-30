@@ -20,9 +20,9 @@ dataset数据结构
 POST /v1/datasets
 Content-Type: application/json
 {
-    "type" : <Type>
-    "dbName" : <DbName>
-    "username" : <Username>
+    "type" : <Type>,
+    "dbName" : <DbName>,
+    "username" : <Username>,
     "password" : <Password>
 }
 ```
@@ -36,9 +36,9 @@ Content-Type: application/json
 PUT /v1/datasets/<Id>
 Content-Type: application/json
 {
-    "type" : <Type>
-    "dbName" : <DbName>
-    "username" : <Username>
+    "type" : <Type>,
+    "dbName" : <DbName>,
+    "username" : <Username>,
     "password" : <Password>
 }
 ```
@@ -58,11 +58,11 @@ Content-Type: application/json
 {
 	datasets: [
 	{
-		"id" : <Id>
-		"type" : <Type>
-		"dbName" : <DbName>
-		"username" : <Username>
-		"password" : <Password>
+		"id" : <Id>,
+		"type" : <Type>,
+		"dbName" : <DbName>,
+		"username" : <Username>,
+		"password" : <Password>,
 		"createTime" : <CreateTime>
 	},
 	...
@@ -96,9 +96,9 @@ DELETE /v1/datasets/<Id>
 POST /v1/codes
 Content-Type: application/json
 {
-	"name" : <Name>
-	"code" : <Code>
-    "type" : <Type>
+	"name" : <Name>,
+	"code" : <Code>,
+    "type" : <Type>,
     "dbName" : <DbName>
 }
 ```
@@ -112,9 +112,9 @@ Content-Type: application/json
 PUT /v1/codes/<Id>
 Content-Type: application/json
 {
-    "name" : <Name>
-    "code" : <Code>
-    "type" : <Type>
+    "name" : <Name>,
+    "code" : <Code>,
+    "type" : <Type>,
     "dbName" : <DbName>
 }
 ```
@@ -134,11 +134,11 @@ Content-Type: application/json
 {
     codes: [
     {
-        "id" : <Id>
-        "name" : <Name>
-        "type" : <Type>
-		"code" : <Code>
-        "dbName" : <DbName>
+        "id" : <Id>,
+        "name" : <Name>,
+        "type" : <Type>,
+		"code" : <Code>,
+        "dbName" : <DbName>,
         "createTime" : <CreateTime>
     },
     ...
@@ -169,11 +169,11 @@ report
 chart 
 ```
 {
-	id string
-	title string
-	subTitle string
-	type string //图表类型
-	stack bool
+	id string,
+	title string,
+	subTitle string,
+	type string, //图表类型
+	stack bool,
 	codeId string <ref code.id>
 }
 ```
@@ -201,8 +201,8 @@ Content-Type: application/json
 {
     reports: [
     {
-        "id" : <Id>
-        "name" : <Name>
+        "id" : <Id>,
+        "name" : <Name>,
         "createTime" : <CreateTime>
     },
     ...
@@ -224,11 +224,11 @@ DELETE /v1/reports/<Id>
 POST /v1/reports/<ReportId>/charts/<ChartId>
 Content-Type: application/json
 {
-	"title" <Title>
-	"subTitle" : <SubTitle>
-	"type" : <Type>
-	"stack" : <True|False>
-	"codeId" : <CodeId>
+	"title" <Title>,
+	"subTitle" : <SubTitle>,
+	"type" : <Type>,
+	"stack" : <True|False>,
+	"codeId" : <CodeId>,
 	"code" : <Code>
 }
 ```
@@ -247,11 +247,11 @@ Content-Type: application/json
 {
     charts: [
     {
-		"id" : <Id>
-        "title" <Title>
-        "subTitle" : <SubTitle>
-        "type" : <Type>
-        "stack" : <True|False>
+		"id" : <Id>,
+        "title" <Title>,
+        "subTitle" : <SubTitle>,
+        "type" : <Type>,
+        "stack" : <True|False>,
         "codeId" : <CodeId>
     },
     ...
@@ -268,11 +268,11 @@ GET /v1/reports/<ReportId>/charts/<ChartId>
 200 OK
 Content-Type: application/json
 {
-    "title" <Title>
-    "subTitle" : <SubTitle>
-    "type" : <Type>
-    "stack" : <True|False>
-    "codeId" : <CodeId>
+    "title" <Title>,
+    "subTitle" : <SubTitle>,
+    "type" : <Type>,
+    "stack" : <True|False>,
+    "codeId" : <CodeId>,
 	"code" : <Code>
 }
 ```
@@ -291,7 +291,7 @@ DELETE /v1/reports/<ReportId>/charts/<ChartId>
 ### 布局信息
 ```
 {
-	reportId  string 
+	reportId  string ,
 	layouts   []map[string]interface
 }
 ```
@@ -301,8 +301,13 @@ DELETE /v1/reports/<ReportId>/charts/<ChartId>
 POST /v1/layouts/<layoutId>
 Content-Type: application/json
 {
-    "reportId" : <LayoutId>
-	"layouts" : <[]map[ChartId]interface{}>
+    "reportId" : <LayoutId>,
+	"layouts" : [
+		{	
+			"chartId" : <ChartId>,
+			"data" : <Map>
+		}
+	]
 }
 ```
 返回包：
@@ -319,9 +324,53 @@ GET /v1/layouts/<LayoutId>
 200 OK
 Content-Type: application/json
 {
-	"reportId" : <layoutId>
-	"layouts" : <[]map[ChartId]interface{}>
+	"reportId" : <layoutId>,
+	"layouts" : [
+        {
+            "chartId" : <ChartId>,
+            "data" : <Map>
+        }
+    ]
 }
 ```
+### 数据查询接口
+```
+GET /v1/datas?q=<CodeId>&type=<ChartType>
+```
+返回包
+```
+200 OK
+Content-Type: application/json
+{
+	"type" : "ChartType",
+    "tags": [
+        ...        //tags值
+    ],
+    "datas": [
+        1250548464  
+		...
+    ]
+}
+```
+或者
+```
+{
+	"type" : "ChartType"
+    "tags":[
+        ...
+    ],
+    "times":[
+        1430061839000,
+        ...
+    ],
+    "datas":[
+        [123,...]
+        ...
+    ]
+}
+```
+注：
 
++ `q` 为codeId
++ `type`为图表类型
 
