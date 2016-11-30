@@ -29,6 +29,15 @@ Content-Type: application/json
 返回包：
 ```
 200 OK
+Content-Type: application/json
+{
+	"id" : <Id>,
+    "type" : <Type>,
+    "dbName" : <DbName>,
+    "username" : <Username>,
+    "password" : <Password>,
+	"createTime" : <CreateTime>
+}
 ```
 #### 更新数据源
 
@@ -98,8 +107,8 @@ Content-Type: application/json
 {
 	"name" : <Name>,
 	"code" : <Code>,
-    "type" : <Type>,
-    "dbName" : <DbName>
+	"type" : <Type>,
+	"datasetId" : <DatasetId>    
 }
 ```
 返回包：
@@ -115,7 +124,7 @@ Content-Type: application/json
     "name" : <Name>,
     "code" : <Code>,
     "type" : <Type>,
-    "dbName" : <DbName>
+    "datasetId" : <DatasetId>
 }
 ```
 返回包：
@@ -125,7 +134,7 @@ Content-Type: application/json
 
 #### 获取code
 ```
-GET /v1/codes
+GET /v1/codes?type=<DbType>
 ```
 返回包
 ```
@@ -137,7 +146,7 @@ Content-Type: application/json
         "id" : <Id>,
         "name" : <Name>,
         "type" : <Type>,
-		"code" : <Code>,
+		 "code" : <Code>,
         "dbName" : <DbName>,
         "createTime" : <CreateTime>
     },
@@ -175,6 +184,7 @@ chart
 	type string, //图表类型
 	stack bool,
 	codeId string <ref code.id>
+	reportId string <ref report.id>
 }
 ```
 
@@ -229,6 +239,7 @@ Content-Type: application/json
 	"type" : <Type>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
+	"reportId" : <ReportId>,
 	"code" : <Code>
 }
 ```
@@ -245,14 +256,15 @@ GET /v1/reports/<ReportId>/charts
 200 OK
 Content-Type: application/json
 {
-    charts: [
+    "charts": [
     {
 		"id" : <Id>,
         "title" <Title>,
         "subTitle" : <SubTitle>,
         "type" : <Type>,
         "stack" : <True|False>,
-        "codeId" : <CodeId>
+        "codeId" : <CodeId>,
+		"reportId" : <ReportId>
     },
     ...
     ]
