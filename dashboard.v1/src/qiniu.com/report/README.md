@@ -20,11 +20,10 @@ dataset数据结构
 POST /v1/datasets
 Content-Type: application/json
 {
-    "type" : <type>
-    "dbName" : <dbName>
-    "username" : <username>
-    "password" : <password>
-    "createTime" : <CreateTime>
+    "type" : <Type>
+    "dbName" : <DbName>
+    "username" : <Username>
+    "password" : <Password>
 }
 ```
 返回包：
@@ -34,14 +33,13 @@ Content-Type: application/json
 #### 更新数据源
 
 ```
-PUT /v1/datasets/<id>
+PUT /v1/datasets/<Id>
 Content-Type: application/json
 {
-    "type" : <type>
-    "dbName" : <dbName>
-    "username" : <username>
-    "password" : <password>
-    "createTime" : <CreateTime>
+    "type" : <Type>
+    "dbName" : <DbName>
+    "username" : <Username>
+    "password" : <Password>
 }
 ```
 返回包：
@@ -60,11 +58,11 @@ Content-Type: application/json
 {
 	datasets: [
 	{
-		"id" : <id>
-		"type" : <type>
-		"dbName" : <dbName>
-		"username" : <username>
-		"password" : <password>
+		"id" : <Id>
+		"type" : <Type>
+		"dbName" : <DbName>
+		"username" : <Username>
+		"password" : <Password>
 		"createTime" : <CreateTime>
 	},
 	...
@@ -74,7 +72,7 @@ Content-Type: application/json
 #### 删除数据源
 请求包
 ```
-DELETE /v1/datasets/<id>
+DELETE /v1/datasets/<Id>
 ```
 返回包
 ```
@@ -88,7 +86,7 @@ DELETE /v1/datasets/<id>
 	id		string
 	name	string
 	code	string
-	dbName	string
+	datasetId	string
 	type	string
 	createTime timestamp
 }
@@ -98,11 +96,10 @@ DELETE /v1/datasets/<id>
 POST /v1/codes
 Content-Type: application/json
 {
-	"name" : <name>
-	"code" : <code>
-    "type" : <type>
-    "dbName" : <dbName>
-    "createTime" : <CreateTime>
+	"name" : <Name>
+	"code" : <Code>
+    "type" : <Type>
+    "dbName" : <DbName>
 }
 ```
 返回包：
@@ -110,16 +107,15 @@ Content-Type: application/json
 200 OK
 ```
 
-#### 创建code
+#### 更新code
 ```
-PUT /v1/codes/<id>
+PUT /v1/codes/<Id>
 Content-Type: application/json
 {
-    "name" : <name>
-    "code" : <code>
-    "type" : <type>
-    "dbName" : <dbName>
-    "updateTime" : <updateTime>
+    "name" : <Name>
+    "code" : <Code>
+    "type" : <Type>
+    "dbName" : <DbName>
 }
 ```
 返回包：
@@ -138,11 +134,11 @@ Content-Type: application/json
 {
     codes: [
     {
-        "id" : <id>
-        "name" : <name>
-        "type" : <type>
-		"code" : <code>
-        "dbName" : <dbName>
+        "id" : <Id>
+        "name" : <Name>
+        "type" : <Type>
+		"code" : <Code>
+        "dbName" : <DbName>
         "createTime" : <CreateTime>
     },
     ...
@@ -152,7 +148,7 @@ Content-Type: application/json
 #### 删除code
 请求包
 ```
-DELETE /v1/codes/<id>
+DELETE /v1/codes/<Id>
 ```
 返回包
 ```
@@ -160,7 +156,7 @@ DELETE /v1/codes/<id>
 ```
 
 
-### 创建报表 
+### 报表相关 
 report
 ```
 {
@@ -187,7 +183,7 @@ chart
 POST /v1/reports
 Content-Type: application/json
 {
-    "name" : <name>
+    "name" : <Name>
 }
 ```
 返回包：
@@ -205,8 +201,8 @@ Content-Type: application/json
 {
     reports: [
     {
-        "id" : <id>
-        "name" : <name>
+        "id" : <Id>
+        "name" : <Name>
         "createTime" : <CreateTime>
     },
     ...
@@ -216,7 +212,7 @@ Content-Type: application/json
 #### 删除报表
 请求包
 ```
-DELETE /v1/reports/<id>
+DELETE /v1/reports/<Id>
 ```
 返回包
 ```
@@ -225,14 +221,15 @@ DELETE /v1/reports/<id>
 
 #### 添加/修改图表
 ```
-POST /v1/reports/<reportId>/charts/<chartId>
+POST /v1/reports/<ReportId>/charts/<ChartId>
 Content-Type: application/json
 {
-	"title" <title>
-	"subTitle" : <subTitle>
-	"type" : <type>
-	"stack" : <true/false>
-	"codeId" : <codeId>
+	"title" <Title>
+	"subTitle" : <SubTitle>
+	"type" : <Type>
+	"stack" : <True|False>
+	"codeId" : <CodeId>
+	"code" : <Code>
 }
 ```
 返回包：
@@ -241,7 +238,7 @@ Content-Type: application/json
 ```
 #### 获取chart list
 ```
-GET /v1/reports/<reportId>/charts
+GET /v1/reports/<ReportId>/charts
 ```
 返回包
 ```
@@ -250,12 +247,12 @@ Content-Type: application/json
 {
     charts: [
     {
-		"id" : <id>
-        "title" <title>
-        "subTitle" : <subTitle>
-        "type" : <type>
-        "stack" : <true|false>
-        "codeId" : <codeId>
+		"id" : <Id>
+        "title" <Title>
+        "subTitle" : <SubTitle>
+        "type" : <Type>
+        "stack" : <True|False>
+        "codeId" : <CodeId>
     },
     ...
     ]
@@ -264,25 +261,26 @@ Content-Type: application/json
 
 #### 获取chart
 ```
-GET /v1/reports/<reportId>/charts/<chartId>
+GET /v1/reports/<ReportId>/charts/<ChartId>
 ```
 返回包
 ```
 200 OK
 Content-Type: application/json
 {
-    "title" <title>
-    "subTitle" : <subTitle>
-    "type" : <type>
-    "stack" : <true/false>
-    "codeId" : <codeId>
+    "title" <Title>
+    "subTitle" : <SubTitle>
+    "type" : <Type>
+    "stack" : <True|False>
+    "codeId" : <CodeId>
+	"code" : <Code>
 }
 ```
 
 #### 删除chart
 请求包
 ```
-DELETE /v1/reports/<reportId>/charts/<chartId>
+DELETE /v1/reports/<ReportId>/charts/<ChartId>
 ```
 返回包
 ```
@@ -293,9 +291,8 @@ DELETE /v1/reports/<reportId>/charts/<chartId>
 ### 布局信息
 ```
 {
-	reportId string 
-	chartId string
-	data map{}
+	reportId  string 
+	layouts   []map[string]interface
 }
 ```
 
@@ -304,9 +301,8 @@ DELETE /v1/reports/<reportId>/charts/<chartId>
 POST /v1/layouts/<layoutId>
 Content-Type: application/json
 {
-    "reportId" : <layoutId>
-    "chartId" : <chartId>
-	"data" : <dataset>
+    "reportId" : <LayoutId>
+	"layouts" : <[]map[ChartId]interface{}>
 }
 ```
 返回包：
@@ -316,7 +312,7 @@ Content-Type: application/json
 注：layoutId 其实应该为reportId
 #### 获取报表布局信息
 ```
-GET /v1/layouts/<layoutId>
+GET /v1/layouts/<LayoutId>
 ```
 返回包
 ```
@@ -324,8 +320,7 @@ GET /v1/layouts/<layoutId>
 Content-Type: application/json
 {
 	"reportId" : <layoutId>
-    "chartId" : <chartId>
-    "data" : <dataset>
+	"layouts" : <[]map[ChartId]interface{}>
 }
 ```
 
