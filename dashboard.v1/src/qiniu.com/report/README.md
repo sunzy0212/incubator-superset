@@ -6,6 +6,8 @@ dataset数据结构
 ```
 {
 	id			string 
+	Host		string
+	port		int
 	type		string  //数据源类型：可选MYSQL/MGO/Spark...
 	dbName		string
 	username	string
@@ -310,10 +312,9 @@ DELETE /v1/reports/<ReportId>/charts/<ChartId>
 
 #### 保存/更新 某报表布局信息
 ```
-POST /v1/layouts/<layoutId>
+POST /v1/layouts/<ReportId>
 Content-Type: application/json
 {
-    "reportId" : <LayoutId>,
 	"layouts" : [
 		{	
 			"chartId" : <ChartId>,
@@ -326,17 +327,16 @@ Content-Type: application/json
 ```
 200 OK
 ```
-注：layoutId 其实应该为reportId
 #### 获取报表布局信息
 ```
-GET /v1/layouts/<LayoutId>
+GET /v1/layouts/<ReportId>
 ```
 返回包
 ```
 200 OK
 Content-Type: application/json
 {
-	"reportId" : <layoutId>,
+	"reportId" : <ReportId>,
 	"layouts" : [
         {
             "chartId" : <ChartId>,
@@ -359,7 +359,7 @@ Content-Type: application/json
         ...        //tags值
     ],
     "datas": [
-        1250548464  
+        ["",""]  
 		...
     ]
 }
@@ -372,7 +372,7 @@ Content-Type: application/json
         ...
     ],
     "times":[
-        1430061839000,
+        ["",""],
         ...
     ],
     "datas":[
@@ -384,5 +384,5 @@ Content-Type: application/json
 注：
 
 + `q` 为codeId
-+ `type`为图表类型
++ `type`为图表类型 可选`line`,`bar`,`pie`
 

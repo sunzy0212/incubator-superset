@@ -15,15 +15,10 @@ import (
 	"qiniu.com/report/common"
 	"qiniu.com/report/common/db"
 	. "qiniu.com/report/common/errors"
+	"qiniu.com/report/data"
 )
 
 type M map[string]interface{}
-
-const (
-	CHART_LINE = "line"
-	CHART_BAR  = "bar"
-	CHART_PIE  = "pie"
-)
 
 type cmdArgs struct {
 	CmdArgs []string
@@ -332,7 +327,7 @@ GET /v1/reports
 200 OK
 Content-Type: application/json
 {
-    reports: [
+    "reports": [
     {
         "id" : <Id>,
         "name" : <Name>,
@@ -348,7 +343,7 @@ type RetReports struct {
 
 func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
 	ds := make([]common.Report, 0)
-	if err = s.CodeColl.Find(M{}).All(&ds); err != nil {
+	if err = s.ReportColl.Find(M{}).All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the reports is enpty !")
 			return
@@ -564,7 +559,6 @@ func (s *Service) DeleteReports_Charts_(args *cmdArgs, env *rpcutil.Env) (err er
 POST /v1/layouts/<layoutId>
 Content-Type: application/json
 {
-    "reportId" : <LayoutId>,
     "layouts" : [
         {
             "chartId" : <ChartId>,
@@ -592,6 +586,7 @@ func (s *Service) PostLayouts_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		err = ErrorPostLayout(err)
 		return
 	}
+	req.ReportId = reportId
 	if err = db.DoUpsert(s.LayoutColl, M{"reportId": reportId}, req); err != nil {
 		err = ErrorPostLayout(err)
 		return
@@ -684,13 +679,19 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
-	switch _chartType {
-	case CHART_LINE:
-
-	case CHART_BAR:
-
-	case CHART_PIE:
-
+	switch cd.Type {
+	case "mysql":
+		mysqlCtrl := data.Mysql{
+			Host:     ds.Host,
+			Port:     ds.Port,
+			Username: ds.Username,
+			Password: ds.Password,
+			Db:       ds.DbName,
+		}
+		if ret, err = mysqlCtrl.Query(_chartType, cd); err != nil {
+			err = ErrQueryDatas(err, fmt.Sprintf("execute code %v failed", cd.Code))
+			return
+		}
 	default:
 	}
 	return

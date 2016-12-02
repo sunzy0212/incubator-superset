@@ -45,4 +45,8 @@ var (
 	ErrNONEXISTENT_MESSAGE = func(err error, mgs interface{}) *httputil.ErrorInfo {
 		return httputil.NewError(404, fmt.Sprintf("E4201: %v", mgs))
 	}
+
+	ErrQueryDatas = func(err error, mgs interface{}) *httputil.ErrorInfo {
+		return httputil.NewError(404, fmt.Sprintf("E4301: %v", mgs))
+	}
 )

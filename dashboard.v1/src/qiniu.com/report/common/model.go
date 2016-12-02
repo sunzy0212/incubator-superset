@@ -1,9 +1,11 @@
 package common
 
 import (
-	"time"
-
 	"github.com/qiniu/db/mgoutil.v3"
+)
+
+const (
+	MYSQL = "mysql"
 )
 
 type Collections struct {
@@ -16,6 +18,8 @@ type Collections struct {
 
 /*
 	id          string
+	host		string
+	port		int
     type        string  //数据源类型：可选MYSQL/MGO/Spark...
     dbName      string
     username    string
@@ -24,6 +28,8 @@ type Collections struct {
 */
 type Dataset struct {
 	Id         string `json:"id" bson:"id"`
+	Host       string `json:"host" bson:"host"`
+	Port       int    `json:"port" bson:"port"`
 	Type       string `json:"type" bson:"type"`
 	DbName     string `json:"dbName" bson:"dbName"`
 	Username   string `json:"username" bson:"username"`
@@ -102,20 +108,4 @@ func (db *Collections) EnsureIndex() {
 	db.CodeColl.EnsureIndexes("type")
 	db.ChartColl.EnsureIndexes("reportId")
 	//db.Code.EnsureIndexes("")
-}
-
-type TagData struct {
-	Tags  []string
-	Datas []int64
-}
-
-type TimeData struct {
-	Times []time.Time
-	Datas []int64
-}
-
-type TagTimeData struct {
-	Tags  []string
-	Times []time.Time
-	Datas [][]int64
 }

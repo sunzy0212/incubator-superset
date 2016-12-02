@@ -6,7 +6,7 @@
 # Folders
 _obj
 _test
-
+dashboard.v1/front/static/build
 # Architecture specific extensions/prefixes
 *.[568vq]
 [568vq].out

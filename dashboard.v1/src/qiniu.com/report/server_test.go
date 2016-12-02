@@ -193,7 +193,20 @@ func Test_ApiServer(t *testing.T) {
 			"id": $(rid1),
 			"name": "report1",
 			"createTime" : $(rct1)
+		}'
+		
+		### Reports List
+		get http://report.qiniuapi.com/v1/reports
+		header Content-Type application/json			
+		ret 200
+		json '{
+			"reports": [{
+				"id": $(rid1),
+				"name": "report1",
+				"createTime" : $(rct1)
+			}]
 		}'	
+			
 		### Reports delete 
 		delete http://report.qiniuapi.com/v1/reports/1223
 		ret 404
