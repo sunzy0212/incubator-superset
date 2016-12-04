@@ -75,18 +75,22 @@ func Test_ApiServer(t *testing.T) {
 		post http://report.qiniuapi.com/v1/datasets
 		header Content-Type application/json		
 		json '{
+			"host":"127.0.0.1",
+			"port":3306,
 		    "type": "MYSQL",
-		    "dbName": "db",
-		    "username": "root",
-		    "password": "root"
+		    "dbName": "dbname",
+		    "username": "",
+		    "password": ""
 		}'		
 		ret 200
 		json '{
 			"id": $(id1),
+			"host":"127.0.0.1",
+			"port":3306,
 			"type": "MYSQL",
-		    "dbName": "db",
-		    "username": "root",
-		    "password": "root",
+		    "dbName": "dbname",
+		    "username": "",
+		    "password": "",
 			"createTime" : $(ct1)
 		}'
 		
@@ -98,19 +102,23 @@ func Test_ApiServer(t *testing.T) {
 	    	{	
 				"id" : $(id1),
 	    		"type" : "MYSQL",
-	   			"dbName" : "db",
-	    		"username" : "root",
-	    		"password" : "root",
+				"host":"127.0.0.1",
+				"port":3306,
+	   			"dbName" : "dbname",
+	    		"username" : "",
+	    		"password" : "",
 				"createTime" : $(ct1)
 			}]
 		}'
 		### Dataset put
 		put http://report.qiniuapi.com/v1/datasets/$(id1)
 		json '{
+			"host":"127.0.0.1",
+			"port":3306,
 			"type" : "MYSQL",
-   			"dbName" : "db2",
-    		"username" : "root",
-    		"password" : "root"
+   			"dbName" : "test",
+    		"username" : "",
+    		"password" : ""
 		}'
 		ret 200
 
@@ -333,6 +341,70 @@ func Test_ApiServer(t *testing.T) {
         	}
     		]
 		}'
+		
+		########################### Query api
+		###### Query api   格式为table的查询 
+		### 先创建sql
+		post http://report.qiniuapi.com/v1/codes
+		header Content-Type application/json		
+		json '{
+			"name": "mysql_sql",
+		    "type": "MYSQL",
+		    "datasetId": $(id1),
+		    "code": "select * from sales"
+		}'	
+		ret 200
+		json '{
+			"id": $(codeId_1),
+			"name": "mysql_sql",
+		    "type": "MYSQL",
+		    "datasetId": $(id1),
+		    "code": "select * from sales",
+			"createTime" : $(cct_1)
+		}'
+		
+		### 查询
+		get http://report.qiniuapi.com/v1/datas?q=$(codeId_1)
+		ret 200
+		json '{
+			"Tags":["id","name","sum"],
+			"Datas":[
+				["1","wcx","99"],
+				["1","zhp","100"],
+				["2","wph","101"]
+			]
+		}'
+		
+		###### Query api   格式为line/bar/pie等图表类 查询 
+		### 先创建sql
+		
+		post http://report.qiniuapi.com/v1/codes
+		header Content-Type application/json		
+		json '{
+			"name": "mysql_sql",
+		    "type": "MYSQL",
+		    "datasetId": $(id1),
+		    "code": "select sum(sum) as 销售额 , id, name as 姓名 from sales group by  name,id;"
+		}'	
+		ret 200
+		json '{
+			"id": $(codeId_2),
+			"name": "mysql_sql",
+		    "type": "MYSQL",
+		    "datasetId": $(id1),
+		    "code": "select sum(sum) as 销售额 , id, name as 姓名 from sales group by  name,id;",
+			"createTime" : $(cct_2)
+		}'
+		
+		### Query api   格式为table的查询 
+		get http://report.qiniuapi.com/v1/datas?q=$(codeId_2)&type=line
+		ret 200
+		json '{
+			"Tags":["销售额"],
+			"Times":["1-wcx","2-wph","1-zhp"],
+			"Datas":[[99,101,100]]
+		}'
+		
 	`)
 
 }

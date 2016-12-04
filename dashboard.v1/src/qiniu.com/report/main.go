@@ -63,8 +63,11 @@ func main() {
 	config.Init("f", "report", "report.conf")
 	var cfg Config
 	if err := config.Load(&cfg); err != nil {
-		log.Fatal("Load report config file failed:", err)
-		return
+		log.Warn("Load report config file failed\n Use default config:")
+		cfg = Config{
+			mgoutil.Config{Host: "127.0.0.1", DB: "report"},
+			EndPoint{"8000", runtime.NumCPU()/2 + 1, 1, "./"},
+		}
 	}
 	log.SetOutputLevel(cfg.S.DebugLevel)
 	if cfg.S.MaxProcs > runtime.NumCPU() || cfg.S.MaxProcs <= 0 {

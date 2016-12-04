@@ -679,8 +679,9 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
+
 	switch cd.Type {
-	case "mysql":
+	case "MYSQL":
 		mysqlCtrl := data.Mysql{
 			Host:     ds.Host,
 			Port:     ds.Port,
@@ -692,7 +693,9 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 			err = ErrQueryDatas(err, fmt.Sprintf("execute code %v failed", cd.Code))
 			return
 		}
+
 	default:
+
 	}
 	return
 }
