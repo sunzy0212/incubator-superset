@@ -6,6 +6,8 @@ dataset数据结构
 ```
 {
 	id			string 
+	host		string
+	port		int
 	type		string  //数据源类型：可选MYSQL/MGO/Spark...
 	dbName		string
 	username	string
@@ -20,6 +22,8 @@ dataset数据结构
 POST /v1/datasets
 Content-Type: application/json
 {
+	"host" : <Host>,
+	"port" : <Port>,
     "type" : <Type>,
     "dbName" : <DbName>,
     "username" : <Username>,
@@ -29,6 +33,17 @@ Content-Type: application/json
 返回包：
 ```
 200 OK
+Content-Type: application/json
+{
+	"id" : <Id>,
+	"host" :<Host>,
+	"port" : <Port>,
+    "type" : <Type>,
+    "dbName" : <DbName>,
+    "username" : <Username>,
+    "password" : <Password>,
+	"createTime" : <CreateTime>
+}
 ```
 #### 更新数据源
 
@@ -36,6 +51,8 @@ Content-Type: application/json
 PUT /v1/datasets/<Id>
 Content-Type: application/json
 {
+	"host" : <Host>,
+	"port" : <Port>,
     "type" : <Type>,
     "dbName" : <DbName>,
     "username" : <Username>,
@@ -59,6 +76,8 @@ Content-Type: application/json
 	datasets: [
 	{
 		"id" : <Id>,
+		"host" : <Host>,
+		"port" : <Port>,
 		"type" : <Type>,
 		"dbName" : <DbName>,
 		"username" : <Username>,
@@ -84,10 +103,10 @@ DELETE /v1/datasets/<Id>
 ```
 {
 	id		string
-	name	string
-	code	string
+	name		string
+	code		string
 	datasetId	string
-	type	string
+	type		string
 	createTime timestamp
 }
 ```
@@ -98,8 +117,8 @@ Content-Type: application/json
 {
 	"name" : <Name>,
 	"code" : <Code>,
-    "type" : <Type>,
-    "dbName" : <DbName>
+	"type" : <Type>,
+	"datasetId" : <DatasetId>    
 }
 ```
 返回包：
@@ -115,7 +134,7 @@ Content-Type: application/json
     "name" : <Name>,
     "code" : <Code>,
     "type" : <Type>,
-    "dbName" : <DbName>
+    "datasetId" : <DatasetId>
 }
 ```
 返回包：
@@ -125,7 +144,7 @@ Content-Type: application/json
 
 #### 获取code
 ```
-GET /v1/codes
+GET /v1/codes?type=<DbType>
 ```
 返回包
 ```
@@ -175,6 +194,7 @@ chart
 	type string, //图表类型
 	stack bool,
 	codeId string <ref code.id>
+	reportId string <ref report.id>
 }
 ```
 
@@ -229,6 +249,7 @@ Content-Type: application/json
 	"type" : <Type>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
+	"reportId" : <ReportId>,
 	"code" : <Code>
 }
 ```
@@ -245,14 +266,15 @@ GET /v1/reports/<ReportId>/charts
 200 OK
 Content-Type: application/json
 {
-    charts: [
+    "charts": [
     {
 		"id" : <Id>,
         "title" <Title>,
         "subTitle" : <SubTitle>,
         "type" : <Type>,
         "stack" : <True|False>,
-        "codeId" : <CodeId>
+        "codeId" : <CodeId>,
+		"reportId" : <ReportId>
     },
     ...
     ]
@@ -298,10 +320,9 @@ DELETE /v1/reports/<ReportId>/charts/<ChartId>
 
 #### 保存/更新 某报表布局信息
 ```
-POST /v1/layouts/<layoutId>
+POST /v1/layouts/<ReportId>
 Content-Type: application/json
 {
-    "reportId" : <LayoutId>,
 	"layouts" : [
 		{	
 			"chartId" : <ChartId>,
@@ -314,17 +335,16 @@ Content-Type: application/json
 ```
 200 OK
 ```
-注：layoutId 其实应该为reportId
 #### 获取报表布局信息
 ```
-GET /v1/layouts/<LayoutId>
+GET /v1/layouts/<ReportId>
 ```
 返回包
 ```
 200 OK
 Content-Type: application/json
 {
-	"reportId" : <layoutId>,
+	"reportId" : <ReportId>,
 	"layouts" : [
         {
             "chartId" : <ChartId>,
@@ -336,7 +356,10 @@ Content-Type: application/json
 ### 数据查询接口
 ```
 GET /v1/datas?q=<CodeId>&type=<ChartType>
+或者
+GET /v1/datas?q=<DatasetId>&code=<Code>&type=<ChartType>
 ```
+
 返回包
 ```
 200 OK
@@ -347,7 +370,7 @@ Content-Type: application/json
         ...        //tags值
     ],
     "datas": [
-        1250548464  
+        ["",""]  
 		...
     ]
 }
@@ -355,12 +378,12 @@ Content-Type: application/json
 或者
 ```
 {
-	"type" : "ChartType"
+	"type" : "ChartType",
     "tags":[
         ...
     ],
     "times":[
-        1430061839000,
+        ["",""],
         ...
     ],
     "datas":[
@@ -371,6 +394,6 @@ Content-Type: application/json
 ```
 注：
 
-+ `q` 为codeId
-+ `type`为图表类型
++ `q` 为codeId或者datasetId(此时跟上code参数)
++ `type`为图表类型 可选`line`,`bar`,`pie`
 

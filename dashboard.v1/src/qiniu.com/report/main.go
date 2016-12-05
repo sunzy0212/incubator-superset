@@ -1,67 +1,128 @@
 package main
 
 import (
-	"html/template"
-	"io"
-	"log"
+	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"runtime"
+	"syscall"
 	"time"
+
+	"github.com/qiniu/db/mgoutil.v3"
+	//"github.com/qiniu/errors"
+	"github.com/qiniu/http/restrpc.v1"
+	"github.com/qiniu/log.v1"
+	"qbox.us/cc/config"
+	"qiniu.com/report/common"
 )
 
-const STATIC_URL string = "/static/"
-const STATIC_ROOT string = "static/"
+const (
+	DEFAULT_DIAL_TIMEOUT        = "10s"
+	DEFAULT_RESP_HEADER_TIMEOUT = "10s"
+)
 
-type Context struct {
-	Title  string
-	Static string
+type MyServerMux struct {
+	restrpc.ServeMux
 }
 
-func Home(w http.ResponseWriter, req *http.Request) {
-	context := Context{Title: "Welcome!"}
-	render(w, "index", context)
+type EndPoint struct {
+	Port       string `json:"port"`
+	MaxProcs   int    `json:"max_procs"`
+	DebugLevel int    `json:"debug_level"`
+	StaticPath string `json:"static_file_path"`
 }
 
-func Login(w http.ResponseWriter, req *http.Request) {
-	context := Context{Title: "Login"}
-	render(w, "login", context)
+type Config struct {
+	M mgoutil.Config `json:"mgo"`
+	S EndPoint       `json:"service"`
 }
 
-func render(w http.ResponseWriter, tmpl string, context Context) {
-	context.Static = STATIC_URL
-	tmpl_list := []string{"index.html"}
-	//    fmt.Sprintf("static/%s.html", tmpl)}
-	t, err := template.ParseFiles(tmpl_list...)
-	if err != nil {
-		log.Print("template parsing error: ", err)
+func (self *MyServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	if origin := r.Header.Get("Origin"); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers",
+			"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 	}
-	err = t.Execute(w, context)
-	if err != nil {
-		log.Print("template executing error: ", err)
+
+	if r.Method == "OPTIONS" {
+		return
 	}
+
+	self.ServeMux.ServeHTTP(w, r)
 }
 
-func StaticHandler(w http.ResponseWriter, req *http.Request) {
-	static_file := req.URL.Path[len(STATIC_URL):]
-	if len(static_file) != 0 {
-		f, err := http.Dir(STATIC_ROOT).Open(static_file)
-		if err == nil {
-			content := io.ReadSeeker(f)
-			http.ServeContent(w, req, static_file, time.Now(), content)
-			return
-		}
-	}
-	http.NotFound(w, req)
+func NewServeMux() *MyServerMux {
+	return new(MyServerMux)
 }
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU()/2 + 1)
-	http.HandleFunc("/", Home)
-	http.HandleFunc("/login/", Login)
-	http.HandleFunc(STATIC_URL, StaticHandler)
-	log.Println("listening at 8000")
-	err := http.ListenAndServe(":8000", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+
+	config.Init("f", "report", "report.conf")
+	var cfg Config
+	if err := config.Load(&cfg); err != nil {
+		log.Warn("Load report config file failed\n Use default config:")
+		cfg = Config{
+			mgoutil.Config{Host: "127.0.0.1", DB: "report"},
+			EndPoint{"8000", runtime.NumCPU()/2 + 1, 1, "./"},
+		}
+		log.Infof("%+v", cfg)
 	}
+	log.SetOutputLevel(cfg.S.DebugLevel)
+	if cfg.S.MaxProcs > runtime.NumCPU() || cfg.S.MaxProcs <= 0 {
+		runtime.GOMAXPROCS(runtime.NumCPU()/2 + 1)
+	} else {
+		runtime.GOMAXPROCS(cfg.S.MaxProcs)
+	}
+
+	var colls common.Collections
+	session, err := mgoutil.Open(&colls, &cfg.M)
+	if err != nil {
+		log.Fatal("Open mongodb failed:", err)
+		return
+	}
+	colls.EnsureIndex()
+	go func() {
+		session.SetSocketTimeout(time.Second * 5)
+		session.SetSyncTimeout(time.Second * 5)
+		for {
+			err := session.Ping()
+			if err != nil {
+				session.Refresh()
+				session.SetSocketTimeout(time.Second * 5)
+				session.SetSyncTimeout(time.Second * 5)
+			} else {
+				time.Sleep(time.Second * 5)
+			}
+		}
+	}()
+
+	srv, err := NewService(colls)
+	if err != nil {
+		defer session.Close()
+		log.Fatal("Initialize portal service failed:", err)
+	}
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt, os.Kill, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		session.Close()
+		os.Exit(0)
+	}()
+
+	router := restrpc.Router{
+		Factory:       restrpc.Factory,
+		PatternPrefix: "/v1",
+		Mux:           NewServeMux(),
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.Dir(cfg.S.StaticPath)))
+	router.Mux.SetDefault(mux)
+	log.Infof("listening on :%s", cfg.S.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), router.Register(srv)))
 }
