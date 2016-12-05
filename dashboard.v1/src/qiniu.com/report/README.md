@@ -6,7 +6,7 @@ dataset数据结构
 ```
 {
 	id			string 
-	Host		string
+	host		string
 	port		int
 	type		string  //数据源类型：可选MYSQL/MGO/Spark...
 	dbName		string
@@ -22,6 +22,8 @@ dataset数据结构
 POST /v1/datasets
 Content-Type: application/json
 {
+	"host" : <Host>,
+	"port" : <Port>,
     "type" : <Type>,
     "dbName" : <DbName>,
     "username" : <Username>,
@@ -34,6 +36,8 @@ Content-Type: application/json
 Content-Type: application/json
 {
 	"id" : <Id>,
+	"host" :<Host>,
+	"port" : <Port>,
     "type" : <Type>,
     "dbName" : <DbName>,
     "username" : <Username>,
@@ -47,6 +51,8 @@ Content-Type: application/json
 PUT /v1/datasets/<Id>
 Content-Type: application/json
 {
+	"host" : <Host>,
+	"port" : <Port>,
     "type" : <Type>,
     "dbName" : <DbName>,
     "username" : <Username>,
@@ -70,6 +76,8 @@ Content-Type: application/json
 	datasets: [
 	{
 		"id" : <Id>,
+		"host" : <Host>,
+		"port" : <Port>,
 		"type" : <Type>,
 		"dbName" : <DbName>,
 		"username" : <Username>,
@@ -95,10 +103,10 @@ DELETE /v1/datasets/<Id>
 ```
 {
 	id		string
-	name	string
-	code	string
+	name		string
+	code		string
 	datasetId	string
-	type	string
+	type		string
 	createTime timestamp
 }
 ```
@@ -148,7 +156,7 @@ Content-Type: application/json
         "id" : <Id>,
         "name" : <Name>,
         "type" : <Type>,
-		 "code" : <Code>,
+		"code" : <Code>,
         "dbName" : <DbName>,
         "createTime" : <CreateTime>
     },
@@ -348,7 +356,10 @@ Content-Type: application/json
 ### 数据查询接口
 ```
 GET /v1/datas?q=<CodeId>&type=<ChartType>
+或者
+GET /v1/datas?q=<DatasetId>&code=<Code>&type=<ChartType>
 ```
+
 返回包
 ```
 200 OK
@@ -367,7 +378,7 @@ Content-Type: application/json
 或者
 ```
 {
-	"type" : "ChartType"
+	"type" : "ChartType",
     "tags":[
         ...
     ],
@@ -383,6 +394,6 @@ Content-Type: application/json
 ```
 注：
 
-+ `q` 为codeId
++ `q` 为codeId或者datasetId(此时跟上code参数)
 + `type`为图表类型 可选`line`,`bar`,`pie`
 

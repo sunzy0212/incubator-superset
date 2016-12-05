@@ -10,6 +10,8 @@ WORKDIR /app
 
 RUN mkdir -p /app/report
 COPY dist /app/report
+COPY start.sh /app/report
+
 WORKDIR /app/report
 RUN chmod a+x ./start.sh
 EXPOSE 8000

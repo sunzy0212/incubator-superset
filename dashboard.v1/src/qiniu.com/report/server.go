@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"sync"
 
 	"gopkg.in/mgo.v2"
@@ -40,13 +41,6 @@ func NewService(coll common.Collections) (s *Service, err error) {
 
 /*
 POST /v1/datasets
-Content-Type: application/json
-{
-    "type" : <Type>,
-    "dbName" : <DbName>,
-    "username" : <Username>,
-    "password" : <Password>
-}
 */
 
 func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error) {
@@ -68,7 +62,7 @@ func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error)
 	}
 	req.Id = fmt.Sprintf("dataset_%s", req.Id)
 	req.CreateTime = common.GetCurrTime()
-
+	req.Type = strings.ToUpper(req.Type)
 	if err = db.DoInsert(s.DatasetColl, req); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
@@ -80,14 +74,6 @@ func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error)
 
 /*
 PUT /v1/datasets/<Id>
-Content-Type: application/json
-{
-    "type" : <Type>,
-    "dbName" : <DbName>,
-    "username" : <Username>,
-    "password" : <Password>
-}
-
 */
 func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	id := args.CmdArgs[0]
@@ -103,6 +89,7 @@ func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 	req.Id = id
+	req.Type = strings.ToUpper(req.Type)
 	req.CreateTime = common.GetCurrTime()
 	err = db.DoUpdate(s.DatasetColl, M{"id": id}, req)
 	if err != nil {
@@ -114,20 +101,7 @@ func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 }
 
 /*GET /v1/datasets
-{
-    datasets: [
-    {
-        "id" : <Id>,
-        "type" : <Type>,
-        "dbName" : <DbName>,
-        "username" : <Username>,
-        "password" : <Password>,
-        "createTime" : <CreateTime>
-    },
-    ...
-    ]
-}
-*/
+ */
 
 type RetDataSet struct {
 	Datasets []common.Dataset `json:"datasets"`
@@ -183,11 +157,21 @@ func (s *Service) PostCodes(env *rpcutil.Env) (ret common.Code, err error) {
 		err = ErrorPostCode(err)
 		return
 	}
+	var b bool
+	if b, err = db.IsExist(s.DatasetColl, M{"id": req.DatasetId}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	if !b {
+		err = ErrorPostCode(fmt.Errorf("dataset %s is not exist", req.DatasetId))
+		return
+	}
 	if req.Id, err = common.GenId(); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
 	req.Id = fmt.Sprintf("code_%s", req.Id)
+	req.Type = strings.ToUpper(req.Type)
 	req.CreateTime = common.GetCurrTime()
 
 	if err = db.DoInsert(s.CodeColl, req); err != nil {
@@ -229,7 +213,7 @@ func (s *Service) GetCodes(env *rpcutil.Env) (ret RetCodes, err error) {
 	}
 	if err = s.CodeColl.Find(query).All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the code is enpty !")
+			err = ErrNONEXISTENT_MESSAGE(err, "the code is empty !")
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
@@ -262,10 +246,24 @@ func (s *Service) PutCodes_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		err = ErrorPostCode(err)
 		return
 	}
+	var b bool
+	if b, err = db.IsExist(s.DatasetColl, M{"id": req.DatasetId}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	if !b {
+		err = ErrorPostCode(fmt.Errorf("dataset %s is not exist", req.DatasetId))
+		return
+	}
 	req.Id = id
+	req.Type = strings.ToUpper(req.Type)
 	req.CreateTime = common.GetCurrTime()
 	err = db.DoUpdate(s.CodeColl, M{"id": id}, req)
 	if err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrorPostCode(fmt.Errorf("update failed: code %s not exist", id))
+			return
+		}
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
@@ -403,6 +401,7 @@ func (s *Service) PostReports_Charts_(args *cmdArgs, env *rpcutil.Env) (err erro
 		return
 	}
 	req.Id = chartId
+	req.Type = strings.ToUpper(req.Type)
 	req.ReportId = reportId
 
 	if f, err = db.IsExist(s.CodeColl, M{"id": req.CodeId}); err != nil {
@@ -591,6 +590,7 @@ func (s *Service) PostLayouts_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		err = ErrorPostLayout(err)
 		return
 	}
+	log.Infof("success to save layout info of report %s", reportId)
 	return
 }
 
@@ -622,6 +622,7 @@ func (s *Service) GetLayouts_(args *cmdArgs, env *rpcutil.Env) (ret common.Layou
 		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("report %s's layout info is not exist", reportId))
 		return
 	}
+	log.Infof("success to get layout info of report %s", reportId)
 	return
 }
 
@@ -644,7 +645,7 @@ Content-Type: application/json
 或者
 
 {
-    "type" : "ChartType"
+    "type" : "ChartType",
     "tags":[
         ...
     ],
@@ -660,27 +661,33 @@ Content-Type: application/json
 */
 
 func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
-	_codeId := env.Req.FormValue("q")
-	_chartType := env.Req.FormValue("type")
-	var cd common.Code
-
-	if err = s.CodeColl.Find(M{"id": _codeId}).One(&cd); err != nil {
-		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("the code %s is not exist !", _codeId))
-			return
+	_id := env.Req.FormValue("q")
+	_code := env.Req.FormValue("code")
+	_chartType := strings.ToUpper(env.Req.FormValue("type"))
+	log.Infof("query params :q=%s,code=%s,type=%s", _id, _code, _chartType)
+	datasetId := _id
+	if strings.HasPrefix(_id, "code_") {
+		var cd common.Code
+		if err = s.CodeColl.Find(M{"id": _id}).One(&cd); err != nil {
+			if err == mgo.ErrNotFound {
+				err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("the code %s is not exist !", _id))
+				return
+			}
+			err = errors.Info(ErrInternalError, err)
 		}
-		err = errors.Info(ErrInternalError, err)
+		datasetId = cd.DatasetId
+		_code = cd.Code
 	}
 	var ds common.Dataset
-	if err = s.DatasetColl.Find(M{"id": cd.DatasetId}).One(&ds); err != nil {
+	if err = s.DatasetColl.Find(M{"id": datasetId}).One(&ds); err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("the dataset is not exist !", cd.DatasetId))
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("the dataset is not exist !", datasetId))
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
 
-	switch cd.Type {
+	switch ds.Type {
 	case "MYSQL":
 		mysqlCtrl := data.Mysql{
 			Host:     ds.Host,
@@ -689,13 +696,13 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 			Password: ds.Password,
 			Db:       ds.DbName,
 		}
-		if ret, err = mysqlCtrl.Query(_chartType, cd); err != nil {
-			err = ErrQueryDatas(err, fmt.Sprintf("execute code %v failed", cd.Code))
+		if ret, err = mysqlCtrl.Query(_chartType, _code); err != nil {
+			err = ErrQueryDatas(err, fmt.Sprintf("execute code %v failed", _code))
 			return
 		}
 
 	default:
-
 	}
+	log.Infof("success to query data of code %s", _id)
 	return
 }

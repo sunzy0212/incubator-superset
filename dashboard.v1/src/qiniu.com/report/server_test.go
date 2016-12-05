@@ -19,7 +19,7 @@ import (
 func Test_ApiServer(t *testing.T) {
 
 	var colls Collections
-	mcfg := mgoutil.Config{Host: "127.0.0.1:27017", DB: "report"}
+	mcfg := mgoutil.Config{Host: "127.0.0.1:27017", DB: "report_test"}
 	session, err := mgoutil.Open(&colls, &mcfg)
 	if err != nil {
 		t.Fatalf("Open MongoDB failed: %v", err)
@@ -99,14 +99,14 @@ func Test_ApiServer(t *testing.T) {
 		ret 200
 		json '{
 			"datasets" : [
-	    	{	
+	    		{	
 				"id" : $(id1),
-	    		"type" : "MYSQL",
+	    			"type" : "MYSQL",
 				"host":"127.0.0.1",
 				"port":3306,
 	   			"dbName" : "dbname",
-	    		"username" : "",
-	    		"password" : "",
+	    			"username" : "",
+	    			"password" : "",
 				"createTime" : $(ct1)
 			}]
 		}'
@@ -117,8 +117,8 @@ func Test_ApiServer(t *testing.T) {
 			"port":3306,
 			"type" : "MYSQL",
    			"dbName" : "test",
-    		"username" : "",
-    		"password" : ""
+    			"username" : "",
+    			"password" : ""
 		}'
 		ret 200
 
@@ -158,12 +158,12 @@ func Test_ApiServer(t *testing.T) {
 		ret 200
 		json '{
 			"codes" : [
-	    	{	
+	    		{	
 				"id" : $(cid1),
-	    		"type" : "MYSQL",
+	    			"type" : "MYSQL",
 	   			"name": "mysql_sql",
-	    		"datasetId": $(id1),
-	    		"code": "select * from xx",
+	    			"datasetId": $(id1),
+	    			"code": "select * from xx",
 				"createTime" : $(ct1)
 			}]
 		}'
@@ -231,10 +231,10 @@ func Test_ApiServer(t *testing.T) {
 		header Content-Type application/json		
 		json '{
 			"title" : "chart1",
-    		"subTitle" : "我是子标题",
-    		"type" : "pie",
-    		"stack" : false,
-    		"codeId" : $(cid1)
+    			"subTitle" : "我是子标题",
+    			"type" : "PIE",
+    			"stack" : false,
+    			"codeId" : $(cid1)
 		}'	
 		ret 200
 		
@@ -242,10 +242,10 @@ func Test_ApiServer(t *testing.T) {
 		header Content-Type application/json		
 		json '{
 			"title" : "chart1",
-    		"subTitle" : "我是子标题",
-    		"type" : "pie",
-    		"stack" : false,
-    		"codeId" : $(cid1)
+    			"subTitle" : "我是子标题",
+    			"type" : "PIE",
+    			"stack" : false,
+    			"codeId" : $(cid1)
 		}'	
 		ret 404
 		json '{
@@ -256,10 +256,10 @@ func Test_ApiServer(t *testing.T) {
 		header Content-Type application/json		
 		json '{
 			"title" : "chart1",
-    		"subTitle" : "我是子标题",
-    		"type" : "pie",
-    		"stack" : false,
-    		"codeId" : "wrong_code_id"
+    			"subTitle" : "我是子标题",
+    			"type" : "PIE",
+    			"stack" : false,
+    			"codeId" : "wrong_code_id"
 		}'	
 		ret 404
 		json '{
@@ -271,13 +271,13 @@ func Test_ApiServer(t *testing.T) {
 		ret 200
 		json '{
 			"charts" : [
-	    	{	
+	    		{	
 				"id" : $(ccid1),
-	    		"title" : "chart1",
-    			"subTitle" : "我是子标题",
-    			"type" : "pie",
-    			"stack" : false,
-    			"codeId" : $(cid1),
+	    			"title" : "chart1",
+    				"subTitle" : "我是子标题",
+    				"type" : "PIE",
+    				"stack" : false,
+    				"codeId" : $(cid1),
 				"reportId" : $(rid1)
 			}]
 		}'
@@ -288,10 +288,10 @@ func Test_ApiServer(t *testing.T) {
 		json '{
 	    		"title" : "chart1",
     			"subTitle" : "我是子标题",
-    			"type" : "pie",
+    			"type" : "PIE",
     			"stack" : false,
     			"codeId" : $(cid1),
-				"code": "select * from xx where id=yyy"
+			"code": "select * from xx where id=yyy"
 		}'
 		
 		### Charts delete 
@@ -310,17 +310,16 @@ func Test_ApiServer(t *testing.T) {
 		header Content-Type application/json		
 		json '{
 			"reportId" : $(rid1),
-    		"layouts" : [
-        	{
-            	"chartId" : $(ccid1),
-            	"data" : {
+    			"layouts" : [
+        		{
+            		"chartId" : $(ccid1),
+            		"data" : {
 					"x" : 0,
 					"y" : 0,
 					"w" : 10,
 					"h" : 20
 				}
-        	}
-    		]
+        		}]
 		}'	
 		ret 200
 		
@@ -329,17 +328,16 @@ func Test_ApiServer(t *testing.T) {
 		ret 200 
 		json '{
 			"reportId" : $(rid1),
-    		"layouts" : [
-        	{
-            	"chartId" : $(ccid1),
-            	"data" : {
+    			"layouts" : [
+        		{
+            		"chartId" : $(ccid1),
+            		"data" : {
 					"x" : 0,
 					"y" : 0,
 					"w" : 10,
 					"h" : 20
 				}
-        	}
-    		]
+        		}]
 		}'
 		
 		########################### Query api
@@ -367,8 +365,9 @@ func Test_ApiServer(t *testing.T) {
 		get http://report.qiniuapi.com/v1/datas?q=$(codeId_1)
 		ret 200
 		json '{
-			"Tags":["id","name","sum"],
-			"Datas":[
+			"type":"TABLE",
+			"tags":["id","name","sum"],
+			"datas":[
 				["1","wcx","99"],
 				["1","zhp","100"],
 				["2","wph","101"]
@@ -392,17 +391,28 @@ func Test_ApiServer(t *testing.T) {
 			"name": "mysql_sql",
 		    "type": "MYSQL",
 		    "datasetId": $(id1),
-		    "code": "select sum(sum) as 销售额 , id, name as 姓名 from sales group by  name,id;",
+		    "code": $(sql),
 			"createTime" : $(cct_2)
 		}'
 		
-		### Query api   格式为table的查询 
+		### Query api  line/bar/pie等图表类 查询  
 		get http://report.qiniuapi.com/v1/datas?q=$(codeId_2)&type=line
 		ret 200
 		json '{
-			"Tags":["销售额"],
-			"Times":["1-wcx","2-wph","1-zhp"],
-			"Datas":[[99,101,100]]
+			"type":"LINE",
+			"tags":["销售额"],
+			"times":["1-wcx","2-wph","1-zhp"],
+			"datas":[[99,101,100]]
+		}'
+		
+		### Query api  通过datasetId 和sql查询
+		get http://report.qiniuapi.com/v1/datas?q=$(id1)&type=line&code=$(sql)
+		ret 200
+		json '{
+			"type":"LINE",
+			"tags":["销售额"],
+			"times":["1-wcx","2-wph","1-zhp"],
+			"datas":[[99,101,100]]
 		}'
 		
 	`)

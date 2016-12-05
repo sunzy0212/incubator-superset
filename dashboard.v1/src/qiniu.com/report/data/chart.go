@@ -1,7 +1,7 @@
 package data
 
 const (
-	CHART_LINE = "line"
-	CHART_BAR  = "bar"
-	CHART_PIE  = "pie"
+	CHART_LINE = "LINE"
+	CHART_BAR  = "BAR"
+	CHART_PIE  = "PIE"
 )

@@ -8,7 +8,6 @@ import (
 
 	"github.com/qiniu/log.v1"
 	"github.com/siddontang/go-mysql/client"
-	"qiniu.com/report/common"
 )
 
 type Mysql struct {
@@ -19,17 +18,17 @@ type Mysql struct {
 	Password string `json:"password"`
 }
 
-func (m *Mysql) Query(chartType string, code common.Code) (interface{}, error) {
-	code.Code = strings.TrimRight(strings.TrimSpace(code.Code), ";")
+func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
+	_code := strings.TrimRight(strings.TrimSpace(code), ";")
 	db, err := m.getConn()
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
 	defer db.Close()
-	colls := parseCols(code.Code)
-	group_fileds := parseGroupCols(code.Code)
-	rows, err := db.Execute(code.Code)
+	colls := parseCols(_code)
+	group_fileds := parseGroupCols(_code)
+	rows, err := db.Execute(_code)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -79,6 +78,7 @@ func (m *Mysql) Query(chartType string, code common.Code) (interface{}, error) {
 		sort.Ints(y_axis)
 
 		ret := TagTimeData{}
+		ret.Type = strings.ToUpper(chartType)
 		ret.Tags = make([]string, len(y_axis))
 		for i, val := range y_axis { //去产生tags的值，其应该为sql 字段名或者别名（若有）
 			for k, v := range keys {
@@ -120,6 +120,7 @@ func (m *Mysql) Query(chartType string, code common.Code) (interface{}, error) {
 
 	default:
 		ret := TagData{}
+		ret.Type = "TABLE"
 		ret.Tags = make([]string, len(keys))
 		ret.Datas = make([][]string, 0)
 		for key, index := range keys {

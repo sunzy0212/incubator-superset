@@ -5,14 +5,16 @@ import (
 )
 
 type TagData struct {
-	Tags  []string
-	Datas [][]string
+	Type  string     `json:"type"`
+	Tags  []string   `json:"tags"`
+	Datas [][]string `json:"datas"`
 }
 
 type TagTimeData struct {
-	Tags  []string
-	Times []string
-	Datas [][]float64
+	Type  string      `json:"type"`
+	Tags  []string    `json:"tags"`
+	Times []string    `json:"times"`
+	Datas [][]float64 `json:"datas"`
 }
 
 type Query interface {

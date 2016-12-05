@@ -54,8 +54,6 @@ type Code struct {
 	DatasetId  string `json:"datasetId" bson:"datasetId"`
 	Type       string `json:"type" bson:"type"`
 	CreateTime string `json:"createTime" bson:"createTime"`
-
-	Dataset `bson:"-"`
 }
 
 /**report

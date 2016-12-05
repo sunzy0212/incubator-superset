@@ -1,6 +1,7 @@
 all:
 	rm -rf dist && mkdir dist
 	cd src/qiniu.com/report/; CGO_ENABLED=0 go build -a -o ../../../dist/reportd
+	cd front; npm run build
 	cp front/index.html dist/
 	cp -r front/static dist/
 

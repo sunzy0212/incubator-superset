@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -68,6 +69,7 @@ func main() {
 			mgoutil.Config{Host: "127.0.0.1", DB: "report"},
 			EndPoint{"8000", runtime.NumCPU()/2 + 1, 1, "./"},
 		}
+		log.Infof("%+v", cfg)
 	}
 	log.SetOutputLevel(cfg.S.DebugLevel)
 	if cfg.S.MaxProcs > runtime.NumCPU() || cfg.S.MaxProcs <= 0 {
@@ -122,5 +124,5 @@ func main() {
 	mux.Handle("/", http.FileServer(http.Dir(cfg.S.StaticPath)))
 	router.Mux.SetDefault(mux)
 	log.Infof("listening on :%s", cfg.S.Port)
-	log.Fatal(http.ListenAndServe(cfg.S.Port, router.Register(srv)))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), router.Register(srv)))
 }
