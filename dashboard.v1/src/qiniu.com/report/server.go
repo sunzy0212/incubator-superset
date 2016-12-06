@@ -109,7 +109,7 @@ type RetDataSet struct {
 
 func (s *Service) GetDatasets(env *rpcutil.Env) (ret RetDataSet, err error) {
 	ds := make([]common.Dataset, 0)
-	if err = s.DatasetColl.Find(M{}).All(&ds); err != nil {
+	if err = s.DatasetColl.Find(M{}).Sort("-createTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the dataset is enpty !")
 			return
@@ -211,7 +211,7 @@ func (s *Service) GetCodes(env *rpcutil.Env) (ret RetCodes, err error) {
 	if _dbType != "" {
 		query = M{"type": _dbType}
 	}
-	if err = s.CodeColl.Find(query).All(&ds); err != nil {
+	if err = s.CodeColl.Find(query).Sort("-createTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the code is empty !")
 			return
@@ -304,6 +304,16 @@ func (s *Service) PostReports(env *rpcutil.Env) (ret common.Report, err error) {
 		err = ErrorPostReport(err)
 		return
 	}
+	var b bool
+	if b, err = db.IsExist(s.ReportColl, M{"name": req.Name}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	if b {
+		err = ErrorPostReport(fmt.Errorf("the report name '%s' is already exist", req.Name))
+		return
+	}
+
 	if req.Id, err = common.GenId(); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
@@ -315,6 +325,15 @@ func (s *Service) PostReports(env *rpcutil.Env) (ret common.Report, err error) {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
+	layout := common.Layout{
+		ReportId: req.Id,
+		Layouts:  []map[string]interface{}{},
+	}
+	if err = db.DoInsert(s.LayoutColl, layout); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+
 	ret = req
 	log.Infof("success to insert report: %+v", req)
 	return
@@ -341,7 +360,7 @@ type RetReports struct {
 
 func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
 	ds := make([]common.Report, 0)
-	if err = s.ReportColl.Find(M{}).All(&ds); err != nil {
+	if err = s.ReportColl.Find(M{}).Sort("-createTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the reports is enpty !")
 			return
@@ -356,12 +375,15 @@ func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
 //DELETE /v1/reports/<Id>
 func (s *Service) DeleteReports_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	id := args.CmdArgs[0]
-	if err = db.DoDelete(s.ReportColl, map[string]string{"id": id}); err != nil {
+	if err = db.DoDelete(s.ReportColl, M{"id": id}); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
+	}
+	if err = db.DoDelete(s.LayoutColl, M{"reportId": id}); err != nil {
+		log.Warnf("layout info of report %s is not exist, err:%v", id, err)
 	}
 	log.Infof("success to delete report: %v", id)
 	return
