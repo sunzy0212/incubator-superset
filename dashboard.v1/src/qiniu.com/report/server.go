@@ -73,6 +73,51 @@ func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error)
 }
 
 /*
+POST /v1/datasets/test
+*/
+type RetTest struct {
+	Result bool `json:"result"`
+}
+
+func (s *Service) PostDatasetsTest(env *rpcutil.Env) (ret RetTest, err error) {
+	ret = RetTest{
+		Result: false,
+	}
+	var dataBody []byte
+	if dataBody, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.Dataset
+	if err = json.Unmarshal(dataBody, &req); err != nil {
+		err = ErrorPostDataset(err)
+		return
+	}
+	req.Type = strings.ToUpper(req.Type)
+	switch req.Type {
+	case "MYSQL":
+		mysqlCtrl := data.Mysql{
+			Host:     req.Host,
+			Port:     req.Port,
+			Username: req.Username,
+			Password: req.Password,
+			Db:       req.DbName,
+		}
+		_, err = mysqlCtrl.GetConn()
+		if err != nil {
+			err = ErrorTestDataset(err)
+			ret.Result = false
+		} else {
+			ret.Result = true
+		}
+		return
+	default:
+		err = ErrorPostDataset(fmt.Errorf("dataset type {%s} is not support", req.Type))
+		return
+	}
+}
+
+/*
 PUT /v1/datasets/<Id>
 */
 func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {

@@ -28,6 +28,10 @@ var (
 		return httputil.NewError(400, fmt.Sprintf("E4201: Post DataSet Failed : %s", err.Error()))
 	}
 
+	ErrorTestDataset = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4211: Test DataSet Failed : %s", err.Error()))
+	}
+
 	ErrorPostCode = func(err error) *httputil.ErrorInfo {
 		return httputil.NewError(400, fmt.Sprintf("E4202: Post Code Failed : %s", err.Error()))
 	}

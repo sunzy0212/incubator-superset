@@ -17,17 +17,19 @@ type Collections struct {
 }
 
 /*
-	id          string
+	id		string
+	name		string
 	host		string
-	port		int
-    type        string  //数据源类型：可选MYSQL/MGO/Spark...
-    dbName      string
-    username    string
-    password    string
-    createTime  timestamp
+	port			int
+	type			string  //数据源类型：可选MYSQL/MGO/Spark...
+	dbName		string
+	username			string
+	password			string
+	createTime		timestamp
 */
 type Dataset struct {
 	Id         string `json:"id" bson:"id"`
+	Name       string `json:"name" bson:"name"`
 	Host       string `json:"host" bson:"host"`
 	Port       int    `json:"port" bson:"port"`
 	Type       string `json:"type" bson:"type"`
