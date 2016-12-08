@@ -84,7 +84,7 @@ class QueryChart extends Component {
                         options={typeOption}
                         maxValues={1}
                         defaultValues={[typeOption[0]]}
-                        onValuesChange={(values) => this.changeType(values)}
+                        onValuesChange={(values) => this.changeType(values) }
                         filterOptions={filterOptions}/>
 
                     <C3Chart
@@ -119,8 +119,7 @@ class QueryChart extends Component {
                             }
                         }}
 
-                    />
-
+                        />
 
                     <div className="pull-right ">
                         <button onClick={this.saveToDashboard} className="btn btn-outline b-info text-info">保存图表至
@@ -129,12 +128,7 @@ class QueryChart extends Component {
                     </div>
 
                 </div>
-
-
             </div>
-
-
-
 
         )
     }
@@ -146,7 +140,7 @@ export default React.createClass({
         columns: React.PropTypes.array.isRequired,
         results: React.PropTypes.object.isRequired,
     },
-    render(){
+    render() {
         return (
             <div className="p-a ">
                 {
@@ -156,11 +150,11 @@ export default React.createClass({
                             "请先在上方输入查询语句, 并点击运行按钮。"
                         )
                         : (
-                        <QueryChart
-                            {...this.props}
-                        />
+                            <QueryChart
+                                {...this.props}
+                                />
 
-                    )
+                        )
                 }
             </div>
         )

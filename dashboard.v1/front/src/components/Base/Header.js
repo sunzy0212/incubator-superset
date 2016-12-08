@@ -28,7 +28,7 @@ export default class Dashboard extends Component {
             message: "正在向云端上传中。。。",
             level: 'warning',
             position: "tr",
-            autoDismiss: 0,
+            autoDismiss: 5,
         });
 
         this.setState({ showUpload: false });
@@ -46,7 +46,7 @@ export default class Dashboard extends Component {
             })
 
         }).then(response => {
-            if (parseInt(response.status == 401)){
+            if (parseInt(response.status == 401)) {
                 throw new Error("401");
             }
 
@@ -55,7 +55,7 @@ export default class Dashboard extends Component {
             }
 
             return response.json();
-        }).then(()=> {
+        }).then(() => {
             that.context.notification.remove(_loading);
             that.context.notification.add({
                 message: "已经成功上传布局至云端",
@@ -89,7 +89,7 @@ export default class Dashboard extends Component {
             message: "正在从云端下载中。。。",
             level: 'warning',
             position: "tr",
-            autoDismiss: 0,
+            autoDismiss: 5,
         });
 
         this.setState({ showDownload: false });
@@ -103,7 +103,7 @@ export default class Dashboard extends Component {
 
         }).then(response => {
 
-            if (parseInt(response.status == 401)){
+            if (parseInt(response.status == 401)) {
                 throw new Error("401");
             }
 
@@ -113,7 +113,7 @@ export default class Dashboard extends Component {
                 throw new Error("Status != 200");
             }
             return response.json();
-        }).then(data=> {
+        }).then(data => {
             that.context.store.updateData(data);
             that.context.notification.remove(_loading);
             that.context.notification.add({
@@ -166,13 +166,13 @@ export default class Dashboard extends Component {
                     <ul className="nav navbar-nav pull-right">
                         {/*头像*/}
                         {/*<li className="nav-item dropdown">*/}
-                            {/*<a className="nav-link clear">*/}
-                                {/*<span className="avatar w-32">*/}
-                                {/*<img src="/static/assets/images/a1.jpg"/>*/}
+                        {/*<a className="nav-link clear">*/}
+                        {/*<span className="avatar w-32">*/}
+                        {/*<img src="/static/assets/images/a1.jpg"/>*/}
 
-                                 {/*<i className="on b-white bottom"/>*/}
-                                {/*</span>*/}
-                            {/*</a>*/}
+                        {/*<i className="on b-white bottom"/>*/}
+                        {/*</span>*/}
+                        {/*</a>*/}
                         {/*</li>*/}
                     </ul>
 
@@ -181,42 +181,42 @@ export default class Dashboard extends Component {
                         </div>
                         {this.props.type == "dashboard"
                             ? (
-                            <ul className="nav navbar-nav">
-                                <li className="nav-item dropdown">
-                                    <a className="nav-link" onClick={() => this.setState({ showUpload: true })}>
-                                        <i className="fa fa-cloud-upload fa-plus text-muted m-r-2"/>
-                                        上传布局
-                                    </a>
-                                </li>
-                                <SweetAlert
-                                    show={this.state.showUpload}
-                                    title="云端数据上传"
-                                    onConfirm={this.handleUpload.bind(this)}
-                                    onCancel={this.handleUploadClose.bind(this)}
-                                    showCancelButton={true}
-                                    confirmButtonText={"确认上传当前布局"}
-                                    cancelButtonText="取消"
-                                    type={"info"}
-                                />
-                                <li className="nav-item dropdown">
-                                    <a className="nav-link" onClick={() => this.setState({ showDownload: true })}>
-                                        <i className="fa fa-cloud-download fa-plus text-muted m-r-2"/>
-                                        下载布局
-                                    </a>
-                                </li>
-                                <SweetAlert
-                                    show={this.state.showDownload}
-                                    title="云端数据下载"
-                                    onConfirm={this.handleDownload.bind(this)}
-                                    onCancel={this.handleDownloadClose.bind(this)}
-                                    showCancelButton={true}
-                                    confirmButtonText={"下载云端布局"}
-                                    cancelButtonText="取消"
-                                    type={"info"}
-                                />
-                            </ul>
+                                <ul className="nav navbar-nav">
+                                    <li className="nav-item dropdown">
+                                        <a className="nav-link" onClick={() => this.setState({ showUpload: true }) }>
+                                            <i className="fa fa-cloud-upload fa-plus text-muted m-r-2"/>
+                                            上传布局
+                                        </a>
+                                    </li>
+                                    <SweetAlert
+                                        show={this.state.showUpload}
+                                        title="云端数据上传"
+                                        onConfirm={this.handleUpload.bind(this) }
+                                        onCancel={this.handleUploadClose.bind(this) }
+                                        showCancelButton={true}
+                                        confirmButtonText={"确认上传当前布局"}
+                                        cancelButtonText="取消"
+                                        type={"info"}
+                                        />
+                                    <li className="nav-item dropdown">
+                                        <a className="nav-link" onClick={() => this.setState({ showDownload: true }) }>
+                                            <i className="fa fa-cloud-download fa-plus text-muted m-r-2"/>
+                                            下载布局
+                                        </a>
+                                    </li>
+                                    <SweetAlert
+                                        show={this.state.showDownload}
+                                        title="云端数据下载"
+                                        onConfirm={this.handleDownload.bind(this) }
+                                        onCancel={this.handleDownloadClose.bind(this) }
+                                        showCancelButton={true}
+                                        confirmButtonText={"下载云端布局"}
+                                        cancelButtonText="取消"
+                                        type={"info"}
+                                        />
+                                </ul>
 
-                        ) :
+                            ) :
                             null}
                     </div>
                 </div>

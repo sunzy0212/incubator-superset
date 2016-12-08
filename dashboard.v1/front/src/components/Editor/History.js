@@ -1,5 +1,6 @@
 import React, { Component, PropTypes }from 'react';
 import { observer } from "mobx-react";
+
 @observer
 export default class QueryHistory extends Component {
     static contextTypes = {
@@ -19,8 +20,6 @@ export default class QueryHistory extends Component {
         );
     }
 
-
-
     _rows() {
         return _.map(this.context.store.history, function (item, i) {
             return (
@@ -32,8 +31,6 @@ export default class QueryHistory extends Component {
         })
     }
 
-
-
     render() {
         return (
             <div>
@@ -44,21 +41,20 @@ export default class QueryHistory extends Component {
                             历史记录为空
                         </div>)
                         : (
-                        <table className="table table-striped">
-                            <thead>
-                            {this._head()}
-                            </thead>
-                            <tbody>
-                            {this._rows()}
-                            </tbody>
-                        </table>
-                    )
+                            <table className="table table-striped">
+                                <thead>
+                                    {this._head() }
+                                </thead>
+                                <tbody>
+                                    {this._rows() }
+                                </tbody>
+                            </table>
+                        )
                 }
-
             </div>
+
         )
     }
-
 
 }
 //

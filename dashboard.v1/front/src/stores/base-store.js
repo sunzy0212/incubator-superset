@@ -4,7 +4,7 @@ import shortid from 'shortid';
 const Layout = {
     x: 0, y: 0, w: 6, h: 4, isDraggable: true, isResizable: true, _i: 1
 };
-const DefineCode = "SELECT sum(NumGC) from runtime where time > now() - 1h group by time(1m)"
+const DefineCode = "SELECT * from sales"
 
 export default class BaseStore {
     @observable theme = true;
@@ -61,15 +61,22 @@ export default class BaseStore {
         isResizable: true,
         _i: 1, minH: 4, maxH: 4
     },
-        { i: 'testBar', x: 6, y: 0, w: 6, h: 4, isDraggable: true, isResizable: true, _i: 1},
+        { i: 'testBar', x: 6, y: 0, w: 6, h: 4, isDraggable: true, isResizable: true, _i: 1 },
         { i: 'testBarStack', x: 0, y: 4, w: 6, h: 4, isDraggable: true, isResizable: true, _i: 1, minH: 4, maxH: 4 },
         { i: 'testPie', x: 6, y: 4, w: 6, h: 4, isDraggable: true, isResizable: true, _i: 1, minH: 4, maxH: 4 }];
+    @observable reportlayout = [];
     layout_save = [];
     @observable code = DefineCode;
     @observable layoutEditing = false;
     @observable history = localStorage.getItem("history") ? JSON.parse(localStorage.getItem("history")) : [];
-    @observable favorites = localStorage.getItem("favorites") ? JSON.parse(localStorage.getItem("favorites")) : [];
-
+    @observable favorites = [];
+    @observable reportList = [];
+    @observable sqlList = [];
+    @observable editsql = [];
+    @observable currentDB = {}
+    @observable currentReportName = ""
+    @observable currentReportId = ""
+    @observable hosts = "http://localhost:8001"
 
     addHistory(data) {
         this.history.push(data);
@@ -78,10 +85,11 @@ export default class BaseStore {
 
     addFavorites() {
         this.favorites.push({
-            query: this.code,
+            code: this.code,
             id: shortid.generate()
         });
-        localStorage.setItem('favorites', JSON.stringify(this.favorites.toJS()));
+        this.saveSqlClick(this.code);
+        //localStorage.setItem('favorites', JSON.stringify(this.favorites.toJS()));
     }
 
     removeFavorite(key) {
@@ -95,6 +103,14 @@ export default class BaseStore {
 
     updateCode(newValue) {
         this.code = newValue;
+    }
+
+    updateReportList(reportList) {
+        this.reportList = reportList;
+    }
+
+    updateSqlList(sqlList) {
+        this.sqlList = sqlList;
     }
 
     setDB(name) {
@@ -129,7 +145,6 @@ export default class BaseStore {
             ...this.dataSet.get(key),
             title: title,
             subTitle: subTitle
-
         });
         localStorage.setItem('dataSet', JSON.stringify(this.getDataSet()));
     }
@@ -160,9 +175,7 @@ export default class BaseStore {
         let result = {};
         let dataSet = this.dataSet;
         this.dataSet.keys().forEach((key) => result[key] = dataSet.get(key));
-
         return result
-
     }
 
     updateData(data) {

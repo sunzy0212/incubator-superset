@@ -44,3 +44,44 @@
   box-sizing: border-box;
   cursor: se-resize;
 }
+
+.db-header{
+  width: 100%;
+  height: 50px;
+}
+
+.edit-report-select{
+  float: left;
+  margin-top: 5px;
+}
+
+.create-report{
+  padding:20px 30px
+}
+
+.dataset-layout{
+  width:180px;
+}
+.w-25{
+   width: 25px;
+    height: 25px;
+    line-height: 25px;
+    display: inline-block;
+}
+
+.plus-margin{
+  margin: 6.25px;
+}
+.list-right{
+  float: right;
+}
+.row-margin{
+  margin-right: 20px;
+}
+.modal-layout{
+  width:500px;
+  height:500px;
+}
+.box-margin{
+  margin-top: 40px;
+}

@@ -7,7 +7,7 @@ let QueryEditor = React.createClass({
         results: React.PropTypes.object.isRequired,
     },
     _head() {
-        var columns = _.map(this.props.columns, function (colName) {
+        var columns = _.map(this.props.results, function (colName) {
             return (
                 <th key={colName}>{colName}</th>
             );
@@ -20,10 +20,10 @@ let QueryEditor = React.createClass({
     _rows() {
         let columns = this.props.columns;
         let results = this.props.results;
-        return _.map(results.time.values, function (row, i) {
-            var values = _.map(columns, function (colKey) {
+        return _.map(columns, function (row, i) {
+            var values = _.map(row, function (colKey) {
                 return (
-                    <td key={colKey + i}>{results[colKey].values[i]}</td>
+                    <td key={colKey + i}>{colKey}</td>
                 );
             });
             return (
@@ -42,22 +42,20 @@ let QueryEditor = React.createClass({
                             请先在上方输入查询语句, 并点击运行按钮。
                         </div>)
                         : (
-                        <table className="table table-striped">
-                            <thead>
-                            {this._head()}
-                            </thead>
-                            <tbody>
-                            {this._rows()}
-                            </tbody>
-                        </table>
-                    )
+                            <table className="table table-striped">
+                                <thead>
+                                    {this._head() }
+                                </thead>
+                                <tbody>
+                                    {this._rows() }
+                                </tbody>
+                            </table>
+                        )
                 }
 
             </div>
         )
     }
-
-
 });
 
 export default QueryEditor
