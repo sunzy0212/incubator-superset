@@ -22,6 +22,7 @@ dataset数据结构
 POST /v1/datasets
 Content-Type: application/json
 {
+	"name" : <Name>,
 	"host" : <Host>,
 	"port" : <Port>,
     "type" : <Type>,
@@ -36,6 +37,7 @@ Content-Type: application/json
 Content-Type: application/json
 {
 	"id" : <Id>,
+	"name" : <Name>,
 	"host" :<Host>,
 	"port" : <Port>,
     "type" : <Type>,
@@ -45,12 +47,31 @@ Content-Type: application/json
 	"createTime" : <CreateTime>
 }
 ```
+#### 测试数据源
+```
+POST /v1/datasets/test
+Content-Type: application/json
+{
+	"name" : <Name>,
+	"host" : <Host>,
+	"port" : <Port>,
+	"type" : <Type>,
+	"dbName" : <DbName>,
+	"username" : <Username>,
+	"password" : <Password>
+}
+```
+返回包：
+```
+200 OK
+```
 #### 更新数据源
 
 ```
 PUT /v1/datasets/<Id>
 Content-Type: application/json
 {
+	"name" : <Name>,
 	"host" : <Host>,
 	"port" : <Port>,
     "type" : <Type>,
@@ -76,6 +97,7 @@ Content-Type: application/json
 	datasets: [
 	{
 		"id" : <Id>,
+		"name" : <Name>,
 		"host" : <Host>,
 		"port" : <Port>,
 		"type" : <Type>,

@@ -20,7 +20,7 @@ type Mysql struct {
 
 func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 	_code := strings.TrimRight(strings.TrimSpace(code), ";")
-	db, err := m.getConn()
+	db, err := m.GetConn()
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -37,12 +37,13 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 
 	switch chartType {
 	case CHART_LINE, CHART_BAR, CHART_PIE:
+		ret := TagTimeData{}
 		var x_axis []int //保存x轴对应的值的属性字段下标
 		var y_axis []int //保存y轴对应的值的属性字段下标
 		if len(group_fileds) == 0 {
 			collsNum := len(keys)
 			if collsNum < 2 {
-				return nil, err //select xx from tt 没啥意义吧
+				return ret, fmt.Errorf("You should specify more than one field") //select xx from tt 没啥意义吧
 			}
 			//select x1,x2,...,x(n-1),xn from tt  x1~x(n-1)做x轴，xn做y轴
 			for _, index := range keys {
@@ -77,7 +78,6 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 		sort.Ints(x_axis)
 		sort.Ints(y_axis)
 
-		ret := TagTimeData{}
 		ret.Type = strings.ToUpper(chartType)
 		ret.Tags = make([]string, len(y_axis))
 		for i, val := range y_axis { //去产生tags的值，其应该为sql 字段名或者别名（若有）
@@ -148,7 +148,7 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 	return nil, err
 }
 
-func (m *Mysql) getConn() (*client.Conn, error) {
+func (m *Mysql) GetConn() (*client.Conn, error) {
 	return client.Connect(fmt.Sprintf("%s:%d", m.Host, m.Port), m.Username, m.Password, m.Db)
 }
 
