@@ -166,7 +166,8 @@ Content-Type: application/json
 
 #### 获取code
 ```
-GET /v1/codes?type=<DbType>
+GET /v1/codes?type=<DbType>&datasetId=<DatasetId>
+200 ok
 ```
 返回包
 ```

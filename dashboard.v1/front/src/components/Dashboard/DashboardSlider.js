@@ -150,27 +150,25 @@ export default class DashboardSlideBar extends Component {
     }
 
     changeTable(obj) {
-        if (obj.length == 1) {
-            let that = this;
-            ajax({
-                url: that.context.store.hosts+"/v1/codes?type=MYSQL",
-                type: 'get',
-                dataType: 'JSON',
-                contentType: 'application/json; charset=utf-8'
-            }).then(
-                function fulfillHandler(data) {
-                    that.setState({
-                        SqlList: _.map(data.codes, (item)=> {
+        let that = this;
+        ajax({
+            url: that.context.store.hosts+"/v1/codes?datasetId=" + obj.value,
+            type: 'get',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8'
+        }).then(
+            function fulfillHandler(data) {
+                that.setState({
+                    SqlList: _.map(data.codes, (item)=> {
                         return { label: item.name, value: item.id, code: item.code }
-                        })
                     })
-                    that.setState({dataSetId: obj.value})
-
-                },
-                function rejectHandler(jqXHR, textStatus, errorThrown) {
-                    console.log("reject", textStatus, jqXHR, errorThrown);
                 })
-        }
+                that.setState({dataSetId: obj.value})
+
+            },
+            function rejectHandler(jqXHR, textStatus, errorThrown) {
+                console.log("reject", textStatus, jqXHR, errorThrown);
+            })
     }
 
     changeChartType(opt) {
@@ -361,13 +359,12 @@ export default class DashboardSlideBar extends Component {
                 <div className="dataset-layout">
                 <div className="m-t">
                     <label className="tables-input _800 m-b">数据源</label>
-                    <MultiSelect
+                    <SimpleSelect
                         placeholder="选择数据源"
                         options={this.state.DataSetOption}
-                        maxValues={1}
-                        onValuesChange={(values) => this.changeTable(values)}
-                        filterOptions={filterOptions}
-                    />
+                        onValueChange={(value) => this.changeTable(value)}
+                    >
+                    </SimpleSelect>
                 </div>
                 <div>
                     <label className="tables-input _800 m-b">常用SQL</label>

@@ -229,7 +229,7 @@ func (s *Service) PostCodes(env *rpcutil.Env) (ret common.Code, err error) {
 }
 
 /*
-GET /v1/codes?type=<DbType>
+GET /v1/codes?type=<DbType>&datasetId=<DatasetId>
 200 ok
 {
     codes: [
@@ -251,11 +251,16 @@ type RetCodes struct {
 
 func (s *Service) GetCodes(env *rpcutil.Env) (ret RetCodes, err error) {
 	_dbType := env.Req.FormValue("type")
+	_datasetId := env.Req.FormValue("datasetId")
 	ds := make([]common.Code, 0)
 	query := M{}
-	if _dbType != "" {
-		query = M{"type": _dbType}
+	if strings.TrimSpace(_dbType) != "" {
+		query["type"] = _dbType
 	}
+	if strings.TrimSpace(_datasetId) != "" {
+		query["datasetId"] = _datasetId
+	}
+
 	if err = s.CodeColl.Find(query).Sort("-createTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the code is empty !")
