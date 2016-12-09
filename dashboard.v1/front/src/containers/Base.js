@@ -1,11 +1,11 @@
 import React, { Component, PropTypes }from 'react';
-import  Aside  from '../components/Base/Aside'
+import Aside  from '../components/Base/Aside'
 import Provider from "../utils/Provider";
 import BaseStore from '../stores/base-store'
-import  NotificationSystem from 'react-notification-system'
+import NotificationSystem from 'react-notification-system'
 // import DevTools from 'mobx-react-devtools';
 
-export  default  class Base extends Component {
+export default class Base extends Component {
     static childContextTypes = {
         notification: PropTypes.object,
         config: PropTypes.object
@@ -57,14 +57,14 @@ export  default  class Base extends Component {
                     </div>
                     {this.props.children}
                     <div id="black" className="modal-backdrop fade in"
-                         style={{ display: this.state.showConfig ? "block" : "none" }}></div>
+                        style={{ display: this.state.showConfig ? "block" : "none" }}></div>
                     <NotificationSystem ref="notificationSystem"/>
                     {/*<DevTools />*/}
                     <div className="modal fade in" style={{ display: this.state.showConfig ? "block" : "none" }}>
                         <div className="bottom white b-t" style={{ height: "240px" }}>
                             <div className="row-col">
                                 <a className="pull-right text-muted text-lg p-a-sm m-r-sm"
-                                   onClick={this.hideConfig.bind(this)}>×</a>
+                                    onClick={this.hideConfig.bind(this) }>×</a>
                                 <div className="p-a b-b">
                                     <span className="h5">设置</span>
                                 </div>
@@ -92,6 +92,6 @@ export  default  class Base extends Component {
                 </div>
 
             </Provider>
-    )
+        )
     }
-    }
+}

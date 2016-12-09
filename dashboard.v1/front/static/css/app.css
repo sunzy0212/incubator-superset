@@ -71,7 +71,7 @@ label {
 }
 
 .box-header {
-    height: 70px;
+    height: 30px;
 
 }
 
@@ -302,6 +302,12 @@ blockquote {
 .querySelect {
     background: #FFF;
     height: 100%;
+}
+
+.dashboard-slidebar{
+    background: #FFF;
+    height: 100%;
+    margin-left: 80px;
 }
 
 .queryTab .pull-right {

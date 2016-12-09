@@ -4,8 +4,7 @@ import $ from 'jquery'
 import Editor from '../components/Editor/Editor'
 import EditorBase from '../components/Editor/EditorBase'
 import Select from '../components/Editor/Select'
-
-export  default  class EditorContainer extends Component {
+export default class EditorContainer extends Component {
 
 
     render() {
@@ -15,9 +14,9 @@ export  default  class EditorContainer extends Component {
                     <SplitPane split="vertical" minSize={10} defaultSize={200}>
                         <Select />
                         <SplitPane split="horizontal" minSize={80} defaultSize={80}
-                                   onChange={ size => {
-                                       $(".CodeMirror").attr("style", "height: " + size + "px !important");
-                                   }}>
+                            onChange={ size => {
+                                $(".CodeMirror").attr("style", "height: " + size + "px !important");
+                            } }>
                             <Editor />
                             <EditorBase />
                         </SplitPane>

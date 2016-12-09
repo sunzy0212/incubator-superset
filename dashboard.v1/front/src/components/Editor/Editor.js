@@ -13,7 +13,6 @@ export default class QueryEditor extends Component {
 
     }
 
-
     render() {
         const options = {
             lineNumbers: true,
@@ -22,7 +21,7 @@ export default class QueryEditor extends Component {
             lineWrapping: true,
 
         };
-        return <Codemirror ref="codemirror" value={this.context.store.code} onChange={this.updateCode.bind(this)}
-                           options={options}/>
+        return <Codemirror ref="codemirror" value={this.context.store.code} onChange={this.updateCode.bind(this) }
+            options={options}/>
     }
 }

@@ -18,7 +18,7 @@ const requireLogin = (nextState, replace, callback) => {
 };
 
 render(
-    <Router history={browserHistory}>
+    <Router history={hashHistory}>
         <Route path="/" component={Base}>
             <IndexRoute component={Dashboard}/>
             <Route path="dashboard" component={Dashboard}/>

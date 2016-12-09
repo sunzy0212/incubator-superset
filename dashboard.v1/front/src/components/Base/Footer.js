@@ -29,7 +29,7 @@ export default class Footer extends Component {
             message: "正在向云端上传中。。。",
             level: 'warning',
             position: "tr",
-            autoDismiss: 0,
+            autoDismiss: 5,
         });
 
         this.setState({ showUpload: false });
@@ -92,7 +92,7 @@ export default class Footer extends Component {
             message: "正在从云端下载中。。。",
             level: 'warning',
             position: "tr",
-            autoDismiss: 0,
+            autoDismiss: 5,
         });
 
         this.setState({ showDownload: false });

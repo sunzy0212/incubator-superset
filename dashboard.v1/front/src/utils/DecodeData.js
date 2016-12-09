@@ -168,6 +168,119 @@ export function getOption(chartType, props) {
 
 }
 
+export function getChartOption(chartType, props) {
+
+    let _series = _.map(_.filter(props.tags, (item) => item != "time"), (key)=> {
+        let _data = {
+            name: key,
+            sampling: 'average',
+            symbol: 'none',
+            smooth: true,
+            boundaryGap: false,
+            hoverAnimation: false,
+            connectNulls: true,
+            time: props.times,
+            data: props.datas
+        };
+        if (chartType == "pie") {
+
+            let _t = _.zip(props.datas, props.datas);
+            window.t = _t;
+            return {
+                type: 'pie',
+                data: _.map(_t, (item) => _.zipObject(["name", "value"], item))
+            };
+        }
+        if (chartType == "bar stack") {
+            _data["type"] = "bar";
+            _data["stack"] = "1"
+        }
+        if (chartType == "bar") {
+            _data["type"] = "bar";
+            _data["stack"] = key;
+        }
+        if (chartType == "line") {
+            _data["type"] = "line";
+        }
+        if (chartType == "line stack") {
+            _data["type"] = "line";
+            _data["stack"] = "1";
+            _data["areaStyle"] = { normal: {} }
+        }
+        return _data;
+
+    });
+    if (chartType == "pie") {
+        return {
+            tooltip: {
+                trigger: 'item',
+                formatter: ((params, ticket, callback) => {
+                    let result = "<span style='color: " + params.color + "'>" + params.data.name + ": </span>" + params.data.value + "<br>"
+                    return result;
+                }),
+            },
+            series: _series[0],
+        }
+    }
+    let _result = {
+        grid: {
+            top: '30',
+            left: '1%',
+            right: '30',
+            containLabel: true,
+            show: false
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: props.datas
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        tooltip: {
+            trigger: 'axis',
+            formatter: ((params, ticket, callback) => {
+                let result = decodeTime(new Date(params[0].name), "yyyy-MM-dd hh:mm:ss") + "<br>";
+                params.forEach(param => {
+                    result += "<span style='color: " + param.color + "'>" + param.seriesName + ": </span>" + param.value + "<br>"
+                });
+                return result;
+            }),
+            axisPointer: {
+                animation: false
+            }
+        },
+        series: _series,
+        dataZoom: [
+            {
+                show: true,
+            },
+            {
+                type: 'select',
+            }
+        ],
+        toolbox: {
+            top: "-5",
+            right: "30",
+            feature: {
+                dataZoom: {
+                    show: true,
+                    yAxisIndex: false
+                }
+            }
+        }
+    };
+    if (chartType == "line stack" || chartType == "line") {
+        _result.xAxis[0].boundaryGap = false
+    }
+    return _result;
+
+}
+
 //
 //  [
 //     '#2ec7c9','#b6a2de','#5ab1ef','#ffb980','#d87a80',
