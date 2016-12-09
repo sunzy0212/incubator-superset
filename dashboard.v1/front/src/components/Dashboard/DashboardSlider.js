@@ -99,7 +99,7 @@ export default class DashboardSlideBar extends Component {
             function fulfillHandler(data) {
                 that.setState({
                     DataSetOption: _.map(data.datasets, (item)=> {
-                        return { label: item.dbName, value: item.id }
+                        return { label: item.name, value: item.id }
                     })
                 })
             },

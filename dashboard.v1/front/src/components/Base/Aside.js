@@ -15,6 +15,16 @@ export default React.createClass({
                         <ul className="nav">
 
                             <li>
+                                <Link to="/dbset">
+                                    <span className="nav-icon">
+                                        <i className="fa fa-database">
+                                        </i>
+                                    </span>
+                                    <span className="nav-text">数据源</span>
+                                </Link>
+                            </li>
+
+                            <li>
                                 <Link to="/dashboard">
                                     <span className="nav-icon">
                                         <i className="fa fa-bar-chart">

@@ -32,7 +32,7 @@ export default class QuerySelect extends Component {
             function fulfillHandler(data) {
                 that.setState({
                     TableOption: _.map(data.datasets, (item) => {
-                        return { id: item.id, label: item.dbName, value: item.dbName, type: item.type }
+                        return { id: item.id, label: item.name, value: item.name, type: item.type }
                     })
                 })
             },
@@ -66,7 +66,7 @@ export default class QuerySelect extends Component {
         return (
             <div className="querySelect padding p-a">
                 <div className="m-t">
-                    <label className="tables-input _800 m-b">DB</label>
+                    <label className="tables-input _800 m-b">数据源</label>
                     <MultiSelect
                         placeholder="选择数据源"
                         options={this.state.TableOption}
