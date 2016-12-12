@@ -16,7 +16,7 @@ export default class QueryFavorite extends Component {
 
     removeSql(sqlId) {
         let that  = this;
-        fetch(`${that.context.store.hosts}/v1/codes/${sqlId}`, {
+        fetch(`${that.context.store.hosts}/codes/${sqlId}`, {
             method: "delete",
             headers: new Headers({
                 'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export default class QueryFavorite extends Component {
             type = this.context.store.currentDB.type;
         }
         ajax({
-            url: that.context.store.hosts + "/v1/codes?type=" + type,
+            url: that.context.store.hosts + "/codes?type=" + type,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'

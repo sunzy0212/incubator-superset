@@ -535,7 +535,7 @@ func (s *Service) GetReports_Charts(args *cmdArgs, env *rpcutil.Env) (ret RetCha
 		err = errors.Info(ErrInternalError, err)
 	}
 	ret = RetCharts{ds}
-	log.Infof("success to get all charts in report %s: %v", ret, reportId)
+	log.Infof("success to get all charts in report %v: %s", ret, reportId)
 	return
 }
 

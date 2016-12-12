@@ -48,7 +48,7 @@ export default class QueryChart extends Component {
     getChartData() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/datas?q=" + that.props.option.codeId + "&type=" + that.props.option.chartType,
+            url: that.context.store.hosts + "/datas?q=" + that.props.option.codeId + "&type=" + that.props.option.chartType,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'

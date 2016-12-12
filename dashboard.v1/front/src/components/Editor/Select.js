@@ -24,7 +24,7 @@ export default class QuerySelect extends Component {
     getDataSets() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/datasets",
+            url: that.context.store.hosts + "/datasets",
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'

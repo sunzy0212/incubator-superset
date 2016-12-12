@@ -6,6 +6,18 @@ import (
 	"testing"
 )
 
+func Test_ParseCols(t *testing.T) {
+	sql := "select icp as '运营商',sum(flow)/1024/1024/1024 as '流量(G)' from icp2 group by icp order by sum(flow);"
+	colls := parseCols(sql)
+	if len(colls) != 2 || colls["icp"] != "运营商" {
+		t.Error(colls)
+	}
+	group_ff := parseGroupCols(sql)
+	if len(group_ff) != 1 || group_ff[0] != "icp" {
+		t.Error(group_ff)
+	}
+}
+
 func Test_Mysql(t *testing.T) {
 	/*
 		use test;

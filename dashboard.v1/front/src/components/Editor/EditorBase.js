@@ -64,7 +64,7 @@ export default class QueryInformation extends Component {
             type = this.context.store.currentDB.type;
         }
         ajax({
-            url: this.context.store.hosts + "/v1/codes?type=" + type,
+            url: this.context.store.hosts + "/codes?type=" + type,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -92,7 +92,7 @@ export default class QueryInformation extends Component {
         }
         var jsonObj = JSON.stringify(dataStr)
         ajax({
-            url: that.context.store.hosts + "/v1/codes",
+            url: that.context.store.hosts + "/codes",
             type: 'post',
             dataType: 'JSON',
             data: jsonObj,
@@ -139,7 +139,7 @@ export default class QueryInformation extends Component {
                 query: toRunSQL,
                 time: new Date().toISOString()
             });
-            fetch(`${that.context.store.hosts}/v1/datas?q=${this.context.store.currentDB.id}&code=${this.context.store.code}`, {
+            fetch(`${that.context.store.hosts}/datas?q=${this.context.store.currentDB.id}&code=${this.context.store.code}`, {
                 method: "GET"
 
             }).then(response => {
@@ -192,7 +192,7 @@ export default class QueryInformation extends Component {
             query: toRunSQL,
             time: new Date().toISOString()
         });
-        fetch(`${this.context.store.hosts}/v1/datas?q=${this.context.store.currentDB.id}&code=${this.context.store.code}&type=line`, {
+        fetch(`${this.context.store.hosts}/datas?q=${this.context.store.currentDB.id}&code=${this.context.store.code}&type=line`, {
             method: "GET"
 
         }).then(response => {

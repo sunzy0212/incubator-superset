@@ -94,7 +94,7 @@ export default class DashboardContainer extends Component {
     getReportList() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/reports",
+            url: that.context.store.hosts + "/reports",
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -127,7 +127,7 @@ export default class DashboardContainer extends Component {
         let that = this;
         console.log("删除 report")
         ajax({
-            url: that.context.store.hosts + "/v1/reports/" + that.context.store.currentReportId,
+            url: that.context.store.hosts + "/reports/" + that.context.store.currentReportId,
             type: 'delete',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -144,7 +144,7 @@ export default class DashboardContainer extends Component {
     getlayoutList() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/layouts/" + that.context.store.currentReportId,
+            url: that.context.store.hosts + "/layouts/" + that.context.store.currentReportId,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -163,7 +163,7 @@ export default class DashboardContainer extends Component {
     changeLayoutList() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/layouts/" + that.context.store.currentReportId,
+            url: that.context.store.hosts + "/layouts/" + that.context.store.currentReportId,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -182,7 +182,7 @@ export default class DashboardContainer extends Component {
     getchartList() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/reports/" + that.context.store.currentReportId + "/charts",
+            url: that.context.store.hosts + "/reports/" + that.context.store.currentReportId + "/charts",
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'

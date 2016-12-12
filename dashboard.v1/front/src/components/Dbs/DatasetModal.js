@@ -78,7 +78,7 @@ export default class DatasetModal extends Component {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + localStorage.getItem("token"));
             },
-            url:  "http://localhost:8000/v1/datasets" + (id == "" ? "" : "/" + id),
+            url:  "/v1/datasets" + (id == "" ? "" : "/" + id),
             type: id == "" ? 'post' : 'put',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8',
@@ -116,7 +116,7 @@ export default class DatasetModal extends Component {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + localStorage.getItem("token"));
             },
-            url: "http://127.0.0.1:8000/v1/datasets/test",
+            url: "/v1/datasets/test",
             type: 'post',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8',
@@ -125,7 +125,7 @@ export default class DatasetModal extends Component {
         }).then(
             function fulfillHandler(data) {
                 that.addNotification({
-                    message: "连接测试成功",
+                    message: "连接测试成功!",
                     level: 'success',
                     position: "tr",
                     autoDismiss: 5,
@@ -135,7 +135,7 @@ export default class DatasetModal extends Component {
                 console.log("reject", textStatus, jqXHR, errorThrown);
                 console.log(jqXHR.responseText)
                 that.addNotification({
-                    message: "连接测试失败",
+                    message: "连接测试失败!",
                     level: 'error',
                     position: "tr",
                     autoDismiss: 5,

@@ -19,7 +19,7 @@ type Mysql struct {
 }
 
 func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
-	_code := strings.TrimRight(strings.TrimSpace(code), ";")
+	_code := strings.ToLower(strings.TrimRight(strings.TrimSpace(code), ";"))
 	db, err := m.GetConn()
 	if err != nil {
 		log.Error(err)
@@ -154,10 +154,10 @@ func (m *Mysql) GetConn() (*client.Conn, error) {
 
 var (
 	REG_Select  = regexp.MustCompile("select (.+) from")
-	REG_Table_1 = regexp.MustCompile("from(.+)(where|group|orderd|having|on)")
+	REG_Table_1 = regexp.MustCompile("from(.+)(where|group|order|having|on)")
 	REG_Table_2 = regexp.MustCompile("from(.+)$")
 
-	REG_Group_1 = regexp.MustCompile("group(.+)(orderd|having|on)")
+	REG_Group_1 = regexp.MustCompile("group(.+)(order|having|on)")
 	REG_Group_2 = regexp.MustCompile("group(.+)$")
 )
 

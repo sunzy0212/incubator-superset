@@ -71,6 +71,14 @@ func main() {
 		}
 		log.Infof("%+v", cfg)
 	}
+
+	if os.Getenv("MONGO_HOST") != "" {
+		cfg.M.Host = os.Getenv("MONGO_HOST")
+	}
+	if os.Getenv("MONGO_DB") != "" {
+		cfg.M.DB = os.Getenv("MONGO_DB")
+	}
+
 	log.SetOutputLevel(cfg.S.DebugLevel)
 	if cfg.S.MaxProcs > runtime.NumCPU() || cfg.S.MaxProcs <= 0 {
 		runtime.GOMAXPROCS(runtime.NumCPU()/2 + 1)
@@ -80,10 +88,13 @@ func main() {
 
 	var colls common.Collections
 	session, err := mgoutil.Open(&colls, &cfg.M)
-	if err != nil {
-		log.Fatal("Open mongodb failed:", err)
-		return
+
+	for err != nil {
+		log.Warnf("Open mongodb failed: %v", err)
+		session, err = mgoutil.Open(&colls, &cfg.M)
+		time.Sleep(time.Second * 1)
 	}
+
 	colls.EnsureIndex()
 	go func() {
 		session.SetSocketTimeout(time.Second * 5)

@@ -71,7 +71,7 @@ export default class DashboardSlideBar extends Component {
     getReportList(){
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/reports",
+            url: that.context.store.hosts + "/reports",
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -91,7 +91,7 @@ export default class DashboardSlideBar extends Component {
     getDataSetList(){
         let that = this;
         ajax({
-            url: that.context.store.hosts+"/v1/datasets",
+            url: that.context.store.hosts+"/datasets",
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -111,7 +111,7 @@ export default class DashboardSlideBar extends Component {
     getlayoutList(){
         let that = this;
         ajax({
-            url: that.context.store.hosts+"/v1/layouts/" + that.context.store.currentReportId,
+            url: that.context.store.hosts+"/layouts/" + that.context.store.currentReportId,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -132,7 +132,7 @@ export default class DashboardSlideBar extends Component {
     getCurrentLayoutList(){
         let that = this;
         ajax({
-            url: that.context.store.hosts+"/v1/layouts/" + that.context.store.currentReportId,
+            url: that.context.store.hosts+"/layouts/" + that.context.store.currentReportId,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -152,7 +152,7 @@ export default class DashboardSlideBar extends Component {
     changeTable(obj) {
         let that = this;
         ajax({
-            url: that.context.store.hosts+"/v1/codes?datasetId=" + obj.value,
+            url: that.context.store.hosts+"/codes?datasetId=" + obj.value,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -255,7 +255,7 @@ export default class DashboardSlideBar extends Component {
         }
         var jsonObj = JSON.stringify(dataStr)
         ajax({
-            url: that.context.store.hosts+"/v1/reports",
+            url: that.context.store.hosts+"/reports",
             type: 'post',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8',
@@ -289,7 +289,7 @@ export default class DashboardSlideBar extends Component {
         })
         var jsonObj = JSON.stringify(dataStr)
         ajax({
-            url: that.context.store.hosts+"/v1/layouts/" + that.context.store.currentReportId,
+            url: that.context.store.hosts+"/layouts/" + that.context.store.currentReportId,
             type: 'post',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8',
@@ -323,7 +323,7 @@ export default class DashboardSlideBar extends Component {
         var jsonObj = JSON.stringify(dataStr)
        
         ajax({
-            url: that.context.store.hosts+"/v1/reports/" + that.context.store.currentReportId + "/charts/" + uuid,
+            url: that.context.store.hosts+"/reports/" + that.context.store.currentReportId + "/charts/" + uuid,
             type: 'post',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8',
