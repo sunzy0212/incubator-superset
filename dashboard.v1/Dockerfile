@@ -4,7 +4,7 @@ MAINTAINER CHENXIN WEN "wenchenxin@qiniu.com"
 #RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe\n" > /etc/apt/sources.list && \
 #	echo "deb http://archive.ubuntu.com/ubuntu trusty-updates main universe\n" >> /etc/apt/sources.list
 
-RUN apt-get update && apt-get install -y mongodb
+#RUN apt-get update && apt-get install -y mongodb
 
 WORKDIR /app
 

@@ -46,7 +46,7 @@ class QueryHighChart extends Component {
     getCurrentLayoutList() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/layouts/" + that.state.reportId,
+            url: that.context.store.hosts + "/layouts/" + that.state.reportId,
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -78,7 +78,7 @@ class QueryHighChart extends Component {
         })
         var jsonObj = JSON.stringify(dataStr)
         ajax({
-            url: that.context.store.hosts + "/v1/layouts/" + that.state.reportId,
+            url: that.context.store.hosts + "/layouts/" + that.state.reportId,
             type: 'post',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8',
@@ -126,7 +126,7 @@ class QueryHighChart extends Component {
         }
         var jsonObj = JSON.stringify(dataStr)
         ajax({
-            url: that.context.store.hosts + "/v1/codes",
+            url: that.context.store.hosts + "/codes",
             type: 'post',
             dataType: 'JSON',
             data: jsonObj,
@@ -158,7 +158,7 @@ class QueryHighChart extends Component {
         var jsonObj = JSON.stringify(dataStr)
 
         ajax({
-            url: that.context.store.hosts + "/v1/reports/" + that.state.reportId + "/charts/" + uuid,
+            url: that.context.store.hosts + "/reports/" + that.state.reportId + "/charts/" + uuid,
             type: 'post',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8',
@@ -176,7 +176,7 @@ class QueryHighChart extends Component {
     getReportList() {
         let that = this;
         ajax({
-            url: that.context.store.hosts + "/v1/reports",
+            url: that.context.store.hosts + "/reports",
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'

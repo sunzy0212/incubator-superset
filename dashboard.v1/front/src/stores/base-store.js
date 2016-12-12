@@ -76,7 +76,7 @@ export default class BaseStore {
     @observable currentDB = {}
     @observable currentReportName = ""
     @observable currentReportId = ""
-    @observable hosts = "http://localhost:8000"
+    @observable hosts = "/v1"
 
     addHistory(data) {
         this.history.push(data);

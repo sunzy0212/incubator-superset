@@ -5,7 +5,7 @@ import DatasetModal from "./DatasetModal"
 
 import {ajax} from '../../utils/DecodeData'
 
-const DBOption = [{label: "test", value: "http://127.0.0.1:8000/v1/datasets"}];
+const DBOption = [{label: "test", value: "http://127.0.0.1:8000/datasets"}];
 
 
 @observer
@@ -48,7 +48,7 @@ export default class DataSetsSelect extends Component {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + localStorage.getItem("token"));
             },
-            url: this.context.store.hosts + "/v1/datasets",
+            url: this.context.store.hosts + "/datasets",
             type: 'get',
             dataType: 'JSON',
             contentType: 'application/json; charset=utf-8'
@@ -83,7 +83,7 @@ export default class DataSetsSelect extends Component {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + localStorage.getItem("token"));
             },
-            url: this.context.store.hosts + "/v1/datasets/" + id,
+            url: this.context.store.hosts + "/datasets/" + id,
             type: 'delete',
             contentType: 'application/json; charset=utf-8'
         });
