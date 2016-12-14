@@ -60,17 +60,19 @@ export default class DashboardContainer extends Component {
         }
     }
 
+    deleteChart(chartId){
+
+    }
+
     getComponents(layout) {
         let that = this;
 
-        console.log("layout111222");
-        console.log(layout);
         return layout.map((item) => (
-
             <div key={item.i} >
                 <Hchart
                     id={item.i}
                     option={that.getChart(item.i) }
+                    delete={()=>this.deleteChart(item.i)}
                     />
             </div>
 
@@ -78,14 +80,10 @@ export default class DashboardContainer extends Component {
     }
 
     setLayout(layout) {
-        console.log(layout);
-        console.log("设置layout成功！");
         this.getchartList();
         this.setState({ Layout: layout });
     }
     setReportId(reportId) {
-        console.log(reportId);
-        console.log("设置reportId成功！");
         this.context.store.currentReportId = reportId
         this.getchartList();
         this.getlayoutList();
@@ -160,25 +158,7 @@ export default class DashboardContainer extends Component {
                 console.log("reject", textStatus, jqXHR, errorThrown);
             })
     }
-    changeLayoutList() {
-        let that = this;
-        ajax({
-            url: that.context.store.hosts + "/layouts/" + that.context.store.currentReportId,
-            type: 'get',
-            dataType: 'JSON',
-            contentType: 'application/json; charset=utf-8'
-        }).then(
-            function fulfillHandler(data) {
-                let layout = [];
-                for (let i = 0; i < data.layouts.length; i++) {
-                    layout[i] = data.layouts[i].data;
-                }
-                that.setState({ Layout: layout })
-            },
-            function rejectHandler(jqXHR, textStatus, errorThrown) {
-                console.log("reject", textStatus, jqXHR, errorThrown);
-            })
-    }
+
     getchartList() {
         let that = this;
         ajax({
@@ -188,7 +168,6 @@ export default class DashboardContainer extends Component {
             contentType: 'application/json; charset=utf-8'
         }).then(
             function fulfillHandler(data) {
-
                 that.setState({ ChartList: data.charts })
             },
             function rejectHandler(jqXHR, textStatus, errorThrown) {
@@ -200,7 +179,6 @@ export default class DashboardContainer extends Component {
     }
 
     render() {
-        console.log("hello", this.context.store.layout);
         return (
             <div id="content" className="app-content box-shadow-z0" role="main">
                 <div className="app-body">

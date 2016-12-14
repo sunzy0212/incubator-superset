@@ -238,7 +238,7 @@ GET /v1/codes?type=<DbType>&datasetId=<DatasetId>
         "name" : <Name>,
         "type" : <Type>,
         "code" : <Code>,
-        "dbName" : <DbName>,
+        "datasetId" : <DatasetId>,
         "createTime" : <CreateTime>
     },
     ...
@@ -270,6 +270,33 @@ func (s *Service) GetCodes(env *rpcutil.Env) (ret RetCodes, err error) {
 	}
 	ret = RetCodes{ds}
 	log.Infof("success to get all codes: %v", ret)
+	return
+}
+
+/*
+GET /v1/codes/codeId
+200 ok
+{
+	"id" : <Id>,
+	"name" : <Name>,
+	"type" : <Type>,
+	"code" : <Code>,
+	"datasetId" : <DatasetId>,
+	"createTime" : <CreateTime>
+}
+*/
+
+func (s *Service) GetCodes_(args *cmdArgs, env *rpcutil.Env) (ret common.Code, err error) {
+	id := args.CmdArgs[0]
+	ret = common.Code{}
+	if err = s.CodeColl.Find(M{"id": id}).One(&ret); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the code is not found !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to get code: %v", ret)
 	return
 }
 

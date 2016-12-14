@@ -44,53 +44,40 @@ export default class QueryInformation extends Component {
             config: {},
             seriesList: [],
             modalIsOpen: false,
-            sqlName: ""
         }
-        
     }
 
     componentWillMount(){
-        this.getSqlList();
+    }
+
+    errorPop(mgs){
+        this.context.notification.add({
+            message: "查询时错误: ",
+            position: "br",
+            children: (
+                <blockquote>
+                    {mgs}
+                </blockquote>
+            ),
+            level: 'error',
+            autoDismiss: 5
+        });
     }
 
     handleTagClick(newState) {
         this.setState({ tagStatus: newState });
     }
 
-    getSqlList() {
-        let that = this;
-        let type = "MYSQL";
-        if (this.context.store.currentDB.type != undefined) {
-            type = this.context.store.currentDB.type;
-        }
-        ajax({
-            url: this.context.store.hosts + "/codes?type=" + type,
-            type: 'get',
-            dataType: 'JSON',
-            contentType: 'application/json; charset=utf-8'
-        }).then(
-            function fulfillHandler(data) {
-                that.context.store.sqlList = data;
-            },
-            function rejectHandler(jqXHR, textStatus, errorThrown) {
-                console.log("reject", textStatus, jqXHR, errorThrown);
-            })
-    }
-
-
     saveSqlClick() {
-
         let that = this;
-        let toRunSQL = this.context.store.code;
-        console.log(this.context.store.code);
-        let dataStr = {
-            "type": this.context.store.currentDB.type,
-            "name": this.state.sqlName,
-            "dbName": this.context.store.currentDB.label,
-            "code": toRunSQL,
-            "datasetId": this.context.store.currentDB.id
+        let name = this.refs.form_name.value.trim()
+        this.context.store.currentCode.name = name
+        let toRunSQL = this.context.store.currentCode.code
+        if (toRunSQL == undefined || toRunSQL=="") {
+            this.errorPop("不能保存空的SQL")
+            return
         }
-        var jsonObj = JSON.stringify(dataStr)
+        var jsonObj = JSON.stringify(this.context.store.currentCode)
         ajax({
             url: that.context.store.hosts + "/codes",
             type: 'post',
@@ -99,8 +86,6 @@ export default class QueryInformation extends Component {
             contentType: 'application/json; charset=utf-8'
         }).then(
             function fulfillHandler(data) {
-                that.getSqlList()
-                that.setState({ sqlName: "" })
                 that.setState({ modalIsOpen: false });
                 that.context.notification.add({
                     message: "收藏SQL成功",
@@ -115,86 +100,47 @@ export default class QueryInformation extends Component {
     }
 
     handleClick() {
-        let that = this;
-        let toRunSQL = this.context.store.code;
-        if (this.context.store.currentDB.id == undefined) {
-            that.context.notification.add({
-                message: "运行 Query 时发生错误: ",
-                position: "br",
-                children: (
-                    <blockquote>
-                        请选择数据源!
-                    </blockquote>
-                ),
-                level: 'error',
-                autoDismiss: 5
-            });
+        let toRunSQL = this.context.store.currentCode.code;
+        if (toRunSQL == undefined || toRunSQL=="") {
+            this.errorPop("请填写SQL语句！")
             return
         }
-        if (this.state.tagStatus == 'chart') {
-            this.getChartData();
-        } else {
-
-            this.context.store.addHistory({
-                query: toRunSQL,
-                time: new Date().toISOString()
-            });
-            fetch(`${that.context.store.hosts}/datas?q=${this.context.store.currentDB.id}&code=${this.context.store.code}`, {
-                method: "GET"
-
-            }).then(response => {
-                if (response.status != 404) {
-                }
-                return response.json();
-            }).then(data => {
-                console.log(`Success Run ${toRunSQL}`);
-                if (data.error) {
-                    that.context.notification.add({
-                        message: "运行 Query 时发生错误: ",
-                        position: "br",
-                        children: (
-                            <blockquote>
-                                {data.error}
-                            </blockquote>
-                        ),
-                        level: 'error',
-                        autoDismiss: 5
-                    });
-                    return
-                }
-
-                if (data.datas.length != 0) {
-                    that.context.notification.add({
-                        message: "成功返回数据",
-                        position: "br",
-                        level: 'success',
-                        autoDismiss: 5
-                    });
-                }
-
-                that.setState({
-                    data: data.datas,
-                    results: data.tags,
-                    columns: data.datas,
-                    sql: toRunSQL
-                });
-            }).catch(e => {
-                console.log("event", e);
-            });
-
+        if (this.context.store.currentDB.value == undefined) {
+            this.errorPop("请选择数据源!")
+            return
         }
-    }
 
-    getChartData() {
-        let that = this;
-        let toRunSQL = this.context.store.code;
         this.context.store.addHistory({
             query: toRunSQL,
             time: new Date().toISOString()
         });
-        fetch(`${this.context.store.hosts}/datas?q=${this.context.store.currentDB.id}&code=${this.context.store.code}&type=line`, {
-            method: "GET"
 
+        if (this.state.tagStatus == 'display') {
+            this.setState({
+                results: [],
+                columns: []
+            })
+            this.getChartData("table")
+        } else {
+            this.setState({
+                datas: []
+            })
+            this.getChartData("line");
+            this.setState({
+                tagStatus: "chart"
+            });
+        }
+    }
+
+    getChartData(type) {
+        let that = this;
+        let toRunSQL = this.context.store.currentCode.code;
+        let url = this.context.store.hosts+"/datas?q=" + this.context.store.currentDB.value + "&code=" +toRunSQL;
+        if (type !== "table"){
+            url = url + "&type=" + type;
+        }
+        fetch(url, {
+            method: "GET"
         }).then(response => {
             if (response.status != 404) {
             }
@@ -202,31 +148,11 @@ export default class QueryInformation extends Component {
         }).then(data => {
             console.log(`Success Run ${toRunSQL}`);
             if (data == null) {
-                that.context.notification.add({
-                    message: "没有数据",
-                    position: "br",
-                    level: 'error',
-                    children: (
-                        <blockquote>
-                            请确认数据源是否有效。
-                        </blockquote>
-                    ),
-                    autoDismiss: 5
-                });
+                this.errorPop("请确认数据源是否有效。")
                 return
             }
             if (data.error) {
-                that.context.notification.add({
-                    message: "运行 Query 时发生错误: ",
-                    position: "br",
-                    children: (
-                        <blockquote>
-                            {data.error}
-                        </blockquote>
-                    ),
-                    level: 'error',
-                    autoDismiss: 5
-                });
+                this.errorPop(data.error)
                 return
             }
 
@@ -239,39 +165,48 @@ export default class QueryInformation extends Component {
                 });
             }
 
-            let seriesList = []
-            for (let i = 0; i < data.tags.length; i++) {
-                seriesList[i] = {
-                    name: data.tags[i],
-                    data: data.datas[i]
+            if (type=="table"){
+                that.setState({
+                    data: data.datas,
+                    results: data.tags,
+                    columns: data.datas,
+                    sql: toRunSQL
+                });
+
+            }else{
+                let seriesList = []
+                for (let i = 0; i < data.tags.length; i++) {
+                    seriesList[i] = {
+                        name: data.tags[i],
+                        data: data.datas[i]
+                    }
                 }
+                that.setState({
+                    datas: data.datas,
+                    times: data.times,
+                    seriesList: seriesList
+                });
+                that.setState({
+                    config: {
+                        title: {
+                            text: "图表数据展示"
+                        },
+                        chart: {
+                            type: 'line'
+                        },
+                        xAxis: {
+                            categories: data.times
+                        },
+                        series: seriesList
+                    }
+                });
             }
-            console.log("seriesList")
-            console.log(seriesList)
-            that.setState({
-                datas: data.datas,
-                times: data.times,
-                seriesList: seriesList
-            });
-            that.setState({
-                config: {
-                    title: {
-                        text: "图表数据展示"
-                    },
-                    chart: {
-                        type: 'line'
-                    },
-                    xAxis: {
-                        categories: data.times
-                    },
-                    series: seriesList
-                }
-            });
         }).catch(e => {
             console.log("event", e);
         });
     }
     clearCurrentSQL() {
+        this.context.store.currentCode.code = "";
         this.context.store.code = "";
     }
 
@@ -293,24 +228,9 @@ export default class QueryInformation extends Component {
         })
     }
 
-    changeSqlName(e) {
-        console.log(e.target.value)
-        this.setState({ sqlName: e.target.value });
-    }
-
     openModal() {
-        if (this.context.store.currentDB.id == undefined) {
-            this.context.notification.add({
-                message: "运行 Query 时发生错误: ",
-                position: "br",
-                children: (
-                    <blockquote>
-                        请选择数据源!
-                    </blockquote>
-                ),
-                level: 'error',
-                autoDismiss: 5
-            });
+        if (this.context.store.currentDB.value == undefined) {
+            this.errorPop("请选择数据源!");
             return
         }
         this.setState({ modalIsOpen: true });
@@ -326,8 +246,9 @@ export default class QueryInformation extends Component {
                 <Modal
                     isOpen={this.state.modalIsOpen}
                     onRequestClose={this.closeModal.bind(this) }
-                    style={customStyles} >
-                    <form>
+                    style={customStyles}
+                    contentLabel="Modal">
+                    <form role="form">
                         <div className="box">
                             <div className="row m-b">
                                 <div className="col-sm-6">
@@ -336,17 +257,17 @@ export default class QueryInformation extends Component {
                                     </div>
                                 </div>
                                 <div className="col-sm-6">
-                                    <button className="pull-right btn info" onClick={this.closeModal.bind(this) }>关闭</button>
+                                    <button className="pull-right fa fa-close" onClick={this.closeModal.bind(this)}></button>
                                 </div>
                             </div>
                             <div className="box-body">
                                 <div className="form-group">
                                     <label>SQL名称</label>
-                                    <input required="" value={this.state.sqlName} onChange={this.changeSqlName.bind(this) } className="form-control" placeholder="请填写SQL名称" ></input>
+                                    <input type="text" ref="form_name" defaultValue={this.context.store.currentCode.name} className="form-control" placeholder="请填写SQL名称" ></input>
                                 </div>
                             </div>
-                            <div className="dker p-a text-right">
-                                <button type="submit" onClick={this.saveSqlClick.bind(this) } className="btn info">Submit</button>
+                            <div className="modal-footer">
+                                <button type="submit" className="btn info" onClick={this.saveSqlClick.bind(this)}>确定</button>
                             </div>
                         </div>
                     </form>
@@ -371,7 +292,7 @@ export default class QueryInformation extends Component {
                         </a>
                         <div className="pull-right row-margin">
                             <button onClick={this.clearCurrentSQL.bind(this) } className="btn btn-xs info">清空输入</button>
-                            <button onClick={this.openModal.bind(this) } className="btn btn-xs info">收藏</button>
+                            <button onClick={this.openModal.bind(this) } className="btn btn-xs info">保存</button>
                             <button onClick={this.handleClick.bind(this) } className="btn btn-xs info">运行</button>
                         </div>
 
@@ -420,7 +341,6 @@ export default class QueryInformation extends Component {
                         ?
                         (
                             <Favorites
-                                parentChangeColor={this.getSqlList}
                                 favorites={this.context.store.sqlList}
                                 />
                         )

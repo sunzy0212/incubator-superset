@@ -164,7 +164,7 @@ Content-Type: application/json
 200 OK
 ```
 
-#### 获取code
+#### 按条件获取code list
 ```
 GET /v1/codes?type=<DbType>&datasetId=<DatasetId>
 200 ok
@@ -180,11 +180,25 @@ Content-Type: application/json
         "name" : <Name>,
         "type" : <Type>,
 		"code" : <Code>,
-        "dbName" : <DbName>,
+        "datasetId" : <DatasetId>,
         "createTime" : <CreateTime>
     },
     ...
     ]
+}
+```
+#### 获取code
+```
+GET /v1/codes/codeId
+200 ok
+Content-Type: application/json
+{
+	"id" : <Id>,
+	"name" : <Name>,
+	"type" : <Type>,
+	"code" : <Code>,
+	"datasetId" : <DatasetId>,
+	"createTime" : <CreateTime>
 }
 ```
 #### 删除code

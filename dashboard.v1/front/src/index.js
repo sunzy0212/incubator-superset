@@ -24,7 +24,9 @@ render(
             <Route path="dbset" component={Dbs}/>
             <IndexRoute component={Dashboard}/>
             <Route path="dashboard" component={Dashboard}/>
-            <Route path="editor" component={Editor}/>
+            <Route path="editor" component={Editor}>
+                <Route path="/:codeId"component={Editor}/>
+            </Route>
             {/*<Route path="Search" component={Search}/>*/}
         </Route>
         {/*<Route path="/login" component={UserLogin}/>*/}

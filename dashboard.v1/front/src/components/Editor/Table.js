@@ -1,10 +1,10 @@
 import React from 'react'
 import { Table, Column, Cell } from 'fixed-data-table';
 
-let QueryEditor = React.createClass({
+let QueryTable = React.createClass({
     propTypes: {
         columns: React.PropTypes.array.isRequired,
-        results: React.PropTypes.object.isRequired,
+        results: React.PropTypes.array.isRequired,
     },
     _head() {
         var columns = _.map(this.props.results, function (colName) {
@@ -58,5 +58,5 @@ let QueryEditor = React.createClass({
     }
 });
 
-export default QueryEditor
+export default QueryTable
 //

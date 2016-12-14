@@ -378,7 +378,8 @@ export default class DashboardSlideBar extends Component {
                 <Modal
                     isOpen={this.state.modalIsOpen}
                     onRequestClose={this.closeModal.bind(this)}
-                    style={customStyles} >
+                    style={customStyles}
+                    contentLabel="Modal">
                     <form>
                         <div className="box">
                         <div className="row m-b">
@@ -388,7 +389,7 @@ export default class DashboardSlideBar extends Component {
                                 </div>
                             </div>
                             <div className="col-sm-6">
-                                    <button className="pull-right btn info" onClick={this.closeModal.bind(this)}>关闭</button>
+                                    <button className="pull-right fa fa-close" onClick={this.closeModal.bind(this)}></button>
                             </div>
                         </div>
                         <div className="box-body">                     
@@ -397,8 +398,8 @@ export default class DashboardSlideBar extends Component {
                                 <input required="" value={this.state.reportName} onChange={this.changeReportName.bind(this)} className="form-control" placeholder="请填写报表名称" ></input>
                             </div>
                         </div>
-                        <div className="dker p-a text-right">
-                            <button type="submit" onClick={this.createReport.bind(this)} className="btn info">Submit</button>
+                        <div className="pull-right">
+                            <button type="submit" onClick={this.createReport.bind(this)} className="btn info">确认</button>
                         </div>
                         </div>
                     </form>
@@ -408,7 +409,8 @@ export default class DashboardSlideBar extends Component {
                 <Modal
                     isOpen={this.state.modalSQLOpen}
                     onRequestClose={this.closeSQLModal.bind(this)}
-                    style={customStyles} >
+                    style={customStyles}
+                    contentLabel="Modal">
                     <form>
                         <div className="box">
                         <div className="row m-b">
@@ -418,7 +420,7 @@ export default class DashboardSlideBar extends Component {
                                 </div>
                             </div>
                             <div className="col-sm-6">
-                                    <button className="pull-right btn info" onClick={this.closeSQLModal.bind(this)}>关闭</button>
+                                    <button className="pull-right  fa fa-close" onClick={this.closeSQLModal.bind(this)}></button>
                             </div>
                         </div>
                         <div className="row m-b">
@@ -438,7 +440,7 @@ export default class DashboardSlideBar extends Component {
                                 </SimpleSelect>
                             </div>
                         </div>
-                        <div className="dker p-a text-right">
+                        <div className="pull-center">
                             <button type="submit" onClick={this.addChart.bind(this)} className="btn info">确定</button>
                         </div>
                         </div>
