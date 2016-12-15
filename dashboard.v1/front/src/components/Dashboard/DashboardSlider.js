@@ -303,7 +303,6 @@ export default class DashboardSlideBar extends Component {
             function rejectHandler(jqXHR, textStatus, errorThrown) {
                 console.log("reject", textStatus, jqXHR, errorThrown);
         })
-        
    }
 
    addChart(){

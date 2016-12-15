@@ -1,15 +1,15 @@
-import React, { PropTypes, createClass, Component } from 'react';
-import { observer } from "mobx-react";
+import React, {PropTypes, createClass, Component} from 'react';
+import {observer} from "mobx-react";
 import C3Chart from '../components/Dashboard/C3';
 import Hchart from '../components/Dashboard/Hchart';
 import Footer from '../components/Base/Footer';
-import { WidthProvider } from 'react-grid-layout';
+import {WidthProvider} from 'react-grid-layout';
 import DevTools from 'mobx-react-devtools';
 import SplitPane from 'react-split-pane'
 import DashboardSlider from '../components/Dashboard/DashboardSlider'
 import DashboardHeader from '../components/Dashboard/DashboardHeader'
 import Dashboard from '../components/Base/Header'
-import { ajax } from '../utils/DecodeData'
+import {ajax} from '../utils/DecodeData'
 var ReactGridLayout = require('react-grid-layout');
 ReactGridLayout = WidthProvider(ReactGridLayout);
 const props = {
@@ -36,11 +36,13 @@ export default class DashboardContainer extends Component {
             ReportList: true,
             ChartList: []
         }
-        
+
     }
-    componentWillMount(){
-       this.getReportList();
+
+    componentWillMount() {
+        this.getReportList();
     }
+
     getChart(key) {
         let chartList = this.state.ChartList;
         for (let i = 0; i < chartList.length; i++) {
@@ -60,7 +62,51 @@ export default class DashboardContainer extends Component {
         }
     }
 
-    deleteChart(chartId){
+    deleteChart(chartId) {
+        let that = this
+        ajax({
+            url: that.context.store.hosts + "/reports/" + this.state.reportId + "/charts/" + chartId,
+            type: 'delete',
+            contentType: 'application/json; charset=utf-8'
+        }).then(
+            function fulfillHandler(data) {
+                that.setState({
+                    Layout: that.state.Layout.slice(1)
+                })
+                that.upDateLayout()
+                that.setReportId(that.state.reportId)
+            },
+            function rejectHandler(jqXHR, textStatus, errorThrown) {
+                console.log("reject", textStatus, jqXHR, errorThrown);
+            })
+    }
+
+    upDateLayout() {
+        let that = this;
+        let dataStr = {
+            "layouts": []
+        }
+        dataStr.layouts = this.state.Layout.map((item) => {
+            return {
+                "chartId": "",
+                "data": item
+            }
+        })
+
+        var jsonObj = JSON.stringify(dataStr)
+        ajax({
+            url: that.context.store.hosts + "/layouts/" + that.context.store.currentReportId,
+            type: 'post',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            data: jsonObj
+        }).then(
+            function fulfillHandler(data) {
+                console.log("更新layout成功");
+            },
+            function rejectHandler(jqXHR, textStatus, errorThrown) {
+                console.log("reject", textStatus, jqXHR, errorThrown);
+            })
 
     }
 
@@ -68,12 +114,12 @@ export default class DashboardContainer extends Component {
         let that = this;
 
         return layout.map((item) => (
-            <div key={item.i} >
+            <div key={item.i}>
                 <Hchart
                     id={item.i}
                     option={that.getChart(item.i) }
-                    delete={()=>this.deleteChart(item.i)}
-                    />
+                    delete={() => this.deleteChart(item.i)}
+                />
             </div>
 
         ))
@@ -81,8 +127,9 @@ export default class DashboardContainer extends Component {
 
     setLayout(layout) {
         this.getchartList();
-        this.setState({ Layout: layout });
+        this.setState({Layout: layout});
     }
+
     setReportId(reportId) {
         this.context.store.currentReportId = reportId
         this.getchartList();
@@ -100,13 +147,13 @@ export default class DashboardContainer extends Component {
             function fulfillHandler(data) {
                 if (data.reports.length != 0) {
                     that.context.store.currentReportName = data.reports[0].name;
-                    that.setState({ reportName: data.reports[0].name });
-                    that.setState({ reportId: data.reports[0].id });
+                    that.setState({reportName: data.reports[0].name});
+                    that.setState({reportId: data.reports[0].id});
                     that.setState({
                         ReportList: false
                     })
                     that.context.store.reportList = _.map(data.reports, (item, i) => {
-                        return { label: item.name, value: item.id }
+                        return {label: item.name, value: item.id}
                     })
                     that.context.store.currentReportId = data.reports[0].id;
                     that.getlayoutList();
@@ -152,7 +199,7 @@ export default class DashboardContainer extends Component {
                 for (let i = 0; i < data.layouts.length; i++) {
                     layout[i] = data.layouts[i].data;
                 }
-                that.setState({ Layout: layout })
+                that.setState({Layout: layout})
             },
             function rejectHandler(jqXHR, textStatus, errorThrown) {
                 console.log("reject", textStatus, jqXHR, errorThrown);
@@ -168,12 +215,13 @@ export default class DashboardContainer extends Component {
             contentType: 'application/json; charset=utf-8'
         }).then(
             function fulfillHandler(data) {
-                that.setState({ ChartList: data.charts })
+                that.setState({ChartList: data.charts})
             },
             function rejectHandler(jqXHR, textStatus, errorThrown) {
                 console.log("reject", textStatus, jqXHR, errorThrown);
             })
     }
+
     componentDidUpdate() {
         console.log(this.state.ReportList);
     }
@@ -183,22 +231,22 @@ export default class DashboardContainer extends Component {
             <div id="content" className="app-content box-shadow-z0" role="main">
                 <div className="app-body">
                     <SplitPane split="vertical" minSize={100} defaultSize={280}>
-                        <DashboardSlider ReportList={this.state.ReportList} setlayout={this.setLayout.bind(this) } setReportId={this.setReportId.bind(this) } />
+                        <DashboardSlider ReportList={this.state.ReportList} setlayout={this.setLayout.bind(this) }
+                                         setReportId={this.setReportId.bind(this) }/>
                         <SplitPane split="horizontal" minSize={50} defaultSize={50}>
-                            <DashboardHeader reportName={this.state.reportName} deleteReport={this.deleteReport.bind(this) } />
+                            <DashboardHeader reportName={this.state.reportName}
+                                             deleteReport={this.deleteReport.bind(this) }/>
                             <ReactGridLayout
                                 {...props}
                                 className="layout"
                                 layout={this.state.Layout}
                                 draggableHandle=".drag"
-                                >
+                            >
                                 {this.getComponents(this.state.Layout) }
                             </ReactGridLayout>
                         </SplitPane>
                     </SplitPane>
-
                 </div>
-
             </div>
 
         )
