@@ -71,9 +71,10 @@ export default class BaseStore {
     @observable history = localStorage.getItem("history") ? JSON.parse(localStorage.getItem("history")) : [];
     @observable favorites = [];
     @observable reportList = [];
-    @observable sqlList = [];
     @observable editsql = [];
     @observable currentDB = {}
+    @observable currentCode={}
+    @observable code=""
     @observable currentReportName = ""
     @observable currentReportId = ""
     @observable hosts = "/v1"
@@ -102,7 +103,8 @@ export default class BaseStore {
     }
 
     updateCode(newValue) {
-        this.code = newValue;
+        this.currentCode.code = newValue;
+        this.code = newValue
     }
 
     updateReportList(reportList) {

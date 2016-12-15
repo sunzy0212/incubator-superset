@@ -40,7 +40,7 @@
     "react-modal": "^1.5.2",
     "react-notification-system": "^0.2.10",
     "react-router": "^2.8.0",
-    "react-selectize": "^2.0.3",
+    "react-selectize": "^2.1.0",
     "react-split-pane": "^0.1.44",
     "shortid": "^2.2.6",
     "sweetalert-react": "^0.4.4",

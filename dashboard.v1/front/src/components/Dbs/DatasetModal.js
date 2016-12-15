@@ -150,7 +150,7 @@ export default class DatasetModal extends Component {
                 onAfterOpen={this.afterOpenModal}
                 onRequestClose={this.closeModal}
                 style={customStyles}
-                contentLabel="Example Modal"
+                contentLabel="Modal"
             >
                 <div className="modal-body">
                     <div className="box">

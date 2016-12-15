@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { MultiSelect }  from 'react-selectize'
+import { MultiSelect,SimpleSelect }  from 'react-selectize'
 import { filterOptions } from '../../utils/Select'
 import { getOption, getChartOption, decodeTime } from '../../utils/DecodeData'
 import ReactHighcharts from 'react-highcharts'
@@ -115,19 +115,11 @@ class QueryHighChart extends Component {
             });
             return
         }
-
-        let toRunSQL = that.context.store.code;
-        let dataStr = {
-            "type": that.context.store.currentDB.type,
-            "name": "zhp_sql123",
-            "dbName": that.context.store.currentDB.label,
-            "code": toRunSQL,
-            "datasetId": that.context.store.currentDB.id
-        }
-        var jsonObj = JSON.stringify(dataStr)
+        let jsonObj = JSON.stringify(that.context.store.currentCode)
+        let codeId = that.context.store.currentCode.id
         ajax({
-            url: that.context.store.hosts + "/codes",
-            type: 'post',
+            url: that.context.store.hosts + "/codes" + (codeId !=undefined?"/"+codeId:"") ,
+            type: codeId !=undefined?'put':'post',
             dataType: 'JSON',
             data: jsonObj,
             contentType: 'application/json; charset=utf-8'
@@ -204,8 +196,8 @@ class QueryHighChart extends Component {
     }
 
     changeType(obj) {
-        this.setState({ chartType: obj[0].value })
-        this.props.setChartType(obj[0].value);
+        this.setState({ chartType: obj.value })
+        this.props.setChartType(obj.value);
     }
 
     render() {
@@ -214,13 +206,12 @@ class QueryHighChart extends Component {
             <div className="queryChart p-b-lg">
                 <div className="m-t">
                     图表类型:
-                    <MultiSelect
+                    <SimpleSelect
                         placeholder="请点击选择图表类型"
                         options={typeOption}
-                        maxValues={1}
                         defaultValues={[typeOption[0]]}
-                        onValuesChange={(values) => this.changeType(values) }
-                        filterOptions={filterOptions}/>
+                        onValueChange={(value)=>this.changeType(value)}
+                        />
                     <ReactHighcharts config={that.props.config} />
                     <div className="pull-right ">
                         <div className="edit-report-select">

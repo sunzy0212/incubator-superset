@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react'
+import {Link} from 'react-router'
 import ReactHighcharts from 'react-highcharts'
 import { ajax, getOption, decodeTime } from '../../utils/DecodeData'
 
@@ -35,11 +36,8 @@ export default class QueryChart extends Component {
                     data: []
                 }]
             }
-
         }
-
     }
-
 
     componentWillMount() {
         this.getChartData();
@@ -95,9 +93,9 @@ export default class QueryChart extends Component {
                     <div className="box-tool">
                         <ul className="nav">
                             <li className="nav-item  m-l-2">
-                                <a className="nav-link">
+                                <Link activeClassName="active" to="/editor" query={{codeId:this.props.option.codeId}}>
                                     <i className="material-icons md-18">edit</i>
-                                </a>
+                                </Link>
                             </li>
                             <li className="nav-item  m-l-2">
                                 <a className="nav-link">
@@ -110,7 +108,7 @@ export default class QueryChart extends Component {
                                 </a>
                             </li>
                             <li className="nav-item  m-l-2">
-                                <a className="nav-link">
+                                <a className="nav-link" onClick={this.props.delete}>
                                     <i className="material-icons md-18">delete </i>
                                 </a>
                             </li>
