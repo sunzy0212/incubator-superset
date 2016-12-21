@@ -10,7 +10,8 @@ export  default  class DbsetContainer extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            refresh: false
+            refresh: false,
+            d_type : "MySQL"
         }
     }
 
@@ -21,11 +22,18 @@ export  default  class DbsetContainer extends Component {
     }
 
     createDatasets() {
-        let _type = "MYSQL"
+        let _type = this.state.d_type
         ReactDOM.render(
             <DatasetModal type={_type} show={true} reset={() => this.callBack()}/>,
             document.getElementById("dataset-modal")
         );
+    }
+
+    handleChangeRadio =(type)=>{
+        console.log(type)
+        this.setState({
+            d_type : type
+        })
     }
 
     render() {
@@ -41,7 +49,13 @@ export  default  class DbsetContainer extends Component {
                                         数据源
                                     </a>
 
-                                    <div className="pull-right ">
+                                    <div className="pull-right">
+                                        <label className="radio-inline">
+                                            <input type="radio" name="inlineRadioOptions" onChange={()=>this.handleChangeRadio("MySQL")} value="MySQL" defaultChecked/> MySQL
+                                        </label>
+                                        <label className="radio-inline">
+                                            <input type="radio" name="inlineRadioOptions" onChange={()=>this.handleChangeRadio("InfluxDB")} value="InfluxDB"/> InfluxDB
+                                        </label>
                                         <button className="btn btn-xs info" onClick={this.createDatasets.bind(this)}>
                                             添加新的数据源
                                         </button>

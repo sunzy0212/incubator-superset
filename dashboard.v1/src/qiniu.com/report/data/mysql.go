@@ -83,12 +83,13 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 		for i, val := range y_axis { //去产生tags的值，其应该为sql 字段名或者别名（若有）
 			for k, v := range keys {
 				if val == v {
-					if alis, ok := colls[k]; ok && alis != "" {
-						ret.Tags[i] = alis
-					} else {
-						ret.Tags[i] = k
+					for _, vv := range colls {
+						if vv == k {
+							ret.Tags[i] = strings.ToUpper(k)
+						} else {
+							ret.Tags[i] = k
+						}
 					}
-
 				}
 			}
 		}
@@ -125,7 +126,7 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 		ret.Datas = make([][]string, 0)
 		for key, index := range keys {
 			if vv, ok := colls[key]; ok && vv != "" {
-				ret.Tags[index] = colls[key]
+				ret.Tags[index] = strings.ToUpper(colls[key])
 			} else {
 				ret.Tags[index] = key
 			}
