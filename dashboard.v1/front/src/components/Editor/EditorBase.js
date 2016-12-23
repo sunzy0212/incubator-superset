@@ -77,10 +77,12 @@ export default class QueryInformation extends Component {
             this.errorPop("不能保存空的SQL")
             return
         }
+        let id = this.context.store.currentCode.id
         var jsonObj = JSON.stringify(this.context.store.currentCode)
+
         ajax({
-            url: that.context.store.hosts + "/codes",
-            type: 'post',
+            url: that.context.store.hosts + "/codes" + (id == undefined || id==""? "":"/"+id),
+            type: id == undefined || id=="" ? 'post':'put',
             dataType: 'JSON',
             data: jsonObj,
             contentType: 'application/json; charset=utf-8'
@@ -88,7 +90,7 @@ export default class QueryInformation extends Component {
             function fulfillHandler(data) {
                 that.setState({ modalIsOpen: false });
                 that.context.notification.add({
-                    message: "收藏SQL成功",
+                    message: "保存SQL成功",
                     position: "br",
                     level: 'success',
                     autoDismiss: 5

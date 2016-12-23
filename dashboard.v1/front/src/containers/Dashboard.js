@@ -117,7 +117,7 @@ export default class DashboardContainer extends Component {
             <div key={item.i}>
                 <Hchart
                     id={item.i}
-                    option={that.getChart(item.i) }
+                    option={this.getChart(item.i)}
                     delete={() => this.deleteChart(item.i)}
                 />
             </div>

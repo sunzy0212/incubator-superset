@@ -1,13 +1,9 @@
 package data
 
-import (
-	"qiniu.com/report/common"
-)
-
 type TagData struct {
-	Type  string     `json:"type"`
-	Tags  []string   `json:"tags"`
-	Datas [][]string `json:"datas"`
+	Type  string          `json:"type"`
+	Tags  []string        `json:"tags"`
+	Datas [][]interface{} `json:"datas"`
 }
 
 type TagTimeData struct {
@@ -16,7 +12,6 @@ type TagTimeData struct {
 	Times []string    `json:"times"`
 	Datas [][]float64 `json:"datas"`
 }
-
-type Query interface {
-	Query(chartType string, code common.Code) interface{}
+type QueryBase interface {
+	QueryImpl(chartType string, code string) (interface{}, error)
 }

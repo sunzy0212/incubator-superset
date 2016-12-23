@@ -24,7 +24,7 @@ export  default  class DbsetContainer extends Component {
     createDatasets() {
         let _type = this.state.d_type
         ReactDOM.render(
-            <DatasetModal type={_type} show={true} reset={() => this.callBack()}/>,
+            <DatasetModal show={true} type={_type} reset={() => this.callBack()}/>,
             document.getElementById("dataset-modal")
         );
     }

@@ -113,6 +113,7 @@ export default class DataSetsSelect extends Component {
     };
 
     editDataset(item) {
+        console.log(item)
         ReactDOM.render(
             <DatasetModal type={item.type} show={true} item={item} reset={() => this.callBack()}/>,
             document.getElementById("dataset-modal")
@@ -149,7 +150,7 @@ export default class DataSetsSelect extends Component {
                     <th>{item.name == undefined ? item.id : item.name}</th>
                     <th>{item.type}</th>
                     <th>{item.host}</th>
-                    <th>{item.port}</th>
+                    <th>{item.port==0?"NULL":item.port}</th>
                     <th>{item.dbName}</th>
                     <th>{item.createTime}</th>
                     <th><a className="fa fa-edit" onClick={() => that.editDataset(item)}/>
@@ -196,8 +197,8 @@ export default class DataSetsSelect extends Component {
                                     </div>
 
                                     <div className="modal-footer">
-                                        <button className="btn dark-white" onClick={()=>this.closeModal()}>取消</button>
-                                        <button className="btn primary" onClick={()=>this.deleteDataset()}>确认</button>
+                                        <button className="btn btn-default" onClick={()=>this.closeModal()}>取消</button>
+                                        <button className="btn btn-danger" onClick={()=>this.deleteDataset()}>确认</button>
                                     </div>
                                 </div>
                             </form>
