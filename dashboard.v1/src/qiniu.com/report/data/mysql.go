@@ -10,7 +10,7 @@ import (
 	"github.com/siddontang/go-mysql/client"
 )
 
-type Mysql struct {
+type MySQLConfig struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Db       string `json:"dbName"`
@@ -18,7 +18,14 @@ type Mysql struct {
 	Password string `json:"password"`
 }
 
-func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
+type MySQL struct {
+	*MySQLConfig
+}
+
+func NewMySQL(cfg *MySQLConfig) *MySQL {
+	return &MySQL{cfg}
+}
+func (m *MySQL) QueryImpl(chartType string, code string) (interface{}, error) {
 	_code := strings.ToLower(strings.TrimRight(strings.TrimSpace(code), ";"))
 	db, err := m.GetConn()
 	if err != nil {
@@ -83,12 +90,13 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 		for i, val := range y_axis { //去产生tags的值，其应该为sql 字段名或者别名（若有）
 			for k, v := range keys {
 				if val == v {
-					if alis, ok := colls[k]; ok && alis != "" {
-						ret.Tags[i] = alis
-					} else {
-						ret.Tags[i] = k
+					for _, vv := range colls {
+						if vv == k {
+							ret.Tags[i] = strings.ToUpper(k)
+						} else {
+							ret.Tags[i] = k
+						}
 					}
-
 				}
 			}
 		}
@@ -122,16 +130,16 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 		ret := TagData{}
 		ret.Type = "TABLE"
 		ret.Tags = make([]string, len(keys))
-		ret.Datas = make([][]string, 0)
+		ret.Datas = make([][]interface{}, 0)
 		for key, index := range keys {
 			if vv, ok := colls[key]; ok && vv != "" {
-				ret.Tags[index] = colls[key]
+				ret.Tags[index] = strings.ToUpper(colls[key])
 			} else {
 				ret.Tags[index] = key
 			}
 		}
 		for i := 0; i < rows.RowNumber(); i++ {
-			data := make([]string, len(keys))
+			data := make([]interface{}, len(keys))
 			for _, index := range keys {
 				var r string
 				if r, err = rows.GetString(i, index); err != nil {
@@ -148,7 +156,7 @@ func (m *Mysql) Query(chartType string, code string) (interface{}, error) {
 	return nil, err
 }
 
-func (m *Mysql) GetConn() (*client.Conn, error) {
+func (m *MySQL) GetConn() (*client.Conn, error) {
 	return client.Connect(fmt.Sprintf("%s:%d", m.Host, m.Port), m.Username, m.Password, m.Db)
 }
 

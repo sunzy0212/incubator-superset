@@ -93,17 +93,31 @@ func (s *Service) PostDatasetsTest(env *rpcutil.Env) (ret RetTest, err error) {
 		err = ErrorPostDataset(err)
 		return
 	}
-	req.Type = strings.ToUpper(req.Type)
-	switch req.Type {
-	case "MYSQL":
-		mysqlCtrl := data.Mysql{
+	switch strings.ToUpper(req.Type) {
+	case data.DATASOURCE_MYSQL:
+		config := data.MySQLConfig{
 			Host:     req.Host,
 			Port:     req.Port,
 			Username: req.Username,
 			Password: req.Password,
 			Db:       req.DbName,
 		}
-		_, err = mysqlCtrl.GetConn()
+		handler := data.NewMySQL(&config)
+		_, err = handler.GetConn()
+		if err != nil {
+			err = ErrorTestDataset(err)
+			ret.Result = false
+		} else {
+			ret.Result = true
+		}
+		return
+	case data.DATASOURCE_INFLUXDB:
+		config := data.InfluxDBConfig{
+			Host: req.Host,
+			DB:   req.DbName,
+		}
+		handler := data.NewInfluxDB(&config)
+		_, err = handler.QueryImpl("table", "SHOW DATABASES")
 		if err != nil {
 			err = ErrorTestDataset(err)
 			ret.Result = false
@@ -763,6 +777,9 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 	_id := env.Req.FormValue("q")
 	_code := env.Req.FormValue("code")
 	_chartType := strings.ToUpper(env.Req.FormValue("type"))
+	if _chartType == "" {
+		_chartType = data.CHART_TABLE
+	}
 	log.Infof("query params :q=%s,code=%s,type=%s", _id, _code, _chartType)
 	datasetId := _id
 	if strings.HasPrefix(_id, "code_") {
@@ -785,22 +802,9 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
-
-	switch ds.Type {
-	case "MYSQL":
-		mysqlCtrl := data.Mysql{
-			Host:     ds.Host,
-			Port:     ds.Port,
-			Username: ds.Username,
-			Password: ds.Password,
-			Db:       ds.DbName,
-		}
-		if ret, err = mysqlCtrl.Query(_chartType, _code); err != nil {
-			err = ErrQueryDatas(err, fmt.Sprintf("execute code %v failed", _code))
-			return
-		}
-
-	default:
+	if ret, err = data.Query(ds, _code, _chartType); err != nil {
+		err = ErrQueryDatas(err, fmt.Sprintf("execute code %v failed", _code))
+		return
 	}
 	log.Infof("success to query data of code %s", _id)
 	return

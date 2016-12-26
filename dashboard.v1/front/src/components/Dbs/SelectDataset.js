@@ -1,12 +1,24 @@
 import React, {Component, PropTypes}from 'react';
 import ReactDOM from 'react-dom'
+import Modal from "react-modal"
 import { observer } from "mobx-react";
 import DatasetModal from "./DatasetModal"
 
 import {ajax} from '../../utils/DecodeData'
 
 const DBOption = [{label: "test", value: "http://127.0.0.1:8000/datasets"}];
-
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '53%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        width: '400px',
+        height: '240px',
+    }
+};
 
 @observer
 export default class DataSetsSelect extends Component {
@@ -20,7 +32,9 @@ export default class DataSetsSelect extends Component {
             Reset: false,
             SortFlag: false,
             DBOption: DBOption,
-            Datasets: []
+            Datasets: [],
+            modalIsOpen: false,
+            toDeleteId:""
         }
     }
 
@@ -77,23 +91,31 @@ export default class DataSetsSelect extends Component {
             })
     }
 
-    deleteDataset(id) {
-        console.log(id)
+    popDeleteAction=(id)=>{
+        this.setState({
+            modalIsOpen:true,
+            toDeleteId:id
+        })
+    }
+
+    deleteDataset() {
+        console.log(this.state.toDeleteId)
         ajax({
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + localStorage.getItem("token"));
             },
-            url: this.context.store.hosts + "/datasets/" + id,
+            url: this.context.store.hosts + "/datasets/" + this.state.toDeleteId,
             type: 'delete',
             contentType: 'application/json; charset=utf-8'
         });
+        this.closeModal()
         this.listDataset()
     };
 
     editDataset(item) {
-        let _type = "MYSQL"
+        console.log(item)
         ReactDOM.render(
-            <DatasetModal type={_type} show={true} item={item} reset={() => this.callBack()}/>,
+            <DatasetModal type={item.type} show={true} item={item} reset={() => this.callBack()}/>,
             document.getElementById("dataset-modal")
         );
     };
@@ -128,15 +150,21 @@ export default class DataSetsSelect extends Component {
                     <th>{item.name == undefined ? item.id : item.name}</th>
                     <th>{item.type}</th>
                     <th>{item.host}</th>
-                    <th>{item.port}</th>
+                    <th>{item.port==0?"NULL":item.port}</th>
                     <th>{item.dbName}</th>
                     <th>{item.createTime}</th>
-                    <th><a className="fa fa-edit" onClick={() => that.editDataset(item)}/> <a className="fa fa-trash-o"
-                                                                                              onClick={() => that.deleteDataset(item.id)}/>
+                    <th><a className="fa fa-edit" onClick={() => that.editDataset(item)}/>
+                        <a className="fa fa-trash-o" onClick={() => that.popDeleteAction(item.id)}/>
                     </th>
                 </tr>
             )
         });
+    }
+
+    closeModal = ()=>{
+        this.setState({
+            modalIsOpen:false
+        })
     }
 
     render() {
@@ -145,9 +173,39 @@ export default class DataSetsSelect extends Component {
                 <div className="box">
                     <div className="box-header">
                         <h2>总共：{this.state.Datasets.length} 个数据源</h2>
+                        <Modal
+                            isOpen={this.state.modalIsOpen}
+                            onRequestClose={this.closeModal }
+                            style={customStyles}
+                            contentLabel="Modal">
+                            <form>
+                                <div className="box">
+                                    <div className="row m-b">
+                                        <div className="col-sm-6">
+                                            <div className="box-header">
+                                                <h2>删除数据源</h2>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6">
+                                            <button className="pull-right fa fa-close" onClick={this.closeModal }></button>
+                                        </div>
+                                    </div>
+                                    <div className="box-body">
+                                        <div className="form-group">
+                                            <label>是否确认删除报表?</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="modal-footer">
+                                        <button className="btn btn-default" onClick={()=>this.closeModal()}>取消</button>
+                                        <button className="btn btn-danger" onClick={()=>this.deleteDataset()}>确认</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </Modal>
                     </div>
                     <div className="table-responsive">
-                        <table className="table table-bordered m-a-0">
+                        <table className="table table-bordered m-a-0 table-hover">
                             <thead>
                             <tr>
                                 <th>序号</th>

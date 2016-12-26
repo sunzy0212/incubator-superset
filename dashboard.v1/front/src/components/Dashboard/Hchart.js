@@ -62,6 +62,10 @@ export default class QueryChart extends Component {
                 console.log(data);
                 that.setState({
                     config: {
+                        credits: {
+                            text: 'Qiniu.com',
+                            href: 'http://www.qiniu.com'
+                        },
                         title: {
                             text: ""
                         },
