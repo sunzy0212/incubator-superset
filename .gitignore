@@ -7,6 +7,12 @@
 _obj
 _test
 dashboard.v1/front/static/build
+dashboard.v1/dist
+
+dashboard.v2/front/dist
+dashboard.v2/dist
+# Architecture specific extensions/prefixes
+
 # Architecture specific extensions/prefixes
 *.[568vq]
 [568vq].out
