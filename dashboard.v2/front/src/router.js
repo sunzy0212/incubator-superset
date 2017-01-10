@@ -1,12 +1,11 @@
 import React from 'react';
-import { Router, Route ,IndexRedirect,browserHistory} from 'dva/router';
+import { Router, Route, IndexRedirect } from 'dva/router';
 import Main from './routes/App';
+import Datasets from './routes/Datasets';
+import Dashboard from './routes/Dashboard';
+import Login from './routes/Login';
+import Editor from './routes/Editor';
 
-import Datasets from "./routes/Datasets";
-
-import Dashboard from "./routes/Dashboard";
-import Login from "./routes/Login";
-import Editor from "./routes/Editor";
 function RouterConfig({ history }) {
   return (
     <Router history={history}>

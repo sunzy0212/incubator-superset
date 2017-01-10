@@ -1,22 +1,21 @@
 import React from 'react';
 import { connect } from 'dva';
-import {Row , Col, Table,Button,Icon,Breadcrumb,Radio,AutoComplete} from 'antd'
+import { Row, Col, Table, Button, Icon, Breadcrumb, Radio, AutoComplete } from 'antd';
 import styles from './Editor.less';
 
 function Editor(props) {
-
   return (
     <div className={styles.sideBar}>
-      <Row  gutter={24} >
+      <Row gutter={24}>
         <Col span={2}>
           <Row>
             <Col span={24}>图表编辑
               <AutoComplete
                 style={{ width: 100 }}
-                onChange={()=>{}}
+                onChange={() => {
+                }}
                 placeholder="关键字搜索"
-              >
-              </AutoComplete>
+              />
             </Col>
 
           </Row>
@@ -30,7 +29,7 @@ function Editor(props) {
               <Row ><Col span={24}>Y轴</Col></Row>
               <Row ><Col span={24}>X轴</Col></Row>
             </Col>
-            <Col span={16}>功能区<Button type="" icon="edit"></Button></Col>
+            <Col span={16}>功能区<Button type="" icon="edit" /></Col>
           </Row>
         </Col>
       </Row>

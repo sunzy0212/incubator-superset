@@ -1,15 +1,17 @@
-import React from 'react'
-import styles from '../modal.less'
-import {Button,Form,Input,Tooltip,Icon,InputNumbers} from 'antd'
+import React, { PropTypes } from 'react';
+import { Button, Form, Input } from 'antd';
+import styles from '../modal.less';
+
 const FormItem = Form.Item;
 
-const InfluxDB = ({saveLoading,item,onOk,onCancel,onTest,form: {
+const InfluxDB = ({
+  saveLoading, item, onOk, form: {
   getFieldDecorator,
   validateFields,
-  getFieldsValue,
-  getFieldsValues
-},}) => {
-
+  // getFieldsValue,
+  // getFieldsValues,
+},
+}) => {
   const formItemLayout = {
     labelCol: { span: 6 },
     wrapperCol: { span: 14 },
@@ -21,15 +23,15 @@ const InfluxDB = ({saveLoading,item,onOk,onCancel,onTest,form: {
       if (!err) {
         console.log('Received values of form: ', values);
         const data = {
-          "name" : values.name,
-          "host" : values.host,
-          "port" : values.port,
-          "type" : "InfluxDB",
-          "dbName" : values.dbName,
-          "username" : values.username || '',
-          "password" :values.password||''
-        }
-        onOk(data)
+          name: values.name,
+          host: values.host,
+          port: values.port,
+          type: 'InfluxDB',
+          dbName: values.dbName,
+          username: values.username || '',
+          password: values.password || '',
+        };
+        onOk(data);
       }
     });
   }
@@ -37,7 +39,7 @@ const InfluxDB = ({saveLoading,item,onOk,onCancel,onTest,form: {
   return (
     <Form onSubmit={handleSubmit}>
 
-      <FormItem label="名称："  {...formItemLayout}>
+      <FormItem label="名称：" {...formItemLayout}>
         {getFieldDecorator('name', {
           initialValue: item.name,
           rules: [
@@ -49,7 +51,7 @@ const InfluxDB = ({saveLoading,item,onOk,onCancel,onTest,form: {
         })(<Input />)}
       </FormItem>
 
-      <FormItem label="地址："  {...formItemLayout}>
+      <FormItem label="地址：" {...formItemLayout}>
         {getFieldDecorator('host', {
           initialValue: item.host,
           rules: [
@@ -58,10 +60,10 @@ const InfluxDB = ({saveLoading,item,onOk,onCancel,onTest,form: {
               message: '地址未填写',
             },
           ],
-        })(<Input placeholder="http://localhost:8086/query"/>)}
+        })(<Input placeholder="http://localhost:8086/query" />)}
       </FormItem>
 
-      <FormItem label="数据库名："  {...formItemLayout}>
+      <FormItem label="数据库名：" {...formItemLayout}>
         {getFieldDecorator('dbName', {
           initialValue: item.dbName,
           rules: [
@@ -72,12 +74,20 @@ const InfluxDB = ({saveLoading,item,onOk,onCancel,onTest,form: {
           ],
         })(<Input />)}
       </FormItem>
-      <br/>
-      <FormItem  wrapperCol={{ span: 12 ,offset:6}}>
-        <Button type="primary" htmlType="submit" size="large" loading={saveLoading} className={styles.submitButton}>确认</Button>
+      <br />
+      <FormItem wrapperCol={{ span: 12, offset: 6 }}>
+        <Button
+          type="primary" htmlType="submit" size="large" loading={saveLoading}
+          className={styles.submitButton}
+        >确认</Button>
       </FormItem>
     </Form>
   );
-}
+};
 
-export default Form.create()(InfluxDB)
+InfluxDB.propTypes = {
+  saveLoading: PropTypes.bool,
+  item: PropTypes.object,
+  onOk: PropTypes.func,
+};
+export default Form.create()(InfluxDB);

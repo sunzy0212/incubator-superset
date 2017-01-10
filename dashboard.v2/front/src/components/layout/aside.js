@@ -1,53 +1,64 @@
-import React, { PropTypes } from 'react'
-import { Menu, Icon, Switch } from 'antd'
-import { Link } from 'dva/router'
-import styles from './main.less'
-import { config, menu } from '../../utils'
+import React, { PropTypes } from 'react';
+import { Menu, Icon, Switch } from 'antd';
+import { Link } from 'dva/router';
+import styles from './main.less';
+import { config, menu } from '../../utils';
 
 
-const topMenus = menu.map( item => item.key)
-const getMenus = function (menuArray,siderFold,parentPath) {
-  parentPath = parentPath || '/'
-  return menuArray.map(item => {
-    if (!!item.child) {
+const topMenus = menu.map(item => item.key);
+const getMenus = function (menuArray, siderFold, parentPath) {
+  parentPath = parentPath || '/';
+  return menuArray.map((item) => {
+    if (item.child) {
       return (
-        <Menu.SubMenu key={item.key} title={<span>{item.icon ? <Icon type={item.icon} /> : ''}{siderFold&&topMenus.indexOf(item.key)>=0 ? '' : item.name}</span>}>
-          {getMenus(item.child,siderFold,parentPath + item.key + '/')}
+        <Menu.SubMenu
+          key={item.key} title={<span>{item.icon ?
+            <Icon type={item.icon} /> : ''}{siderFold && topMenus.indexOf(item.key) >= 0 ? '' : item.name}</span>}
+        >
+          {getMenus(item.child, siderFold, `${parentPath + item.key}/`)}
         </Menu.SubMenu>
-      )
+      );
     } else {
       return (
         <Menu.Item key={item.key}>
           <Link to={parentPath + item.key}>
             {item.icon ? <Icon type={item.icon} /> : ''}
-            {siderFold&&topMenus.indexOf(item.key)>=0 ? '' : item.name}
+            {siderFold && topMenus.indexOf(item.key) >= 0 ? '' : item.name}
           </Link>
         </Menu.Item>
-      )
+      );
     }
-  })
-}
+  });
+};
 
 
-function Aside({ siderFold,darkTheme,location,changeTheme }) {
+function Aside({ siderFold, darkTheme, location, changeTheme }) {
   return (
     <div>
       <div className={styles.logo}>
-        <img src={config.logoSrc} />
-        {siderFold?'':<span>{config.logoText}</span>}
+        <img role="presentation" src={config.logoSrc} />
+        {siderFold ? '' : <span>{config.logoText}</span>}
       </div>
       <Menu
-        mode={siderFold?"vertical":"inline"}
-        theme={darkTheme?"dark":"light"}
-        defaultSelectedKeys={[location.pathname.split('/')[location.pathname.split('/').length - 1]||'dashboard']}>
-        {getMenus(menu,siderFold)}
+        mode={siderFold ? 'vertical' : 'inline'}
+        theme={darkTheme ? 'dark' : 'light'}
+        defaultSelectedKeys={[location.pathname.split('/')[location.pathname.split('/').length - 1] || 'dashboard']}
+      >
+        {getMenus(menu, siderFold)}
       </Menu>
-      {!siderFold?<div className={styles.switchtheme}>
+      {!siderFold ? <div className={styles.switchtheme}>
         <span><Icon type="bulb" />切换主题</span>
         <Switch onChange={changeTheme} defaultChecked={darkTheme} checkedChildren="黑" unCheckedChildren="白" />
-      </div>:''}
+      </div> : ''}
     </div>
-  )
+  );
 }
 
-export default Aside
+Aside.propTypes = {
+  siderFold: PropTypes.bool,
+  darkTheme: PropTypes.bool,
+  location: PropTypes.object,
+  changeTheme: PropTypes.func,
+};
+
+export default Aside;

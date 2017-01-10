@@ -1,53 +1,59 @@
-import React, {PropTypes} from 'react'
-import {DataSetTypes} from './constants'
-import {Button, Form, Input,Radio} from 'antd'
-const RadioGroup = Radio.Group
+import React, { PropTypes } from 'react';
+import { Button, Form, Radio } from 'antd';
+import { DataSetTypes } from './constants';
+
+const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 
 const DataSetSelect = ({
   dataSetType,
   onAddDataSet,
-  form:{
+  form: {
     getFieldDecorator,
     validateFields,
-  }
+  },
 }) => {
-
-  function onSubmit(e){
+  function onSubmit(e) {
     e.preventDefault();
     validateFields((err, values) => {
       if (!err) {
-        onAddDataSet(values.dataSetType)
+        onAddDataSet(values.dataSetType);
       }
-    })
+    });
   }
 
   return (
     <Form inline onSubmit={onSubmit}>
-      <FormItem
-      >
-        {getFieldDecorator('dataSetType',{
-          initialValue:dataSetType,
-          rules:[
+      <FormItem >
+        {getFieldDecorator('dataSetType', {
+          initialValue: dataSetType,
+          rules: [
             {
               required: true,
               message: '请选择数据源类型',
             },
-          ]
+          ],
         })(
           <RadioGroup>
-            {DataSetTypes.map((item)=>
-               <Radio key={item.name} value={item.name} disabled={!item.available}>{item.name}</Radio>
-              )
+            {
+              DataSetTypes.map(item =>
+                <Radio
+                  key={item.name} value={item.name} disabled={!item.available}
+                >{item.name}</Radio>,
+            )
             }
-          </RadioGroup>
+          </RadioGroup>,
         )}
       </FormItem>
       <FormItem>
-        <Button size="large"  htmlType="submit" icon="plus-circle-o">新增数据源</Button>
+        <Button size="large" htmlType="submit" icon="plus-circle-o">新增数据源</Button>
       </FormItem>
     </Form>
-  )
-}
-export default Form.create()(DataSetSelect)
+  );
+};
+DataSetSelect.propTypes = {
+  dataSetType: PropTypes.string,
+  onAddDataSet: PropTypes.func,
+};
 
+export default Form.create()(DataSetSelect);

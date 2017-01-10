@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'dva';
+import { Row, Col} from 'antd';
 import styles from './Dashboard.less';
 
-import {Row , Col, Table,Button,Icon,Breadcrumb,Radio} from 'antd'
+
 function Dashboard(props) {
   return (
-    <Row gutter={36}>
+    <Row gutter={36} className={styles.normal}>
       <Col span={4}>
         <Row>
           <Col>仪表盘</Col>
@@ -30,7 +31,7 @@ function Dashboard(props) {
   );
 }
 
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {};
 }
 

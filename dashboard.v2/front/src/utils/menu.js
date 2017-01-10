@@ -7,7 +7,7 @@ module.exports = [
   {
     key: 'dashboard',
     name: '仪表盘',
-    icon: 'desktop'
+    icon: 'desktop',
   },
   {
     key: 'editor',
