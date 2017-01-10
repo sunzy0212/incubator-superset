@@ -1,15 +1,15 @@
-import React from 'react'
-import styles from '../modal.less'
-import {Button,Modal,Form,Input,Tooltip,Icon,InputNumber,Col} from 'antd'
+import React, { PropTypes } from 'react';
+import { Button, Form, Input, InputNumber } from 'antd';
+import styles from '../modal.less';
+
 const FormItem = Form.Item;
 
-const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
+const MySQL = ({
+  saveLoading, item, onOk, form: {
   getFieldDecorator,
   validateFields,
-  getFieldsValue,
-  getFieldsValues
-},}) => {
-
+},
+}) => {
   const formItemLayout = {
     labelCol: { span: 6 },
     wrapperCol: { span: 14 },
@@ -21,17 +21,17 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
       if (!err) {
         console.log('Received values of form: ', values);
         const data = {
-          "id":item.id, //For editor
-          "name" : values.name,
-          "host" : values.host,
-          "port" : values.port,
-          "type" : "MYSQL",
-          "dbName" : values.dbName,
-          "username" : values.username,
-          "password" :values.password
-        }
+          id: item.id, // For editor
+          name: values.name,
+          host: values.host,
+          port: values.port,
+          type: 'MYSQL',
+          dbName: values.dbName,
+          username: values.username,
+          password: values.password,
+        };
 
-        onOk(data)
+        onOk(data);
       }
     });
   }
@@ -39,7 +39,7 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
   return (
     <Form onSubmit={handleSubmit}>
 
-      <FormItem label="名称："  {...formItemLayout}>
+      <FormItem label="名称：" {...formItemLayout}>
         {getFieldDecorator('name', {
           initialValue: item.name,
           rules: [
@@ -51,7 +51,7 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
         })(<Input />)}
       </FormItem>
 
-      <FormItem label="地址："  {...formItemLayout}>
+      <FormItem label="地址：" {...formItemLayout}>
         {getFieldDecorator('host', {
           initialValue: item.host,
           rules: [
@@ -63,9 +63,9 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
         })(<Input />)}
       </FormItem>
 
-      <FormItem label="端口："  {...formItemLayout}>
+      <FormItem label="端口：" {...formItemLayout}>
         {getFieldDecorator('port', {
-          initialValue: item.port||3306,
+          initialValue: item.port || 3306,
           rules: [
             {
               required: true,
@@ -76,7 +76,7 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
       </FormItem>
 
 
-      <FormItem label="用户名："  {...formItemLayout}>
+      <FormItem label="用户名：" {...formItemLayout}>
         {getFieldDecorator('username', {
           initialValue: item.username,
           rules: [
@@ -88,7 +88,7 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
         })(<Input />)}
       </FormItem>
 
-      <FormItem label="密码："  {...formItemLayout}>
+      <FormItem label="密码：" {...formItemLayout}>
         {getFieldDecorator('password', {
           initialValue: item.password,
           rules: [
@@ -97,10 +97,10 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
               message: '密码未填写',
             },
           ],
-        })(<Input/>)}
+        })(<Input />)}
       </FormItem>
 
-      <FormItem label="数据库名："  {...formItemLayout}>
+      <FormItem label="数据库名：" {...formItemLayout}>
         {getFieldDecorator('dbName', {
           initialValue: item.dbName || 'test',
           rules: [
@@ -111,12 +111,21 @@ const MySQL = ({saveLoading,item,onOk,onCancel,onTest,form: {
           ],
         })(<Input />)}
       </FormItem>
-      <br/>
-      <FormItem  wrapperCol={{ span: 12 ,offset:6}}>
-          <Button type="primary" htmlType="submit" size="large" loading={saveLoading} className={styles.submitButton}>确认</Button>
+      <br />
+      <FormItem wrapperCol={{ span: 12, offset: 6 }}>
+        <Button
+          type="primary" htmlType="submit" size="large" loading={saveLoading}
+          className={styles.submitButton}
+        >确认</Button>
       </FormItem>
     </Form>
   );
-}
+};
 
-export default Form.create()(MySQL)
+MySQL.propTypes = {
+  saveLoading: PropTypes.bool,
+  item: PropTypes.object,
+  onOk: PropTypes.func,
+};
+
+export default Form.create()(MySQL);

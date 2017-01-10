@@ -1,12 +1,13 @@
-import { request } from '../utils'
-import qs from 'qs'
+import qs from 'qs';
+import { request } from '../utils';
+
 
 export async function login(params) {
   // return request('/api/login', {
   //   method: 'post',
   //   data:params,
   // })
-  return {success:true}
+  return { success: true };
 }
 
 export async function logout(params) {
@@ -17,7 +18,7 @@ export async function logout(params) {
 }
 
 export async function userInfo(params) {
-  return {success:true,username:"wcx"}
+  return { success: true, username: 'wcx' };
   // return request('/api/userInfo', {
   //   method: 'get',
   //   data:params,
