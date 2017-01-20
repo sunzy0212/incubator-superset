@@ -1,36 +1,24 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Row, Col, Table, Button, Icon, Breadcrumb, Radio, AutoComplete } from 'antd';
+import { Row, Col } from 'antd';
+import Slices from '../components/editor/slices';
+import Header from '../components/editor/header';
+import Dataview from '../components/editor/dataview';
+
 import styles from './Editor.less';
 
 function Editor(props) {
   return (
     <div className={styles.sideBar}>
+      <div className={styles.header}>
+        <Header />
+      </div>
       <Row gutter={24}>
-        <Col span={2}>
-          <Row>
-            <Col span={24}>图表编辑
-              <AutoComplete
-                style={{ width: 100 }}
-                onChange={() => {
-                }}
-                placeholder="关键字搜索"
-              />
-            </Col>
-
-          </Row>
-          <Row> <Col span={24}>维度</Col></Row>
-          <Row><Col span={24}>度量</Col></Row>
+        <Col lg={8} md={8}>
+          <Slices />
         </Col>
-        <Col span={2}>属性区</Col>
-        <Col span={20}>
-          <Row >
-            <Col span={8}>
-              <Row ><Col span={24}>Y轴</Col></Row>
-              <Row ><Col span={24}>X轴</Col></Row>
-            </Col>
-            <Col span={16}>功能区<Button type="" icon="edit" /></Col>
-          </Row>
+        <Col lg={16} md={16}>
+          <Dataview />
         </Col>
       </Row>
     </div>

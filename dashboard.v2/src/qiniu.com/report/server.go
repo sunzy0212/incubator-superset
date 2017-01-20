@@ -195,6 +195,158 @@ func (s *Service) DeleteDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	return
 }
 
+//###########################################dir
+/*
+POST /v1/dirs
+*/
+
+func (s *Service) PostDirs(env *rpcutil.Env) (ret common.Dir, err error) {
+
+	var data []byte
+
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.Dir
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrorPostDir(err)
+		return
+	}
+	if req.Pre == "" || !strings.HasPrefix(req.Pre, "dir_") {
+		req.Pre = "ROOT"
+	}
+	var b bool
+	if b, err = db.IsExist(s.DirColl, M{"name": req.Name, "pre": req.Pre}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	if b {
+		err = ErrorPostDir(fmt.Errorf("dir `%v` is already exist", req.Name))
+		return
+	}
+
+	if req.Id, err = common.GenId(); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+
+	req.Id = fmt.Sprintf("dir_%s", req.Id)
+	if err = db.DoInsert(s.DirColl, req); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	ret = req
+	log.Infof("success to insert dir: %+v", req)
+	return
+}
+
+/*
+PUT /v1/dirs/<Id>
+*/
+func (s *Service) PutDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	var data []byte
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		log.Error(err)
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+
+	var req common.Dir
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrorPostDir(err)
+		return
+	}
+	if req.Pre == "" || !strings.HasPrefix(req.Pre, "dir_") {
+		req.Pre = "ROOT"
+	}
+	var b bool
+	if b, err = db.IsExist(s.DirColl, M{"name": req.Name, "pre": req.Pre, "id": M{"$ne": id}}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	if b {
+		err = ErrorPostDir(fmt.Errorf("dir `%v` is already exist", req.Name))
+		return
+	}
+
+	req.Id = id
+
+	err = db.DoUpdate(s.DirColl, M{"id": id}, req)
+	if err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	log.Infof("success to update dir: %v", req)
+	return
+}
+
+/*GET /v1/dirs
+ */
+
+type Dir struct {
+	Id     string `json:"id" bson:"id"`
+	Name   string `json:"name" bson:"name"`
+	Pre    string `json:"pre" bson:"pre"`
+	SubDir []Dir  `json:"subDir" bson:"subDir"`
+}
+type TreeDirs struct {
+	Dirs []Dir `json:"dirs"`
+}
+
+func (s *Service) GetDirs(env *rpcutil.Env) (ret TreeDirs, err error) {
+	ds := make([]common.Dir, 0)
+	if err = s.DirColl.Find(M{}).All(&ds); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the dir is enpty !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	ret = TreeDirs{genTreeDirs("ROOT", ds)}
+	log.Infof("success to get all dirs: %v", ret)
+	return
+}
+
+func genTreeDirs(root string, dirs []common.Dir) []Dir {
+	treeDirs := make([]Dir, 0)
+	for _, v := range dirs {
+		if v.Pre == root {
+			subDir := genTreeDirs(v.Id, dirs)
+			dir := Dir{
+				Id:     v.Id,
+				Name:   v.Name,
+				Pre:    v.Pre,
+				SubDir: subDir,
+			}
+			fmt.Println(dir)
+			treeDirs = append(treeDirs, dir)
+		}
+	}
+	return treeDirs
+}
+
+//DELETE /v1/dirs/<Id>
+func (s *Service) DeleteDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	if err = db.DoDelete(s.DirColl, map[string]string{"id": id}); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	if err = db.DoDelete(s.ReportColl, map[string]string{"dirId": id}); err != nil {
+		if err == mgo.ErrNotFound {
+			log.Warnf("no report in dir[%v] ", id, err)
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to delete dir: %v", id)
+	return
+}
+
 /*
 POST /v1/codes
 Content-Type: application/json
@@ -381,6 +533,7 @@ func (s *Service) DeleteCodes_(args *cmdArgs, env *rpcutil.Env) (err error) {
 POST /v1/reports
 Content-Type: application/json
 {
+	"dirId": <DirId>,
     "name" : <Name>
 }
 */
@@ -397,7 +550,7 @@ func (s *Service) PostReports(env *rpcutil.Env) (ret common.Report, err error) {
 		return
 	}
 	var b bool
-	if b, err = db.IsExist(s.ReportColl, M{"name": req.Name}); err != nil {
+	if b, err = db.IsExist(s.ReportColl, M{"name": req.Name, "dirId": req.DirId}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
@@ -432,7 +585,63 @@ func (s *Service) PostReports(env *rpcutil.Env) (ret common.Report, err error) {
 }
 
 /*
-GET /v1/reports
+PUT /v1/reports/<reportId>
+Content-Type: application/json
+{
+    "dirId": <DirId>,
+    "name" : <Name>
+}
+注意：上面参数至少一个
+*/
+
+func (s *Service) PutReports_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	var data []byte
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.Report
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrorPostReport(err)
+		return
+	}
+
+	updateDoc := M{}
+
+	if req.DirId != "" {
+		var b bool
+		if b, err = db.IsExist(s.DirColl, M{"id": req.DirId}); err != nil {
+			err = errors.Info(ErrInternalError, err)
+			return
+		}
+		if !b {
+			err = ErrorPostReport(fmt.Errorf("the dirId '%s' is not exist", req.DirId))
+			return
+		}
+		updateDoc["dirId"] = req.DirId
+	}
+	if req.Name != "" {
+		updateDoc["name"] = req.Name
+	}
+
+	if len(updateDoc) == 0 {
+		err = ErrorPostReport(fmt.Errorf("at least one parameter when update the report, but get  ", req))
+		return
+	}
+
+	updateDoc["createTime"] = common.GetCurrTime()
+
+	if err = db.DoUpdate(s.ReportColl, M{"id": id}, M{"$set": updateDoc}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	log.Infof("success to update report %s: %+v", id, updateDoc)
+	return
+}
+
+/*
+GET /v1/reports?dirId=<DirId>
 200 OK
 Content-Type: application/json
 {
@@ -451,8 +660,13 @@ type RetReports struct {
 }
 
 func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
+	id := env.Req.FormValue("dirId")
+	query := M{}
+	if strings.Trim(id, " ") != "" {
+		query = M{"dirId": id}
+	}
 	ds := make([]common.Report, 0)
-	if err = s.ReportColl.Find(M{}).Sort("-createTime").All(&ds); err != nil {
+	if err = s.ReportColl.Find(query).Sort("-createTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the reports is enpty !")
 			return
@@ -460,6 +674,20 @@ func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
 		err = errors.Info(ErrInternalError, err)
 	}
 	ret = RetReports{ds}
+	log.Infof("success to get all reports: %v", ret)
+	return
+}
+
+//GET /v1/reports/<ReportId>
+func (s *Service) GetReports_(args *cmdArgs, env *rpcutil.Env) (ret common.Report, err error) {
+	id := args.CmdArgs[0]
+	if err = s.ReportColl.Find(M{"id": id}).One(&ret); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the report is not exist !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
 	log.Infof("success to get all reports: %v", ret)
 	return
 }

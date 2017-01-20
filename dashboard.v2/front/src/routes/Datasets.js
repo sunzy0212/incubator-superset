@@ -71,7 +71,7 @@ function Datasets({ dispatch, datasets }) {
   return (
     <div >
       <DataSetModalGen />
-      <Row gutter={36} type="flex" className={styles.topRow}>
+      <Row gutter={24} type="flex" className={styles.topRow}>
         <Col span={2}>
           <Breadcrumb>
             <Breadcrumb.Item>数据源</Breadcrumb.Item>

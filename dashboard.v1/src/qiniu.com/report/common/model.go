@@ -11,6 +11,7 @@ const (
 type Collections struct {
 	DatasetColl mgoutil.Collection `coll:"dateset"`
 	CodeColl    mgoutil.Collection `coll:"code"`
+	DirColl     mgoutil.Collection `coll:"dir"`
 	ReportColl  mgoutil.Collection `coll:"report"`
 	ChartColl   mgoutil.Collection `coll:"chart"`
 	LayoutColl  mgoutil.Collection `coll:"layout"`
@@ -41,6 +42,21 @@ type Dataset struct {
 
 /*
 {
+	"id" : <id>,
+	"name" : <Name>,
+	"pre" : <PreDir>,
+	"post" : <PostDir>
+}
+*/
+type Dir struct {
+	Id   string `json:"id" bson:"id"`
+	Name string `json:"name" bson:"name"`
+	Pre  string `json:"pre" bson:"pre"`
+	Post string `json:"post" bson:"post"`
+}
+
+/*
+{
     id      string
     name    string
     code    string
@@ -67,6 +83,7 @@ type Code struct {
 */
 type Report struct {
 	Id         string `json:"id" bson:"id"`
+	DirId      string `json:"dirId" bson:"dirId"`
 	Name       string `json:"name" bson:"name"`
 	CreateTime string `json:"createTime" bson:"createTime"`
 }
@@ -106,6 +123,8 @@ type Layout struct {
 func (db *Collections) EnsureIndex() {
 	db.DatasetColl.EnsureIndexes("id,type :unique")
 	db.CodeColl.EnsureIndexes("type")
+	db.DirColl.EnsureIndexes("id :unique", "name:unique")
+	//db.ReportColl.EnsureIndexes("id,dirId,name :unique")
 	db.ChartColl.EnsureIndexes("reportId")
 	//db.Code.EnsureIndexes("")
 }

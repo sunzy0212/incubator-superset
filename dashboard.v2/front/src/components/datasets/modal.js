@@ -3,7 +3,6 @@ import { Modal } from 'antd';
 import MySQL from './modals/mysql';
 import InfluxDB from './modals/influxdb';
 
-
 const DataSetModal = ({
   saveLoading,
   dataSetType,

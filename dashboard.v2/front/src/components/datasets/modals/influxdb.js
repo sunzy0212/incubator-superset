@@ -21,7 +21,6 @@ const InfluxDB = ({
     e.preventDefault();
     validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
         const data = {
           name: values.name,
           host: values.host,
@@ -38,7 +37,6 @@ const InfluxDB = ({
 
   return (
     <Form onSubmit={handleSubmit}>
-
       <FormItem label="名称：" {...formItemLayout}>
         {getFieldDecorator('name', {
           initialValue: item.name,
