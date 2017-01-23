@@ -5,11 +5,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	handler "qiniu.com/email-report/handlers"
+	"flag"
 )
 
 func main() {
+	var listenPort string
 
-	listenPort := os.Getenv("PORT_HTTP")
+	flag.StringVar(&listenPort,"p",os.Getenv("PORT_HTTP"),"listen port")
+	flag.Parse()
+
 	if listenPort == "" {
 		listenPort = "8080"
 	}

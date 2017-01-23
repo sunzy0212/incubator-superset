@@ -2,32 +2,33 @@
 
 Pandora Mail Service is used for easily sending mail with `report theme`. 
 
+目前部署在nb1684:6080(192.168.77.25:6080)
 # Example
 
 ```
-curl -XPOST localhost:8080/v1/email -d '{
-	"table_contents":[
-		{
-			"title":"报表1",
-			"table_header":["年龄","姓名"],
-			"table_rows":[
-				[12,"pandora"],
-				[14,"pandoraV2"]
-			]
-		},
-		{
-			"title":"报表2", 
-			"table_header":["年龄2","姓名2"],
-			"table_rows":[
-				["12","pandora"],
-				["14","pandoraV2"]
-			]
-		}
-	],
-	"body": "这里是自定义的BODY部分",
-	"subject":"EmailSubject",	
-	"receivers":["rec1@example.com","rec2@example.com"],
-	"cc_receiver":"cc@example.com"
+curl -XPOST 'localhost:6080/v1/mail' -d  '{
+		"table_contents":[
+				{
+					"title":"报表1",
+					"table_header":["年龄","姓名"],
+					"table_rows":[
+						[12,"pandora"],
+						[14,"pandoraV2"]
+					]
+				},
+				{
+					"title":"报表2", 
+					"table_header":["年龄2","姓名2"],
+					"table_rows":[
+						["12","pandora"],
+						["14","pandoraV2"]
+					]
+				}
+			],
+			"body":"这里是自定义的BODY部分",
+			"subject":"EmailSubject",
+			"receivers":["example@qiniu.com"],
+			"cc_receiver":""
 }'
 ```
 
@@ -43,6 +44,8 @@ curl -XPOST localhost:8080/v1/email -d '{
 Just using struct:
 
 ```
+type rowHeader []string
+type rowData [][]interface{}
 // html table 
 type Table struct {
 	Title       string    `json:"title"`
