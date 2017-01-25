@@ -10,7 +10,7 @@ curl -XPOST 'localhost:6080/v1/mail' -d  '{
 		"table_contents":[
 				{
 					"title":"报表1",
-					"table_header":["年龄","姓名"],
+					    "table_header":["年龄","姓名"],
 					"table_rows":[
 						[12,"pandora"],
 						[14,"pandoraV2"]
@@ -33,7 +33,7 @@ curl -XPOST 'localhost:6080/v1/mail' -d  '{
 ```
 
 * 邮件发送成功:
-<img align="right" src="http://oji8s4dhx.bkt.clouddn.com/EB51890D-59F6-498F-AF74-B4A22767ECC3.png"> 
+<img align="right" src="http://oji8s4dhx.bkt.clouddn.com/tempalteDaemon.png"> 
 
 
 

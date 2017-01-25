@@ -2,10 +2,10 @@ package main
 
 import (
 	"os"
+	"flag"
 
 	"github.com/gin-gonic/gin"
 	handler "qiniu.com/email-report/handlers"
-	"flag"
 )
 
 func main() {
