@@ -1,27 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style type="text/css">
+        table.hovertable {
+            font-family: verdana,arial,sans-serif;
+            font-size:11px;
+            color:#333333;
+            border-width: 1px;
+            border-color: #999999;
+            border-collapse: collapse;
+        }
+        table.hovertable th {
+            background-color:#c3dde0;
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #a9c6c9;
+        }
+        table.hovertable tr {
+            background-color:#d4e3e5;
+            text-align:right;
+        }
+        table.hovertable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #a9c6c9;
+        }
+
+        .pandora-title {
+            font-size: 1.37em;
+            color: #31708f;
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+            border-radius: 4px 4px 0 0;
+        }
+
+
+        hr.style-line {
+            height: 12px;
+            border: 0;
+            box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+
 </head>
 <body>
 {{ .Body }}
 
-<h5>-----------------------------</h5>
-
 {{ range $item := .TableContents }}
-<h5>-----------------------------</h5>
-<h3>{{ $item.Title }}</h3>
-<table border="1">
+<hr class="style-line"></hr>
+<h3 class="pandora-title">{{ $item.Title }}</h3>
+<table border="1" class="hovertable">
     <thead>
     <tr>
         {{ range $key := $item.TableHeader }}
-        <th> {{ $key }} </th>
+        <th style="text-align:right;font-weight:bold"> {{ $key }} </th>
         {{ end }}
     </tr>
     </thead>
 
     <tbody>
     {{ range $data := $item.TableRows }}
-    <tr>
+    <tr onmouseover="this.style.backgroundColor='#ffff66';" onmouseout="this.style.backgroundColor='#d4e3e5';">
         {{ range $row := $data }}
         <td>{{$row}}</td>
         {{ end }}
