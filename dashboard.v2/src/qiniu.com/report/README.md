@@ -3,6 +3,7 @@
 
 ### 数据源管理
 dataset数据结构
+
 ```
 {
 	id			string 
@@ -32,6 +33,7 @@ Content-Type: application/json
 }
 ```
 返回包：
+
 ```
 200 OK
 Content-Type: application/json
@@ -89,7 +91,8 @@ Content-Type: application/json
 ```
 GET /v1/datasets
 ```
-返回包
+返回包:
+
 ```
 200 OK
 Content-Type: application/json
@@ -111,17 +114,20 @@ Content-Type: application/json
 }
 ```
 #### 删除数据源
-请求包
+请求包:
+
 ```
 DELETE /v1/datasets/<Id>
 ```
-返回包
+返回包:
+
 ```
 200 OK
 ```
 
 ### code(sql) 操作
 数据结构如下:
+
 ```
 {
 	id		string
@@ -144,6 +150,7 @@ Content-Type: application/json
 }
 ```
 返回包：
+
 ```
 200 OK
 ```
@@ -160,6 +167,7 @@ Content-Type: application/json
 }
 ```
 返回包：
+
 ```
 200 OK
 ```
@@ -170,6 +178,7 @@ GET /v1/codes?type=<DbType>&datasetId=<DatasetId>
 200 ok
 ```
 返回包
+
 ```
 200 OK
 Content-Type: application/json
@@ -203,26 +212,40 @@ Content-Type: application/json
 ```
 #### 删除code
 请求包
+
 ```
 DELETE /v1/codes/<Id>
 ```
 返回包
+
 ```
 200 OK
 ```
 
 
 ### 报表相关 
-report
+dir
+ 
 ```
 {
-	id string
-	name string
+	id string,
+	name string,
+	pre string,
+	post string
+}
+```
+report
+
+```
+{
+	id string,
+	dirId string,
+	name string,
 	createTime timestamp
 }
 ```
-
 chart 
+
 ```
 {
 	id string,
@@ -234,24 +257,120 @@ chart
 	reportId string <ref report.id>
 }
 ```
+#### 创建目录
+```
+POST /v1/dirs
+Content-Type: application/json
+{
+	"name" : <Name>,
+	"pre" : <PreDir>,
+	"post" : <PostDir>
+}
+```
+返回包：
 
+```
+200 OK
+```
+#### 修改目录
+```
+PUT /v1/dirs
+Content-Type: application/json
+{
+	"id" : <Id>,
+    "name" : <Name>,
+	"pre" : <PreDir>,
+	"post" : <PostDir>
+}
+```
+返回包：
+
+```
+200 OK
+```
+#### 获取目录
+```
+GET /v1/dirs
+```
+返回包
+
+```
+200 OK
+Content-Type: application/json
+{
+  "dirs": [
+    {
+      "id": <Id>,
+      "name": <Name>,
+      "pre": <Pre>,
+      "subDir": <Null>
+    },
+    {
+      "id": <Id>,
+      "name": <Name>,
+      "pre": <Pre>,
+      "subDir": [
+        {
+          "id": <Id>,
+          "name": <Name>,
+          "pre": <Pre>,
+          "subDir": <Null>
+        }
+      ]
+    }
+  ]
+}
+```
+#### 删除目录
+```
+DELETE /v1/dirs
+Content-Type: application/json
+{
+	"id" : <Id>
+}
+```
+返回包：
+
+```
+200 OK
+```
 #### 创建报表
 ```
 POST /v1/reports
 Content-Type: application/json
 {
+	"dirId": <DirId>,
     "name" : <Name>
 }
 ```
 返回包：
+
 ```
 200 OK
 ```
-#### 获取报表
+#### 更新报表
 ```
-GET /v1/reports
+PUT /v1/reports/<reportId>
+Content-Type: application/json
+{
+    "dirId": <DirId>,
+    "name" : <Name>
+}
+```
+返回包：
+
+```
+200 OK
+```
+
+* 注意：上面参数至少一个
+
+#### 获取报表列表
+```
+GET /v1/reports?dirId=<DirId>
 ```
 返回包
+
 ```
 200 OK
 Content-Type: application/json
@@ -259,6 +378,7 @@ Content-Type: application/json
     reports: [
     {
         "id" : <Id>,
+		"dirId":<DirId>,
         "name" : <Name>,
         "createTime" : <CreateTime>
     },
@@ -266,12 +386,30 @@ Content-Type: application/json
     ]
 }
 ```
+#### 获取报表
+```
+GET /v1/reports/<ReportId>
+```
+返回包
+
+```
+200 OK
+Content-Type: application/json
+{
+	"id" : <Id>,
+	"name" : <Name>,
+	"createTime" : <CreateTime>
+}
+```
+
 #### 删除报表
 请求包
+
 ```
 DELETE /v1/reports/<Id>
 ```
 返回包
+
 ```
 200 OK
 ```
@@ -291,6 +429,7 @@ Content-Type: application/json
 }
 ```
 返回包：
+
 ```
 200 OK
 ```
@@ -299,6 +438,7 @@ Content-Type: application/json
 GET /v1/reports/<ReportId>/charts
 ```
 返回包
+
 ```
 200 OK
 Content-Type: application/json
@@ -323,6 +463,7 @@ Content-Type: application/json
 GET /v1/reports/<ReportId>/charts/<ChartId>
 ```
 返回包
+
 ```
 200 OK
 Content-Type: application/json
@@ -338,10 +479,12 @@ Content-Type: application/json
 
 #### 删除chart
 请求包
+
 ```
 DELETE /v1/reports/<ReportId>/charts/<ChartId>
 ```
 返回包
+
 ```
 200 OK
 ```
@@ -369,6 +512,7 @@ Content-Type: application/json
 }
 ```
 返回包：
+
 ```
 200 OK
 ```
@@ -376,7 +520,8 @@ Content-Type: application/json
 ```
 GET /v1/layouts/<ReportId>
 ```
-返回包
+返回包:
+
 ```
 200 OK
 Content-Type: application/json
@@ -398,6 +543,7 @@ GET /v1/datas?q=<DatasetId>&code=<Code>&type=<ChartType>
 ```
 
 返回包
+
 ```
 200 OK
 Content-Type: application/json
@@ -413,6 +559,7 @@ Content-Type: application/json
 }
 ```
 或者
+
 ```
 {
 	"type" : "ChartType",

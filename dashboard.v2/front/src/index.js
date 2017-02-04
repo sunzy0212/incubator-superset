@@ -19,6 +19,9 @@ app.use(createLoading());
 // 3. Model
 app.model(require('./models/app'));
 app.model(require('./models/datasets'));
+app.model(require('./models/dashboard/dashboard'));
+app.model(require('./models/dashboard/reportboard'));
+app.model(require('./models/dashboard/editor'));
 
 // 4. Router
 app.router(require('./router'));

@@ -19,7 +19,6 @@ const MySQL = ({
     e.preventDefault();
     validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
         const data = {
           id: item.id, // For editor
           name: values.name,

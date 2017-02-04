@@ -117,7 +117,6 @@ export default {
       };
     },
     deleteDataSets(state, action) {
-      console.log(state.records);
       const newRecords = state.records.filter((element) => {
         return element.id !== action.id;
       });
