@@ -32,7 +32,7 @@ const Aside = ({
   }
 
   function handleTitleClick(e) {
-    // openDir(e.key);
+    console.log('handleTitleClick ', e);
   }
 
   function genSubMenu(_dirs, _reports) {
@@ -45,9 +45,9 @@ const Aside = ({
       );
     });
 
-    function genMenuItem(_reports) {
-      if (_reports !== undefined && _reports.length !== 0) {
-        return _reports.map((report) => {
+    function genMenuItem(__reports) {
+      if (__reports !== undefined && __reports.length !== 0) {
+        return __reports.map((report) => {
           return <MenuItem key={report.id}><Link to={`/dashboard/${report.id}`} ><Icon type="file" />{report.name}</Link></MenuItem>;
         });
       }

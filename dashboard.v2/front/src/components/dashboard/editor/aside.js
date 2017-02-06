@@ -5,17 +5,8 @@ import styles from '../aside.less';
 const SubMenu = Menu.SubMenu;
 
 const Aside = ({
-  modalVisible,
-  openModal,
-  onOk,
-  onCancel,
-}) => {
-  const props = {
-    visible: modalVisible,
-    onOk,
-    onCancel,
-  };
 
+}) => {
   function handleClick(value) {
     console.log(`selected ${value}`);
   }
@@ -25,8 +16,6 @@ const Aside = ({
       <div className={styles.topTitle}>
         <div>
           <span>报表制作</span>
-          <Button icon="plus" shape="circle" size="large" type="ghost" onClick={openModal} style={{ float: 'right' }} />
-          <div id="modalMount" />
         </div>
         <Input.Search placeholder="关键字查找" onSearch={value => console.log(value)} />
       </div>
@@ -61,10 +50,7 @@ const Aside = ({
 };
 
 Aside.propTypes = {
-  modalVisible: PropTypes.bool,
-  openModal: PropTypes.func,
-  onOk: PropTypes.func,
-  onCancel: PropTypes.func,
+
 };
 
 export default Aside;

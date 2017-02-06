@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Collapse, Select, Row, Col, Icon, Button} from 'antd';
+import { Form, Collapse, Select, Row, Col, Icon, Button } from 'antd';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import styles from './dataview.less';
 
