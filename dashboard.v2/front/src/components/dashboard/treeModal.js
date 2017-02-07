@@ -1,10 +1,19 @@
 import React, { PropTypes } from 'react';
-import { Modal, Menu, Icon, Button } from 'antd';
+import { Modal, Menu, Icon, Button, Input, Form } from 'antd';
 import styles from './aside.less';
 
 const SubMenu = Menu.SubMenu;
+const FormItem = Form.Item;
 
-const TreeModal = ({ visible, dirs, onOk, onCancel }) => {
+const formItemLayout = {
+  labelCol: { span: 3 },
+  wrapperCol: { span: 18 },
+};
+
+const TreeModal = ({ visible, dirs, onOk, onCancel,
+  form: {
+    getFieldDecorator,
+  } }) => {
   function handleAddAction() {
 
   }
@@ -19,7 +28,7 @@ const TreeModal = ({ visible, dirs, onOk, onCancel }) => {
   return (
     <Modal
       visible={visible}
-      title="报表"
+      title="新增报表"
       onOk={handleOk}
       onCancel={onCancel}
       footer={[
@@ -30,15 +39,32 @@ const TreeModal = ({ visible, dirs, onOk, onCancel }) => {
         </Button>,
       ]}
     >
-      <div className={styles.scroll}>
-        <Menu
-          onClick={handleClick}
-          defaultOpenKeys={['sub1']}
-          mode="inline"
-        >
-          {genSubMenu(dirs)}
-        </Menu>
-      </div>
+      <Form onSubmit={handleOk}>
+
+        <FormItem label="名称：" {...formItemLayout}>
+          {getFieldDecorator('name', {
+            initialValue: '',
+            rules: [
+              {
+                required: true,
+                message: '名称未填写',
+              },
+            ],
+          })(<Input />)}
+        </FormItem>
+
+        <div className={styles.scroll}>
+          <Menu
+            onClick={handleClick}
+            defaultOpenKeys={['sub1']}
+            mode="inline"
+          >
+            <SubMenu key="root#" title={<span><Icon type="folder" />根目录</span>}>
+              {genSubMenu(dirs)}
+            </SubMenu>
+          </Menu>
+        </div>
+      </Form>
     </Modal>
   );
 };
@@ -56,5 +82,4 @@ TreeModal.propTypes = {
   onCancel: PropTypes.func,
 };
 
-
-export default TreeModal;
+export default Form.create()(TreeModal);
