@@ -36,21 +36,25 @@ var (
 		return httputil.NewError(400, fmt.Sprintf("E4202: Post Code Failed : %s", err.Error()))
 	}
 
+	ErrorPostDir = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4203: Post Dir Failed : %s", err.Error()))
+	}
+
 	ErrorPostReport = func(err error) *httputil.ErrorInfo {
-		return httputil.NewError(400, fmt.Sprintf("E4203: Post Report Failed : %s", err.Error()))
+		return httputil.NewError(400, fmt.Sprintf("E4204: Post Report Failed : %s", err.Error()))
 	}
 	ErrorPostChart = func(err error) *httputil.ErrorInfo {
-		return httputil.NewError(400, fmt.Sprintf("E4204: Post Chart Failed : %s", err.Error()))
+		return httputil.NewError(400, fmt.Sprintf("E4205: Post Chart Failed : %s", err.Error()))
 	}
 	ErrorPostLayout = func(err error) *httputil.ErrorInfo {
-		return httputil.NewError(400, fmt.Sprintf("E4205: Post Layout Failed : %s", err.Error()))
+		return httputil.NewError(400, fmt.Sprintf("E4206: Post Layout Failed : %s", err.Error()))
 	}
 
 	ErrNONEXISTENT_MESSAGE = func(err error, mgs interface{}) *httputil.ErrorInfo {
-		return httputil.NewError(404, fmt.Sprintf("E4201: %v", mgs))
+		return httputil.NewError(404, fmt.Sprintf("E4301: %v", mgs))
 	}
 
 	ErrQueryDatas = func(err error, mgs interface{}) *httputil.ErrorInfo {
-		return httputil.NewError(404, fmt.Sprintf("E4301: %v", mgs))
+		return httputil.NewError(404, fmt.Sprintf("E4401: %v", mgs))
 	}
 )
