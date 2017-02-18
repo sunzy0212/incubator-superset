@@ -25,7 +25,7 @@ export default {
         yield put({
           type: 'listDirs',
           payload: {
-            dirs: data.dirs,
+            dirs: data.result.dirs,
           },
         });
       }
@@ -42,7 +42,7 @@ export default {
           type: 'listReports',
           payload: {
             dirId: payload.dirId,
-            reports: data.reports,
+            reports: data.result.reports,
           },
         });
       }

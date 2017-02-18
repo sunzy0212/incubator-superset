@@ -64,15 +64,15 @@ func Test_ApiServer(t *testing.T) {
 	transport.ListenAndServe("report.qiniuapi.com", router.Register(svr))
 	ctx := httptest.New(t)
 	ctx.SetTransport(transport)
-	svr.DatasetColl.RemoveAll(M{})
+	svr.DataSourceColl.RemoveAll(M{})
 	svr.CodeColl.RemoveAll(M{})
 	svr.ReportColl.RemoveAll(M{})
 	svr.ChartColl.RemoveAll(M{})
 	svr.LayoutColl.RemoveAll(M{})
 	ctx.Exec(`
 		
-		### Dataset create
-		post http://report.qiniuapi.com/v1/datasets
+		### DataSource create
+		post http://report.qiniuapi.com/v1/datasources
 		header Content-Type application/json		
 		json '{
 			"host":"127.0.0.1",
@@ -94,11 +94,11 @@ func Test_ApiServer(t *testing.T) {
 			"createTime" : $(ct1)
 		}'
 		
-		### Dataset list
-		get http://report.qiniuapi.com/v1/datasets
+		### DataSource list
+		get http://report.qiniuapi.com/v1/datasources
 		ret 200
 		json '{
-			"datasets" : [
+			"datasources" : [
 	    		{	
 				"id" : $(id1),
 	    			"type" : "MYSQL",
@@ -110,8 +110,8 @@ func Test_ApiServer(t *testing.T) {
 				"createTime" : $(ct1)
 			}]
 		}'
-		### Dataset put
-		put http://report.qiniuapi.com/v1/datasets/$(id1)
+		### DataSource put
+		put http://report.qiniuapi.com/v1/datasources/$(id1)
 		json '{
 			"host":"127.0.0.1",
 			"port":3306,
@@ -122,15 +122,15 @@ func Test_ApiServer(t *testing.T) {
 		}'
 		ret 200
 
-		### Dataset delete 
-		delete http://report.qiniuapi.com/v1/datasets/12
+		### DataSource delete 
+		delete http://report.qiniuapi.com/v1/datasources/12
 		ret 404
 		json '{
 			"error":"E4201: 12 is not exist"
 		}'	
 		
-		### Dataset delete 
-		### delete http://report.qiniuapi.com/v1/datasets/$(id1)
+		### DataSource delete 
+		### delete http://report.qiniuapi.com/v1/datasources/$(id1)
 		### ret 200	
 		
 		

@@ -28,22 +28,24 @@ type cmdArgs struct {
 type Service struct {
 	RWMux *sync.RWMutex
 	common.Collections
+	dataSourceManager *data.DataSourceManager
 }
 
 func NewService(coll common.Collections) (s *Service, err error) {
 	s = &Service{
-		RWMux:       &sync.RWMutex{},
-		Collections: coll,
+		RWMux:             &sync.RWMutex{},
+		Collections:       coll,
+		dataSourceManager: data.NewDataSourceManager(),
 		//Config:      cfg,
 	}
 	return s, nil
 }
 
 /*
-POST /v1/datasets
+POST /v1/datasources
 */
 
-func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error) {
+func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err error) {
 
 	var data []byte
 
@@ -51,9 +53,206 @@ func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error)
 		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
 		return
 	}
-	var req common.Dataset
+	var req common.DataSource
 	if err = json.Unmarshal(data, &req); err != nil {
-		err = ErrorPostDataset(err)
+		err = ErrorPostDataSource(err)
+		return
+	}
+
+	if req.Id, err = common.GenId(); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	req.Id = fmt.Sprintf("datasource_%s", req.Id)
+	req.CreateTime = common.GetCurrTime()
+	req.Type = strings.ToUpper(req.Type)
+	if err = db.DoInsert(s.DataSourceColl, req); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	ret = req
+	log.Infof("success to insert datasource: %+v", req)
+	return
+}
+
+/*
+POST /v1/datasources/test
+*/
+type RetTest struct {
+	Result bool `json:"result"`
+}
+
+func (s *Service) PostDatasourcesTest(env *rpcutil.Env) (ret RetTest, err error) {
+	ret = RetTest{
+		Result: false,
+	}
+	var dataBody []byte
+	if dataBody, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.DataSource
+	if err = json.Unmarshal(dataBody, &req); err != nil {
+		err = ErrorPostDataSource(err)
+		return
+	}
+	if b, err1 := s.dataSourceManager.TestConn(req); err != nil {
+		err = ErrorTestDataSource(err1)
+		return
+	} else {
+		ret.Result = b
+		return
+	}
+}
+
+/*
+PUT /v1/datasources/<Id>
+*/
+func (s *Service) PutDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	var data []byte
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+
+	var req common.DataSource
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrorPostDataSource(err)
+		return
+	}
+	req.Id = id
+	req.Type = strings.ToUpper(req.Type)
+	req.CreateTime = common.GetCurrTime()
+	err = db.DoUpdate(s.DataSourceColl, M{"id": id}, req)
+	if err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	log.Infof("success to update dataSource: %v", req)
+	return
+}
+
+/*GET /v1/datasources
+ */
+
+type RetDataSource struct {
+	DataSources []common.DataSource `json:"datasources"`
+}
+
+func (s *Service) GetDatasources(env *rpcutil.Env) (ret RetDataSource, err error) {
+	ds := make([]common.DataSource, 0)
+	if err = s.DataSourceColl.Find(M{}).Sort("-createTime").All(&ds); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the datasource is empty !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	ret = RetDataSource{ds}
+	log.Infof("success to get all datasources: %v", ret)
+	return
+}
+
+//DELETE /v1/datasources/<Id>
+func (s *Service) DeleteDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	if err = db.DoDelete(s.DataSourceColl, map[string]string{"id": id}); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to delete datasource: %v", id)
+	return
+}
+
+/*
+GET /v1/datasources/<Id>/tables
+*/
+type RetTables struct {
+	Tables []Table `json:"tables"`
+}
+type Table struct {
+	DatasourceId string `json:"datasourceId"`
+	Name         string `json:"name"`
+	Desc         string `json:"desc"`
+}
+
+func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret interface{}, err error) {
+	id := args.CmdArgs[0]
+	var ds common.DataSource
+	if err = s.DataSourceColl.Find(M{"id": id}).One(&ds); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("datasource id:%s is not exist", id))
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	res, err1 := s.dataSourceManager.Get(ds).ShowTables()
+	if err1 != nil {
+		err = ErrorShowTables(err1)
+		return
+	}
+
+	tables := make([]Table, 0)
+
+	for k, v := range res {
+		tables = append(tables, Table{id, k, v})
+	}
+	ret = RetTables{tables}
+	return
+}
+
+/*
+GET /v1/datasources/<Id>/tables/<TableName>
+*/
+type TableSchema struct {
+	DatasourceId string              `json:"datasourceId"`
+	TableName    string              `json:"tableName"`
+	Fields       []map[string]string `json:"fields"`
+	Desc         string              `json:"desc"`
+}
+
+func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret TableSchema, err error) {
+	id := args.CmdArgs[0]
+	name := args.CmdArgs[1]
+	var ds common.DataSource
+	if err = s.DataSourceColl.Find(M{"id": id}).One(&ds); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("datasource id:%s is not exist", id))
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	res, err1 := s.dataSourceManager.Get(ds).Schema(name)
+	if err1 != nil {
+		err = ErrorShowTables(err1)
+		return
+	}
+	ret = TableSchema{DatasourceId: id, TableName: name, Fields: res}
+	return
+}
+
+//###########################################dataset
+/*
+POST /v1/datasets
+*/
+
+func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.DataSet, err error) {
+
+	var data []byte
+
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.DataSet
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrorPostDataSet(err)
 		return
 	}
 
@@ -63,8 +262,8 @@ func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error)
 	}
 	req.Id = fmt.Sprintf("dataset_%s", req.Id)
 	req.CreateTime = common.GetCurrTime()
-	req.Type = strings.ToUpper(req.Type)
-	if err = db.DoInsert(s.DatasetColl, req); err != nil {
+	req.UpdateTime = common.GetCurrTime()
+	if err = db.DoInsert(s.DataSetColl, req); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
@@ -74,68 +273,9 @@ func (s *Service) PostDatasets(env *rpcutil.Env) (ret common.Dataset, err error)
 }
 
 /*
-POST /v1/datasets/test
-*/
-type RetTest struct {
-	Result bool `json:"result"`
-}
-
-func (s *Service) PostDatasetsTest(env *rpcutil.Env) (ret RetTest, err error) {
-	ret = RetTest{
-		Result: false,
-	}
-	var dataBody []byte
-	if dataBody, err = ioutil.ReadAll(env.Req.Body); err != nil {
-		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
-		return
-	}
-	var req common.Dataset
-	if err = json.Unmarshal(dataBody, &req); err != nil {
-		err = ErrorPostDataset(err)
-		return
-	}
-	switch strings.ToUpper(req.Type) {
-	case data.DATASOURCE_MYSQL:
-		config := data.MySQLConfig{
-			Host:     req.Host,
-			Port:     req.Port,
-			Username: req.Username,
-			Password: req.Password,
-			Db:       req.DbName,
-		}
-		handler := data.NewMySQL(&config)
-		_, err = handler.GetConn()
-		if err != nil {
-			err = ErrorTestDataset(err)
-			ret.Result = false
-		} else {
-			ret.Result = true
-		}
-		return
-	case data.DATASOURCE_INFLUXDB:
-		config := data.InfluxDBConfig{
-			Host: req.Host,
-			DB:   req.DbName,
-		}
-		handler := data.NewInfluxDB(&config)
-		_, err = handler.QueryImpl("table", "SHOW DATABASES")
-		if err != nil {
-			err = ErrorTestDataset(err)
-			ret.Result = false
-		} else {
-			ret.Result = true
-		}
-		return
-	default:
-		err = ErrorPostDataset(fmt.Errorf("dataset type {%s} is not support", req.Type))
-		return
-	}
-}
-
-/*
 PUT /v1/datasets/<Id>
 */
-func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
+func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (ret common.DataSet, err error) {
 	id := args.CmdArgs[0]
 	var data []byte
 	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
@@ -143,19 +283,19 @@ func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 
-	var req common.Dataset
+	var req common.DataSet
 	if err = json.Unmarshal(data, &req); err != nil {
-		err = ErrorPostDataset(err)
+		err = ErrorPostDataSet(err)
 		return
 	}
 	req.Id = id
-	req.Type = strings.ToUpper(req.Type)
-	req.CreateTime = common.GetCurrTime()
-	err = db.DoUpdate(s.DatasetColl, M{"id": id}, req)
+	req.UpdateTime = common.GetCurrTime()
+	err = db.DoUpdate(s.DataSetColl, M{"id": id}, req)
 	if err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
+	ret = req
 	log.Infof("success to update dataset: %v", req)
 	return
 }
@@ -164,14 +304,14 @@ func (s *Service) PutDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
  */
 
 type RetDataSet struct {
-	Datasets []common.Dataset `json:"datasets"`
+	DataSets []common.DataSet `json:"datasets"`
 }
 
 func (s *Service) GetDatasets(env *rpcutil.Env) (ret RetDataSet, err error) {
-	ds := make([]common.Dataset, 0)
-	if err = s.DatasetColl.Find(M{}).Sort("-createTime").All(&ds); err != nil {
+	ds := make([]common.DataSet, 0)
+	if err = s.DataSetColl.Find(M{}).Sort("-updateTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the dataset is enpty !")
+			err = ErrNONEXISTENT_MESSAGE(err, "the dataset is empty !")
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
@@ -184,7 +324,7 @@ func (s *Service) GetDatasets(env *rpcutil.Env) (ret RetDataSet, err error) {
 //DELETE /v1/datasets/<Id>
 func (s *Service) DeleteDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	id := args.CmdArgs[0]
-	if err = db.DoDelete(s.DatasetColl, map[string]string{"id": id}); err != nil {
+	if err = db.DoDelete(s.DataSetColl, map[string]string{"id": id}); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
 			return
@@ -370,12 +510,12 @@ func (s *Service) PostCodes(env *rpcutil.Env) (ret common.Code, err error) {
 		return
 	}
 	var b bool
-	if b, err = db.IsExist(s.DatasetColl, M{"id": req.DatasetId}); err != nil {
+	if b, err = db.IsExist(s.DataSourceColl, M{"id": req.DatasetId}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
 	if !b {
-		err = ErrorPostCode(fmt.Errorf("dataset %s is not exist", req.DatasetId))
+		err = ErrorPostCode(fmt.Errorf("datasource %s is not exist", req.DatasetId))
 		return
 	}
 	if req.Id, err = common.GenId(); err != nil {
@@ -491,7 +631,7 @@ func (s *Service) PutCodes_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 	var b bool
-	if b, err = db.IsExist(s.DatasetColl, M{"id": req.DatasetId}); err != nil {
+	if b, err = db.IsExist(s.DataSourceColl, M{"id": req.DatasetId}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
@@ -1023,8 +1163,8 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		datasetId = cd.DatasetId
 		_code = cd.Code
 	}
-	var ds common.Dataset
-	if err = s.DatasetColl.Find(M{"id": datasetId}).One(&ds); err != nil {
+	var ds common.DataSource
+	if err = s.DataSourceColl.Find(M{"id": datasetId}).One(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("the dataset is not exist !", datasetId))
 			return

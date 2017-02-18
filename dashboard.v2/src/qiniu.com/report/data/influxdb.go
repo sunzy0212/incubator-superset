@@ -9,28 +9,38 @@ import (
 	"strings"
 
 	"github.com/qiniu/log.v1"
+
+	"qiniu.com/report/common"
 )
 
-type InfluxDBConfig struct {
-	Host string `json:"host"`
-	DB   string `json:"db"`
-}
-
 type InfluxDB struct {
-	*InfluxDBConfig
+	*common.DataSource
 	client *http.Client
 }
 
-func NewInfluxDB(cfg *InfluxDBConfig) *InfluxDB {
+func NewInfluxDB(cfg *common.DataSource) *InfluxDB {
 	_client := http.DefaultClient
 	return &InfluxDB{
-		InfluxDBConfig: cfg,
-		client:         _client,
+		cfg,
+		_client,
 	}
 }
 
+func (m *InfluxDB) TestConn() (bool, error) {
+	return true, nil
+}
+
+func (m *InfluxDB) ShowTables() (map[string]string, error) {
+	return nil, nil
+}
+
+func (m *InfluxDB) Schema(tableName string) ([]map[string]string, error) {
+	ret := make([]map[string]string, 0)
+	return ret, nil
+}
+
 func (m *InfluxDB) QueryImpl(chartType string, code string) (interface{}, error) {
-	params := url.Values{"db": {m.DB}, "q": {code}}
+	params := url.Values{"db": {m.DbName}, "q": {code}}
 	req, err := http.NewRequest("GET", m.Host+"?"+params.Encode(), nil)
 	if err != nil {
 		log.Error(err)

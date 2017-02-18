@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Menu, Icon, Button, Input } from 'antd';
+import { Menu, Icon, Input } from 'antd';
 import styles from '../aside.less';
 
 const SubMenu = Menu.SubMenu;

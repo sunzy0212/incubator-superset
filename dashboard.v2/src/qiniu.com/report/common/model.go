@@ -1,20 +1,75 @@
 package common
 
 import (
+	"strings"
+
 	"github.com/qiniu/db/mgoutil.v3"
 )
 
+type SourceType int32
+
 const (
-	MYSQL = "mysql"
+	MYSQL SourceType = iota
+	INFLUXDB
+	UNKNOWN
 )
 
+var (
+	sourceNames = map[SourceType]string{
+		MYSQL:    "mysql",
+		INFLUXDB: "influxdb",
+	}
+)
+
+func (t SourceType) String() string {
+	if name := sourceNames[t]; name != "" {
+		return name
+	}
+	return "Unknown"
+}
+
+func ToSourceType(src string) SourceType {
+	for k, v := range sourceNames {
+		if v == strings.ToLower(src) {
+			return k
+		}
+	}
+	return UNKNOWN
+}
+
+type RelationType int32
+
+const (
+	INNER_JOIN RelationType = iota
+	FULL_JOIN
+	LEFT_JOIN
+	RIGHT_JOIN
+)
+
+var (
+	joinTypeNames = map[RelationType]string{
+		INNER_JOIN: "inner join",
+		FULL_JOIN:  "full join",
+		LEFT_JOIN:  "left join",
+		RIGHT_JOIN: "right join",
+	}
+)
+
+func (t RelationType) String() string {
+	if name := joinTypeNames[t]; name != "" {
+		return name
+	}
+	return "Unknown"
+}
+
 type Collections struct {
-	DatasetColl mgoutil.Collection `coll:"dateset"`
-	CodeColl    mgoutil.Collection `coll:"code"`
-	DirColl     mgoutil.Collection `coll:"dir"`
-	ReportColl  mgoutil.Collection `coll:"report"`
-	ChartColl   mgoutil.Collection `coll:"chart"`
-	LayoutColl  mgoutil.Collection `coll:"layout"`
+	DataSourceColl mgoutil.Collection `coll:"datasource"`
+	DataSetColl    mgoutil.Collection `coll:"dateset"`
+	CodeColl       mgoutil.Collection `coll:"code"`
+	DirColl        mgoutil.Collection `coll:"dir"`
+	ReportColl     mgoutil.Collection `coll:"report"`
+	ChartColl      mgoutil.Collection `coll:"chart"`
+	LayoutColl     mgoutil.Collection `coll:"layout"`
 }
 
 /*
@@ -28,7 +83,7 @@ type Collections struct {
 	password			string
 	createTime		timestamp
 */
-type Dataset struct {
+type DataSource struct {
 	Id         string `json:"id" bson:"id"`
 	Name       string `json:"name" bson:"name"`
 	Host       string `json:"host" bson:"host"`
@@ -38,6 +93,41 @@ type Dataset struct {
 	Username   string `json:"username" bson:"username"`
 	Password   string `json:"password" bson:"password"`
 	CreateTime string `json:"createTime" bson:"createTime"`
+}
+
+///////////////////////////////////dataset
+
+type DataSourceTable struct {
+	DatasourceId string `json:"dataSourceId" bson:"dataSourceId"`
+	Name         string `json:"name" bson:"name"`
+}
+
+type Relationship struct {
+	Left     DataSourceTable `json:"left" bson:"left"`
+	Right    DataSourceTable `json:"right" bson:"right"`
+	Relation RelationType    `json:"relation" bson:"relation"`
+}
+type Dimension struct {
+	Name  string `json:"name" bson:"name"`
+	Alias string `json:"alias" bson:"alias"`
+}
+
+type Measure struct {
+	Name   string `json:"name" bson:"name"`
+	Alias  string `json:"alias" bson:"alias"`
+	Action string `json:"action" bson:"action"`
+}
+
+type DataSet struct {
+	Id            string                     `json:"id" bson:"id"`
+	Name          string                     `json:"name" bson:"name"`
+	DataSources   map[string]DataSourceTable `json:"datasources" bson:"datasources"`
+	Relationships []Relationship             `json:"relationships" bson:"relationships"`
+	Dimensions    []Dimension                `json:"dimensions" bson:"dimensions"`
+	Measures      []Measure                  `json:"measures" bson:"measures"`
+	Time          string                     `json:"time" bson:"time"`
+	CreateTime    string                     `json:"createTime" bson:"createTime"`
+	UpdateTime    string                     `json:"updateTime" bson:"updateTime"`
 }
 
 /*
@@ -121,7 +211,8 @@ type Layout struct {
 }
 
 func (db *Collections) EnsureIndex() {
-	db.DatasetColl.EnsureIndexes("id,type :unique")
+	db.DataSourceColl.EnsureIndexes("id,type :unique")
+	db.DataSetColl.EnsureIndexes("id:unique")
 	db.CodeColl.EnsureIndexes("type")
 	db.DirColl.EnsureIndexes("id :unique", "name:unique")
 	//db.ReportColl.EnsureIndexes("id,dirId,name :unique")
