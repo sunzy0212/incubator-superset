@@ -1,24 +1,36 @@
 import { request } from '../utils';
 
-export async function listDatasets(params) {
+export async function listDataSets(params) {
   return request('/v1/datasets', {
     method: 'get',
     data: params,
   });
 }
 
-export async function saveDataSet(params) {
-  const id = params.id || '';
-  return request(`/v1/datasets${id === '' ? '' : `/${id}`}`, {
-    method: id === '' ? 'post' : 'put',
-    body: JSON.stringify(params),
+export async function getDataSet(params) {
+  return request(`/v1/datasets/${params.id}`, {
+    method: 'get',
+    data: params,
   });
 }
-
 
 export async function deleteDataSet(params) {
   return request(`/v1/datasets/${params.id}`, {
     method: 'delete',
     data: params,
+  });
+}
+
+export async function saveDataSet(params) {
+  return request('/v1/datasets', {
+    method: 'post',
+    body: JSON.stringify(params),
+  });
+}
+
+export async function updateDataSet(params) {
+  return request(`/v1/datasets/${params.id}`, {
+    method: 'put',
+    body: JSON.stringify(params.dataset),
   });
 }

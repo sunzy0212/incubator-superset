@@ -4,7 +4,6 @@ import { Link } from 'dva/router';
 import styles from './main.less';
 import { config, menu } from '../../utils';
 
-
 const topMenus = menu.map(item => item.key);
 const getMenus = function (menuArray, siderFold, parentPath) {
   parentPath = parentPath || '/';

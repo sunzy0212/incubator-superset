@@ -1,54 +1,96 @@
 import { parse } from 'qs';
-import { listDatasets, saveDataSet, deleteDataSet } from '../services/datasets';
+import { saveDataSet, updateDataSet, getDataSet, deleteDataSet } from '../services/datasets';
+import { getSchema } from '../services/datasource';
 
 
 export default {
   namespace: 'datasets',
   state: {
+    inited: false,
+    modalVisibles: { toSave: false },
     loading: false,
-    saveLoading: false,
-    modalVisible: false,
-    item: {},
-    dataSetType: 'MYSQL',
-    records: [],
+    datasources: {},
+    dataset: {},
+    relationships: [],
+    dimensions: [{ name: '默认' }],
+    measures: [{ name: '总数' }, { name: '平均' }, { name: '最小' }, { name: '最大' }],
+    time: '',
   },
   subscriptions: {
-    setup({ dispatch }) {
-      dispatch({ type: 'queryDatasets' });
-    },
+
   },
   effects: {
-    *queryDatasets({
+    *newDataSet({
       payload,
     }, { call, put }) {
       yield put({ type: 'showLoading' });
-      const data = yield call(listDatasets, parse(payload));
+      const data = yield call(getSchema, parse({ id: payload.datasourceId,
+        tableName: payload.name }));
       if (data.success) {
         yield put({
-          type: 'listDatasets',
+          type: 'generateFileds',
           payload: {
-            records: data.datasets,
+            schema: data.result,
+            inited: true,
+            datasource: { ...payload },
           },
         });
       }
       yield put({ type: 'hideLoading' });
     },
-    *save({
+
+    *initDataSet({
       payload,
     }, { call, put }) {
-      console.log('Save', payload);
-      // yield put({type: 'showSaveLoading'})
-      const data = yield call(saveDataSet, parse(payload));
+      yield put({ type: 'showLoading' });
+      const data = yield call(getDataSet, parse({ id: payload.id }));
       if (data.success) {
-        yield put({ type: 'queryDatasets' });
+        yield put({
+          type: 'initState',
+          payload: {
+            dataset: data.result,
+          },
+        });
       }
-      yield put({ type: 'hideSaveLoading' });
+      yield put({ type: 'hideLoading' });
     },
-    *'delete'({ payload }, { call, put }) {
+
+    *saveOrUpdate({
+      payload,
+    }, { call, put, select }) {
+      yield put({ type: 'showLoading' });
+      const datasets = yield select(state => state.datasets);
+      if (datasets.dataset.id === undefined || datasets.dataset.name === '') {
+        const data = yield call(saveDataSet, parse({ name: payload.name }));
+        if (data.success) {
+          datasets.dataset = data.result;
+          yield put({ type: 'updateState', payload: { dataset: data.result } });
+        }
+      }
+      const data = yield call(updateDataSet, parse({
+        id: datasets.dataset.id,
+        dataset: {
+          name: datasets.dataset.name,
+          datasources: datasets.datasources,
+          relationships: datasets.relationships,
+          dimensions: datasets.dimensions,
+          measures: datasets.measures,
+          time: datasets.time,
+          createTime: datasets.createTime,
+        },
+      }));
+      if (data.success) {
+        yield put({ type: 'updateState', payload: { dataset: data.result } });
+      }
+
+      yield put({ type: 'hideLoading' });
+    },
+
+    *delete({ payload }, { call, put }) {
       const data = yield call(deleteDataSet, parse(payload));
       if (data.success) {
         yield put({
-          type: 'deleteDataSets',
+          type: 'deleteDataSource',
           ...payload,
         });
       }
@@ -64,66 +106,56 @@ export default {
     hideLoading(state) {
       return {
         ...state,
-        item: {},
         loading: false,
       };
     },
 
-    showSaveLoading(state) {
-      return {
-        ...state,
-        saveLoading: true,
+    toggleModal(state, action) {
+      const modalVisibles = {
+        ...state.modalVisibles,
+        ...action.payload,
       };
-    },
-    hideSaveLoading(state) {
       return {
         ...state,
-        saveLoading: false,
-        modalVisible: false,
+        modalVisibles,
       };
     },
 
-    showModal(state, action) {
-      const data = action.payload;
-      if (data.id === undefined || data.id === '') {
-        return {
-          ...state,
-          modalVisible: true,
-          dataSetType: data.dataSetType,
-        };
-      } else {
-        const item = state.records.filter((element) => {
-          return element.id === data.id;
-        });
-        return {
-          ...state,
-          item: item[0],
-          modalVisible: true,
-          dataSetType: item[0].type,
-        };
-      }
-    },
-
-    hideModal(state) {
-      return {
-        ...state,
-        modalVisible: false,
-      };
-    },
-    listDatasets(state, action) {
+    updateState(state, action) {
       return {
         ...state,
         ...action.payload,
       };
     },
-    deleteDataSets(state, action) {
-      const newRecords = state.records.filter((element) => {
-        return element.id !== action.id;
-      });
+
+    initState(state, action) {
+      const tmp = action.payload;
       return {
         ...state,
-        records: newRecords,
+        dataset: tmp.dataset.dataset,
+        relationships: tmp.dataset.relationships,
+        datasources: tmp.dataset.datasources,
+        dimensions: tmp.dataset.dimensions,
+        measures: tmp.dataset.measures,
+        time: tmp.dataset.time,
       };
     },
+
+    generateFileds(state, action) {
+      const res = action.payload;
+      const datasources = state.datasources;
+      const dimensions = state.dimensions;
+      datasources[`${res.datasource.datasourceId}_${res.datasource.name}`] = res.datasource;
+      res.schema.fields.forEach((e) => {
+        dimensions.push({ name: e.field, type: e.type });
+      });
+
+      return {
+        ...state,
+        datasources,
+        dimensions,
+      };
+    },
+
   },
 };

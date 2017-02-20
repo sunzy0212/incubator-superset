@@ -2,11 +2,11 @@
 
 
 ### 数据源管理
-dataset数据结构
+datasource数据结构
 
 ```
 {
-	id			string 
+	id		string 
 	host		string
 	port		int
 	type		string  //数据源类型：可选MYSQL/MGO/Spark...
@@ -20,7 +20,7 @@ dataset数据结构
 
 #### 创建数据源
 ```
-POST /v1/datasets
+POST /v1/datasources
 Content-Type: application/json
 {
 	"name" : <Name>,
@@ -51,7 +51,7 @@ Content-Type: application/json
 ```
 #### 测试数据源
 ```
-POST /v1/datasets/test
+POST /v1/datasources/test
 Content-Type: application/json
 {
 	"name" : <Name>,
@@ -70,7 +70,7 @@ Content-Type: application/json
 #### 更新数据源
 
 ```
-PUT /v1/datasets/<Id>
+PUT /v1/datasources/<Id>
 Content-Type: application/json
 {
 	"name" : <Name>,
@@ -80,6 +80,159 @@ Content-Type: application/json
     "dbName" : <DbName>,
     "username" : <Username>,
     "password" : <Password>
+}
+```
+返回包：
+```
+200 OK
+```
+
+#### 获取数据源
+```
+GET /v1/datasources
+```
+返回包:
+
+```
+200 OK
+Content-Type: application/json
+{
+	datasources: [
+	{
+		"id" : <Id>,
+		"name" : <Name>,
+		"host" : <Host>,
+		"port" : <Port>,
+		"type" : <Type>,
+		"dbName" : <DbName>,
+		"username" : <Username>,
+		"password" : <Password>,
+		"createTime" : <CreateTime>
+	},
+	...
+	]
+}
+```
+#### 删除数据源
+请求包:
+
+```
+DELETE /v1/datasources/<Id>
+```
+返回包:
+
+```
+200 OK
+```
+#### 获取数据源信息（比如：表）
+```
+GET /v1/datasources/<Id>/tables
+```
+返回包:
+
+```
+200 OK
+Content-Type: application/json
+{
+	tables: [
+	{
+		"datasourceId": <DatasourceId>,
+		"name" : <Name>,
+		"desc" : <Desc>
+	},
+	...
+	]
+}
+```
+#### 获取数据源信息（比如：表）
+```
+GET /v1/datasources/<Id>/tables/<TableName>
+```
+返回包:
+
+```
+200 OK
+Content-Type: application/json
+{
+	"datasourceId": <DatasourceId>,
+	"tableName": <TableName>,
+	"fields": <Fields>,
+	"desc": <Desc>
+}
+```
+
+### 数据集管理
+dataset数据结构
+
+```
+{
+	id		string 
+	name		string
+	dataSources []string
+	relationships []Relationship
+	dimensions 	[]Dimension  //fields sets
+	measures 	[]Measure	//fields sets
+	time 	string
+	createTime  timestamp
+	updateTime 	timestamp
+}
+```
+上述结构的子结构有：
+
+```
+RelationType
+{
+	INNER-JOIN
+	FULL-JOIN
+	LEFT-JOIN
+	RIGHT-JOIN
+}
+DataSourceTable
+{
+	datasourceId string
+	name string
+}
+Relationship
+{
+	left DataSourceTable
+	right DataSourceTable
+	relation RelationType
+}
+
+```
+
+#### 创建数据集
+```
+PUT /v1/datasets
+Content-Type: application/json
+{
+	"name" : <Name>,
+}
+```
+返回包：
+
+```
+200 OK
+Content-Type: application/json
+{
+	"id" : <Id>,
+	"name" : <Name>
+}
+```
+#### 更新数据集
+
+```
+PUT /v1/datasets/<Id>
+Content-Type: application/json
+{
+	"name": <Name>,
+	"dataSources": <DataSources>,
+	"relationships": <Relationships>,
+	"dimensions": <Dimensions>,
+	"measures": <Measures>,
+	"time":<Time>,
+	"createTime": <createTime>,
+	"updateTime": <updateTime>,
 }
 ```
 返回包：
@@ -100,20 +253,21 @@ Content-Type: application/json
 	datasets: [
 	{
 		"id" : <Id>,
-		"name" : <Name>,
-		"host" : <Host>,
-		"port" : <Port>,
-		"type" : <Type>,
-		"dbName" : <DbName>,
-		"username" : <Username>,
-		"password" : <Password>,
-		"createTime" : <CreateTime>
+		"name": <Name>,
+		"dataSources": <DataSources>,
+		"relationships": <Relationships>,
+		"dimensions": <Dimensions>,
+		"measures": <Measures>,
+		"time":<Time>,
+		"createTime": <createTime>,
+		"updateTime": <updateTime>,
 	},
 	...
 	]
 }
 ```
-#### 删除数据源
+
+#### 删除数据集
 请求包:
 
 ```
@@ -125,6 +279,7 @@ DELETE /v1/datasets/<Id>
 200 OK
 ```
 
+
 ### code(sql) 操作
 数据结构如下:
 
@@ -133,7 +288,7 @@ DELETE /v1/datasets/<Id>
 	id		string
 	name		string
 	code		string
-	datasetId	string
+	datasourceId	  string
 	type		string
 	createTime timestamp
 }
@@ -146,7 +301,7 @@ Content-Type: application/json
 	"name" : <Name>,
 	"code" : <Code>,
 	"type" : <Type>,
-	"datasetId" : <DatasetId>    
+	"datasourceId" : <DatasetId>    
 }
 ```
 返回包：
@@ -163,7 +318,7 @@ Content-Type: application/json
     "name" : <Name>,
     "code" : <Code>,
     "type" : <Type>,
-    "datasetId" : <DatasetId>
+    "datasourceId" : <DatasetId>
 }
 ```
 返回包：

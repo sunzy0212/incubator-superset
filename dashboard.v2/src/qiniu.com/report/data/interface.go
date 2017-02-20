@@ -15,3 +15,12 @@ type TagTimeData struct {
 type QueryBase interface {
 	QueryImpl(chartType string, code string) (interface{}, error)
 }
+
+type DataSourceInterface interface {
+	TestConn() (bool, error)
+	ShowTables() (map[string]string, error)
+	Schema(string) ([]map[string]string, error)
+}
+
+type DataSetInterface interface {
+}

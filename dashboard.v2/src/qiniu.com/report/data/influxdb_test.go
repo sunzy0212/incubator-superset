@@ -2,13 +2,16 @@ package data
 
 import (
 	"testing"
+
+	"qiniu.com/report/common"
 )
 
 //curl -i -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE mydb"
 //curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary 'cpu_load_short,host=server01,region=us-west value=0.64 1434055562000000000'
 
 func Test_Query(t *testing.T) {
-	cfg := InfluxDBConfig{"http://localhost:8086/query", "mydb"}
+
+	cfg := common.DataSource{Host: "http://localhost:8086/query", DbName: "mydb"}
 	handler := NewInfluxDB(&cfg)
 	ret, err := handler.QueryImpl("table", "SHOW SERIES")
 	if err != nil {

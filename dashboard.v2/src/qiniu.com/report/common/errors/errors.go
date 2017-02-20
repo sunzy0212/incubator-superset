@@ -24,12 +24,20 @@ var (
 	// General errors
 	ErrInternalError = httputil.NewError(500, "E5100: Internal server error")
 
-	ErrorPostDataset = func(err error) *httputil.ErrorInfo {
-		return httputil.NewError(400, fmt.Sprintf("E4201: Post DataSet Failed : %s", err.Error()))
+	ErrorPostDataSource = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4211: Post DataSource Failed : %s", err.Error()))
 	}
 
-	ErrorTestDataset = func(err error) *httputil.ErrorInfo {
-		return httputil.NewError(400, fmt.Sprintf("E4211: Test DataSet Failed : %s", err.Error()))
+	ErrorShowTables = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4212: Show table Failed : %s", err.Error()))
+	}
+
+	ErrorTestDataSource = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4213: Test DataSource Failed : %s", err.Error()))
+	}
+
+	ErrorPostDataSet = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4221: Post DataSet Failed : %s", err.Error()))
 	}
 
 	ErrorPostCode = func(err error) *httputil.ErrorInfo {

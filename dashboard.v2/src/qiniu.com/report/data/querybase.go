@@ -5,40 +5,29 @@ import (
 )
 
 type QueryConfig struct {
-	common.Dataset
+	common.DataSource
 }
 
-var queryHandler = make(map[common.Dataset]QueryBase)
+var queryHandler = make(map[common.DataSource]QueryBase)
 
-func Query(dataset common.Dataset, _code string, _chartType string) (ret interface{}, err error) {
+func Query(ds common.DataSource, _code string, _chartType string) (ret interface{}, err error) {
 Loop:
-	if handler, ok := queryHandler[dataset]; ok {
+	if handler, ok := queryHandler[ds]; ok {
 		if ret, err = handler.QueryImpl(_chartType, _code); err != nil {
 			return
 		}
 	} else {
 		//初始化query handler
 		var handler QueryBase
-		switch dataset.Type {
+		switch ds.Type {
 		case "MYSQL":
-			config := MySQLConfig{
-				Host:     dataset.Host,
-				Port:     dataset.Port,
-				Username: dataset.Username,
-				Password: dataset.Password,
-				Db:       dataset.DbName,
-			}
-			handler = NewMySQL(&config)
+			handler = NewMySQL(&ds)
 		case "INFLUXDB":
-			config := InfluxDBConfig{
-				Host: dataset.Host,
-				DB:   dataset.DbName,
-			}
-			handler = NewInfluxDB(&config)
+			handler = NewInfluxDB(&ds)
 		default:
 			return
 		}
-		queryHandler[dataset] = handler
+		queryHandler[ds] = handler
 		goto Loop
 	}
 	return

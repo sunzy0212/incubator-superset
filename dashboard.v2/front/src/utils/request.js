@@ -26,8 +26,7 @@ export default function request(url, options) {
     .then(checkStatus)
     .then(parseJSON)
     .then((data) => {
-      data.success = true;
-      return data;
+      return { success: true, result: data };
     })
     .catch(err => ({ err }));
 }

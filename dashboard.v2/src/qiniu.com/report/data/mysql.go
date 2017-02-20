@@ -8,23 +8,74 @@ import (
 
 	"github.com/qiniu/log.v1"
 	"github.com/siddontang/go-mysql/client"
+
+	"qiniu.com/report/common"
 )
 
-type MySQLConfig struct {
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	Db       string `json:"dbName"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 type MySQL struct {
-	*MySQLConfig
+	*common.DataSource
 }
 
-func NewMySQL(cfg *MySQLConfig) *MySQL {
+func NewMySQL(cfg *common.DataSource) *MySQL {
 	return &MySQL{cfg}
 }
+
+func (m *MySQL) TestConn() (bool, error) {
+	_, err := m.GetConn()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (m *MySQL) ShowTables() (map[string]string, error) {
+	ret := make(map[string]string)
+	conn, err := m.GetConn()
+	if err != nil {
+		return nil, err
+	}
+	res, err := conn.Execute("show tables;")
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < res.RowNumber(); i++ {
+		r, err := res.GetString(i, 0)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		ret[r] = ""
+	}
+	return ret, nil
+}
+
+func (m *MySQL) Schema(tableName string) ([]map[string]string, error) {
+	ret := make([]map[string]string, 0)
+	conn, err := m.GetConn()
+	if err != nil {
+		return nil, err
+	}
+	res, err := conn.Execute(fmt.Sprintf("desc %s;", tableName))
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < res.RowNumber(); i++ {
+		_ret := make(map[string]string)
+		field, err := res.GetStringByName(i, "Field")
+		dtype, err := res.GetStringByName(i, "Type")
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		_ret["field"] = field
+		_ret["type"] = dtype
+		ret = append(ret, _ret)
+	}
+	return ret, nil
+
+}
+
 func (m *MySQL) QueryImpl(chartType string, code string) (interface{}, error) {
 	_code := strings.ToLower(strings.TrimRight(strings.TrimSpace(code), ";"))
 	db, err := m.GetConn()
@@ -157,7 +208,7 @@ func (m *MySQL) QueryImpl(chartType string, code string) (interface{}, error) {
 }
 
 func (m *MySQL) GetConn() (*client.Conn, error) {
-	return client.Connect(fmt.Sprintf("%s:%d", m.Host, m.Port), m.Username, m.Password, m.Db)
+	return client.Connect(fmt.Sprintf("%s:%d", m.Host, m.Port), m.Username, m.Password, m.DbName)
 }
 
 var (

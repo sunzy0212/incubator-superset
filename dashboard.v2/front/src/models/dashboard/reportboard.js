@@ -59,12 +59,12 @@ export default {
         yield put({
           type: 'renderReport',
           payload: {
-            report,
-            layout: layouts.layouts,
-            charts: charts.charts,
+            report: report.result,
+            layout: layouts.result.layouts,
+            charts: charts.result.charts,
           },
         });
-        for (const chart in charts.charts) {
+        for (const chart in charts.result.charts) {
           yield put({
             type: 'query',
             payload: {
@@ -87,7 +87,7 @@ export default {
           type: 'renderChart',
           payload: {
             chartId: payload.id,
-            data,
+            data: data.result,
           },
         });
       }

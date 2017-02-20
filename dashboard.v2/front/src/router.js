@@ -1,6 +1,8 @@
 import React from 'react';
 import { Router } from 'dva/router';
 
+import Datasets from "./routes/Datasets.js";
+
 const cached = {};
 function registerModel(app, model) {
   if (!cached[model.namespace]) {
@@ -33,6 +35,17 @@ function RouterConfig({ history, app }) {
       },
 
       {
+        path: '/datasource',
+        name: 'datasource',
+        getComponent(nextState, cb) {
+          require.ensure([], (require) => {
+            registerModel(app, require('./models/datasource'));
+            cb(null, require('./routes/Datasource'));
+          });
+        },
+      },
+
+      {
         path: '/datasets',
         name: 'datasets',
         getComponent(nextState, cb) {
@@ -42,6 +55,7 @@ function RouterConfig({ history, app }) {
           });
         },
       },
+
       {
         path: '/dashboard',
         name: 'dashboard',
@@ -108,7 +122,7 @@ function RouterConfig({ history, app }) {
   //   <Router history={history}>
   //     <Route path="/" component={Main}>
   //       <IndexRedirect to="/dashboard" />
-  //       <Route path="datasets" component={Datasets} />
+  //       <Route path="datasource" component={Datasource} />
   //       <Route path="dashboard" component={Dashboard} >
   //         <Route path=":id" component={ReportBoard} />
   //       </Route>
