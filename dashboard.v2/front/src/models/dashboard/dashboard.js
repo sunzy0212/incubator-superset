@@ -73,10 +73,6 @@ export default {
       if (data.success) {
         yield put({
           type: 'getAllReports',
-          payload: {
-            dirId: payload.dirId,
-            name: data.name,
-          },
         });
       }
       yield put({ type: 'hideLoading' });

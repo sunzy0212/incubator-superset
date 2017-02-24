@@ -17,8 +17,9 @@ export async function openDir(params) {
 }
 
 export async function getAllReports(params) {
-  return request(`/v1/reports`, {
+  return request('/v1/reports', {
     method: 'get',
+    data: params,
   });
 }
 

@@ -26,32 +26,33 @@ class EditableCell extends React.Component {
   render() {
     const { key, value, editable, dirFlag } = this.state;
     if (dirFlag === true) {
-      return (<div className={styles.editable_cell}>
+      return (<span className={styles.editable_cell}>
         {
         editable ?
-          <div className={styles.editable_cell_input_wrapper}>
+          <span className={styles.editable_cell_input_wrapper}>
             <Input
               value={value}
               onChange={this.handleChange}
               onPressEnter={this.check}
+              className={styles.editable_cell_input_width}
             />
             <Icon
               type="check"
               className={styles.editable_cell_icon_check}
               onClick={this.check}
             />
-          </div>
+          </span>
         :
-          <div className={styles.editable_cell_text_wrapper}>
+          <span className={styles.editable_cell_text_wrapper}>
             <Link className={styles.editable_link} to={`/dashboard/${key}`} ><Icon type="folder" />{value || ' '}</Link>
             <Icon
               type="edit"
               className={styles.editable_cell_icon}
               onClick={this.edit}
             />
-          </div>
+          </span>
       }
-      </div>);
+      </span>);
     } else {
       return (
         <Link className={styles.editable_link} to={`/dashboard/${key}`} ><Icon type="file" />{value || ' '}</Link>

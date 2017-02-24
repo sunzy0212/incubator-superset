@@ -50,7 +50,7 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
     title: 'Name',
     dataIndex: 'name',
     key: 'name',
-    width: '80%',
+    width: '70%',
     render: (text, record) => (
       <EditableCell value={text} id={record.key} dirFlag={record.dirFlag} />),
   }, {
@@ -74,7 +74,7 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
 
       reports.forEach((e, i) => {
         if (dirEle.id === e.dirId) {
-          transformArr[i].children.push({
+          transformArr[j].children.push({
             key: e.id,
             name: e.name,
             dirFlag: false,
@@ -137,4 +137,3 @@ Aside.propTypes = {
 };
 
 export default Aside;
-
