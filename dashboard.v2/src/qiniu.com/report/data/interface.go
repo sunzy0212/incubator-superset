@@ -23,4 +23,5 @@ type DataSourceInterface interface {
 }
 
 type DataSetInterface interface {
+	Execute() interface{}
 }

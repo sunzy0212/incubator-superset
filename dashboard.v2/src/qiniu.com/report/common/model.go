@@ -37,6 +37,38 @@ func ToSourceType(src string) SourceType {
 	return UNKNOWN
 }
 
+type DataFormatType int32
+
+const (
+	JSON DataFormatType = iota
+	CSV
+	EXCEL
+)
+
+var (
+	dataTypeNames = map[DataFormatType]string{
+		JSON:  "json",
+		CSV:   "csv",
+		EXCEL: "excel",
+	}
+)
+
+func (t DataFormatType) String() string {
+	if name := dataTypeNames[t]; name != "" {
+		return name
+	}
+	return "Unknown"
+}
+
+func ToDataFormatType(src string) DataFormatType {
+	for k, v := range dataTypeNames {
+		if v == strings.ToLower(src) {
+			return k
+		}
+	}
+	return JSON
+}
+
 type RelationType int32
 
 const (
@@ -117,6 +149,11 @@ type Measure struct {
 	Alias  string `json:"alias" bson:"alias"`
 	Action string `json:"action" bson:"action"`
 }
+type TimeField struct {
+	Name   string `json:"name" bson:"name"`
+	Alias  string `json:"alias" bson:"alias"`
+	Action string `json:"action" bson:"action"`
+}
 
 type DataSet struct {
 	Id            string                     `json:"id" bson:"id"`
@@ -125,7 +162,7 @@ type DataSet struct {
 	Relationships []Relationship             `json:"relationships" bson:"relationships"`
 	Dimensions    []Dimension                `json:"dimensions" bson:"dimensions"`
 	Measures      []Measure                  `json:"measures" bson:"measures"`
-	Time          string                     `json:"time" bson:"time"`
+	Times         []TimeField                `json:"times" bson:"times"`
 	CreateTime    string                     `json:"createTime" bson:"createTime"`
 	UpdateTime    string                     `json:"updateTime" bson:"updateTime"`
 }
@@ -140,6 +177,7 @@ type DataSet struct {
 */
 type Dir struct {
 	Id   string `json:"id" bson:"id"`
+	Type string `json:"type" bson:"type"`
 	Name string `json:"name" bson:"name"`
 	Pre  string `json:"pre" bson:"pre"`
 	Post string `json:"post" bson:"post"`
@@ -156,12 +194,11 @@ type Dir struct {
 }
 */
 type Code struct {
-	Id         string `json:"id" bson:"id"`
-	Name       string `json:"name" bson:"name"`
-	Code       string `json:"code" bson:"code"`
-	DatasetId  string `json:"datasetId" bson:"datasetId"`
-	Type       string `json:"type" bson:"type"`
-	CreateTime string `json:"createTime" bson:"createTime"`
+	Id         string                 `json:"id" bson:"id"`
+	Name       string                 `json:"name" bson:"name"`
+	DatasetId  string                 `json:"datasetId" bson:"datasetId"`
+	Querys     map[string]interface{} `json:"querys" bson:"querys"`
+	CreateTime string                 `json:"createTime" bson:"createTime"`
 }
 
 /**report
@@ -196,7 +233,7 @@ type Chart struct {
 	SubTitle string `json:"subTitle" bson:"subTitle"`
 	Stack    bool   `json:"stack" bson:"stack"`
 	CodeId   string `json:"codeId" bson:"codeId"`
-	ReportId string `json:"reportId" bson:"reportId"`
+	DirId    string `json:"dirId" bson:"dirId"`
 }
 
 /*

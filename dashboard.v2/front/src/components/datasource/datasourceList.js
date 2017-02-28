@@ -47,7 +47,7 @@ const DatasetList = ({ loading, onEditor, onDelete, onLoadTables, datasources })
             <a icon="delete">删除</a>
           </Popconfirm>
           <span className="ant-divider" />
-          <a href="#" className="ant-dropdown-link" onClick={() => onLoadTables(record.key)}>加载
+          <a className="ant-dropdown-link" onClick={() => onLoadTables(record.key)}>加载
           </a>
         </span>
       ),

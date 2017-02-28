@@ -1,8 +1,6 @@
 import React from 'react';
 import { Router } from 'dva/router';
 
-import Datasets from "./routes/Datasets.js";
-
 const cached = {};
 function registerModel(app, model) {
   if (!cached[model.namespace]) {
@@ -104,15 +102,25 @@ function RouterConfig({ history, app }) {
       },
 
       {
-        path: '/editor',
-        name: 'editor',
+        path: '/analysor',
+        name: 'analysor',
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
             // app.model(require('./models/dashboard/dashboard'));
-            registerModel(app, require('./models/editor'));
-            cb(null, require('./routes/Editor'));
+            registerModel(app, require('./models/analysor'));
+            cb(null, require('./routes/Analysor'));
           });
         },
+        childRoutes: [
+          {
+            path: ':id',
+            getComponent(nextState, cb) {
+              require.ensure([], (require) => {
+                cb(null, require('./routes/Analysor'));
+              });
+            },
+          },
+        ],
       },
     ],
   };
