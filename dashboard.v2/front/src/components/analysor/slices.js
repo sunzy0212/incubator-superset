@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
-import { Form, Collapse, Select, Tooltip, Row, Col, Icon, DatePicker, Switch, Button, Input } from 'antd';
+import { Form, Collapse, Select, Tooltip, Row, Col, Icon, DatePicker, Button } from 'antd';
+import AddOn from './addOn';
 import styles from './slices.less';
 
 const Panel = Collapse.Panel;
@@ -298,84 +299,6 @@ class Slices extends React.Component {
     );
   }
 }
-
-const AddOn = React.createClass({
-
-  getInitialState() {
-    const value = this.props.value || {};
-    return {
-      field: value.field || '',
-      operator: value.operator || '=',
-      data: value.data || '',
-    };
-  },
-  componentWillReceiveProps(nextProps) {
-    // Should be a controlled component.
-    if ('value' in nextProps) {
-      const value = nextProps.value;
-      this.setState({ ...value });
-    }
-  },
-  handleFieldChange(field) {
-    if (!('value' in this.props)) {
-      this.setState({ field });
-    }
-    this.triggerChange({ field });
-  },
-  handleOperatorChange(operator) {
-    if (!('value' in this.props)) {
-      this.setState({ operator });
-    }
-    this.triggerChange({ operator });
-  },
-  handleDataChange(e) {
-    const data = e.target.value;
-    if (!('value' in this.props)) {
-      this.setState({ data });
-    }
-    this.triggerChange({ data });
-  },
-  triggerChange(changedValue) {
-    // Should provide an event to pass value to Form.
-    const onChange = this.props.onChange;
-    if (onChange) {
-      onChange(Object.assign({}, this.state, changedValue));
-    }
-  },
-
-  render() {
-    const { size } = this.props;
-    const { type, index, fieldOptions, operatorOptions, deleteAddOns } = this.props.value;
-    const state = this.state;
-    return (
-      <span>
-        <Select
-          size={size}
-          value={state.field}
-          style={{ width: '25%', marginRight: '1%' }}
-          onChange={this.handleFieldChange}
-        >
-          {genOptionsOfSelect(fieldOptions)}
-        </Select>
-        <Select
-          size={size}
-          value={state.operator}
-          style={{ width: '20%', marginRight: '1%' }}
-          onChange={this.handleOperatorChange}
-        >
-          {genOptionsOfSelect(operatorOptions)}
-        </Select>
-        <Input
-          type="text"
-          size={size}
-          value={state.data}
-          onChange={this.handleDataChange}
-          style={{ width: '40%', marginRight: '3%' }}
-        />
-        <Button shape="circle" icon="minus" type="ghost" onClick={() => deleteAddOns(type, index)} />
-      </span>);
-  },
-});
 
 function genOptionsOfSelect(fields) {
   if (fields === undefined || fields === null) {

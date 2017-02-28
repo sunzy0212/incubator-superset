@@ -29,7 +29,7 @@ export default {
   },
   subscriptions: {
     setup({ dispatch, history }) {
-      return history.listen(({ pathname, query }) => {
+      return history.listen(({ pathname }) => {
         if (_.startsWith(pathname, ANALYSOR_PATH)) {
           if (_.startsWith(pathname, `${ANALYSOR_PATH}/dataset_`)) {
             const id = _.trimStart(pathname, `${ANALYSOR_PATH}/`);
@@ -105,7 +105,7 @@ export default {
 
     *update({
       payload,
-    }, { call, put, select }) {
+    }, { call, select }) {
       const analysorState = yield select(state => state.analysor);
       const { code, chart, dataset, addOns, selectFields, metricFields, groupFields, timeField,
         rangeDatatime } = analysorState;
@@ -133,7 +133,7 @@ export default {
 
     *saveOrUpdate({
       payload,
-    }, { call, put, select }) {
+    }, { put, select }) {
       yield put({ type: 'showLoading' });
       const analysorState = yield select(state => state.analysor);
       const { code, chart } = analysorState;

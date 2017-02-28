@@ -1020,7 +1020,7 @@ type RetCharts struct {
 }
 
 func (s *Service) GetCharts(env *rpcutil.Env) (ret RetCharts, err error) {
-	dirId := strings.ToUpper(env.Req.FormValue("dirId"))
+	dirId := env.Req.FormValue("dirId")
 	ds := make([]common.Chart, 0)
 	if err = s.ChartColl.Find(M{"dirId": dirId}).All(&ds); err != nil {
 		if err == mgo.ErrNotFound {

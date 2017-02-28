@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, Row, Col, Icon, Button } from 'antd';
+import { Select, Row, Col, Button } from 'antd';
 import styles from './header.less';
 
 const ButtonGroup = Button.Group;
@@ -11,7 +11,7 @@ const Header = ({ id, name, onEditor }) => {
   return (
     <Row gutter={24} className={styles.row}>
       <Col span={2}>
-        <Button size="large" type="ghost" onClick={() => onEditor(id)} icon="edit">{name||''}</Button>
+        <Button size="large" type="ghost" onClick={() => onEditor(id)} icon="edit">{name || ''}</Button>
       </Col>
       <Col span={10} offset={12}>
         <ButtonGroup>
