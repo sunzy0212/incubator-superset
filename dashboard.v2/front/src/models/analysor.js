@@ -89,8 +89,8 @@ export default {
         const data2 = yield call(saveChart, parse({
           title: `图表-${payload.name}`,
           codeId: data.result.id,
-          xaxis: payload.x_axis,
-          yaxis: payload.y_axis,
+          xaxis: payload.xaxis,
+          yaxis: payload.yaxis,
           type: payload.chartType,
         }));
 
@@ -121,8 +121,8 @@ export default {
           id: chart.id,
           title: chart.title,
           codeId: code.id,
-          xaxis: payload.x_axis,
-          yaxis: payload.y_axis,
+          xaxis: payload.xaxis,
+          yaxis: payload.yaxis,
           type: payload.chartType,
         }));
         if (data2.success) {

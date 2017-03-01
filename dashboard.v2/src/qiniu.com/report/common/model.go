@@ -227,13 +227,15 @@ type Report struct {
 }
 */
 type Chart struct {
-	Id       string `json:"id" bson:"id"`
-	Type     string `json:"type" bson:"type"`
-	Title    string `json:"title" bson:"title"`
-	SubTitle string `json:"subTitle" bson:"subTitle"`
-	Stack    bool   `json:"stack" bson:"stack"`
-	CodeId   string `json:"codeId" bson:"codeId"`
-	DirId    string `json:"dirId" bson:"dirId"`
+	Id       string              `json:"id" bson:"id"`
+	Type     string              `json:"type" bson:"type"`
+	Title    string              `json:"title" bson:"title"`
+	SubTitle string              `json:"subTitle" bson:"subTitle"`
+	Stack    bool                `json:"stack" bson:"stack"`
+	Xaxis    []map[string]string `json:"xaxis" bson:"xaxis"`
+	Yaxis    []map[string]string `json:"yaxis" bson:"yaxis"`
+	CodeId   string              `json:"codeId" bson:"codeId"`
+	DirId    string              `json:"dirId" bson:"dirId"`
 }
 
 /*

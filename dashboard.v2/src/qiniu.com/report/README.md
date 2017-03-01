@@ -573,11 +573,14 @@ Content-Type: application/json
 	"title" : <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
 }
 ```
+注：Xaxis和Yaxis为[]map[string]string类型，其值比如：[{name:'字段1',alais:'字段1别名'}]
 返回包：
 
 ```
@@ -587,6 +590,8 @@ Content-Type: application/json
 	"title": <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
@@ -601,6 +606,8 @@ Content-Type: application/json
 	"title" : <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
@@ -615,6 +622,8 @@ Content-Type: application/json
 	"title": <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
@@ -630,15 +639,17 @@ GET /v1/charts?dirId=<DirId>
 200 OK
 Content-Type: application/json
 {
-    "charts": [
+	"charts": [
     {
-    	"id" : <Id>,
-    	"title" <Title>,
-    	"subTitle" : <SubTitle>,
-    	"type" : <Type>,
-    	"stack" : <True|False>,
-    	"codeId" : <CodeId>,
-    	"dirId" : <DirId>
+	    "id" : <Id>,
+	    "title" <Title>,
+	    "subTitle" : <SubTitle>,
+	    "type" : <Type>,
+	    "xaxis" : <Xaxis>,
+	    "yaxis" : <Yaxis>,
+	    "stack" : <True|False>,
+	    "codeId" : <CodeId>,
+	    "dirId" : <DirId>
     },
     ...
     ]
@@ -658,9 +669,11 @@ Content-Type: application/json
     "title" : <Title>,
     "subTitle" : <SubTitle>,
     "type" : <Type>,
+    "xaxis" : <Xaxis>,
+    "yaxis" : <Yaxis>,
     "stack" : <True|False>,
     "codeId" : <CodeId>,
-	"dirId" : <DirId>
+    "dirId" : <DirId>
 }
 ```
 

@@ -42,6 +42,7 @@ class Dataview extends React.Component {
     });
 
     this.setState({
+      allFields,
       x_axis: [],
       y_axis: [],
       xx,
@@ -68,7 +69,23 @@ class Dataview extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
         const { x_axis, y_axis, chartType } = values;
-        this.props.onSaveOrUpdate({ name: new Date().toJSON(), x_axis, y_axis, chartType });
+        const xaxis = [];
+        const yaxis = [];
+        x_axis.forEach((x) => {
+          this.state.allFields.forEach((r) => {
+            if (x === r.name) {
+              xaxis.push(r);
+            }
+          });
+        });
+        y_axis.forEach((y) => {
+          this.state.allFields.forEach((r) => {
+            if (y === r.name) {
+              yaxis.push(r);
+            }
+          });
+        });
+        this.props.onSaveOrUpdate({ name: new Date().toJSON(), xaxis, yaxis, chartType });
       }
     });
   }
