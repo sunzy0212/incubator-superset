@@ -23,15 +23,7 @@ func (m *DataSetManager) gcDataSource() {
 }
 
 func genDataSet(ds common.DataSet) DataSetInterface {
-	//	switch common.ToSourceType(ds.Type) {
-	//	case common.MYSQL:
-	//		return NewMySQL(&ds)
-	//	case common.INFLUXDB:
-	//		return NewInfluxDB(&ds)
-	//	default:
-	//		return nil
-	//	}
-	return ds
+	return DataSetImpl{ds}
 }
 
 func (m *DataSetManager) Get(ds common.DataSet) DataSetInterface {
@@ -42,5 +34,13 @@ func (m *DataSetManager) Get(ds common.DataSet) DataSetInterface {
 	} else {
 		return v
 	}
+	return nil
+}
+
+type DataSetImpl struct {
+	Dataset common.DataSet
+}
+
+func (d DataSetImpl) Execute() interface{} {
 	return nil
 }

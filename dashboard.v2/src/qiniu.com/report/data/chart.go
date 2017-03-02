@@ -7,8 +7,3 @@ const (
 
 	CHART_TABLE = "TABLE"
 )
-
-const (
-	DATASOURCE_MYSQL    = "MYSQL"
-	DATASOURCE_INFLUXDB = "INFLUXDB"
-)

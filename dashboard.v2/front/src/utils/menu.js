@@ -15,8 +15,8 @@ module.exports = [
     icon: 'desktop',
   },
   {
-    key: 'editor',
-    name: '报表',
+    key: 'analysor',
+    name: '分析器',
     icon: 'solution',
   },
 ];

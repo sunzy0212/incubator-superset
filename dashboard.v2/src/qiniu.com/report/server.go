@@ -21,6 +21,8 @@ import (
 
 type M map[string]interface{}
 
+var DirTypes = []string{"REPORT", "CHART"}
+
 type cmdArgs struct {
 	CmdArgs []string
 }
@@ -29,6 +31,7 @@ type Service struct {
 	RWMux *sync.RWMutex
 	common.Collections
 	dataSourceManager *data.DataSourceManager
+	executor          *data.Executor
 }
 
 func NewService(coll common.Collections) (s *Service, err error) {
@@ -36,6 +39,7 @@ func NewService(coll common.Collections) (s *Service, err error) {
 		RWMux:             &sync.RWMutex{},
 		Collections:       coll,
 		dataSourceManager: data.NewDataSourceManager(),
+		executor:          data.NewExecutor(),
 		//Config:      cfg,
 	}
 	return s, nil
@@ -321,6 +325,23 @@ func (s *Service) GetDatasets(env *rpcutil.Env) (ret RetDataSet, err error) {
 	return
 }
 
+/*GET /v1/datasets/<Id>
+ */
+
+func (s *Service) GetDatasets_(args *cmdArgs, env *rpcutil.Env) (ret common.DataSet, err error) {
+	id := args.CmdArgs[0]
+	ret = common.DataSet{}
+	if err = s.DataSetColl.Find(M{"id": id}).One(&ret); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the dataset is not exsit !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to get dataset: %v", ret)
+	return
+}
+
 //DELETE /v1/datasets/<Id>
 func (s *Service) DeleteDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	id := args.CmdArgs[0]
@@ -336,14 +357,24 @@ func (s *Service) DeleteDatasets_(args *cmdArgs, env *rpcutil.Env) (err error) {
 }
 
 //###########################################dir
+
+func (s *Service) isDirTypeMatch(dirType string) bool {
+	var flag = false
+	for _, v := range DirTypes {
+		if v == strings.ToUpper(dirType) {
+			flag = true
+			break
+		}
+	}
+	return flag
+}
+
 /*
 POST /v1/dirs
 */
 
 func (s *Service) PostDirs(env *rpcutil.Env) (ret common.Dir, err error) {
-
 	var data []byte
-
 	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
 		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
 		return
@@ -353,11 +384,17 @@ func (s *Service) PostDirs(env *rpcutil.Env) (ret common.Dir, err error) {
 		err = ErrorPostDir(err)
 		return
 	}
+	req.Type = strings.ToUpper(req.Type)
+	if flag := s.isDirTypeMatch(req.Type); !flag {
+		err = ErrorPostDir(fmt.Errorf("dir `type` is need, the type maybe `report|REPORT|chart|CHAHRT`"))
+		return
+	}
+
 	if req.Pre == "" || !strings.HasPrefix(req.Pre, "dir_") {
 		req.Pre = "ROOT"
 	}
 	var b bool
-	if b, err = db.IsExist(s.DirColl, M{"name": req.Name, "pre": req.Pre}); err != nil {
+	if b, err = db.IsExist(s.DirColl, M{"name": req.Name, "type": req.Type, "pre": req.Pre}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
@@ -398,11 +435,18 @@ func (s *Service) PutDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		err = ErrorPostDir(err)
 		return
 	}
+	req.Type = strings.ToUpper(req.Type)
+	if flag := s.isDirTypeMatch(req.Type); !flag {
+		err = ErrorPostDir(fmt.Errorf("dir `type` is need, the type maybe `report|REPORT|chart|CHAHRT`"))
+		return
+	}
+
 	if req.Pre == "" || !strings.HasPrefix(req.Pre, "dir_") {
 		req.Pre = "ROOT"
 	}
 	var b bool
-	if b, err = db.IsExist(s.DirColl, M{"name": req.Name, "pre": req.Pre, "id": M{"$ne": id}}); err != nil {
+	if b, err = db.IsExist(s.DirColl,
+		M{"name": req.Name, "pre": req.Pre, "type": req.Type, "id": M{"$ne": id}}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
@@ -410,7 +454,6 @@ func (s *Service) PutDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		err = ErrorPostDir(fmt.Errorf("dir `%v` is already exist", req.Name))
 		return
 	}
-
 	req.Id = id
 
 	err = db.DoUpdate(s.DirColl, M{"id": id}, req)
@@ -422,11 +465,12 @@ func (s *Service) PutDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	return
 }
 
-/*GET /v1/dirs
+/*GET /v1/dirs?type=<report|REPORT|chart|CHAHRT>
  */
 
 type Dir struct {
 	Id     string `json:"id" bson:"id"`
+	Type   string `json:"type" bson:"type"`
 	Name   string `json:"name" bson:"name"`
 	Pre    string `json:"pre" bson:"pre"`
 	SubDir []Dir  `json:"subDir" bson:"subDir"`
@@ -436,14 +480,20 @@ type TreeDirs struct {
 }
 
 func (s *Service) GetDirs(env *rpcutil.Env) (ret TreeDirs, err error) {
+	_dirType := strings.ToUpper(env.Req.FormValue("type"))
+	if flag := s.isDirTypeMatch(_dirType); !flag {
+		err = fmt.Errorf("the args dir `type` is need, but get null, the uri maybe `.../dirs?type=<report|REPORT|chart|CHAHRT>`")
+		return
+	}
 	ds := make([]common.Dir, 0)
-	if err = s.DirColl.Find(M{}).All(&ds); err != nil {
+	if err = s.DirColl.Find(M{"type": _dirType}).All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the dir is enpty !")
+			err = ErrNONEXISTENT_MESSAGE(err, "the dir is empty !")
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
+
 	ret = TreeDirs{genTreeDirs("ROOT", ds)}
 	log.Infof("success to get all dirs: %v", ret)
 	return
@@ -456,6 +506,7 @@ func genTreeDirs(root string, dirs []common.Dir) []Dir {
 			subDir := genTreeDirs(v.Id, dirs)
 			dir := Dir{
 				Id:     v.Id,
+				Type:   v.Type,
 				Name:   v.Name,
 				Pre:    v.Pre,
 				SubDir: subDir,
@@ -467,38 +518,69 @@ func genTreeDirs(root string, dirs []common.Dir) []Dir {
 	return treeDirs
 }
 
-//DELETE /v1/dirs/<Id>
-func (s *Service) DeleteDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
-	id := args.CmdArgs[0]
-	if err = db.DoDelete(s.DirColl, map[string]string{"id": id}); err != nil {
+func (s *Service) deleteDir(id string) (err error) {
+	var dir common.Dir
+	if err = s.DirColl.Find(M{"id": id}).One(&dir); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
 			return
 		}
+		log.Error(err)
 		err = errors.Info(ErrInternalError, err)
+		return
 	}
-	if err = db.DoDelete(s.ReportColl, map[string]string{"dirId": id}); err != nil {
-		if err == mgo.ErrNotFound {
-			log.Warnf("no report in dir[%v] ", id, err)
+	switch dir.Type {
+	case "REPORT":
+		if err = db.DoDeleteAll(s.ReportColl, M{"dirId": id}, true); err != nil {
+			log.Errorf("fail to delete cascade charts under dir %s, err ~ %v", id, err)
 		}
-		err = errors.Info(ErrInternalError, err)
+	case "CHART":
+		if err = db.DoDeleteAll(s.ChartColl, M{"dirId": id}, true); err != nil {
+			log.Errorf("fail to delete cascade charts under dir %s, err ~ %v", id, err)
+		}
+	default:
+		return
 	}
-	log.Infof("success to delete dir: %v", id)
+	var dirs []common.Dir
+	if err = s.DirColl.Find(M{"pre": id}).All(&dirs); err != nil {
+		log.Error(err)
+		return
+	}
+	if len(dirs) > 0 {
+		log.Infof("try to delete subDir:%#v", dir)
+		for _, dir := range dirs {
+			s.deleteDir(dir.Id)
+		}
+	}
+	if err = db.DoDelete(s.DirColl, M{"id": id}); err != nil {
+		log.Error()
+	}
+	return nil
+}
+
+//DELETE /v1/dirs/<Id>
+func (s *Service) DeleteDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	err = s.deleteDir(id)
+	if err == nil {
+		log.Infof("success to delete dir: %s", id)
+	} else {
+		log.Errorf("fail to delete dir: %s, err ~ %v", id, err)
+	}
 	return
 }
 
 /*
-POST /v1/codes
+POST /v1/datasets/<DatasetId>/codes
 Content-Type: application/json
 {
-    "name" : <Name>,
-    "code" : <Code>,
-	"datasetId" : <DatasetId>,
-    "type" : <Type>,
+	"name" : <Name>,
+	"querys" : <Querys>
 }
 */
 
-func (s *Service) PostCodes(env *rpcutil.Env) (ret common.Code, err error) {
+func (s *Service) PostDatasets_Codes(args *cmdArgs, env *rpcutil.Env) (ret common.Code, err error) {
+	datasetId := args.CmdArgs[0]
 	var data []byte
 	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
 		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
@@ -509,13 +591,14 @@ func (s *Service) PostCodes(env *rpcutil.Env) (ret common.Code, err error) {
 		err = ErrorPostCode(err)
 		return
 	}
+
 	var b bool
-	if b, err = db.IsExist(s.DataSourceColl, M{"id": req.DatasetId}); err != nil {
+	if b, err = db.IsExist(s.DataSetColl, M{"id": datasetId}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
 	if !b {
-		err = ErrorPostCode(fmt.Errorf("datasource %s is not exist", req.DatasetId))
+		err = ErrorPostCode(fmt.Errorf("dataset %s is not exist", datasetId))
 		return
 	}
 	if req.Id, err = common.GenId(); err != nil {
@@ -523,7 +606,7 @@ func (s *Service) PostCodes(env *rpcutil.Env) (ret common.Code, err error) {
 		return
 	}
 	req.Id = fmt.Sprintf("code_%s", req.Id)
-	req.Type = strings.ToUpper(req.Type)
+	req.DatasetId = datasetId
 	req.CreateTime = common.GetCurrTime()
 
 	if err = db.DoInsert(s.CodeColl, req); err != nil {
@@ -536,89 +619,16 @@ func (s *Service) PostCodes(env *rpcutil.Env) (ret common.Code, err error) {
 }
 
 /*
-GET /v1/codes?type=<DbType>&datasetId=<DatasetId>
-200 ok
-{
-    codes: [
-    {
-        "id" : <Id>,
-        "name" : <Name>,
-        "type" : <Type>,
-        "code" : <Code>,
-        "datasetId" : <DatasetId>,
-        "createTime" : <CreateTime>
-    },
-    ...
-    ]
-}
-*/
-type RetCodes struct {
-	Codes []common.Code `json:"codes"`
-}
-
-func (s *Service) GetCodes(env *rpcutil.Env) (ret RetCodes, err error) {
-	_dbType := env.Req.FormValue("type")
-	_datasetId := env.Req.FormValue("datasetId")
-	ds := make([]common.Code, 0)
-	query := M{}
-	if strings.TrimSpace(_dbType) != "" {
-		query["type"] = _dbType
-	}
-	if strings.TrimSpace(_datasetId) != "" {
-		query["datasetId"] = _datasetId
-	}
-
-	if err = s.CodeColl.Find(query).Sort("-createTime").All(&ds); err != nil {
-		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the code is empty !")
-			return
-		}
-		err = errors.Info(ErrInternalError, err)
-	}
-	ret = RetCodes{ds}
-	log.Infof("success to get all codes: %v", ret)
-	return
-}
-
-/*
-GET /v1/codes/codeId
-200 ok
-{
-	"id" : <Id>,
-	"name" : <Name>,
-	"type" : <Type>,
-	"code" : <Code>,
-	"datasetId" : <DatasetId>,
-	"createTime" : <CreateTime>
-}
-*/
-
-func (s *Service) GetCodes_(args *cmdArgs, env *rpcutil.Env) (ret common.Code, err error) {
-	id := args.CmdArgs[0]
-	ret = common.Code{}
-	if err = s.CodeColl.Find(M{"id": id}).One(&ret); err != nil {
-		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the code is not found !")
-			return
-		}
-		err = errors.Info(ErrInternalError, err)
-	}
-	log.Infof("success to get code: %v", ret)
-	return
-}
-
-/*
-PUT /v1/codes/<Id>
+PUT /v1/datasets/<DatasetId>/codes/<Id>
 Content-Type: application/json
 {
     "name" : <Name>,
-    "code" : <Code>,
-    "type" : <Type>,
-    "dbName" : <DbName>
+	"querys" : <Querys>
 }
 */
-func (s *Service) PutCodes_(args *cmdArgs, env *rpcutil.Env) (err error) {
-	id := args.CmdArgs[0]
+func (s *Service) PutDatasets_Codes_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	datasetId := args.CmdArgs[0]
+	codeId := args.CmdArgs[1]
 	var data []byte
 	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
 		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
@@ -631,21 +641,21 @@ func (s *Service) PutCodes_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 	var b bool
-	if b, err = db.IsExist(s.DataSourceColl, M{"id": req.DatasetId}); err != nil {
+	if b, err = db.IsExist(s.DataSetColl, M{"id": datasetId}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
 	if !b {
-		err = ErrorPostCode(fmt.Errorf("dataset %s is not exist", req.DatasetId))
+		err = ErrorPostCode(fmt.Errorf("dataset %s is not exist", datasetId))
 		return
 	}
-	req.Id = id
-	req.Type = strings.ToUpper(req.Type)
+	req.Id = codeId
+	req.DatasetId = datasetId
 	req.CreateTime = common.GetCurrTime()
-	err = db.DoUpdate(s.CodeColl, M{"id": id}, req)
+	err = db.DoUpdate(s.CodeColl, M{"id": codeId, "datasetId": datasetId}, req)
 	if err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrorPostCode(fmt.Errorf("update failed: code %s not exist", id))
+			err = ErrorPostCode(fmt.Errorf("update failed: code %s not exist under dataset %s", codeId, datasetId))
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
@@ -655,17 +665,80 @@ func (s *Service) PutCodes_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	return
 }
 
-//DELETE /v1/codes/<Id>
-func (s *Service) DeleteCodes_(args *cmdArgs, env *rpcutil.Env) (err error) {
-	id := args.CmdArgs[0]
-	if err = db.DoDelete(s.CodeColl, map[string]string{"id": id}); err != nil {
+/*
+GET /v1/datasets/<DatasetId>/codes
+200 ok
+{
+    codes: [
+    {
+	"id" : <Id>,
+	"name" : <Name>,
+	"querys" : <Querys>,
+	"datasetId" : <DatasetId>,
+	},
+    ...
+    ]
+}
+*/
+type RetCodes struct {
+	Codes []common.Code `json:"codes"`
+}
+
+func (s *Service) GetDatasets_Codes(args *cmdArgs, env *rpcutil.Env) (ret RetCodes, err error) {
+	datasetId := args.CmdArgs[0]
+	ds := make([]common.Code, 0)
+
+	if err = s.CodeColl.Find(M{"datasetId": datasetId}).Sort("-createTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
+			err = ErrNONEXISTENT_MESSAGE(err, "the code list is empty !")
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
-	log.Infof("success to delete code: %v", id)
+	ret = RetCodes{ds}
+	log.Infof("success to get all codes: %v under dataset %s ", ret, datasetId)
+	return
+}
+
+/*
+GET /v1/datasets/<DatasetId>/codes/<Id>
+200 ok
+Content-Type: application/json
+{
+	"id" : <Id>,
+	"name" : <Name>,
+	"querys" : <Querys>,
+	"datasetId" : <DatasetId>,
+}
+*/
+
+func (s *Service) GetDatasets_Codes_(args *cmdArgs, env *rpcutil.Env) (ret common.Code, err error) {
+	datasetId := args.CmdArgs[0]
+	codeId := args.CmdArgs[1]
+	ret = common.Code{}
+	if err = s.CodeColl.Find(M{"datasetId": datasetId, "id": codeId}).One(&ret); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the code is not found !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to get code: %v", ret)
+	return
+}
+
+// DELETE /v1/datasets/<DatasetId>/codes/<Id>
+func (s *Service) DeleteDatasets_Codes_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	datasetId := args.CmdArgs[0]
+	codeId := args.CmdArgs[1]
+	if err = db.DoDelete(s.CodeColl, M{"id": codeId, "datasetId": datasetId}); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("code %s is not exist under dataset %s ", codeId, datasetId))
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to delete code[%v] under dataset[%s]", codeId, datasetId)
 	return
 }
 
@@ -808,7 +881,7 @@ func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
 	ds := make([]common.Report, 0)
 	if err = s.ReportColl.Find(query).Sort("-createTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the reports is enpty !")
+			err = ErrNONEXISTENT_MESSAGE(err, "the reports is empty !")
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
@@ -850,28 +923,67 @@ func (s *Service) DeleteReports_(args *cmdArgs, env *rpcutil.Env) (err error) {
 }
 
 /*
-POST /v1/reports/<ReportId>/charts/<ChartId>
+POST /v1/charts
 Content-Type: application/json
 {
-    "title" <Title>,
-    "subTitle" : <SubTitle>,
-    "type" : <Type>,
-    "stack" : <True|False>,
-    "codeId" : <CodeId>
+	"title" <Title>,
+	"subTitle" : <SubTitle>,
+	"type" : <Type>,
+	"stack" : <True|False>,
+	"codeId" : <CodeId>,
+	"dirId" : <DirId>
 }
 */
-
-func (s *Service) PostReports_Charts_(args *cmdArgs, env *rpcutil.Env) (err error) {
-	reportId := args.CmdArgs[0]
-	chartId := args.CmdArgs[1]
+func (s *Service) PostCharts(env *rpcutil.Env) (chart common.Chart, err error) {
+	var data []byte
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.Chart
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrorPostChart(err)
+		return
+	}
+	if req.Id, err = common.GenId(); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	req.Id = fmt.Sprintf("chart_%s", req.Id)
+	req.Type = strings.ToUpper(req.Type)
 	var f bool
-	if f, err = db.IsExist(s.ReportColl, M{"id": reportId}); err != nil {
-		return errors.Info(ErrInternalError, err)
+	if f, err = db.IsExist(s.CodeColl, M{"id": req.CodeId}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
 	}
 	if !f {
-		return ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("report %s not exist", reportId))
+		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("code %s not exist", req.CodeId))
+		return
 	}
 
+	if err = db.DoInsert(s.ChartColl, req); err != nil {
+		err = ErrorPostChart(err)
+		return
+	}
+	chart = req
+	log.Infof("success to insert chart: %+v", req)
+	return
+}
+
+/*
+PUT /v1/charts/<ChartId>
+Content-Type: application/json
+{
+	"title" <Title>,
+	"subTitle" : <SubTitle>,
+	"type" : <Type>,
+	"stack" : <True|False>,
+	"codeId" : <CodeId>,
+	"dirId" : <DirId>
+}
+*/
+func (s *Service) PutCharts_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	chartId := args.CmdArgs[0]
 	var data []byte
 	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
 		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
@@ -884,8 +996,7 @@ func (s *Service) PostReports_Charts_(args *cmdArgs, env *rpcutil.Env) (err erro
 	}
 	req.Id = chartId
 	req.Type = strings.ToUpper(req.Type)
-	req.ReportId = reportId
-
+	var f bool
 	if f, err = db.IsExist(s.CodeColl, M{"id": req.CodeId}); err != nil {
 		return errors.Info(ErrInternalError, err)
 	}
@@ -893,146 +1004,74 @@ func (s *Service) PostReports_Charts_(args *cmdArgs, env *rpcutil.Env) (err erro
 		return ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("code %s not exist", req.CodeId))
 	}
 
-	if err = db.DoInsert(s.ChartColl, req); err != nil {
-		err = errors.Info(ErrInternalError, err)
+	if err = db.DoUpdate(s.ChartColl, M{"id": req.Id}, req); err != nil {
+		err = ErrorPostChart(err)
 		return
 	}
-	log.Infof("success to insert chart: %+v", req)
+	log.Infof("success to update chart: %+v", req)
 	return
 }
 
 /*
-GET /v1/reports/<ReportId>/charts
-200 OK
-Content-Type: application/json
-{
-    "charts": [
-    {
-        "id" : <Id>,
-        "title" <Title>,
-        "subTitle" : <SubTitle>,
-        "type" : <Type>,
-        "stack" : <True|False>,
-        "codeId" : <CodeId>
-		"reportId" : <ReportId>
-    },
-    ...
-    ]
-}
-
+GET /v1/charts?dirId=<DirId>
 */
 type RetCharts struct {
 	Charts []common.Chart `json:"charts"`
 }
 
-func (s *Service) GetReports_Charts(args *cmdArgs, env *rpcutil.Env) (ret RetCharts, err error) {
-	reportId := args.CmdArgs[0]
-	var f bool
-	if f, err = db.IsExist(s.ReportColl, M{"id": reportId}); err != nil {
-		err = errors.Info(ErrInternalError, err)
-		return
-	}
-	if !f {
-		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("report %s not exist", reportId))
-		return
-	}
+func (s *Service) GetCharts(env *rpcutil.Env) (ret RetCharts, err error) {
+	dirId := env.Req.FormValue("dirId")
 	ds := make([]common.Chart, 0)
-	if err = s.ChartColl.Find(M{"reportId": reportId}).All(&ds); err != nil {
+	if err = s.ChartColl.Find(M{"dirId": dirId}).All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the report is enpty !")
+			err = ErrNONEXISTENT_MESSAGE(err, "the report is empty !")
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
 	ret = RetCharts{ds}
-	log.Infof("success to get all charts in report %v: %s", ret, reportId)
+	log.Infof("success to get all charts in dirId %v: %s", ret, dirId)
 	return
 }
 
 /*
-GET /v1/reports/<ReportId>/charts/<ChartId>
+GET /v1/charts/<ChartId>
+Content-Type: application/json
 {
     "title" <Title>,
     "subTitle" : <SubTitle>,
     "type" : <Type>,
     "stack" : <True|False>,
     "codeId" : <CodeId>,
-    "code" : <Code>
+	"dirId" : <DirId>
 }
 */
-type RetChart struct {
-	Type     string `json:"type"`
-	Title    string `json:"title"`
-	SubTitle string `json:"subTitle"`
-	Stack    bool   `json:"stack"`
-	CodeId   string `json:"codeId"`
-	Code     string `json:"code"`
-}
-
-func (s *Service) GetReports_Charts_(args *cmdArgs, env *rpcutil.Env) (ret RetChart, err error) {
-	reportId := args.CmdArgs[0]
-	chartId := args.CmdArgs[1]
-	var f bool
-	if f, err = db.IsExist(s.ReportColl, M{"id": reportId}); err != nil {
-		err = errors.Info(ErrInternalError, err)
-		return
-	}
-	if !f {
-		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("report %s not exist", reportId))
-		return
-	}
-	var ds common.Chart
-	if err = s.ChartColl.Find(M{"reportId": reportId, "id": chartId}).One(&ds); err != nil {
+func (s *Service) GetCharts_(args *cmdArgs, env *rpcutil.Env) (ret common.Chart, err error) {
+	chartId := args.CmdArgs[0]
+	if err = s.ChartColl.Find(M{"id": chartId}).One(&ret); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the charts not exist !")
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
-	var cs common.Code
-	if err = s.CodeColl.Find(M{"id": ds.CodeId}).One(&cs); err != nil {
-		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, "the code not exist !")
-			return
-		}
-		err = errors.Info(ErrInternalError, err)
-	}
-
-	ret = RetChart{
-		Title:    ds.Title,
-		Type:     ds.Type,
-		SubTitle: ds.SubTitle,
-		Stack:    ds.Stack,
-		CodeId:   ds.CodeId,
-		Code:     cs.Code,
-	}
-	log.Infof("success to get chart %v in report %s", ret, reportId)
+	log.Infof("success to get chart %v", ret)
 	return
 }
 
 /*
-DELETE /v1/reports/<ReportId>/charts/<ChartId>
+DELETE /v1/charts/<ChartId>
 */
-func (s *Service) DeleteReports_Charts_(args *cmdArgs, env *rpcutil.Env) (err error) {
-	reportId := args.CmdArgs[0]
-	chartId := args.CmdArgs[1]
-	var f bool
-	if f, err = db.IsExist(s.ReportColl, M{"id": reportId}); err != nil {
-		err = errors.Info(ErrInternalError, err)
-		return
-	}
-	if !f {
-		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("report %s not exist", reportId))
-		return
-	}
-	if err = db.DoDelete(s.ChartColl, M{"id": chartId, "reportId": reportId}); err != nil {
+func (s *Service) DeleteCharts_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	chartId := args.CmdArgs[0]
+	if err = db.DoDelete(s.ChartColl, M{"id": chartId}); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", chartId))
 			return
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
-	log.Infof("success to delete chart %s in report %s", chartId, reportId)
+	log.Infof("success to delete chart %s", chartId)
 	return
 }
 
@@ -1109,72 +1148,47 @@ func (s *Service) GetLayouts_(args *cmdArgs, env *rpcutil.Env) (ret common.Layou
 }
 
 /*
-GET /v1/datas?q=<CodeId>&type=<ChartType>
-返回包
-
-200 OK
-Content-Type: application/json
+POST /v1/datas?type=<DataType>
 {
-    "type" : "ChartType",
-    "tags": [
-        ...        //tags值
-    ],
-    "datas": [
-        1250548464
-        ...
-    ]
+	"querys" : <Querys>,
 }
-或者
+*/
+func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
+	_dataType := strings.ToUpper(env.Req.FormValue("type"))
+	dataType := common.JSON
+	if _dataType != "" {
+		dataType = common.ToDataFormatType(_dataType)
+	}
 
-{
-    "type" : "ChartType",
-    "tags":[
-        ...
-    ],
-    "times":[
-        1430061839000,
-        ...
-    ],
-    "datas":[
-        [123,...]
-        ...
-    ]
+	var _data []byte
+	if _data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.Code
+	if err = json.Unmarshal(_data, &req); err != nil {
+		err = ErrQueryDatas(err, UNMARSHAL_JSON_FAILED_MESSAGE)
+		return
+	}
+	return s.executor.Execute(data.QueryConfig{dataType, req})
 }
+
+/*
+GET /v1/datas?q=<CodeId>&type=<DataType>
 */
 
 func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
-	_id := env.Req.FormValue("q")
-	_code := env.Req.FormValue("code")
-	_chartType := strings.ToUpper(env.Req.FormValue("type"))
-	if _chartType == "" {
-		_chartType = data.CHART_TABLE
+	_codeId := env.Req.FormValue("codeId")
+	_dataType := strings.ToUpper(env.Req.FormValue("type"))
+	dataType := common.JSON
+	if _dataType != "" {
+		dataType = common.ToDataFormatType(_dataType)
 	}
-	log.Infof("query params :q=%s,code=%s,type=%s", _id, _code, _chartType)
-	datasetId := _id
-	if strings.HasPrefix(_id, "code_") {
-		var cd common.Code
-		if err = s.CodeColl.Find(M{"id": _id}).One(&cd); err != nil {
-			if err == mgo.ErrNotFound {
-				err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("the code %s is not exist !", _id))
-				return
-			}
-			err = errors.Info(ErrInternalError, err)
-		}
-		datasetId = cd.DatasetId
-		_code = cd.Code
-	}
-	var ds common.DataSource
-	if err = s.DataSourceColl.Find(M{"id": datasetId}).One(&ds); err != nil {
-		if err == mgo.ErrNotFound {
-			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("the dataset is not exist !", datasetId))
-			return
-		}
-		err = errors.Info(ErrInternalError, err)
-	}
-	if ret, err = data.Query(ds, _code, _chartType); err != nil {
-		err = ErrQueryDatas(err, fmt.Sprintf("execute code %v failed", _code))
+
+	var req common.Code
+	if err = s.CodeColl.Find(M{"id": _codeId}).One(&ret); err != nil {
+		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("codeId %s is not exist", _codeId))
 		return
 	}
-	log.Infof("success to query data of code %s", _id)
-	return
+	return s.executor.Execute(data.QueryConfig{dataType, req})
 }

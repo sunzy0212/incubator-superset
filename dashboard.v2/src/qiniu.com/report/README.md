@@ -166,15 +166,15 @@ dataset数据结构
 
 ```
 {
-	id		string 
+	id			string 
 	name		string
 	dataSources []string
-	relationships []Relationship
-	dimensions 	[]Dimension  //fields sets
-	measures 	[]Measure	//fields sets
-	time 	string
-	createTime  timestamp
-	updateTime 	timestamp
+	relationships 	[]Relationship
+	dimensions 		[]Dimension  //fields sets
+	measures 			[]Measure	//fields sets
+	times 			[]string
+	createTime  	timestamp
+	updateTime 		timestamp
 }
 ```
 上述结构的子结构有：
@@ -230,7 +230,7 @@ Content-Type: application/json
 	"relationships": <Relationships>,
 	"dimensions": <Dimensions>,
 	"measures": <Measures>,
-	"time":<Time>,
+	"times":<Times>,
 	"createTime": <createTime>,
 	"updateTime": <updateTime>,
 }
@@ -240,7 +240,7 @@ Content-Type: application/json
 200 OK
 ```
 
-#### 获取数据源
+#### 获取数据集
 ```
 GET /v1/datasets
 ```
@@ -258,7 +258,7 @@ Content-Type: application/json
 		"relationships": <Relationships>,
 		"dimensions": <Dimensions>,
 		"measures": <Measures>,
-		"time":<Time>,
+		"times":<Times>,
 		"createTime": <createTime>,
 		"updateTime": <updateTime>,
 	},
@@ -285,40 +285,41 @@ DELETE /v1/datasets/<Id>
 
 ```
 {
-	id		string
+	id			string
 	name		string
-	code		string
 	datasourceId	  string
-	type		string
-	createTime timestamp
+	querys 		map[string]interface{}
+	createTime 	timestamp
 }
 ```
 #### 创建code
 ```
-POST /v1/codes
+POST /v1/datasets/<DatasetId>/codes
 Content-Type: application/json
 {
 	"name" : <Name>,
-	"code" : <Code>,
-	"type" : <Type>,
-	"datasourceId" : <DatasetId>    
+	"querys" : <Querys> 
 }
 ```
 返回包：
 
 ```
 200 OK
+{
+	"id" : <Id>,
+	"name" : <Name>,
+	"querys" : <Querys>,
+	"datasetId" : <DatasetId>,
+}
 ```
 
 #### 更新code
 ```
-PUT /v1/codes/<Id>
+PUT /v1/datasets/<DatasetId>/codes/<CodeId>
 Content-Type: application/json
 {
-    "name" : <Name>,
-    "code" : <Code>,
-    "type" : <Type>,
-    "datasourceId" : <DatasetId>
+	"name" : <Name>,
+	"querys" : <Querys> 
 }
 ```
 返回包：
@@ -327,9 +328,9 @@ Content-Type: application/json
 200 OK
 ```
 
-#### 按条件获取code list
+####  获取code list
 ```
-GET /v1/codes?type=<DbType>&datasetId=<DatasetId>
+GET /v1/datasets/<DatasetId>/codes
 200 ok
 ```
 返回包
@@ -340,36 +341,32 @@ Content-Type: application/json
 {
     codes: [
     {
-        "id" : <Id>,
-        "name" : <Name>,
-        "type" : <Type>,
-		"code" : <Code>,
-        "datasetId" : <DatasetId>,
-        "createTime" : <CreateTime>
-    },
+	"id" : <Id>,
+	"name" : <Name>,
+	"querys" : <Querys>,
+	"datasetId" : <DatasetId>,
+	},
     ...
     ]
 }
 ```
 #### 获取code
 ```
-GET /v1/codes/codeId
+GET /v1/datasets/<DatasetId>/codes/<Id>
 200 ok
 Content-Type: application/json
 {
 	"id" : <Id>,
 	"name" : <Name>,
-	"type" : <Type>,
-	"code" : <Code>,
+	"querys" : <Querys>,
 	"datasetId" : <DatasetId>,
-	"createTime" : <CreateTime>
 }
 ```
 #### 删除code
 请求包
 
 ```
-DELETE /v1/codes/<Id>
+DELETE /v1/datasets/<DatasetId>/codes/<CodeId>
 ```
 返回包
 
@@ -383,33 +380,34 @@ dir
  
 ```
 {
-	id string,
-	name string,
-	pre string,
-	post string
+	id		string
+	type	string
+	name	string
+	pre		string
+	post	string
 }
 ```
 report
 
 ```
 {
-	id string,
-	dirId string,
-	name string,
-	createTime timestamp
+	id		string
+	dirId	string
+	name	string
+	createTime	timestamp
 }
 ```
 chart 
 
 ```
 {
-	id string,
-	title string,
-	subTitle string,
-	type string, //图表类型
-	stack bool,
-	codeId string <ref code.id>
-	reportId string <ref report.id>
+	id		string
+	title	string
+	subTitle	string
+	type		string //图表类型
+	stack		bool
+	codeId		string <ref code.id>
+	dirId		string <ref dir.id>
 }
 ```
 #### 创建目录
@@ -418,6 +416,7 @@ POST /v1/dirs
 Content-Type: application/json
 {
 	"name" : <Name>,
+	"type" : <Type>,
 	"pre" : <PreDir>,
 	"post" : <PostDir>
 }
@@ -429,11 +428,11 @@ Content-Type: application/json
 ```
 #### 修改目录
 ```
-PUT /v1/dirs
+PUT /v1/dirs/<Id>
 Content-Type: application/json
 {
-	"id" : <Id>,
     "name" : <Name>,
+	"type" : <Type>,
 	"pre" : <PreDir>,
 	"post" : <PostDir>
 }
@@ -445,7 +444,7 @@ Content-Type: application/json
 ```
 #### 获取目录
 ```
-GET /v1/dirs
+GET /v1/dirs?type=<report|REPORT|chart|CHAHRT>
 ```
 返回包
 
@@ -453,24 +452,27 @@ GET /v1/dirs
 200 OK
 Content-Type: application/json
 {
-  "dirs": [
+ 	"dirs": [
+	{
+		"id": <Id>,
+		"type": <Type>,
+		"name": <Name>,
+		"pre": <Pre>,
+		"subDir": <Null>
+	},
     {
-      "id": <Id>,
-      "name": <Name>,
-      "pre": <Pre>,
-      "subDir": <Null>
-    },
-    {
-      "id": <Id>,
-      "name": <Name>,
-      "pre": <Pre>,
-      "subDir": [
-        {
-          "id": <Id>,
-          "name": <Name>,
-          "pre": <Pre>,
-          "subDir": <Null>
-        }
+		"id": <Id>,
+		"name": <Name>,
+		"type": <Type>,
+		"pre": <Pre>,
+		"subDir": [
+		{	
+			"id": <Id>,
+			"type": <Type>,
+			"name": <Name>,
+			"pre": <Pre>,
+			"subDir": <Null>
+		}
       ]
     }
   ]
@@ -478,11 +480,7 @@ Content-Type: application/json
 ```
 #### 删除目录
 ```
-DELETE /v1/dirs
-Content-Type: application/json
-{
-	"id" : <Id>
-}
+DELETE /v1/dirs/<Id>
 ```
 返回包：
 
@@ -517,8 +515,6 @@ Content-Type: application/json
 ```
 200 OK
 ```
-
-* 注意：上面参数至少一个
 
 #### 获取报表列表
 ```
@@ -569,28 +565,73 @@ DELETE /v1/reports/<Id>
 200 OK
 ```
 
-#### 添加/修改图表
+#### 添加 图表
 ```
-POST /v1/reports/<ReportId>/charts/<ChartId>
+POST /v1/charts
 Content-Type: application/json
 {
-	"title" <Title>,
+	"title" : <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
-	"reportId" : <ReportId>,
-	"code" : <Code>
+	"dirId" : <DirId>
+}
+```
+注：Xaxis和Yaxis为[]map[string]string类型，其值比如：[{name:'字段1',alais:'字段1别名'}]
+返回包：
+
+```
+200 OK
+{
+	"id": <Id>,
+	"title": <Title>,
+	"subTitle" : <SubTitle>,
+	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
+	"stack" : <True|False>,
+	"codeId" : <CodeId>,
+	"dirId" : <DirId>
+}
+```
+
+#### 修改 图表
+```
+PUT /v1/charts/<ChartId>
+Content-Type: application/json
+{
+	"title" : <Title>,
+	"subTitle" : <SubTitle>,
+	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
+	"stack" : <True|False>,
+	"codeId" : <CodeId>,
+	"dirId" : <DirId>
 }
 ```
 返回包：
 
 ```
 200 OK
+{
+	"id": <Id>,
+	"title": <Title>,
+	"subTitle" : <SubTitle>,
+	"type" : <Type>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
+	"stack" : <True|False>,
+	"codeId" : <CodeId>,
+	"dirId" : <DirId>
+}
 ```
 #### 获取chart list
 ```
-GET /v1/reports/<ReportId>/charts
+GET /v1/charts?dirId=<DirId>
 ```
 返回包
 
@@ -598,15 +639,17 @@ GET /v1/reports/<ReportId>/charts
 200 OK
 Content-Type: application/json
 {
-    "charts": [
+	"charts": [
     {
-		"id" : <Id>,
-        "title" <Title>,
-        "subTitle" : <SubTitle>,
-        "type" : <Type>,
-        "stack" : <True|False>,
-        "codeId" : <CodeId>,
-		"reportId" : <ReportId>
+	    "id" : <Id>,
+	    "title" <Title>,
+	    "subTitle" : <SubTitle>,
+	    "type" : <Type>,
+	    "xaxis" : <Xaxis>,
+	    "yaxis" : <Yaxis>,
+	    "stack" : <True|False>,
+	    "codeId" : <CodeId>,
+	    "dirId" : <DirId>
     },
     ...
     ]
@@ -615,7 +658,7 @@ Content-Type: application/json
 
 #### 获取chart
 ```
-GET /v1/reports/<ReportId>/charts/<ChartId>
+GET /v1/charts/<ChartId>
 ```
 返回包
 
@@ -623,12 +666,14 @@ GET /v1/reports/<ReportId>/charts/<ChartId>
 200 OK
 Content-Type: application/json
 {
-    "title" <Title>,
+    "title" : <Title>,
     "subTitle" : <SubTitle>,
     "type" : <Type>,
+    "xaxis" : <Xaxis>,
+    "yaxis" : <Yaxis>,
     "stack" : <True|False>,
     "codeId" : <CodeId>,
-	"code" : <Code>
+    "dirId" : <DirId>
 }
 ```
 
@@ -636,7 +681,7 @@ Content-Type: application/json
 请求包
 
 ```
-DELETE /v1/reports/<ReportId>/charts/<ChartId>
+DELETE /v1/charts/<ChartId>
 ```
 返回包
 
@@ -648,7 +693,7 @@ DELETE /v1/reports/<ReportId>/charts/<ChartId>
 ### 布局信息
 ```
 {
-	reportId  string ,
+	reportId  string
 	layouts   []map[string]interface
 }
 ```
@@ -661,7 +706,7 @@ Content-Type: application/json
 	"layouts" : [
 		{	
 			"chartId" : <ChartId>,
-			"data" : <Map>
+			"data" : <DataMap>
 		}
 	]
 }
@@ -685,16 +730,20 @@ Content-Type: application/json
 	"layouts" : [
         {
             "chartId" : <ChartId>,
-            "data" : <Map>
+            "data" : <DataMap>
         }
     ]
 }
 ```
 ### 数据查询接口
 ```
-GET /v1/datas?q=<CodeId>&type=<ChartType>
+GET /v1/datas?codeId=<CodeId>&type=<DataType>
 或者
-GET /v1/datas?q=<DatasetId>&code=<Code>&type=<ChartType>
+POST /v1/datas?type=<DataType>
+{
+	"querys" : <Querys>,
+	"datasetId" : <DatasetId>
+}
 ```
 
 返回包
@@ -703,36 +752,27 @@ GET /v1/datas?q=<DatasetId>&code=<Code>&type=<ChartType>
 200 OK
 Content-Type: application/json
 {
-	"type" : "ChartType",
-    "tags": [
-        ...        //tags值
-    ],
-    "datas": [
-        ["",""]  
-		...
-    ]
+	"type": <DataType>,
+	"datas": [
+	{key1:<val1>,key2:<val2>,key3:<val3>...}
+	{key1:<val1>,key2:<val2>,key3:<val3>...}
+	...
+	]
 }
 ```
 或者
 
 ```
 {
-	"type" : "ChartType",
-    "tags":[
-        ...
-    ],
-    "times":[
-        ["",""],
-        ...
-    ],
-    "datas":[
-        [123,...]
-        ...
-    ]
+	type: <DataType>,
+	datas: [
+		[key1,key2,key3...]
+		[val1,val2,val3...]
+		[val1,val2,val3...]
+	]
 }
 ```
 注：
 
-+ `q` 为codeId或者datasetId(此时跟上code参数)
-+ `type`为图表类型 可选`line`,`bar`,`pie`
++ `type`为数据类型 可选`json`,`csv`,`excel`
 

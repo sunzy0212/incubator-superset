@@ -5,30 +5,27 @@ import (
 )
 
 type QueryConfig struct {
-	common.DataSource
+	DataFormat common.DataFormatType
+	Code       common.Code
 }
 
-var queryHandler = make(map[common.DataSource]QueryBase)
+type Executor struct {
+	dataSetManager *DataSetManager
+}
 
-func Query(ds common.DataSource, _code string, _chartType string) (ret interface{}, err error) {
-Loop:
-	if handler, ok := queryHandler[ds]; ok {
-		if ret, err = handler.QueryImpl(_chartType, _code); err != nil {
-			return
-		}
-	} else {
-		//初始化query handler
-		var handler QueryBase
-		switch ds.Type {
-		case "MYSQL":
-			handler = NewMySQL(&ds)
-		case "INFLUXDB":
-			handler = NewInfluxDB(&ds)
-		default:
-			return
-		}
-		queryHandler[ds] = handler
-		goto Loop
+func NewExecutor() *Executor {
+	return &Executor{dataSetManager: NewDataSetManager()}
+}
+
+func (e *Executor) Execute(cfg QueryConfig) (interface{}, error) {
+	datas := []map[string]interface{}{
+		{"name": "Page A", "uv": 4000, "pv": 2400, "amt": 2400},
+		{"name": "Page B", "uv": 3000, "pv": 1398, "amt": 2210},
+		{"name": "Page C", "uv": 2000, "pv": 9800, "amt": 2290},
+		{"name": "Page D", "uv": 2780, "pv": 3908, "amt": 2000},
+		{"name": "Page E", "uv": 1890, "pv": 4800, "amt": 2181},
+		{"name": "Page F", "uv": 2390, "pv": 3800, "amt": 2500},
+		{"name": "Page G", "uv": 3490, "pv": 4300, "amt": 2100},
 	}
-	return
+	return datas, nil
 }

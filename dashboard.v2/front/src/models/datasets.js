@@ -12,9 +12,10 @@ export default {
     datasources: {},
     dataset: {},
     relationships: [],
-    dimensions: [{ name: '默认' }],
-    measures: [{ name: '总数' }, { name: '平均' }, { name: '最小' }, { name: '最大' }],
-    time: '',
+    dimensions: [],
+    measures: [{ name: 'total', alias: '总数' }, { name: 'avg', alias: '平均' },
+      { name: 'min', alias: '最小' }, { name: 'max', alias: '最大' }],
+    times: [],
   },
   subscriptions: {
 
@@ -75,7 +76,7 @@ export default {
           relationships: datasets.relationships,
           dimensions: datasets.dimensions,
           measures: datasets.measures,
-          time: datasets.time,
+          times: datasets.times,
           createTime: datasets.createTime,
         },
       }));
@@ -137,7 +138,7 @@ export default {
         datasources: tmp.dataset.datasources,
         dimensions: tmp.dataset.dimensions,
         measures: tmp.dataset.measures,
-        time: tmp.dataset.time,
+        times: tmp.dataset.times,
       };
     },
 

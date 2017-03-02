@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { Link } from 'dva/router';
 import { Table, Popconfirm } from 'antd';
 
 const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
@@ -41,12 +42,15 @@ const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
       className: '',
       render: record => (
         <span>
+          <Link className="ant-dropdown-link" to={'/datasets'} onClick={() => onInitDataSet(record.key)}>预处理
+          </Link>
+          <span className="ant-divider" />
           <Popconfirm title="确定删除该数据集吗？" onConfirm={() => onDelete(record.key)}>
             <a icon="delete">删除</a>
           </Popconfirm>
           <span className="ant-divider" />
-          <a className="ant-dropdown-link" onClick={() => onInitDataSet(record.key)}>分析
-          </a>
+          <Link className="ant-dropdown-link" to={`/analysor/${record.key}`} >分析
+          </Link>
         </span>
       ),
     }];
@@ -67,7 +71,7 @@ const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
   });
 
   function rowClick(record, index) {
-    console.log(record, index);
+    // console.log(record, index);
   }
 
   return (
