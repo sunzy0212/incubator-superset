@@ -3,48 +3,50 @@ import { Select, Button, Input } from 'antd';
 
 const Option = Select.Option;
 
-const AddOn = React.createClass({
-  getInitialState() {
-    const value = this.props.value || {};
-    return {
+class AddOn extends React.Component {
+  constructor(props) {
+    super();
+    const value = props.value || {};
+    this.state = {
       field: value.field || '',
       operator: value.operator || '=',
       data: value.data || '',
     };
-  },
+  }
+
   componentWillReceiveProps(nextProps) {
     // Should be a controlled component.
     if ('value' in nextProps) {
       const value = nextProps.value;
       this.setState({ ...value });
     }
-  },
-  handleFieldChange(field) {
+  }
+  handleFieldChange = (field) => {
     if (!('value' in this.props)) {
       this.setState({ field });
     }
     this.triggerChange({ field });
-  },
-  handleOperatorChange(operator) {
+  }
+  handleOperatorChange=(operator) => {
     if (!('value' in this.props)) {
       this.setState({ operator });
     }
     this.triggerChange({ operator });
-  },
-  handleDataChange(e) {
+  }
+  handleDataChange=(e) => {
     const data = e.target.value;
     if (!('value' in this.props)) {
       this.setState({ data });
     }
     this.triggerChange({ data });
-  },
-  triggerChange(changedValue) {
+  }
+  triggerChange = (changedValue) => {
     // Should provide an event to pass value to Form.
     const onChange = this.props.onChange;
     if (onChange) {
       onChange(Object.assign({}, this.state, changedValue));
     }
-  },
+  }
 
   render() {
     const { size } = this.props;
@@ -77,8 +79,8 @@ const AddOn = React.createClass({
         />
         <Button shape="circle" icon="minus" type="ghost" onClick={() => deleteAddOns(type, index)} />
       </span>);
-  },
-});
+  }
+}
 
 function genOptionsOfSelect(fields) {
   if (fields === undefined || fields === null) {

@@ -46,7 +46,7 @@ class Slices extends React.Component {
         const { selectFields, metricFields, groupFields, timeField, rangeDatatime } = values;
         const getAddOnDatas = (type) => {
           const res = [];
-          for (let i = 0; i < 22; i++) {
+          for (let i = 0; i < 22; i++) {  // 最大预留，22 暂定
             const field = `${type}-${i}`;
             const value = values[field];
             if (value === undefined) {
