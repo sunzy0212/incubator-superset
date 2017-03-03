@@ -6,9 +6,22 @@ import Aside from '../components/dashboard/editor/aside';
 import styles from './Dashboard.less';
 
 function DashboardEditor({ children, dispatch, dashboardEditor }) {
-  const { isShow } = dashboardEditor;
-  const adideProps = {
-
+  const { isShow, dirs, charts } = dashboardEditor;
+  const asideProps = {
+    dirs,
+    charts,
+    getChartData(key) {
+      dispatch({
+        type: 'dashboardEditor/getChartData',
+        payload: { dirId: key },
+      });
+    },
+    addChartToReport(key) {
+      dispatch({
+        type: 'reportboard/addChartToReport',
+        payload: { chartId: key },
+      });
+    },
   };
   return (
     <div className={styles.sideBar}>
@@ -19,7 +32,7 @@ function DashboardEditor({ children, dispatch, dashboardEditor }) {
             { [styles.active]: isShow }, { [styles.downIn]: isShow },
             { [styles.animateWrap]: !isShow })}
         >
-          <Aside {...adideProps} />
+          <Aside {...asideProps} />
         </Col>
         <Col lg={19} md={21}>
           {children}
@@ -32,8 +45,6 @@ function DashboardEditor({ children, dispatch, dashboardEditor }) {
 DashboardEditor.propsType = {
   dispatch: PropTypes.func,
   isShow: PropTypes.bool,
-  // reports: PropTypes.array,
-  // currReport: PropTypes.object,
 };
 
 

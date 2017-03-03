@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
 import { Button, Form, Input, Row, Col, Icon } from 'antd';
+import ReportDeleteModal from './deleteReport';
 
 const FormItem = Form.Item;
 const MODE_READ = 'read';
@@ -10,13 +11,25 @@ const Header = ({
   titleStatus,
   report,
   editTitle,
+  deleteModalVisible,
   updateTitle,
-  onSave,
+  openModal,
+  onCancel,
+  deleteReport,
+  currentLayouts,
+  saveChartToReport,
   form: {
     getFieldDecorator,
     validateFields,
   },
 }) => {
+  const props = {
+    deleteModalVisible,
+    onCancel,
+    deleteReport,
+    currentId: report.id,
+  };
+
   function handleSubmit(e) {
     e.preventDefault();
     validateFields((err, values) => {
@@ -24,6 +37,16 @@ const Header = ({
         updateTitle(values.name);
       }
     });
+  }
+  function onSave() {
+    const layouts = []
+    currentLayouts.lg.forEach((ele) => {
+      layouts.push({
+        chartId: ele.i,
+        data: [ele],
+      });
+    });
+    saveChartToReport(report.id, layouts);
   }
 
   return (
@@ -78,15 +101,19 @@ const Header = ({
       <Col lg={8} md={8} offset={2}>
         {status === MODE_READ ? <Button type="ghost" icon="reload">刷新</Button>
           : <Button type="ghost" icon="save" onClick={onSave}>保存</Button>}
-        <Button type="ghost" icon="delete">删除</Button>
+        <Button type="ghost" onClick={openModal} icon="delete">删除</Button>
         <Button type="ghost" icon="rocket">导出</Button>
       </Col>
+      < ReportDeleteModal {...props} />
     </Row>
   );
 };
 
 Header.propTypes = {
   status: PropTypes.string,
+  deleteReport: PropTypes.func,
+  openModal: PropTypes.func,
+  saveChartToReport: PropTypes.func,
 };
 
 export default Form.create()(Header);

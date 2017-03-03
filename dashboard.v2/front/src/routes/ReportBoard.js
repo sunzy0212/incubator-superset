@@ -8,36 +8,63 @@ import styles from './ReportBoard.less';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
-const props = {
-  className: 'layout',
-  items: 50,
-  rowHeight: 400,
-};
 
-function ReportBoard({ dispatch, reportboard }) {
-  const { status, titleStatus, loading, report, layout, layouts, charts,
+function ReportBoard({ dispatch, reportboard, dashboard }) {
+  const { status, titleStatus, loading, report, layouts, addChartId,
     ponitsContainer } = reportboard;
+  const { deleteModalVisible } = dashboard;
+  const currentLayouts = { lg: [] };
+  const chartList = [];
+  if (addChartId !== undefined) {
+    let count = 0;
+    let currentX = 6;
+    layouts.forEach((ele) => {
+      if (layouts.length % 2 === 0) {
+        currentX = 0;
+      }
+      if (ele.chartId !== addChartId) {
+        count += 1;
+      }
+    });
+    if (layouts.length === 0 || count === layouts.length) {
+      layouts.push({
+        chartId: addChartId,
+        data: [{
+          i: addChartId,
+          x: currentX,
+          y: Infinity,
+          w: 6,
+          h: 1,
+          isDraggable: true,
+          isResizable: true,
+          minW: 4,
+          maxW: 12,
+          maxH: 1,
+        }],
+      });
+    }
+  }
+  for (let i = 0; i < layouts.length; i++) {
+    currentLayouts.lg.push(layouts[i].data[0]);
+    chartList.push(layouts[i].chartId);
+  }
+
   function handleChange(value) {
     console.log(`selected ${value}`);
   }
 
   function onLayoutChange(layout) {
-    dispatch({
-      type: 'reportboard/layoutChange',
-      payload: { layout },
-    });
+    currentLayouts.lg = layout;
   }
-  function onBreakpointChange(breakpoint, cols) {
-    dispatch({
-      type: 'reportboard/breakpointChange',
-      payload: { breakpoint, cols },
-    });
+  function onBreakpointChange(breakpoint) {
   }
 
   const headerProps = {
     status,
     titleStatus,
     report,
+    deleteModalVisible,
+    currentLayouts,
     editTitle() {
       dispatch({ type: 'reportboard/editTitle' });
     },
@@ -47,19 +74,52 @@ function ReportBoard({ dispatch, reportboard }) {
         payload: { name, dirId: report.dirId, reportId: report.id },
       });
     },
-    onSave() {
+    deleteReport(reportId) {
       dispatch({
-        type: 'reportboard/save',
+        type: 'dashboard/deleteReport',
+        payload: { rId: reportId },
+      });
+    },
+    saveChartToReport(rId, cLayouts) {
+      dispatch({
+        type: 'reportboard/updateLayout',
         payload: {
-          report,
-          layout,
+          reportId: rId,
+          layouts: cLayouts,
         },
+      });
+    },
+    openModal() {
+      dispatch({
+        type: 'dashboard/showDeleteModal',
+      });
+    },
+    onCancel() {
+      dispatch({
+        type: 'reportboard/hideModal',
       });
     },
   };
 
-  function genReport() {
-    if (charts.length === 0) {
+  const viewProps = {
+    currentLayouts,
+    report,
+    getChartData(chartId) {
+      dispatch({
+        type: 'reportboard/getChartData',
+        payload: { cId: chartId },
+      });
+    },
+    removeChart(clayouts) {
+      dispatch({
+        type: 'reportboard/renderLayouts',
+        payload: { layouts: clayouts },
+      });
+    },
+  };
+
+  function genReport(cLayouts, cChartList) {
+    if (cLayouts.length === 0) {
       return (
         <div>
           <Button type="dashed" size="large" onClick={handleChange} icon="plus" style={{ width: '100px' }} />
@@ -68,27 +128,21 @@ function ReportBoard({ dispatch, reportboard }) {
     } else {
       return (
         <ResponsiveReactGridLayout
-          {...props}
           onLayoutChange={onLayoutChange} onBreakpointChange={onBreakpointChange}
-          breakpoints={ponitsContainer.breakpoints}
-          cols={ponitsContainer.cols}
-          layouts={{ md: layout }}
+          layouts={cLayouts} cols={ponitsContainer.cols} rowHeight={410}
         >
           {
-            genViews(charts)
+            genViews(cChartList)
           }
         </ResponsiveReactGridLayout>
       );
     }
   }
 
-
   function genViews(_charts) {
-    return _charts.map((item) => {
-      // return <div key={item.id} style={{'background-color': '#f72f41'}}>
-      // <div className={styles.box} style={{'background-color': '#f8f8f8'}}>{item.type}</div></div>
-      return (<div key={item.id}>
-        <View title={item.type} />
+    return _charts.map((chartId) => {
+      return (<div style={{ width: '100%' }} key={chartId}>
+        <View {...viewProps} title={chartId} chartId={chartId} />
       </div>);
     });
   }
@@ -99,7 +153,7 @@ function ReportBoard({ dispatch, reportboard }) {
       <div>
         <Spin tip="Loading..." spinning={loading}>
           {
-          genReport(layouts, charts)
+          genReport(currentLayouts, chartList)
         }
         </Spin>
       </div>
@@ -110,9 +164,10 @@ function ReportBoard({ dispatch, reportboard }) {
 ReportBoard.propTypes = {
   dispatch: PropTypes.func,
   reportboard: PropTypes.object,
+  dashboard: PropTypes.object,
 };
 
 function mapStateToProps(state) {
-  return { reportboard: state.reportboard };
+  return { reportboard: state.reportboard, dashboard: state.dashboard };
 }
 export default connect(mapStateToProps)(ReportBoard);

@@ -50,19 +50,21 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
     title: 'Name',
     dataIndex: 'name',
     key: 'name',
-    width: '70%',
+    width: '90%',
     render: (text, record) => (
       <EditableCell value={text} id={record.key} dirFlag={record.dirFlag} />),
   }, {
     title: 'Edit',
     key: 'edit',
     dataIndex: 'edit',
+    width: '10%',
     render: (text, record, index) => genDropMenu(text, record, index),
 
   }];
 
   let data = [];
-
+  const rootDir = [{ id: 'Root', name: '根目录', subDir: [], dirFlag: true }]
+  rootDir[0].subDir = dirs;
   function handleInitData(currentDirs, transformArr) {
     currentDirs.forEach((dirEle, j) => {
       transformArr.push({
@@ -72,20 +74,29 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
         dirFlag: true,
       });
 
-      reports.forEach((e, i) => {
-        if (dirEle.id === e.dirId) {
-          transformArr[j].children.push({
+      handleInitData(dirEle.subDir, transformArr[j].children);
+    });
+  }
+
+  const transformArr = [];
+  handleInitData(rootDir, transformArr);
+  function handleInitReport(currentDirs) {
+    currentDirs.forEach((dirEle) => {
+      reports.forEach((e) => {
+        if (dirEle.key === e.dirId) {
+          dirEle.children.push({
             key: e.id,
             name: e.name,
             dirFlag: false,
           });
         }
       });
-      handleInitData(dirEle.subDir, transformArr[j].children);
+      if(dirEle.children !== undefined) {
+        handleInitReport(dirEle.children);
+      }
     });
   }
-  const transformArr = [];
-  handleInitData(dirs, transformArr);
+  handleInitReport(transformArr);
   data = transformArr;
 
   function genSubMenu(_dirs, _reports) {

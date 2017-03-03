@@ -1,5 +1,5 @@
 import { parse } from 'qs';
-import { getDirs, openDir, addReport, getAllReports, addDir, deleteDir } from '../../services/dashboard';
+import { getDirs, openDir, addReport, getAllReports, addDir, deleteDir, deleteReport } from '../../services/dashboard';
 
 export default {
   namespace: 'dashboard',
@@ -7,14 +7,19 @@ export default {
     loading: false,
     isShow: true,
     modalVisible: false,
+    deleteModalVisible: false,
     modalCreateVisible: false,
     dirs: [],
     reports: [],
     currentDir: {},
+    addChartId: '',
   },
   subscriptions: {
     setup({ dispatch }) {
-      dispatch({ type: 'queryDirs' });
+      dispatch({ type: 'queryDirs',
+        payload: {
+          type: 'report',
+        } });
       dispatch({ type: 'getAllReports' });
     },
   },
@@ -86,8 +91,24 @@ export default {
         yield put({
           type: 'queryDirs',
           payload: {
-            dirs: data.dirs,
+            type: 'report',
           },
+        });
+      }
+      yield put({ type: 'hideLoading' });
+    },
+    *deleteReport({
+      payload,
+    }, { call, put }) {
+      yield put({ type: 'showLoading' });
+      const data = yield call(deleteReport, parse(payload));
+      if (data.success) {
+        yield put({
+          type: 'getAllReports',
+        });
+        yield put({
+          type: 'hideDeleteModal',
+          ...payload,
         });
       }
       yield put({ type: 'hideLoading' });
@@ -97,7 +118,9 @@ export default {
       if (data.success) {
         yield put({
           type: 'queryDirs',
-          ...payload,
+          payload: {
+            type: 'report',
+          }
         });
       }
     },
@@ -132,6 +155,18 @@ export default {
       return {
         ...state,
         modalVisible: false,
+      };
+    },
+    showDeleteModal(state) {
+      return {
+        ...state,
+        deleteModalVisible: true,
+      };
+    },
+    hideDeleteModal(state) {
+      return {
+        ...state,
+        deleteModalVisible: false,
       };
     },
     hideCreateModal(state) {
