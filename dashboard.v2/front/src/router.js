@@ -95,6 +95,7 @@ function RouterConfig({ history, app }) {
         name: 'dashboardEditor',
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
+            registerModel(app, require('./models/dashboard/dashboard'));
             registerModel(app, require('./models/dashboard/editor'));
             cb(null, require('./routes/DashboardEditor'));
           });
@@ -105,6 +106,7 @@ function RouterConfig({ history, app }) {
             name: 'reportboard',
             getComponent(nextState, cb) {
               require.ensure([], (require) => {
+                registerModel(app, require('./models/dashboard/reportboard'));
                 cb(null, require('./routes/ReportBoard'));
               });
             },

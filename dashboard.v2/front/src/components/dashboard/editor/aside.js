@@ -1,16 +1,69 @@
 import React, { PropTypes } from 'react';
-import { Menu, Icon, Input } from 'antd';
+import { Input } from 'antd';
 import styles from '../aside.less';
+import DragTree from './dropTree';
 
-const SubMenu = Menu.SubMenu;
-
-const Aside = ({
+const Aside = ({ dirs, getChartData, charts, addChartToReport,
 
 }) => {
-  function handleClick(value) {
-    console.log(`selected ${value}`);
+  const rootDir = [{ key: 'Root', title: '根目录', children: [], idDir: true }];
+
+  let data = [];
+  function handleInitDataOne(currentDirs, treeDirs) {
+    currentDirs.forEach((dirEle, j) => {
+      treeDirs.push({
+        key: dirEle.id,
+        title: dirEle.name,
+        children: [{ key: `key+${j}`, title: '' }],
+        idDir: true,
+      });
+
+      handleInitDataOne(dirEle.subDir, treeDirs[j].children);
+    });
+  }
+  function handleInitData(currentDirs, treeDirs) {
+    currentDirs.forEach((dirEle, j) => {
+      treeDirs.push({
+        key: dirEle.id,
+        title: dirEle.name,
+        children: [],
+        idDir: true,
+      });
+
+      handleInitData(dirEle.subDir, treeDirs[j].children);
+    });
+  }
+  const treeDirs = [];
+  if (charts.length === 0) {
+    handleInitDataOne(dirs, treeDirs);
+  } else {
+    handleInitData(dirs, treeDirs);
+  }
+  rootDir[0].children = treeDirs;
+  function handleInitCharts(currentDirs) {
+    currentDirs.forEach((dirEle) => {
+      charts.forEach((e) => {
+        if (dirEle.key === e.dirId) {
+          dirEle.children.push({
+            key: e.id,
+            title: e.title,
+            idDir: false,
+          });
+        }
+      });
+      if (dirEle.children !== undefined) {
+        handleInitCharts(dirEle.children);
+      }
+    });
   }
 
+  handleInitCharts(rootDir);
+  data = rootDir;
+  const treeProps = {
+    data,
+    getChartData,
+    addChartToReport,
+  };
   return (
     <div className={styles.main}>
       <div className={styles.topTitle}>
@@ -19,38 +72,14 @@ const Aside = ({
         </div>
         <Input.Search placeholder="关键字查找" onSearch={value => console.log(value)} />
       </div>
-      <Menu
-        onClick={handleClick}
-        defaultOpenKeys={['sub1']}
-        mode="inline"
-      >
-        <SubMenu key="sub1" title={<span><Icon type="appstore" /><span>Pipeline报表</span></span>}>
-          <SubMenu key="sub11" title="运营日报">
-            <Menu.Item key="sub111">流量</Menu.Item>
-            <Menu.Item key="sub112">请求量</Menu.Item>
-          </SubMenu>
-          <SubMenu key="sub3" title="营收日报">
-            <Menu.Item key="sub31">付费率</Menu.Item>
-            <Menu.Item key="sub32">成本</Menu.Item>
-          </SubMenu>
-        </SubMenu>
-        <SubMenu key="sub2" title={<span><Icon type="appstore" /><span>LgoDB报表</span></span>}>
-          <SubMenu key="sub21" title="运营日报">
-            <Menu.Item key="sub211">流量</Menu.Item>
-            <Menu.Item key="sub212">请求量</Menu.Item>
-          </SubMenu>
-          <SubMenu key="sub22" title="营收日报">
-            <Menu.Item key="sub221">付费率</Menu.Item>
-            <Menu.Item key="sub222">成本</Menu.Item>
-          </SubMenu>
-        </SubMenu>
-      </Menu>
+      <DragTree {...treeProps} />
     </div>
   );
 };
 
 Aside.propTypes = {
-
+  getChartData: PropTypes.func,
+  addChartToReport: PropTypes.func,
 };
 
 export default Aside;

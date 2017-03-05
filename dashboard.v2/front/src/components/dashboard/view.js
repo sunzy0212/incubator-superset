@@ -1,65 +1,126 @@
-/**
- * Created by chenxinwen on 2017/1/12.
- */
-import React from 'react';
+import $ from 'jquery';
+import { ResponsiveContainer } from 'recharts';
+import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import { Row, Col, Icon } from 'antd';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Row, Col, Icon, Spin } from 'antd';
 import styles from './view.less';
+import ChartComponent from '../charts/chartComponent';
 
-const data = [
-  { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-  { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-  { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-  { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-  { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-  { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-  { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
-];
+class View extends React.Component {
 
-const View = ({ title }) => {
-  function deleteItem() {
-
+  constructor(props) {
+    super();
+    this.state = {
+      chartData: [],
+      codeData: {},
+      initFlag: false,
+    };
+    const { chartId } = props;
+    if (this.state.initFlag === false) {
+      this.getChartData(chartId);
+      this.state.initFlag = true;
+    }
   }
-  return (
-    <div className={styles.box}>
-      <Row gutter={24}>
-        <Col lg={16} md={8}>
-          <div className={styles.boxHeader}>
-            <h3>{title}</h3>
-          </div>
-        </Col>
-        <Col lg={8} md={16}>
-          <div className={styles.boxTool}>
-            <Link to="" ><Icon type="edit" /></Link>
-            <span className="ant-divider" />
-            <a><Icon type="download" /></a>
-            <span className="ant-divider" />
-            <a><Icon type="reload" /></a>
-            <span className="ant-divider" />
-            <a onClick={deleteItem}><Icon type="delete" /></a>
-          </div>
-        </Col>
-      </Row>
-      <ResponsiveContainer >
-        <LineChart
-          key="bn"
-          data={data}
-          margin={{ top: 25, right: 2, left: -10, bottom: 2 }}
-        >
-          <Legend />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip />
-          <Line type="monotone" dataKey="pv" name="请求数" stroke="#8884d8" activeDot={{ r: 8 }} />
-          <Line type="monotone" dataKey="uv" name="下载量" stroke="#82ca9d" dot={{ stroke: 'red', strokeWidth: 2 }} />
-        </LineChart>
-      </ResponsiveContainer>
 
-    </div>
-  );
+  getChartData(chartId) {
+    const that = this;
+    $.ajax({
+      url: `/v1/charts/${chartId}`,
+      type: 'get',
+      dataType: 'JSON',
+      contentType: 'application/json; charset=utf-8',
+    }).then(
+      (data) => {
+        that.setState({
+          chartData: data,
+        });
+        that.getCodeData(data.codeId, data.type, data.lines, data.xaxis, data.yaxis, data.title);
+      },
+      (jqXHR, textStatus, errorThrown) => {
+        console.log('reject', textStatus, jqXHR, errorThrown);
+      });
+  }
+
+  getCodeData(codeId, type, _lines, _xaxis, _yaxis, _title) {
+    const that = this;
+    $.ajax({
+      url: `/v1/datas?codeId=${codeId}&type=${type}`,
+      type: 'get',
+      dataType: 'JSON',
+      contentType: 'application/json; charset=utf-8',
+    }).then(
+      (_data) => {
+        const temp = {
+          data: _data,
+          lines: _lines,
+          xaxis: _xaxis,
+          yaxis: _yaxis,
+          title: _title,
+        };
+        that.setState({ codeData: temp });
+      },
+      (jqXHR, textStatus, errorThrown) => {
+        console.log('reject', textStatus, jqXHR, errorThrown);
+      });
+  }
+  removeChart() {
+    const layouts = []
+    this.props.currentLayouts.lg.forEach((ele) => {
+      if (ele.i !== this.props.chartId) {
+        layouts.push({
+          chartId: ele.i,
+          data: [ele],
+        });
+      }
+    });
+    // console.log(this.props.chartId);
+    // console.log(layouts);
+    this.props.removeChart(layouts);
+  }
+
+  render() {
+    const { codeData } = this.state;
+    if (codeData.data !== undefined) {
+      return (
+        <div className={styles.box}>
+          <Row gutter={24}>
+            <Col lg={16} md={8}>
+              <div className={styles.boxHeader}>
+                <h3>{this.state.chartData.title}</h3>
+              </div>
+            </Col>
+            <Col lg={8} md={16}>
+              <div className={styles.boxTool}>
+                <Link ><Icon type="edit" /></Link>
+                <span className="ant-divider" />
+                <a><Icon type="download" /></a>
+                <span className="ant-divider" />
+                <a><Icon type="reload" /></a>
+                <span className="ant-divider" />
+                <a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a>
+              </div>
+            </Col>
+          </Row>
+          <ResponsiveContainer>
+            <ChartComponent data={codeData.data} lines={codeData.lines} xaxis={codeData.xaxis} yaxis={codeData.yaxis} title={codeData.title} />
+          </ResponsiveContainer>
+        </div>
+      );
+    } else {
+      return (
+        <div className={styles.box}>
+          <Spin size="large" />
+        </div>
+      );
+    }
+  }
+}
+
+View.propTypes = {
+  chartId: PropTypes.string,
+  removeChart: PropTypes.func,
+  currentLayouts: PropTypes.object,
+  report: PropTypes.object,
 };
-
 
 export default View;

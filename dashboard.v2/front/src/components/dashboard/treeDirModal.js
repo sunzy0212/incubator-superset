@@ -21,6 +21,7 @@ const TreeDirModal = ({ createVisible, onCreateOk, onCancelCreate, currentDir,
         const data = {
           name: values.name,
           dirId: currentDir.key,
+          type: 'report',
         };
         onCreateOk(data);
       }
@@ -34,7 +35,6 @@ const TreeDirModal = ({ createVisible, onCreateOk, onCancelCreate, currentDir,
       onOk={handleOk}
       onCancel={onCancelCreate}
       footer={[
-        // <Button key="add" type="primary" size="large" onClick={handleAddAction}>新建目录</Button>,
         <Button key="back" type="ghost" size="large" onClick={onCancelCreate}>取消</Button>,
         <Button key="submit" type="primary" size="large" onClick={handleOk}>
           保存

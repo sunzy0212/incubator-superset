@@ -1,6 +1,6 @@
 import { parse } from 'qs';
-import { getReport, getCharts, getLayouts, setLayouts, queryCode, saveReport } from '../../services/dashboard';
-
+import { getReport, getLayouts, queryCode, saveReport } from '../../services/dashboard';
+import { getChartData, getCodeData } from '../../services/reportboard';
 const REPORT_PATH = '/dashboard/';
 const EDIT_REPORT_PATH = '/dashboard/edit/';
 const REPORTID_LENGTH = 23;
@@ -12,20 +12,15 @@ export default {
     loading: false,
     status: MODE_READ,
     titleStatus: MODE_READ,
+    modalVisible: false,
     report: {},
-    layout: [],
-    layouts: { lg: [
-      { i: 'a', x: 0, y: 0, w: 2, h: 2 },
-      { i: 'b', x: 5, y: 0, w: 2, h: 2, minW: 2, maxW: 2 },
-      { i: 'c', x: 0, y: 2, w: 2, h: 2 },
-    ] },
-    charts: [{ type: 'bar', id: 'a' }, { type: 'line', id: 'b' }, { type: 'pie', id: 'c' }],
+    layouts: {},
     ponitsContainer: { breakpoints: { lg: 996, md: 768, sm: 500, xs: 200, xxs: 0 },
-      cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 } },
+      cols: { lg: 12, md: 12, sm: 12, xs: 12, xxs: 12 } },
   },
   subscriptions: {
     setup({ dispatch, history }) {
-      return history.listen(({ pathname, query }) => {
+      return history.listen(({ pathname }) => {
         let index = pathname.indexOf(EDIT_REPORT_PATH);
         let reportId = '';
         let status = MODE_READ;
@@ -39,7 +34,6 @@ export default {
             status = MODE_READ;
           }
         }
-
         if (reportId !== '') {
           dispatch({ type: 'setStatus', payload: { status } });
           dispatch({ type: 'queryReport', payload: { reportId } });
@@ -54,25 +48,13 @@ export default {
       yield put({ type: 'showLoading' });
       const report = yield call(getReport, parse(payload));
       const layouts = yield call(getLayouts, parse(payload));
-      const charts = yield call(getCharts, parse(payload));
-      if (charts.success) {
-        yield put({
-          type: 'renderReport',
-          payload: {
-            report: report.result,
-            layout: layouts.result.layouts,
-            charts: charts.result.charts,
-          },
-        });
-        for (const chart in charts.result.charts) {
-          yield put({
-            type: 'query',
-            payload: {
-              ...chart,
-            },
-          });
-        }
-      }
+      yield put({
+        type: 'renderReport',
+        payload: {
+          report: report.result,
+          layouts: layouts.result.layouts,
+        },
+      });
       yield put({ type: 'hideLoading' });
     },
 
@@ -93,17 +75,24 @@ export default {
       }
     },
 
-    *save({
+    *getChartData({
       payload,
     }, { call, put }) {
       yield put({ type: 'showLoading' });
-      const layouts = {
-        reportId: payload.report.id,
-        layouts: payload.layout,
+      const data = yield call(getChartData, parse(payload));
+      const chartToCode = {
+        codeId: data.result.codeId,
+        type: data.result.type,
       };
-      const data = yield call(setLayouts, parse(layouts));
-      if (data.success) {
-          //
+      const codeData = yield call(getCodeData, parse(chartToCode));
+      if (data.success && codeData.success) {
+        yield put({
+          type: 'initChartData',
+          payload: {
+            chartData: data.result,
+            codeData: codeData.result,
+          },
+        });
       }
       yield put({ type: 'hideLoading' });
     },
@@ -134,6 +123,19 @@ export default {
         loading: true,
       };
     },
+
+    showModal(state) {
+      return {
+        ...state,
+        modalVisible: true,
+      };
+    },
+    hideModal(state) {
+      return {
+        ...state,
+        modalVisible: false,
+      };
+    },
     hideLoading(state) {
       return {
         ...state,
@@ -147,7 +149,13 @@ export default {
         titleStatus: MODE_ALTER,
       };
     },
-
+    initChartData(state, action) {
+      return {
+        ...state,
+        chartData: action.payload.chartData,
+        codeData: action.payload.codeData,
+      };
+    },
     saveTitle(state, action) {
       const report = state.report;
       report.name = action.payload.name;
@@ -157,11 +165,16 @@ export default {
         report,
       };
     },
-    breakpointChange(state, action) {
+    addChartToReport(state, action) {
       return {
         ...state,
-        //...action.payload,
-        //ponitsContainer: { breakpoints: action.payload.breakpoints, cols: action.payload.cols },
+        ...action.payload,
+        addChartId: action.payload.chartId,
+      };
+    },
+    breakpointChange(state) {
+      return {
+        ...state,
       };
     },
 
@@ -177,14 +190,20 @@ export default {
         ...state,
         report: action.payload.report,
         layout: action.payload.layout,
-        //...action.payload,   // 为了测试暂时伪造数据
+        layouts: action.payload.layouts,
       };
     },
 
-    renderChart(state, action) {
+    renderLayouts(state, action) {
       return {
         ...state,
-        //...action.payload,  // 为了测试暂时伪造数据
+        layouts: action.payload.layouts,
+      };
+    },
+
+    renderChart(state) {
+      return {
+        ...state,
       };
     },
   },
