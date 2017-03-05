@@ -44,7 +44,7 @@ class EditableCell extends React.Component {
           </span>
         :
           <span className={styles.editable_cell_text_wrapper}>
-            <Link className={styles.editable_link} to={`/dashboard/${key}`} ><Icon type="folder" />{value || ' '}</Link>
+            <Icon type="folder" />{value || ' '}
             <Icon
               type="edit"
               className={styles.editable_cell_icon}

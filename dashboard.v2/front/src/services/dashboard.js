@@ -4,7 +4,14 @@
 import { request } from '../utils';
 
 export async function getDirs(params) {
-  return request('/v1/dirs', {
+  return request(`/v1/dirs?type=${params.type}`, {
+    method: 'get',
+    data: params,
+  });
+}
+
+export async function getChartsByDirId(params) {
+  return request(`/v1/charts?dirId=${params.dirId}`, {
     method: 'get',
     data: params,
   });
@@ -27,6 +34,22 @@ export async function getAllReports(params) {
 export async function getReport(params) {
   return request(`/v1/reports/${params.reportId}`, {
     method: 'get',
+  });
+}
+
+// Delete /v1/reports/<ReportId>
+export async function deleteReport(params) {
+  return request(`/v1/reports/${params.rId}`, {
+    method: 'delete',
+    data: params,
+  });
+}
+
+// Delete /v1/charts/<ChartId>
+export async function deleteChart(params) {
+  return request(`/v1/charts/${params.cId}`, {
+    method: 'delete',
+    data: params,
   });
 }
 
@@ -55,7 +78,7 @@ export async function setLayouts(params) {
 
 // POST /v1/layouts/<ReportId>
 export async function addReport(params) {
-  return request(`/v1/reports`, {
+  return request('/v1/reports', {
     method: 'post',
     body: JSON.stringify({
       dirId: params.dirId,
@@ -66,12 +89,13 @@ export async function addReport(params) {
 
 // POST /v1/dirs
 export async function addDir(params) {
-  return request(`/v1/dirs`, {
+  return request('/v1/dirs', {
     method: 'post',
     body: JSON.stringify({
       pre: params.dirId,
       name: params.name,
-      post: "",
+      post: '',
+      type: params.type,
     }),
   });
 }
