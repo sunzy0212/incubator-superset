@@ -5,7 +5,7 @@ import styles from '../modal.less';
 const FormItem = Form.Item;
 
 const MySQL = ({
-  saveLoading, item, onOk, form: {
+  saveLoading, item, onOk, callBack, form: {
   getFieldDecorator,
   validateFields,
 },
@@ -29,7 +29,7 @@ const MySQL = ({
           username: values.username,
           password: values.password,
         };
-
+        callBack(true);
         onOk(data);
       }
     });
@@ -115,7 +115,7 @@ const MySQL = ({
         <Button
           type="primary" htmlType="submit" size="large" loading={saveLoading}
           className={styles.submitButton}
-        >确认</Button>
+        >提交</Button>
       </FormItem>
     </Form>
   );
@@ -125,6 +125,7 @@ MySQL.propTypes = {
   saveLoading: PropTypes.bool,
   item: PropTypes.object,
   onOk: PropTypes.func,
+  callBack: PropTypes.func,
 };
 
 export default Form.create()(MySQL);

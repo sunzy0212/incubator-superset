@@ -44,6 +44,17 @@ function RouterConfig({ history, app }) {
       },
 
       {
+        path: '/datasource/config',
+        name: 'datasourceConfig',
+        getComponent(nextState, cb) {
+          require.ensure([], (require) => {
+            registerModel(app, require('./models/datasource'));
+            cb(null, require('./components/datasource/datasourceEditor'));
+          });
+        },
+      },
+
+      {
         path: '/datasets',
         name: 'datasets',
         getComponent(nextState, cb) {

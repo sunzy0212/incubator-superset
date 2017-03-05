@@ -1,50 +1,76 @@
 import React, { PropTypes } from 'react';
-import { Modal } from 'antd';
-import MySQL from './modals/mysql';
-import InfluxDB from './modals/influxdb';
+import { Link } from 'dva/router';
+import { Modal, Row, Col } from 'antd';
+import styles from './modal.less';
 
 const DataSetModal = ({
-  saveLoading,
-  dataSetType,
   visible,
   item,
   onOk,
   onCancel,
 }) => {
-  const ModalContextGen = () => {
-    const modalProps = {
-      saveLoading,
-      dataSetType,
-      visible,
-      item,
-      onOk,
-      onCancel,
-    };
-
-    switch (dataSetType.toUpperCase()) {
-      case 'MYSQL':
-        return (<MySQL {...modalProps} />);
-      case 'INFLUXDB':
-        return <InfluxDB {...modalProps} />;
-      default:
-        return <div>暂不支持： {dataSetType} 哟！</div>;
-    }
+  const Seat = ({ children }) => {
+    return (<div className={styles.seat}>
+      {children}
+    </div>);
   };
   return (
     <Modal
       visible={visible}
-      title={`添加${dataSetType}`}
+      title="支持如下数据源"
       width={700}
       onCancel={onCancel}
       style={{ top: 20 }}
       footer={[]}
     >
-      <ModalContextGen />
+      <Row gutter={24}>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          </Seat>
+        </Col>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'INFLUXDB', action: 'ADD', onOk, item }} >INFLUXDB</Link>
+          </Seat>
+        </Col>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          </Seat>
+        </Col>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          </Seat>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          </Seat>
+        </Col>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          </Seat>
+        </Col>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          </Seat>
+        </Col>
+        <Col span={6} >
+          <Seat>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          </Seat>
+        </Col>
+      </Row>
     </Modal>
   );
 };
 DataSetModal.propTypes = {
-  dataSetType: PropTypes.string,
   visible: PropTypes.bool,
   item: PropTypes.object,
   onOk: PropTypes.func,

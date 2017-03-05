@@ -23,6 +23,8 @@ type M map[string]interface{}
 
 var DirTypes = []string{"REPORT", "CHART"}
 
+var ChartComponentTypes = []string{"TEXT", "CHART"}
+
 type cmdArgs struct {
 	CmdArgs []string
 }
@@ -922,6 +924,7 @@ func (s *Service) DeleteReports_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	return
 }
 
+// #################################### Chart
 /*
 POST /v1/charts
 Content-Type: application/json
@@ -934,6 +937,18 @@ Content-Type: application/json
 	"dirId" : <DirId>
 }
 */
+
+func (s *Service) isChartComponentMatch(vType string) bool {
+	var flag = false
+	for _, v := range ChartComponentTypes {
+		if v == strings.ToUpper(vType) {
+			flag = true
+			break
+		}
+	}
+	return flag
+}
+
 func (s *Service) PostCharts(env *rpcutil.Env) (chart common.Chart, err error) {
 	var data []byte
 	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
@@ -950,7 +965,13 @@ func (s *Service) PostCharts(env *rpcutil.Env) (chart common.Chart, err error) {
 		return
 	}
 	req.Id = fmt.Sprintf("chart_%s", req.Id)
+
 	req.Type = strings.ToUpper(req.Type)
+	if flag := s.isChartComponentMatch(req.Type); !flag {
+		err = ErrorPostChart(fmt.Errorf("chart component `type` is need, the type maybe `text|TEXT|chart|CHAHRT`"))
+		return
+	}
+
 	var f bool
 	if f, err = db.IsExist(s.CodeColl, M{"id": req.CodeId}); err != nil {
 		err = errors.Info(ErrInternalError, err)
@@ -995,7 +1016,13 @@ func (s *Service) PutCharts_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 	req.Id = chartId
+
 	req.Type = strings.ToUpper(req.Type)
+	if flag := s.isChartComponentMatch(req.Type); !flag {
+		err = ErrorPostChart(fmt.Errorf("chart component `type` is need, the type maybe `text|TEXT|chart|CHAHRT`"))
+		return
+	}
+
 	var f bool
 	if f, err = db.IsExist(s.CodeColl, M{"id": req.CodeId}); err != nil {
 		return errors.Info(ErrInternalError, err)

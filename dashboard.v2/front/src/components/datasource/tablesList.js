@@ -56,7 +56,7 @@ const TablesList = ({ loading, tables, newDataSet }) => {
 
   return (
     <Table
-      loading={loading} columns={columns} dataSource={data} pagination={false}
+      loading={loading} columns={columns} dataSource={data} pagination={false} size="middle"
     />
   );
 };
