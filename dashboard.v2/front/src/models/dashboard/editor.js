@@ -1,5 +1,5 @@
 import { parse } from 'qs';
-import { getDirs, openDir, addReport, getAllReports, addDir, deleteDir, deleteReport, getChartsByDirId } from '../../services/dashboard';
+import { getDirs, getAllReports, setLayouts, getChartsByDirId } from '../../services/dashboard';
 
 export default {
   namespace: 'dashboardEditor',
@@ -33,6 +33,20 @@ export default {
       }
       yield put({ type: 'hideLoading' });
     },
+    *updateLayout({
+      payload,
+    }, { call, put }) {
+      yield put({ type: 'showLoading' });
+      const layouts = {
+        reportId: payload.reportId,
+        layouts: payload.layouts,
+      };
+      const data = yield call(setLayouts, parse(layouts));
+      if (data.success) {
+        // todo
+      }
+      yield put({ type: 'hideLoading' });
+    },
     *getAllReports({
       payload,
     }, { call, put }) {
@@ -48,7 +62,7 @@ export default {
       }
       yield put({ type: 'hideLoading' });
     },
-    *getChartData({
+    *getChartsByDirId({
       payload,
     }, { call, put }) {
       yield put({ type: 'showLoading' });
@@ -81,6 +95,12 @@ export default {
       return {
         ...state,
         ...action.payload,
+      };
+    },
+    hideLoading(state) {
+      return {
+        ...state,
+        loading: false,
       };
     },
 

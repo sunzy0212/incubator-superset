@@ -1,5 +1,5 @@
 import { parse } from 'qs';
-import { getReport, getCharts, getLayouts, setLayouts, queryCode, saveReport, deleteReport, deleteChart } from '../../services/dashboard';
+import { getReport, getLayouts, queryCode, saveReport } from '../../services/dashboard';
 import { getChartData, getCodeData } from '../../services/reportboard';
 const REPORT_PATH = '/dashboard/';
 const EDIT_REPORT_PATH = '/dashboard/edit/';
@@ -73,20 +73,6 @@ export default {
           },
         });
       }
-    },
-    *updateLayout({
-      payload,
-    }, { call, put }) {
-      yield put({ type: 'showLoading' });
-      const layouts = {
-        reportId: payload.reportId,
-        layouts: payload.layouts,
-      };
-      const data = yield call(setLayouts, parse(layouts));
-      if (data.success) {
-        // todo
-      }
-      yield put({ type: 'hideLoading' });
     },
 
     *getChartData({

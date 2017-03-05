@@ -9,7 +9,7 @@ import styles from './ReportBoard.less';
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 
-function ReportBoard({ dispatch, reportboard, dashboard }) {
+function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
   const { status, titleStatus, loading, report, layouts, addChartId,
     ponitsContainer } = reportboard;
   const { deleteModalVisible } = dashboard;
@@ -82,7 +82,7 @@ function ReportBoard({ dispatch, reportboard, dashboard }) {
     },
     saveChartToReport(rId, cLayouts) {
       dispatch({
-        type: 'reportboard/updateLayout',
+        type: 'dashboardEditor/updateLayout',
         payload: {
           reportId: rId,
           layouts: cLayouts,

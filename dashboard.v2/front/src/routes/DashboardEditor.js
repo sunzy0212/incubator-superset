@@ -12,7 +12,7 @@ function DashboardEditor({ children, dispatch, dashboardEditor }) {
     charts,
     getChartData(key) {
       dispatch({
-        type: 'dashboardEditor/getChartData',
+        type: 'dashboardEditor/getChartsByDirId',
         payload: { dirId: key },
       });
     },
