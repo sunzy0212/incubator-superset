@@ -7,6 +7,8 @@ datasource数据结构
 ```
 {
 	id		string 
+	name		string
+	nickName	string
 	host		string
 	port		int
 	type		string  //数据源类型：可选MYSQL/MGO/Spark...
@@ -24,6 +26,7 @@ POST /v1/datasources
 Content-Type: application/json
 {
 	"name" : <Name>,
+	"nickName" : <NickName>,
 	"host" : <Host>,
 	"port" : <Port>,
     "type" : <Type>,
@@ -40,6 +43,7 @@ Content-Type: application/json
 {
 	"id" : <Id>,
 	"name" : <Name>,
+	"nickName" : <NickName>,
 	"host" :<Host>,
 	"port" : <Port>,
     "type" : <Type>,
@@ -55,6 +59,7 @@ POST /v1/datasources/test
 Content-Type: application/json
 {
 	"name" : <Name>,
+	"nickName" : <NickName>,
 	"host" : <Host>,
 	"port" : <Port>,
 	"type" : <Type>,
@@ -74,6 +79,7 @@ PUT /v1/datasources/<Id>
 Content-Type: application/json
 {
 	"name" : <Name>,
+	"nickName" : <NickName>,
 	"host" : <Host>,
 	"port" : <Port>,
     "type" : <Type>,
@@ -101,6 +107,7 @@ Content-Type: application/json
 	{
 		"id" : <Id>,
 		"name" : <Name>,
+		"nickName" : <NickName>,
 		"host" : <Host>,
 		"port" : <Port>,
 		"type" : <Type>,

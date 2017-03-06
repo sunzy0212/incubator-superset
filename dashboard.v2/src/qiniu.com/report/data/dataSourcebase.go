@@ -19,7 +19,9 @@ func NewDataSourceManager() *DataSourceManager {
 }
 
 func (m *DataSourceManager) gcDataSource() {
-
+	m.mux.Lock()
+	defer m.mux.Unlock()
+	//TODO MayBe LRU
 }
 
 func genDataSource(ds common.DataSource) DataSourceInterface {
@@ -38,6 +40,8 @@ func (m *DataSourceManager) TestConn(ds common.DataSource) (bool, error) {
 }
 
 func (m *DataSourceManager) Get(ds common.DataSource) DataSourceInterface {
+	m.mux.Lock()
+	defer m.mux.Unlock()
 	if v, ok := m.sources[ds]; !ok {
 		dsi := genDataSource(ds).(DataSourceInterface)
 		m.sources[ds] = dsi

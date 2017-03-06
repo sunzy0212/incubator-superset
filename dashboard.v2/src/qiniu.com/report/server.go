@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -17,29 +18,37 @@ import (
 	"qiniu.com/report/common/db"
 	. "qiniu.com/report/common/errors"
 	"qiniu.com/report/data"
+	"qiniu.com/report/rest"
 )
 
 type M map[string]interface{}
 
-var DirTypes = []string{"REPORT", "CHART"}
+const (
+	DATASOURCE_NAME_PATTERN = "^[a-zA-Z_][a-zA-Z0-9_]{0,8}$"
+)
 
-var ChartComponentTypes = []string{"TEXT", "CHART"}
+var (
+	DirTypes            = []string{"REPORT", "CHART"}
+	ChartComponentTypes = []string{"TEXT", "CHART"}
+)
 
 type cmdArgs struct {
 	CmdArgs []string
 }
 
 type Service struct {
-	RWMux *sync.RWMutex
 	common.Collections
+	RWMux             *sync.RWMutex
+	client            *rest.DrillClient
 	dataSourceManager *data.DataSourceManager
 	executor          *data.Executor
 }
 
-func NewService(coll common.Collections) (s *Service, err error) {
+func NewService(coll common.Collections, restUrls []string) (s *Service, err error) {
 	s = &Service{
-		RWMux:             &sync.RWMutex{},
 		Collections:       coll,
+		RWMux:             &sync.RWMutex{},
+		client:            rest.NewDrillClient(restUrls),
 		dataSourceManager: data.NewDataSourceManager(),
 		executor:          data.NewExecutor(),
 		//Config:      cfg,
@@ -54,7 +63,6 @@ POST /v1/datasources
 func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err error) {
 
 	var data []byte
-
 	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
 		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
 		return
@@ -65,6 +73,16 @@ func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err 
 		return
 	}
 
+	valid, err := regexp.MatchString(DATASOURCE_NAME_PATTERN, req.Name)
+	if err != nil {
+		err = errors.Info(ErrInternalError, MATCH_PATTERN_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	if !valid {
+		err = ErrorPostDataSource(errors.New(ErrInvalidDataSourceName))
+		return
+	}
+
 	if req.Id, err = common.GenId(); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
@@ -72,10 +90,23 @@ func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err 
 	req.Id = fmt.Sprintf("datasource_%s", req.Id)
 	req.CreateTime = common.GetCurrTime()
 	req.Type = strings.ToUpper(req.Type)
+
+	storage := s.dataSourceManager.Get(req).GenStorage()
+	res, err1 := s.client.PostStorage(storage)
+	if err1 != nil {
+		err = errors.Info(ErrInternalError).Detail(err1)
+		return
+	}
+	if res.Result != "success" {
+		err = ErrorPostDataSource(fmt.Errorf("failed to register datasource , err ~ %v", res.Result))
+		return
+	}
+
 	if err = db.DoInsert(s.DataSourceColl, req); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
+
 	ret = req
 	log.Infof("success to insert datasource: %+v", req)
 	return
@@ -102,6 +133,17 @@ func (s *Service) PostDatasourcesTest(env *rpcutil.Env) (ret RetTest, err error)
 		err = ErrorPostDataSource(err)
 		return
 	}
+
+	valid, err := regexp.MatchString(DATASOURCE_NAME_PATTERN, req.Name)
+	if err != nil {
+		err = errors.Info(ErrInternalError, MATCH_PATTERN_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	if !valid {
+		err = ErrorPostDataSource(errors.New(ErrInvalidDataSourceName))
+		return
+	}
+
 	if b, err1 := s.dataSourceManager.TestConn(req); err != nil {
 		err = ErrorTestDataSource(err1)
 		return
@@ -127,9 +169,32 @@ func (s *Service) PutDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		err = ErrorPostDataSource(err)
 		return
 	}
+
+	valid, err := regexp.MatchString(DATASOURCE_NAME_PATTERN, req.Name)
+	if err != nil {
+		err = errors.Info(ErrInternalError, MATCH_PATTERN_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	if !valid {
+		err = ErrorPostDataSource(errors.New(ErrInvalidDataSourceName))
+		return
+	}
+
 	req.Id = id
 	req.Type = strings.ToUpper(req.Type)
 	req.CreateTime = common.GetCurrTime()
+
+	storage := s.dataSourceManager.Get(req).GenStorage()
+	res, err1 := s.client.PostStorage(storage)
+	if err1 != nil {
+		err = errors.Info(ErrInternalError).Detail(err1)
+		return
+	}
+	if res.Result != "success" {
+		err = ErrorPostDataSource(fmt.Errorf("failed to register datasource , err ~ %v", res.Result))
+		return
+	}
+
 	err = db.DoUpdate(s.DataSourceColl, M{"id": id}, req)
 	if err != nil {
 		err = errors.Info(ErrInternalError, err)

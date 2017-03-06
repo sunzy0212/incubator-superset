@@ -14,6 +14,10 @@ const DataSourceList = ({ loading, onOk, onDelete, onLoadTables, datasources }) 
       key: 'name',
       render: text => <a href="#l">{text}</a>,
     }, {
+      title: '别名',
+      dataIndex: 'nickName',
+      key: 'nickName',
+    }, {
       title: '类型',
       dataIndex: 'type',
       key: 'type',
@@ -65,6 +69,7 @@ const DataSourceList = ({ loading, onOk, onDelete, onLoadTables, datasources }) 
       index: i + 1,
       key: e.id,
       name: e.name,
+      nickName: e.nickName,
       type: e.type,
       createTime: e.createTime,
       item: e,

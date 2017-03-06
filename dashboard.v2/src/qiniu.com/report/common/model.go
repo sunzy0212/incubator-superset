@@ -118,6 +118,7 @@ type Collections struct {
 type DataSource struct {
 	Id         string `json:"id" bson:"id"`
 	Name       string `json:"name" bson:"name"`
+	NickName   string `json:"nickName" bson:"nickName"`
 	Host       string `json:"host" bson:"host"`
 	Port       int    `json:"port" bson:"port"`
 	Type       string `json:"type" bson:"type"`

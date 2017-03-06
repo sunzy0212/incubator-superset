@@ -11,6 +11,7 @@ import (
 	"github.com/qiniu/log.v1"
 
 	"qiniu.com/report/common"
+	"qiniu.com/report/rest"
 )
 
 type InfluxDB struct {
@@ -32,6 +33,10 @@ func (m *InfluxDB) TestConn() (bool, error) {
 
 func (m *InfluxDB) ShowTables() (map[string]string, error) {
 	return nil, nil
+}
+
+func (m *InfluxDB) GenStorage() rest.Storage {
+	return rest.Storage{}
 }
 
 func (m *InfluxDB) Schema(tableName string) ([]map[string]string, error) {

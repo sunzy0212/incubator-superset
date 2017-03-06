@@ -1,5 +1,9 @@
 package data
 
+import (
+	"qiniu.com/report/rest"
+)
+
 type TagData struct {
 	Type  string          `json:"type"`
 	Tags  []string        `json:"tags"`
@@ -20,6 +24,7 @@ type DataSourceInterface interface {
 	TestConn() (bool, error)
 	ShowTables() (map[string]string, error)
 	Schema(string) ([]map[string]string, error)
+	GenStorage() rest.Storage
 }
 
 type DataSetInterface interface {
