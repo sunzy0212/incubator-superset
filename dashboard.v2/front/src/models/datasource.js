@@ -1,4 +1,5 @@
 import { parse } from 'qs';
+import { routerRedux } from 'dva/router';
 import { listDatasources, saveDataSource, deleteDataSource, showTables } from '../services/datasource';
 import { listDataSets } from '../services/datasets';
 
@@ -6,8 +7,6 @@ import { listDataSets } from '../services/datasets';
 export default {
   namespace: 'datasource',
   state: {
-    loading: false,
-    saveLoading: false,
     modalVisible: false,
     item: {},
     dataSetType: 'MYSQL',
@@ -24,7 +23,6 @@ export default {
     *queryDatasources({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(listDatasources, parse(payload));
       if (data.success) {
         yield put({
@@ -34,13 +32,11 @@ export default {
           },
         });
       }
-      yield put({ type: 'hideLoading' });
     },
 
     *queryDatasets({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(listDataSets, parse(payload));
       if (data.success) {
         yield put({
@@ -50,18 +46,16 @@ export default {
           },
         });
       }
-      yield put({ type: 'hideLoading' });
     },
 
     *save({
       payload,
     }, { call, put }) {
-      // yield put({type: 'showSaveLoading'})
       const data = yield call(saveDataSource, parse(payload));
       if (data.success) {
         yield put({ type: 'queryDatasources' });
+        yield put(routerRedux.push('/datasource'));
       }
-      yield put({ type: 'hideSaveLoading' });
     },
 
     *delete({ payload }, { call, put }) {
@@ -89,53 +83,11 @@ export default {
     },
   },
   reducers: {
-    showLoading(state) {
+    showModal(state) {
       return {
         ...state,
-        loading: true,
+        modalVisible: true,
       };
-    },
-    hideLoading(state) {
-      return {
-        ...state,
-        item: {},
-        loading: false,
-      };
-    },
-
-    showSaveLoading(state) {
-      return {
-        ...state,
-        saveLoading: true,
-      };
-    },
-    hideSaveLoading(state) {
-      return {
-        ...state,
-        saveLoading: false,
-        modalVisible: false,
-      };
-    },
-
-    showModal(state, action) {
-      const data = action.payload;
-      if (data.id === undefined || data.id === '') {
-        return {
-          ...state,
-          modalVisible: true,
-          dataSetType: data.dataSetType,
-        };
-      } else {
-        const item = state.datasources.filter((element) => {
-          return element.id === data.id;
-        });
-        return {
-          ...state,
-          item: item[0],
-          modalVisible: true,
-          dataSetType: item[0].type,
-        };
-      }
     },
 
     hideModal(state) {
@@ -166,7 +118,7 @@ export default {
       };
     },
 
-    deleteDataSources(state, action) {
+    deleteDataSource(state, action) {
       const newRecords = state.datasources.filter((element) => {
         return element.id !== action.id;
       });

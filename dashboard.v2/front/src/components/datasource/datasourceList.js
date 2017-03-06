@@ -1,7 +1,8 @@
 import React, { PropTypes } from 'react';
+import { Link } from 'dva/router';
 import { Table, Popconfirm } from 'antd';
 
-const DatasetList = ({ loading, onEditor, onDelete, onLoadTables, datasources }) => {
+const DataSourceList = ({ loading, onOk, onDelete, onLoadTables, datasources }) => {
   const columns = [
     {
       title: '序号',
@@ -41,7 +42,11 @@ const DatasetList = ({ loading, onEditor, onDelete, onLoadTables, datasources })
       className: '',
       render: record => (
         <span>
-          <a icon="edit" onClick={() => onEditor(record.key)} >编辑</a>
+          <Link
+            to={'/datasource/config'}
+            state={{ item: record.item, type: record.type, action: 'EDIT', onOk }}
+          >编辑
+          </Link>
           <span className="ant-divider" />
           <Popconfirm title="确定删除该数据源吗？" onConfirm={() => onDelete(record.key)}>
             <a icon="delete">删除</a>
@@ -61,10 +66,8 @@ const DatasetList = ({ loading, onEditor, onDelete, onLoadTables, datasources })
       key: e.id,
       name: e.name,
       type: e.type,
-      host: e.host,
-      port: e.port,
-      dbName: e.dbName,
       createTime: e.createTime,
+      item: e,
     });
   });
 
@@ -74,16 +77,15 @@ const DatasetList = ({ loading, onEditor, onDelete, onLoadTables, datasources })
 
   return (
     <Table
-      loading={loading} columns={columns} dataSource={data}
+      loading={loading} columns={columns} dataSource={data} size="middle"
       onRowClick={rowClick}
     />
   );
 };
-DatasetList.propTypes = {
+DataSourceList.propTypes = {
   loading: PropTypes.bool,
-  onEditor: PropTypes.func,
   onDelete: PropTypes.func,
   onLoadTables: PropTypes.func,
   datasources: PropTypes.array,
 };
-export default DatasetList;
+export default DataSourceList;

@@ -5,11 +5,9 @@ import styles from '../modal.less';
 const FormItem = Form.Item;
 
 const InfluxDB = ({
-  saveLoading, item, onOk, form: {
+  saveLoading, item, onOk, callBack, form: {
   getFieldDecorator,
   validateFields,
-  // getFieldsValue,
-  // getFieldsValues,
 },
 }) => {
   const formItemLayout = {
@@ -22,6 +20,7 @@ const InfluxDB = ({
     validateFields((err, values) => {
       if (!err) {
         const data = {
+          id: item.id, // For editor
           name: values.name,
           host: values.host,
           port: values.port,
@@ -30,6 +29,7 @@ const InfluxDB = ({
           username: values.username || '',
           password: values.password || '',
         };
+        callBack(true);
         onOk(data);
       }
     });
@@ -77,7 +77,7 @@ const InfluxDB = ({
         <Button
           type="primary" htmlType="submit" size="large" loading={saveLoading}
           className={styles.submitButton}
-        >确认</Button>
+        >提交</Button>
       </FormItem>
     </Form>
   );
@@ -87,5 +87,6 @@ InfluxDB.propTypes = {
   saveLoading: PropTypes.bool,
   item: PropTypes.object,
   onOk: PropTypes.func,
+  callBack: PropTypes.func,
 };
 export default Form.create()(InfluxDB);

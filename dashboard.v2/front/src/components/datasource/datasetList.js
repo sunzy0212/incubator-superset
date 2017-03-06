@@ -76,7 +76,7 @@ const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
 
   return (
     <Table
-      loading={loading} columns={columns} dataSource={data}
+      loading={loading} columns={columns} dataSource={data} size="middle"
       onRowClick={rowClick}
     />
   );
