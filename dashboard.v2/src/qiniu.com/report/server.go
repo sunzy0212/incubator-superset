@@ -24,7 +24,7 @@ import (
 type M map[string]interface{}
 
 const (
-	DATASOURCE_NAME_PATTERN = "^[a-zA-Z_][a-zA-Z0-9_]{0,8}$"
+	DATASOURCE_NAME_PATTERN = "^[a-zA-Z_][a-zA-Z0-9_]{0,31}$"
 )
 
 var (

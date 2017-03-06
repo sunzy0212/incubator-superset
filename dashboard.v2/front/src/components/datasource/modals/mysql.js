@@ -37,12 +37,12 @@ const MySQL = ({
   }
 
   function checkName(rule, value, callback) {
-    const reg = new RegExp('^[a-zA-Z][a-zA-Z0-9_]{0,7}$');
+    const reg = new RegExp('^[a-zA-Z][a-zA-Z0-9_]{0,31}$');
     if (reg.test(value)) {
       callback();
       return;
     }
-    callback('数据源名称应该为小于8的字母或数字组成，必须字母开头!');
+    callback('数据源名称由1~32个字母或数字组成，必须字母开头!');
   }
 
   return (
