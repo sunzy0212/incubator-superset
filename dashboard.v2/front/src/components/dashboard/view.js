@@ -109,6 +109,24 @@ class View extends React.Component {
     } else {
       return (
         <div className={styles.box}>
+          <Row gutter={24}>
+            <Col lg={16} md={8}>
+              <div className={styles.boxHeader}>
+                <h3>{this.state.chartData.title}</h3>
+              </div>
+            </Col>
+            <Col lg={8} md={16}>
+              <div className={styles.boxTool}>
+                <Link ><Icon type="edit" /></Link>
+                <span className="ant-divider" />
+                <a><Icon type="download" /></a>
+                <span className="ant-divider" />
+                <a><Icon type="reload" /></a>
+                <span className="ant-divider" />
+                <a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a>
+              </div>
+            </Col>
+          </Row>
           <Spin size="large" />
         </div>
       );
