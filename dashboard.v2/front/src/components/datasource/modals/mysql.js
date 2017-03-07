@@ -22,6 +22,7 @@ const MySQL = ({
         const data = {
           id: item.id, // For editor
           name: values.name,
+          nickName: values.nickName,
           host: values.host,
           port: values.port,
           type: 'MYSQL',
@@ -35,18 +36,31 @@ const MySQL = ({
     });
   }
 
+  function checkName(rule, value, callback) {
+    const reg = new RegExp('^[a-zA-Z][a-zA-Z0-9_]{0,31}$');
+    if (reg.test(value)) {
+      callback();
+      return;
+    }
+    callback('数据源名称由1~32个字母或数字组成，必须字母开头!');
+  }
+
   return (
     <Form onSubmit={handleSubmit}>
 
       <FormItem label="名称：" {...formItemLayout}>
         {getFieldDecorator('name', {
           initialValue: item.name,
-          rules: [
-            {
-              required: true,
-              message: '名称未填写',
-            },
-          ],
+          rules: [{
+            required: true,
+            message: '名字未填写' },
+            { validator: checkName }],
+        })(<Input />)}
+      </FormItem>
+
+      <FormItem label="别名：" {...formItemLayout}>
+        {getFieldDecorator('nickName', {
+          initialValue: item.nickName,
         })(<Input />)}
       </FormItem>
 

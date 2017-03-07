@@ -33,9 +33,14 @@ type EndPoint struct {
 	StaticPath string `json:"static_file_path"`
 }
 
+type Drill struct {
+	Urls []string `json:"urls"`
+}
+
 type Config struct {
-	M mgoutil.Config `json:"mgo"`
-	S EndPoint       `json:"service"`
+	M     mgoutil.Config `json:"mgo"`
+	S     EndPoint       `json:"service"`
+	Drill Drill          `json:"drill"`
 }
 
 func (self *MyServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +73,9 @@ func main() {
 		cfg = Config{
 			mgoutil.Config{Host: "127.0.0.1", DB: "report"},
 			EndPoint{"8000", runtime.NumCPU()/2 + 1, 1, "./"},
+			Drill{
+				Urls: []string{"http://localhost:8047"},
+			},
 		}
 		log.Infof("%+v", cfg)
 	}
@@ -111,7 +119,7 @@ func main() {
 		}
 	}()
 
-	srv, err := NewService(colls)
+	srv, err := NewService(colls, cfg.Drill.Urls)
 	if err != nil {
 		defer session.Close()
 		log.Fatal("Initialize portal service failed:", err)

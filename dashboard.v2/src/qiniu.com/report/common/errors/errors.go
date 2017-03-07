@@ -18,6 +18,8 @@ const (
 	FETCH_REQUEST_ENTITY_FAILED_MESSAGE   = "Failed to fetch request entity"
 	UPDATE_REGISTRY_CONFIG_FAILED_MESSAGE = "Failed to update schema registry compatibility level to NONE"
 	POST_SCHED_EVNET_FAILED_MESSAGE       = "Failed to post event to scheduler"
+
+	ErrInvalidDataSourceName = "The specified datasource name is not valid"
 )
 
 var (

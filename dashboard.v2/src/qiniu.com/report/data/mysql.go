@@ -10,6 +10,7 @@ import (
 	"github.com/siddontang/go-mysql/client"
 
 	"qiniu.com/report/common"
+	"qiniu.com/report/rest"
 )
 
 type MySQL struct {
@@ -47,6 +48,19 @@ func (m *MySQL) ShowTables() (map[string]string, error) {
 		ret[r] = ""
 	}
 	return ret, nil
+}
+
+func (m *MySQL) GenStorage() rest.Storage {
+	return rest.Storage{
+		Name: m.Name, // TODO  should by `${Appid}_${Name}`
+		Config: rest.StorageConfig{
+			Type:    "jdbc",
+			Enabled: true,
+			Driver:  "com.mysql.jdbc.Driver",
+			Url: fmt.Sprintf("jdbc:mysql://%s:%d/%s?user=%s&password=%s&useUnicode=true&characterEncoding=utf8&autoReconnect=true",
+				m.Host, m.Port, m.DbName, m.Username, m.Password),
+		},
+	}
 }
 
 func (m *MySQL) Schema(tableName string) ([]map[string]string, error) {
