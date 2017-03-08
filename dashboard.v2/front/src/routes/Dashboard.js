@@ -28,7 +28,7 @@ function Dashboard({ children, dispatch, dashboard }) {
     onCreateOk(data) {
       dispatch({
         type: 'dashboard/addDir',
-        payload: { dirId: data.dirId, name: data.name, type: data.type },
+        payload: { pre: data.dirId, name: data.name, type: data.type },
       });
     },
     onCancel() {
