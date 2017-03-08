@@ -38,6 +38,7 @@ function RouterConfig({ history, app }) {
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
             registerModel(app, require('./models/datasource'));
+            registerModel(app, require('./models/datasets'));
             cb(null, require('./routes/Datasource'));
           });
         },

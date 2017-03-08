@@ -3,22 +3,47 @@ import { connect } from 'dva';
 import { Layout, Row, Col, Tabs } from 'antd';
 import FieldHolder from '../components/datasets/filedsHolder';
 import TableEditor from '../components/datasets/tableEditor';
-import styles from './Datasets.css';
 
 const { Sider, Content } = Layout;
 const TabPane = Tabs.TabPane;
 
 function Datasets({ dispatch, datasets }) {
-  const { loading, dimensions, measures } = datasets;
+  const { loading, dimensions, measures, updateNameModal, currentDimensions } = datasets;
 
   const dimensionsProps = {
     title: '维度',
     records: dimensions,
+    updateNameModal,
+    currentDimensions,
+    onEditor(cdimensions) {
+      console.log(cdimensions);
+      dispatch({
+        type: 'datasets/showUpdateModal',
+        payload: { cDimensions: cdimensions },
+      });
+    },
+    onCancelSave() {
+      dispatch({
+        type: 'datasets/hideUpdateModal',
+      });
+    },
+    onCreateOk(data) {
+      for (let i = 0; i < dimensions.length; i++) {
+        if (dimensions[i].name === data.sourceName) {
+          dimensions[i].alias = data.name;
+        }
+      }
+      dispatch({
+        type: 'datasets/updateDimensionsName',
+        payload: { cDimensions: dimensions },
+      });
+    },
   };
 
   const measuresProps = {
     title: '度量',
     records: measures,
+    updateNameModal,
   };
 
   const tableEditorProps = {

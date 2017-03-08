@@ -8,10 +8,12 @@ export default {
   state: {
     inited: false,
     modalVisibles: { toSave: false },
+    updateNameModal: false,
     loading: false,
     datasources: {},
     dataset: {},
     relationships: [],
+    currentDimensions: {},
     dimensions: [],
     measures: [{ name: 'total', alias: '总数' }, { name: 'avg', alias: '平均' },
       { name: 'min', alias: '最小' }, { name: 'max', alias: '最大' }],
@@ -108,6 +110,29 @@ export default {
       return {
         ...state,
         loading: false,
+      };
+    },
+
+    showUpdateModal(state, action) {
+      return {
+        ...state,
+        updateNameModal: true,
+        currentDimensions: action.payload.cDimensions,
+      };
+    },
+
+    updateDimensionsName(state, action) {
+      return {
+        ...state,
+        dimensions: action.payload.cDimensions,
+        updateNameModal: false,
+      };
+    },
+
+    hideUpdateModal(state, action) {
+      return {
+        ...state,
+        updateNameModal: false,
       };
     },
 
