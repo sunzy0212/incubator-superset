@@ -92,7 +92,7 @@ export async function addDir(params) {
   return request('/v1/dirs', {
     method: 'post',
     body: JSON.stringify({
-      pre: params.dirId,
+      pre: params.pre,
       name: params.name,
       post: '',
       type: params.type,

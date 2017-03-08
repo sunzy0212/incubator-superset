@@ -1033,7 +1033,7 @@ func (s *Service) PostCharts(env *rpcutil.Env) (chart common.Chart, err error) {
 
 	req.Type = strings.ToUpper(req.Type)
 	if flag := s.isChartComponentMatch(req.Type); !flag {
-		err = ErrorPostChart(fmt.Errorf("chart component `type` is need, the type maybe `text|TEXT|chart|CHAHRT`"))
+		err = ErrorPostChart(fmt.Errorf("chart component `type` is need, the type maybe `text|TEXT|chart|CHART`"))
 		return
 	}
 
@@ -1084,7 +1084,7 @@ func (s *Service) PutCharts_(args *cmdArgs, env *rpcutil.Env) (err error) {
 
 	req.Type = strings.ToUpper(req.Type)
 	if flag := s.isChartComponentMatch(req.Type); !flag {
-		err = ErrorPostChart(fmt.Errorf("chart component `type` is need, the type maybe `text|TEXT|chart|CHAHRT`"))
+		err = ErrorPostChart(fmt.Errorf("chart component `type` is need, the type maybe `text|TEXT|chart|CHART`"))
 		return
 	}
 

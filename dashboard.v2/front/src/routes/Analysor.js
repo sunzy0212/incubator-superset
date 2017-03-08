@@ -9,8 +9,8 @@ import Dataview from '../components/analysor/dataview';
 import styles from './Analysor.less';
 
 function Analysor({ dispatch, analysor }) {
-  const { dataset, addOns, operatorOptions, dayOptions, datas,
-    selectFields, metricFields, groupFields, timeField } = analysor;
+  const { loading, dataset, addOns, operatorOptions, dayOptions, datas,
+    selectFields, metricFields, groupFields, timeField, chart, dirs } = analysor;
 
   const { id, name, dimensions, measures, times } = dataset;
 
@@ -44,6 +44,9 @@ function Analysor({ dispatch, analysor }) {
   };
 
   const dataViewProps = {
+    loading,
+    chart,
+    dirs,
     datas,
     timeField,
     allFields: [].concat(dimensions).concat(measures).concat(times),
@@ -75,7 +78,7 @@ function Analysor({ dispatch, analysor }) {
 }
 
 function mapStateToProps(state) {
-  return { analysor: state.analysor };
+  return { analysor: state.analysor, loading: state.loading.models.analysor };
 }
 
 export default connect(mapStateToProps)(Analysor);

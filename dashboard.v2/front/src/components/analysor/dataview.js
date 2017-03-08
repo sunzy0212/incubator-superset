@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
-import { Form, Collapse, Select, Row, Col, Icon, Button } from 'antd';
+import ReactDOM from 'react-dom';
+import { Form, Collapse, Select, Row, Col, Icon, Button, Spin } from 'antd';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import SaveModal from './saveModal';
 import styles from './dataview.less';
 
 const Panel = Collapse.Panel;
@@ -19,6 +21,7 @@ class Dataview extends React.Component {
   constructor() {
     super();
     this.state = {
+      visible: false,
       chartType: 'line',
       x_axis: [],
       y_axis: [],
@@ -40,6 +43,7 @@ class Dataview extends React.Component {
         }
       });
     });
+    ReactDOM.unmountComponentAtNode(document.getElementById('saveModal'));
 
     this.setState({
       allFields,
@@ -64,7 +68,6 @@ class Dataview extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
@@ -85,7 +88,20 @@ class Dataview extends React.Component {
             }
           });
         });
-        this.props.onSaveOrUpdate({ name: new Date().toJSON(), xaxis, yaxis, chartType });
+
+        const onSaveOrUpdate = this.props.onSaveOrUpdate;
+        const saveModalProps = {
+          chart: this.props.chart,
+          dirs: [].concat(this.props.dirs),
+          data: { title: this.props.chart.title || `图表${new Date().toJSON()}`, xaxis, yaxis, chartType },
+          onSaveOrUpdate,
+        };
+
+        ReactDOM.render(
+          <SaveModal {...saveModalProps} />,
+          document.getElementById('saveModal'),
+        );
+        // this.props.onSaveOrUpdate({ name: new Date().toJSON(), xaxis, yaxis, chartType });
       }
     });
   }
@@ -115,6 +131,7 @@ class Dataview extends React.Component {
 
     return (
       <div>
+        <div id="saveModal" />
         <Form onSubmit={this.handleSubmit}>
           <Collapse >
             <Panel header={<Icon type="area-chart" />} key="1">
@@ -213,6 +230,7 @@ class Dataview extends React.Component {
           </Collapse>
         </Form>
         <div className={styles.chart}>
+          {this.props.loading ? <Spin /> : <dir />}
           <LineChart
             width={750} height={500} data={datas}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -234,6 +252,7 @@ class Dataview extends React.Component {
 }
 
 Dataview.propTypes = {
+  loading: PropTypes.bool,
   datas: PropTypes.array,
   selectFields: PropTypes.array,
   metricFields: PropTypes.array,

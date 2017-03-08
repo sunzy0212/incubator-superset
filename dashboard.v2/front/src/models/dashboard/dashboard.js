@@ -120,7 +120,7 @@ export default {
           type: 'queryDirs',
           payload: {
             type: 'report',
-          }
+          },
         });
       }
     },
