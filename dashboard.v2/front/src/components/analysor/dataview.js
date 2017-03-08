@@ -230,7 +230,7 @@ class Dataview extends React.Component {
           </Collapse>
         </Form>
         <div className={styles.chart}>
-          {this.props.loading ? <Spin /> : <dir />}
+          {this.props.loading ? <Spin /> : <div />}
           <LineChart
             width={750} height={500} data={datas}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
