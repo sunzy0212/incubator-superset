@@ -7,13 +7,14 @@ export default {
   namespace: 'datasets',
   state: {
     inited: false,
+    modalSpace: { dimensions: false, measures: false },
     modalVisibles: { toSave: false },
-    updateNameModal: false,
+    renameModalVisibles: false,
     loading: false,
     datasources: {},
     dataset: {},
     relationships: [],
-    currentDimensions: {},
+    currentRecord: {},
     dimensions: [],
     measures: [{ name: 'total', alias: '总数' }, { name: 'avg', alias: '平均' },
       { name: 'min', alias: '最小' }, { name: 'max', alias: '最大' }],
@@ -113,26 +114,35 @@ export default {
       };
     },
 
-    showUpdateModal(state, action) {
+    showRenameModal(state, action) {
+      let currentSpace = { dimensions: true, measures: false };
+      if (action.payload.title === '度量') {
+        currentSpace = { dimensions: false, measures: true };
+      }
       return {
         ...state,
-        updateNameModal: true,
-        currentDimensions: action.payload.cDimensions,
+        renameModalVisibles: true,
+        currentRecord: action.payload.data,
+        modalSpace: currentSpace,
       };
     },
 
-    updateDimensionsName(state, action) {
+    updateName(state, action) {
+      if (action.payload.isDimensions === false) {
+        state.measures = action.payload.data;
+      }else {
+        state.dimensions = action.payload.data;
+      }
       return {
         ...state,
-        dimensions: action.payload.cDimensions,
-        updateNameModal: false,
+        renameModalVisibles: false,
       };
     },
 
-    hideUpdateModal(state, action) {
+    hideRenameModal(state) {
       return {
         ...state,
-        updateNameModal: false,
+        renameModalVisibles: false,
       };
     },
 

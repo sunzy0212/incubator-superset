@@ -1,15 +1,13 @@
 import React, { PropTypes } from 'react';
 import { Table, Menu, Dropdown, Icon } from 'antd';
-import RenameModal from './renameModal'
 
 
-const FieldHolder = ({ title, onEditor, records, updateNameModal, currentDimensions, onCancelSave, onCreateOk }) => {
-
+const FieldHolder = ({ title, onEditor, records }) => {
   function genDropMenu(text, record) {
     const menu = (
       <Menu>
         <Menu.Item >
-          <a onClick={() => onEditor(record)}> 修改名称</a>
+          <a onClick={() => onEditor(record, title)}> 重命名</a>
         </Menu.Item >
       </Menu >);
     return (
@@ -36,58 +34,29 @@ const FieldHolder = ({ title, onEditor, records, updateNameModal, currentDimensi
 
   const data = [];
 
-  const dimensionsProps = {
-    dimensionsModalVisible: updateNameModal,
-    currentDimensions,
-    onCancelSave,
-    onCreateOk,
-  };
-
-  const measuresProps = {
-    measuresModalVisible: updateNameModal,
-  };
-
   records.forEach((e, i) => {
-    let currentName = e.name;
-    if (e.alias !== '' && e.alias !== undefined) {
-      currentName = e.alias;
-    }
     data.push({
       key: i,
-      name: currentName,
+      name: e.alias || e.name,
+      item: e,
     });
   });
 
   function rowClick(record, index) {
     console.log(record, index);
   }
-  if (currentDimensions !== undefined) {
-    return (
-      <div>
-        <Table
-          columns={columns} dataSource={data} size="small" pagination={false} scroll={{y: 350}}
-          onRowClick={rowClick} />
-        <RenameModal {...dimensionsProps} />
-      </div>
-    );
-  } else {
-    return (
-      <div>
-        <Table
-          columns={columns} dataSource={data} size="small" pagination={false} scroll={{y: 350}}
-          onRowClick={rowClick} />
-        <RenameModal {...measuresProps} />
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Table
+        columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
+        onRowClick={rowClick}
+      />
+    </div>
+  );
 };
 FieldHolder.propTypes = {
   title: PropTypes.string,
   onEditor: PropTypes.func,
-  onCancelSave: PropTypes.func,
-  onCreateOk: PropTypes.func,
   records: PropTypes.array,
-  updateNameModal: PropTypes.bool,
-  currentDimensions: PropTypes.object,
 };
 export default FieldHolder;

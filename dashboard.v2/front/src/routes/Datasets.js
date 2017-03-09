@@ -3,39 +3,23 @@ import { connect } from 'dva';
 import { Layout, Row, Col, Tabs } from 'antd';
 import FieldHolder from '../components/datasets/filedsHolder';
 import TableEditor from '../components/datasets/tableEditor';
+import RenameModal from '../components/datasets/renameModal';
 
 const { Sider, Content } = Layout;
 const TabPane = Tabs.TabPane;
 
 function Datasets({ dispatch, datasets }) {
-  const { loading, dimensions, measures, updateNameModal, currentDimensions } = datasets;
+  const { loading, dimensions, measures, renameModalVisibles, currentRecord, modalSpace } = datasets;
 
   const dimensionsProps = {
     title: '维度',
     records: dimensions,
-    updateNameModal,
-    currentDimensions,
-    onEditor(cdimensions) {
-      console.log(cdimensions);
+    renameModalVisibles,
+    currentRecord,
+    onEditor(data, title) {
       dispatch({
-        type: 'datasets/showUpdateModal',
-        payload: { cDimensions: cdimensions },
-      });
-    },
-    onCancelSave() {
-      dispatch({
-        type: 'datasets/hideUpdateModal',
-      });
-    },
-    onCreateOk(data) {
-      for (let i = 0; i < dimensions.length; i++) {
-        if (dimensions[i].name === data.sourceName) {
-          dimensions[i].alias = data.name;
-        }
-      }
-      dispatch({
-        type: 'datasets/updateDimensionsName',
-        payload: { cDimensions: dimensions },
+        type: 'datasets/showRenameModal',
+        payload: { data, title },
       });
     },
   };
@@ -43,7 +27,41 @@ function Datasets({ dispatch, datasets }) {
   const measuresProps = {
     title: '度量',
     records: measures,
-    updateNameModal,
+    renameModalVisibles,
+    currentRecord,
+    onEditor(data, title) {
+      dispatch({
+        type: 'datasets/showRenameModal',
+        payload: { data, title },
+      });
+    },
+    onCancelSave() {
+      dispatch({
+        type: 'datasets/hideRenameModal',
+      });
+    },
+  };
+  let currentRecords = dimensions;
+  let isDimensions = true;
+  if (modalSpace.measures === true) {
+    currentRecords = measures;
+    isDimensions = false;
+  }
+  const props = {
+    renameModalVisibles,
+    currentRecord,
+    records: currentRecords,
+    onCancelSave() {
+      dispatch({
+        type: 'datasets/hideRenameModal',
+      });
+    },
+    onCreateOk(data) {
+      dispatch({
+        type: 'datasets/updateName',
+        payload: { data, isDimensions },
+      });
+    },
   };
 
   const tableEditorProps = {
@@ -55,7 +73,6 @@ function Datasets({ dispatch, datasets }) {
       });
     },
   };
-
   function callback(key) {
     console.log(key);
   }
@@ -76,8 +93,8 @@ function Datasets({ dispatch, datasets }) {
             </Col>
             <Col span={24} style={{ minHeight: 350 }} >
               <FieldHolder {...dimensionsProps} />
+              <RenameModal {...props} />
             </Col>
-
             <Col span={24} >
               <FieldHolder {...measuresProps} />
             </Col>
