@@ -85,5 +85,6 @@ DatasetList.propTypes = {
   loading: PropTypes.bool,
   onDelete: PropTypes.func,
   datasets: PropTypes.array,
+  onInitDataSet: PropTypes.func,
 };
 export default DatasetList;

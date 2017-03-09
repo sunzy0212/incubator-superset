@@ -61,7 +61,7 @@ const Header = ({
             <Form inline onSubmit={handleSubmit}>
               {
                 titleStatus === MODE_READ ?
-                  <FormItem wrapperCol={{ span: 16 }}><span>{report.name} </span></FormItem>
+                  <FormItem wrapperCol={{ span: 16 }}><div style={{ width: '250px' }}>{report.name} </div></FormItem>
                 :
                   <FormItem wrapperCol={{ span: 16 }}>
                     {getFieldDecorator('name', {

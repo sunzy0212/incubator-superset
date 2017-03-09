@@ -14,7 +14,6 @@ function Datasource({ dispatch, datasource }) {
   const { loading, saveLoading, item, modalVisible, datasources, tables,
     datasets } = datasource;
 
-
   const datasourceListProps = {
     loading,
     datasources,
@@ -77,13 +76,17 @@ function Datasource({ dispatch, datasource }) {
     datasets,
     onInitDataSet(id) {
       dispatch({
-        type: 'datasets/initDataset',
+        type: 'datasets/initDataSet',
         payload: { id },
       });
     },
     onDelete(id) {
       dispatch({
         type: 'datasets/delete',
+        payload: { id },
+      });
+      dispatch({
+        type: 'datasource/queryDatasets',
         payload: { id },
       });
     },
@@ -148,11 +151,12 @@ function Datasource({ dispatch, datasource }) {
 Datasource.propTypes = {
   dispatch: PropTypes.func,
   datasource: PropTypes.object,
+  datasets: PropTypes.object,
 };
 
 
 function mapStateToProps(state) {
-  return { datasource: state.datasource, loading: state.loading.models.datasource };
+  return { datasource: state.datasource, datasets: state.datasets, loading: state.loading.models.datasource };
 }
 
 export default connect(mapStateToProps)(Datasource);
