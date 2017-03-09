@@ -161,7 +161,7 @@ export default {
         type: 'chart',
         xaxis: payload.xaxis,
         yaxis: payload.yaxis,
-        chartType: payload.chartType,
+        type: payload.type,
       };
 
       if (payload.dir.id === 'toAddId') {

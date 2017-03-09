@@ -1242,7 +1242,8 @@ func (s *Service) GetLayouts_(args *cmdArgs, env *rpcutil.Env) (ret common.Layou
 /*
 POST /v1/datas?type=<DataType>
 {
-	"code" : <Code>,
+	"querys" : <Querys>,
+	"datasetId" : <DatasetId>
 }
 */
 
@@ -1280,9 +1281,10 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 	}
 
 	var req common.Code
-	if err = s.CodeColl.Find(M{"id": _codeId}).One(&ret); err != nil {
+	if err = s.CodeColl.Find(M{"id": _codeId}).One(&req); err != nil {
 		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("codeId %s is not exist", _codeId))
 		return
 	}
+
 	return s.executor.Execute(data.QueryConfig{dataType, req})
 }

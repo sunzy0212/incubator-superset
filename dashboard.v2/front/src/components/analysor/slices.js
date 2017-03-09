@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import { Form, Collapse, Select, Tooltip, Row, Col, Icon, DatePicker, Button } from 'antd';
 import AddOn from './addOn';
 import styles from './slices.less';
@@ -25,6 +26,7 @@ class Slices extends React.Component {
       addOns_filter: [],
     };
   }
+
   componentWillReceiveProps(nextProps) {
     this.setState({
       addOns_where: nextProps.addOns.wheres,
@@ -32,6 +34,10 @@ class Slices extends React.Component {
       addOns_filter: nextProps.addOns.filters,
     });
   }
+
+  // 哈哈，I get it
+  componentDidUpdate = () => { ReactDOM.findDOMNode(this).scrollIntoView({ behavior: 'smooth' }); }
+
 
   handleReset = () => {
     this.props.form.resetFields();

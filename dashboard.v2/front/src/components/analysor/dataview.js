@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { Form, Collapse, Select, Row, Col, Icon, Button, Spin, Tooltip, message } from 'antd';
+import { Form, Collapse, Select, Row, Col, Icon, Button, Spin, Tooltip, Switch, message } from 'antd';
 import SaveModal from './saveModal';
 import ChartComponect from '../../components/charts/chartComponent';
 import styles from './dataview.less';
@@ -27,6 +27,7 @@ class Dataview extends React.Component {
       yaxis: [],
       xx: [],
       yy: [],
+      flipChart: false,
     };
   }
 
@@ -73,7 +74,12 @@ class Dataview extends React.Component {
 
   handleChartTypeChange = (e) => {
     console.log(`selected ${e}`);
-    this.setState({ chartType: e });
+    const yaxis = this.state.yaxis.map((item) => { return { ...item, type: e }; });
+    this.setState({ chartType: e, yaxis });
+  }
+
+  handleFlipChart = () => {
+    this.setState({ flipChart: !this.state.flipChart });
   }
 
   handleSubmit = (e) => {
@@ -93,7 +99,7 @@ class Dataview extends React.Component {
             title: this.props.chart.title || `图表${new Date().toJSON()}`,
             xaxis: this.state.xaxis,
             yaxis: this.state.yaxis,
-            chartType: 'Chart',
+            type: this.state.flipChart ? 'flipchart' : 'chart',
           },
           onSaveOrUpdate,
         };
@@ -138,7 +144,7 @@ class Dataview extends React.Component {
       <div>
         <div id="saveModal" />
         <Form onSubmit={this.handleSubmit}>
-          <Collapse >
+          <Collapse activeKey={this.props.datas.length !== 0 ? '1' : '0'}>
             <Panel header={<Icon type="area-chart" />} key="1">
               <Row gutter={6}>
                 <Col lg={6} md={6}>
@@ -211,7 +217,7 @@ class Dataview extends React.Component {
               </Row>
 
               <Row gutter={6} className={styles.row}>
-                <Col lg={12} md={12}>
+                <Col lg={14} md={14}>
                   <FormItem
                     {...formItemLayout}
                     label="图表类型"
@@ -224,10 +230,13 @@ class Dataview extends React.Component {
                   )}
                   </FormItem>
                 </Col>
-                <Col lg={6} md={6}>
+                <Col lg={4} md={4}>
+                  <Switch checkedChildren={'横向'} unCheckedChildren={'竖直'} onChange={this.handleFlipChart} />
+                </Col>
+                <Col lg={3} md={3}>
                   <Button style={{ width: '100%' }} size="large" icon="reload" type="ghost">刷新</Button>
                 </Col>
-                <Col lg={6} md={6}>
+                <Col lg={3} md={3}>
                   <Button style={{ width: '100%' }} size="large" icon="save" htmlType="submit" type="ghost">保存</Button>
                 </Col>
               </Row>
@@ -236,8 +245,7 @@ class Dataview extends React.Component {
         </Form>
         <div className={styles.chart}>
           {this.props.loading ? <Spin /> : <div />}
-           <ChartComponect data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" type />
-
+          <ChartComponect data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" isFlip={this.state.flipChart} />
         </div>
       </div>
     );
