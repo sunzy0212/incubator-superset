@@ -143,12 +143,16 @@ export default {
     },
 
     generateFileds(state, action) {
-      const res = action.payload;
+      const res = action.payload.schema;
       const datasources = state.datasources;
       const dimensions = state.dimensions;
-      datasources[`${res.datasource.datasourceId}_${res.datasource.name}`] = res.datasource;
-      res.schema.fields.forEach((e) => {
-        dimensions.push({ name: e.field, type: e.type });
+      datasources[res.datasourceId] = { datasourceId: res.datasourceId, table: res.table };
+      res.fields.forEach((e) => {
+        dimensions.push({
+          datasetId: res.datasourceId,
+          table: res.table,
+          name: e.field,
+          type: e.type });
       });
 
       return {

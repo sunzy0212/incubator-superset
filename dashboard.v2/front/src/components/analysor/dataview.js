@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { Form, Collapse, Select, Row, Col, Icon, Button, Spin } from 'antd';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Form, Collapse, Select, Row, Col, Icon, Button, Spin, Tooltip, message } from 'antd';
 import SaveModal from './saveModal';
+import ChartComponect from '../../components/charts/chartComponent';
 import styles from './dataview.less';
 
 const Panel = Collapse.Panel;
@@ -23,77 +23,78 @@ class Dataview extends React.Component {
     this.state = {
       visible: false,
       chartType: 'line',
-      x_axis: [],
-      y_axis: [],
+      xaxis: [],
+      yaxis: [],
       xx: [],
       yy: [],
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    const { selectFields, metricFields, allFields } = nextProps;
-
-    const fields = [].concat(selectFields).concat(metricFields);
-
-    const xx = [];
-    fields.forEach((key) => {
-      allFields.forEach((r) => {
-        if (key === r.name) {
-          xx.push(r);
-        }
-      });
-    });
     ReactDOM.unmountComponentAtNode(document.getElementById('saveModal'));
 
+    const { selectFields, metricFields, allFields } = nextProps;
+    const fields = [].concat(selectFields).concat(metricFields);
+    const xx = this.matchFields(allFields, fields);
+
     this.setState({
-      allFields,
-      x_axis: [],
-      y_axis: [],
       xx,
       yy: xx, //TODO
     });
   }
 
-  handleXaxisChange = (e) => {
-    console.log(`selected ${e}`);
+  matchFields = (allFields, fields) => {
+    const res = [];
+    fields.forEach((x) => {
+      allFields.forEach((item) => {
+        if (x === item.name) {
+          res.push(Object.assign(item));
+        }
+      });
+    });
+    return res;
   }
 
-  handleYaxisChange = (e) => {
-    console.log(`selected ${e}`);
+  handleXaxisChange = (fields) => {
+    console.log(`selected ${fields}`);
+    const xaxis = this.matchFields(this.props.allFields, fields);
+    this.setState({ xaxis });
+  }
+
+  handleYaxisChange = (fields) => {
+    console.log(`selected ${fields}`);
+    const tmp = this.matchFields(this.props.allFields, fields);
+    const yaxis = [];
+    tmp.forEach((item) => {
+      yaxis.push({ ...item, type: this.state.chartType });
+    });
+    this.setState({ yaxis });
   }
 
   handleChartTypeChange = (e) => {
     console.log(`selected ${e}`);
+    this.setState({ chartType: e });
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
+    if (!this.checkExist()) { // 行/列都不存在就不提交
+      message.error('X轴/Y轴至少需要填写一个！！！');
+      return;
+    }
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
-        const { x_axis, y_axis, chartType } = values;
-        const xaxis = [];
-        const yaxis = [];
-        x_axis.forEach((x) => {
-          this.state.allFields.forEach((r) => {
-            if (x === r.name) {
-              xaxis.push(r);
-            }
-          });
-        });
-        y_axis.forEach((y) => {
-          this.state.allFields.forEach((r) => {
-            if (y === r.name) {
-              yaxis.push(r);
-            }
-          });
-        });
-
         const onSaveOrUpdate = this.props.onSaveOrUpdate;
         const saveModalProps = {
           chart: this.props.chart,
           dirs: [].concat(this.props.dirs),
-          data: { title: this.props.chart.title || `图表${new Date().toJSON()}`, xaxis, yaxis, chartType },
+          data: {
+            title: this.props.chart.title || `图表${new Date().toJSON()}`,
+            xaxis: this.state.xaxis,
+            yaxis: this.state.yaxis,
+            chartType: 'Chart',
+          },
           onSaveOrUpdate,
         };
 
@@ -101,7 +102,6 @@ class Dataview extends React.Component {
           <SaveModal {...saveModalProps} />,
           document.getElementById('saveModal'),
         );
-        // this.props.onSaveOrUpdate({ name: new Date().toJSON(), xaxis, yaxis, chartType });
       }
     });
   }
@@ -119,6 +119,11 @@ class Dataview extends React.Component {
     });
   }
 
+  checkExist = () => {
+    return this.state.xaxis.length !== 0 || this.state.yaxis.length !== 0;
+  }
+
+
   render() {
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -127,7 +132,7 @@ class Dataview extends React.Component {
 
     const { datas, form } = this.props;
     const { getFieldDecorator } = form;
-    const { x_axis, y_axis, xx, yy } = this.state;
+    const { xaxis, yaxis, xx, yy } = this.state;
 
     return (
       <div>
@@ -144,7 +149,7 @@ class Dataview extends React.Component {
 
                   <FormItem >
                     {getFieldDecorator('x_axis', {
-                      initialValue: x_axis,
+                      initialValue: xaxis.map((item) => { return item.name; }),
                     })(
                       <Select
                         multiple
@@ -165,7 +170,7 @@ class Dataview extends React.Component {
                   </p>
                   <FormItem >
                     {getFieldDecorator('y_axis', {
-                      initialValue: y_axis,
+                      initialValue: yaxis.map((item) => { return item.name; }),
                     })(
                       <Select
                         multiple
@@ -231,19 +236,7 @@ class Dataview extends React.Component {
         </Form>
         <div className={styles.chart}>
           {this.props.loading ? <Spin /> : <div />}
-          <LineChart
-            width={750} height={500} data={datas}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <Legend />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip />
-            <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" dot={{ stroke: 'red', strokeWidth: 10 }} />
-          </LineChart>
-
+           <ChartComponect data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" type />
 
         </div>
       </div>

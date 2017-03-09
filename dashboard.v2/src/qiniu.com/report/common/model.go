@@ -96,7 +96,7 @@ func (t RelationType) String() string {
 
 type Collections struct {
 	DataSourceColl mgoutil.Collection `coll:"datasource"`
-	DataSetColl    mgoutil.Collection `coll:"dateset"`
+	DataSetColl    mgoutil.Collection `coll:"dataset"`
 	CodeColl       mgoutil.Collection `coll:"code"`
 	DirColl        mgoutil.Collection `coll:"dir"`
 	ReportColl     mgoutil.Collection `coll:"report"`
@@ -131,8 +131,8 @@ type DataSource struct {
 ///////////////////////////////////dataset
 
 type DataSourceTable struct {
-	DatasourceId string `json:"dataSourceId" bson:"dataSourceId"`
-	Name         string `json:"name" bson:"name"`
+	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
+	Table        string `json:"table" bson:"table"`
 }
 
 type Relationship struct {
@@ -141,19 +141,22 @@ type Relationship struct {
 	Relation RelationType    `json:"relation" bson:"relation"`
 }
 type Dimension struct {
-	Name  string `json:"name" bson:"name"`
-	Alias string `json:"alias" bson:"alias"`
+	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
+	Name         string `json:"name" bson:"name"`
+	Alias        string `json:"alias" bson:"alias"`
 }
 
 type Measure struct {
-	Name   string `json:"name" bson:"name"`
-	Alias  string `json:"alias" bson:"alias"`
-	Action string `json:"action" bson:"action"`
+	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
+	Name         string `json:"name" bson:"name"`
+	Alias        string `json:"alias" bson:"alias"`
+	Action       string `json:"action" bson:"action"`
 }
 type TimeField struct {
-	Name   string `json:"name" bson:"name"`
-	Alias  string `json:"alias" bson:"alias"`
-	Action string `json:"action" bson:"action"`
+	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
+	Name         string `json:"name" bson:"name"`
+	Alias        string `json:"alias" bson:"alias"`
+	Action       string `json:"action" bson:"action"`
 }
 
 type DataSet struct {

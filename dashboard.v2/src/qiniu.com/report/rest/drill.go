@@ -68,11 +68,7 @@ func (c *DrillClient) GetStorage(name string) (ret Storage, err error) {
 	return
 }
 
-type PostRet struct {
-	Result string `json:"result"`
-}
-
-func (c *DrillClient) PostStorage(config Storage) (ret PostRet, err error) {
+func (c *DrillClient) PostStorage(config Storage) (ret Result, err error) {
 	uri := fmt.Sprintf("/storage/%s.json", config.Name)
 	configBytes, err := json.Marshal(config)
 	if err != nil {
@@ -145,7 +141,7 @@ func (c *DrillClient) GetProfile(queryId string) (ret Profile, err error) {
 }
 
 //Get /profiles/cancel/{queryid}
-func (c *DrillClient) CancelQuery(queryId string) (ret PostRet, err error) {
+func (c *DrillClient) CancelQuery(queryId string) (ret Result, err error) {
 	uri := fmt.Sprintf("/profiles/cancel/%s", queryId)
 	err = c.doRequest("GET", uri, nil, &ret)
 	if err != nil {
