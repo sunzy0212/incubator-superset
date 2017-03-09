@@ -2,9 +2,9 @@ import React, { PropTypes } from 'react';
 import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
-const ChartComponent = ({ data, lines, xaxis, yaxis, title }) => {
+const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
   let chartData = {}
-  transformToChartData(data, lines, xaxis, yaxis, title);
+  transformToChartData(data, xaxis, yaxis, title, isFlip);
 
   const option = {
     tooltip: {
@@ -22,33 +22,21 @@ const ChartComponent = ({ data, lines, xaxis, yaxis, title }) => {
       bottom: '3%',
       containLabel: true,
     },
-    xAxis: [
-      {
-        type: 'category',
-        data: chartData.name,
-      },
-    ],
-    yAxis: [
-      {
-        type: 'value',
-      },
-    ],
+    xAxis: chartData.xType,
+    yAxis: chartData.yType,
     series: chartData.data,
   };
 
-  function transformToChartData(cData, cLines, cXaxis, cYaxis, cChartTitle) {
+  function transformToChartData(cData, cXaxis, cYaxis, cChartTitle, cIsFlip) {
     const lineTag = [];
     const lineType = [];
     const nameTag = [];
     const currentName = [];
     const currentData = [];
     const series = [];
-    cLines.forEach((typeEle) => {
-      lineTag.push(typeEle.name);
-      lineType.push(typeEle.type);
-    });
-    cYaxis.forEach((nameEle) => {
-      nameTag.push(nameEle.name);
+    cYaxis.forEach((ele) => {
+      lineTag.push(ele.name);
+      lineType.push(ele.type);
     });
 
     cXaxis.forEach((nameEle) => {
@@ -71,11 +59,30 @@ const ChartComponent = ({ data, lines, xaxis, yaxis, title }) => {
         areaStyle: { normal: {} },
       });
     });
+    let xType = [{
+      type: 'category',
+      data: currentName,
+    }];
+    let yType = [{
+      type: 'value',
+    }];
+    if (cIsFlip === true) {
+
+      yType = [{
+        type: 'category',
+        data: currentName,
+      }];
+      xType = [{
+        type: 'value',
+      }];
+    }
     const temp = {
       name: currentName,
       data: series,
       legend: lineTag,
       title: cChartTitle,
+      xType,
+      yType,
     };
     chartData = temp;
   }
@@ -275,10 +282,10 @@ const ChartComponent = ({ data, lines, xaxis, yaxis, title }) => {
 
 ChartComponent.propTypes = {
   data: PropTypes.array,
-  lines: PropTypes.array,
   xaxis: PropTypes.array,
   yaxis: PropTypes.array,
   title: PropTypes.string,
+  isFlip: PropTypes.bool,
 };
 
 export default ChartComponent;
