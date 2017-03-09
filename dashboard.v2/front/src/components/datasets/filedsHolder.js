@@ -1,26 +1,35 @@
 import React, { PropTypes } from 'react';
-import { Table } from 'antd';
+import { Table, Menu, Dropdown, Icon } from 'antd';
 
 
 const FieldHolder = ({ title, onEditor, records }) => {
+  function genDropMenu(text, record) {
+    const menu = (
+      <Menu>
+        <Menu.Item >
+          <a onClick={() => onEditor(record, title)}> 重命名</a>
+        </Menu.Item >
+      </Menu >);
+    return (
+      <Dropdown overlay={menu} >
+        <a className="ant-dropdown-link" >
+          <Icon type="bars" />
+        </a>
+      </Dropdown >);
+  }
   const columns = [
     {
       title,
       dataIndex: 'name',
       key: 'name',
       width: 120,
-      //render: text => <a href="#l">{text}</a>,
     },
     {
       title: '',
       key: 'action',
       className: '',
       width: 78,
-      render: record => (
-        <span>
-          <a icon="edit" onClick={() => onEditor(record.key)} >...</a>
-        </span>
-      ),
+      render: (text, record, index) => genDropMenu(text, record, index),
     }];
 
   const data = [];
@@ -28,19 +37,21 @@ const FieldHolder = ({ title, onEditor, records }) => {
   records.forEach((e, i) => {
     data.push({
       key: i,
-      name: e.name,
+      name: e.alias || e.name,
+      item: e,
     });
   });
 
   function rowClick(record, index) {
     console.log(record, index);
   }
-
   return (
-    <Table
-      columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
-      onRowClick={rowClick}
-    />
+    <div>
+      <Table
+        columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
+        onRowClick={rowClick}
+      />
+    </div>
   );
 };
 FieldHolder.propTypes = {

@@ -14,7 +14,7 @@ const Aside = ({ dirs, getChartData, charts, addChartToReport,
       treeDirs.push({
         key: dirEle.id,
         title: dirEle.name,
-        children: [{ key: `key+${j}`, title: '' }],
+        children: [{key: `key+${j}`, title: ''}],
         idDir: true,
       });
 
@@ -23,12 +23,21 @@ const Aside = ({ dirs, getChartData, charts, addChartToReport,
   }
   function handleInitData(currentDirs, treeDirs) {
     currentDirs.forEach((dirEle, j) => {
-      treeDirs.push({
-        key: dirEle.id,
-        title: dirEle.name,
-        children: [],
-        idDir: true,
-      });
+      if (dirEle.id === charts[0].dirId) {
+        treeDirs.push({
+          key: dirEle.id,
+          title: dirEle.name,
+          children: [],
+          idDir: true,
+        });
+      } else {
+        treeDirs.push({
+          key: dirEle.id,
+          title: dirEle.name,
+          children: [{key: `key+${j}`, title: ''}],
+          idDir: true,
+        });
+      }
 
       handleInitData(dirEle.subDir, treeDirs[j].children);
     });
@@ -39,6 +48,7 @@ const Aside = ({ dirs, getChartData, charts, addChartToReport,
   } else {
     handleInitData(dirs, treeDirs);
   }
+
   rootDir[0].children = treeDirs;
   function handleInitCharts(currentDirs) {
     currentDirs.forEach((dirEle) => {

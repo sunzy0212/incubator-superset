@@ -34,17 +34,17 @@ class View extends React.Component {
         that.setState({
           chartData: data,
         });
-        that.getCodeData(data.codeId, data.type, data.lines, data.xaxis, data.yaxis, data.title);
+        that.getCodeData(data.codeId, data.type, data.xaxis, data.yaxis, data.title);
       },
       (jqXHR, textStatus, errorThrown) => {
         console.log('reject', textStatus, jqXHR, errorThrown);
       });
   }
 
-  getCodeData(codeId, type, _lines, _xaxis, _yaxis, _title) {
+  getCodeData(codeId, _type, _xaxis, _yaxis, _title) {
     const that = this;
     $.ajax({
-      url: `/v1/datas?codeId=${codeId}&type=${type}`,
+      url: `/v1/datas?codeId=${codeId}&type=${_type}`,
       type: 'get',
       dataType: 'JSON',
       contentType: 'application/json; charset=utf-8',
@@ -52,7 +52,7 @@ class View extends React.Component {
       (_data) => {
         const temp = {
           data: _data,
-          lines: _lines,
+          type: _type,
           xaxis: _xaxis,
           yaxis: _yaxis,
           title: _title,
@@ -64,7 +64,7 @@ class View extends React.Component {
       });
   }
   removeChart() {
-    const layouts = []
+    const layouts = [];
     this.props.currentLayouts.lg.forEach((ele) => {
       if (ele.i !== this.props.chartId) {
         layouts.push({
@@ -76,6 +76,13 @@ class View extends React.Component {
     // console.log(this.props.chartId);
     // console.log(layouts);
     this.props.removeChart(layouts);
+  }
+
+  isFlip(type) {
+    if (type === 'FLIPCHART') {
+      return true;
+    }
+    return false;
   }
 
   render() {
@@ -102,13 +109,34 @@ class View extends React.Component {
             </Col>
           </Row>
           <ResponsiveContainer>
-            <ChartComponent data={codeData.data} lines={codeData.lines} xaxis={codeData.xaxis} yaxis={codeData.yaxis} title={codeData.title} />
+            <ChartComponent
+              data={codeData.data} xaxis={codeData.xaxis} yaxis={codeData.yaxis}
+              title={codeData.title} isFlip={this.isFlip(codeData.type)}
+            />
           </ResponsiveContainer>
         </div>
       );
     } else {
       return (
         <div className={styles.box}>
+          <Row gutter={24}>
+            <Col lg={16} md={8}>
+              <div className={styles.boxHeader}>
+                <h3>{this.state.chartData.title}</h3>
+              </div>
+            </Col>
+            <Col lg={8} md={16}>
+              <div className={styles.boxTool}>
+                <Link ><Icon type="edit" /></Link>
+                <span className="ant-divider" />
+                <a><Icon type="download" /></a>
+                <span className="ant-divider" />
+                <a><Icon type="reload" /></a>
+                <span className="ant-divider" />
+                <a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a>
+              </div>
+            </Col>
+          </Row>
           <Spin size="large" />
         </div>
       );
@@ -120,7 +148,6 @@ View.propTypes = {
   chartId: PropTypes.string,
   removeChart: PropTypes.func,
   currentLayouts: PropTypes.object,
-  report: PropTypes.object,
 };
 
 export default View;
