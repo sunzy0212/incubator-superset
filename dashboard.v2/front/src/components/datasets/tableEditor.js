@@ -43,13 +43,12 @@ const TableEditor = ({ loading, save, form: {
         </FormItem>
 
         <FormItem wrapperCol={{ span: 12, offset: 6 }}>
-          <Button
-            type="primary" htmlType="submit" size="large"
-          >保存</Button>
+          <Button type="primary" htmlType="submit" size="large">保存</Button>
+        </FormItem>
+        <FormItem wrapperCol={{ span: 12, offset: 6 }}>
+          <Button type="primary" htmlType="submit" size="large">加载数据源</Button>
         </FormItem>
       </Form>
-
-      <Table loading={loading} />
 
     </div>
   );
