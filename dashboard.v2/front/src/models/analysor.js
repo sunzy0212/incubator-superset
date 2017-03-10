@@ -75,8 +75,8 @@ export default {
     *execute({
       payload,
     }, { call, put }) {
-      yield put({ type: 'initState', payload });
-      const data = yield call(postQuerys, parse({ formatType: 'json' }));
+      yield put({ type: 'initState', payload: { ...payload.querys } });
+      const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
       if (data.success) {
         yield put({
           type: 'initState',
@@ -106,8 +106,7 @@ export default {
           codeId: data.result.id,
           dirId: payload.dirId,
           xaxis: payload.xaxis,
-          // yaxis: payload.yaxis,
-          lines: payload.yaxis,
+          yaxis: payload.yaxis,
           // type: payload.chartType,
         }));
 
@@ -122,7 +121,7 @@ export default {
 
     *update({
       payload,
-    }, {put, call, select }) {
+    }, { put, call, select }) {
       const analysorState = yield select(state => state.analysor);
       const { code, chart, dataset, addOns, selectFields, metricFields, groupFields, timeField,
         rangeDatatime } = analysorState;
@@ -141,8 +140,7 @@ export default {
           codeId: code.id,
           dirId: payload.dirId,
           xaxis: payload.xaxis,
-          // yaxis: payload.yaxis,
-          lines: payload.yaxis,
+          yaxis: payload.yaxis,
           // type: payload.chartType,
         }));
         if (data2.success) {
@@ -162,9 +160,8 @@ export default {
         title: payload.title,
         type: 'chart',
         xaxis: payload.xaxis,
-        lines: payload.yaxis,
-        // yaxis: payload.yaxis,  暂时不用
-        chartType: payload.chartType,
+        yaxis: payload.yaxis,
+        type: payload.type,
       };
 
       if (payload.dir.id === 'toAddId') {

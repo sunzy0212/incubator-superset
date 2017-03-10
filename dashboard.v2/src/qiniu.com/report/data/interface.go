@@ -26,7 +26,3 @@ type DataSourceInterface interface {
 	Schema(string) ([]map[string]string, error)
 	GenStorage() rest.Storage
 }
-
-type DataSetInterface interface {
-	Execute() interface{}
-}

@@ -70,6 +70,7 @@ type Client interface {
 	Query(sql string) (ret Results, err error)
 	GetProfiles() (ret Profiles, err error)
 	GetProfile(queryId string) (ret Profile, err error)
+	CancelQuery(queryId string) (ret Result, err error)
 }
 
 func genClient(hosts []string) *lb.Client {

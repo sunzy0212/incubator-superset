@@ -26,6 +26,7 @@ function Analysor({ dispatch, analysor }) {
     },
   };
   const slicesProps = {
+    datasetId: id,
     addOns,
     dayOptions,
     operatorOptions,
@@ -38,7 +39,7 @@ function Analysor({ dispatch, analysor }) {
     onExecute(querys) {
       dispatch({
         type: 'analysor/execute',
-        payload: querys,
+        payload: { datasetId: id, querys },
       });
     },
   };

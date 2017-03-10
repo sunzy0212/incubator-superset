@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { Form, Collapse, Select, Row, Col, Icon, Button, Spin } from 'antd';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Form, Collapse, Select, Row, Col, Icon, Button, Spin, Tooltip, Switch, message } from 'antd';
 import SaveModal from './saveModal';
+import ChartComponect from '../../components/charts/chartComponent';
 import styles from './dataview.less';
 
 const Panel = Collapse.Panel;
@@ -23,77 +23,84 @@ class Dataview extends React.Component {
     this.state = {
       visible: false,
       chartType: 'line',
-      x_axis: [],
-      y_axis: [],
+      xaxis: [],
+      yaxis: [],
       xx: [],
       yy: [],
+      flipChart: false,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    const { selectFields, metricFields, allFields } = nextProps;
-
-    const fields = [].concat(selectFields).concat(metricFields);
-
-    const xx = [];
-    fields.forEach((key) => {
-      allFields.forEach((r) => {
-        if (key === r.name) {
-          xx.push(r);
-        }
-      });
-    });
     ReactDOM.unmountComponentAtNode(document.getElementById('saveModal'));
 
+    const { selectFields, metricFields, allFields } = nextProps;
+    const fields = [].concat(selectFields).concat(metricFields);
+    const xx = this.matchFields(allFields, fields);
+
     this.setState({
-      allFields,
-      x_axis: [],
-      y_axis: [],
       xx,
       yy: xx, //TODO
     });
   }
 
-  handleXaxisChange = (e) => {
-    console.log(`selected ${e}`);
+  matchFields = (allFields, fields) => {
+    const res = [];
+    fields.forEach((x) => {
+      allFields.forEach((item) => {
+        if (x === item.name) {
+          res.push(Object.assign(item));
+        }
+      });
+    });
+    return res;
   }
 
-  handleYaxisChange = (e) => {
-    console.log(`selected ${e}`);
+  handleXaxisChange = (fields) => {
+    console.log(`selected ${fields}`);
+    const xaxis = this.matchFields(this.props.allFields, fields);
+    this.setState({ xaxis });
+  }
+
+  handleYaxisChange = (fields) => {
+    console.log(`selected ${fields}`);
+    const tmp = this.matchFields(this.props.allFields, fields);
+    const yaxis = [];
+    tmp.forEach((item) => {
+      yaxis.push({ ...item, type: this.state.chartType });
+    });
+    this.setState({ yaxis });
   }
 
   handleChartTypeChange = (e) => {
     console.log(`selected ${e}`);
+    const yaxis = this.state.yaxis.map((item) => { return { ...item, type: e }; });
+    this.setState({ chartType: e, yaxis });
+  }
+
+  handleFlipChart = () => {
+    this.setState({ flipChart: !this.state.flipChart });
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
+    if (!this.checkExist()) { // 行/列都不存在就不提交
+      message.error('X轴/Y轴至少需要填写一个！！！');
+      return;
+    }
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
-        const { x_axis, y_axis, chartType } = values;
-        const xaxis = [];
-        const yaxis = [];
-        x_axis.forEach((x) => {
-          this.state.allFields.forEach((r) => {
-            if (x === r.name) {
-              xaxis.push(r);
-            }
-          });
-        });
-        y_axis.forEach((y) => {
-          this.state.allFields.forEach((r) => {
-            if (y === r.name) {
-              yaxis.push(r);
-            }
-          });
-        });
-
         const onSaveOrUpdate = this.props.onSaveOrUpdate;
         const saveModalProps = {
           chart: this.props.chart,
           dirs: [].concat(this.props.dirs),
-          data: { title: this.props.chart.title || `图表${new Date().toJSON()}`, xaxis, yaxis, chartType },
+          data: {
+            title: this.props.chart.title || `图表${new Date().toJSON()}`,
+            xaxis: this.state.xaxis,
+            yaxis: this.state.yaxis,
+            type: this.state.flipChart ? 'flipchart' : 'chart',
+          },
           onSaveOrUpdate,
         };
 
@@ -101,7 +108,6 @@ class Dataview extends React.Component {
           <SaveModal {...saveModalProps} />,
           document.getElementById('saveModal'),
         );
-        // this.props.onSaveOrUpdate({ name: new Date().toJSON(), xaxis, yaxis, chartType });
       }
     });
   }
@@ -119,6 +125,11 @@ class Dataview extends React.Component {
     });
   }
 
+  checkExist = () => {
+    return this.state.xaxis.length !== 0 || this.state.yaxis.length !== 0;
+  }
+
+
   render() {
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -127,13 +138,13 @@ class Dataview extends React.Component {
 
     const { datas, form } = this.props;
     const { getFieldDecorator } = form;
-    const { x_axis, y_axis, xx, yy } = this.state;
+    const { xaxis, yaxis, xx, yy } = this.state;
 
     return (
       <div>
         <div id="saveModal" />
         <Form onSubmit={this.handleSubmit}>
-          <Collapse >
+          <Collapse activeKey={this.props.datas.length !== 0 ? '1' : '0'}>
             <Panel header={<Icon type="area-chart" />} key="1">
               <Row gutter={6}>
                 <Col lg={6} md={6}>
@@ -144,7 +155,7 @@ class Dataview extends React.Component {
 
                   <FormItem >
                     {getFieldDecorator('x_axis', {
-                      initialValue: x_axis,
+                      initialValue: xaxis.map((item) => { return item.name; }),
                     })(
                       <Select
                         multiple
@@ -165,7 +176,7 @@ class Dataview extends React.Component {
                   </p>
                   <FormItem >
                     {getFieldDecorator('y_axis', {
-                      initialValue: y_axis,
+                      initialValue: yaxis.map((item) => { return item.name; }),
                     })(
                       <Select
                         multiple
@@ -206,7 +217,7 @@ class Dataview extends React.Component {
               </Row>
 
               <Row gutter={6} className={styles.row}>
-                <Col lg={12} md={12}>
+                <Col lg={14} md={14}>
                   <FormItem
                     {...formItemLayout}
                     label="图表类型"
@@ -219,10 +230,13 @@ class Dataview extends React.Component {
                   )}
                   </FormItem>
                 </Col>
-                <Col lg={6} md={6}>
+                <Col lg={4} md={4}>
+                  <Switch checkedChildren={'横向'} unCheckedChildren={'竖直'} onChange={this.handleFlipChart} />
+                </Col>
+                <Col lg={3} md={3}>
                   <Button style={{ width: '100%' }} size="large" icon="reload" type="ghost">刷新</Button>
                 </Col>
-                <Col lg={6} md={6}>
+                <Col lg={3} md={3}>
                   <Button style={{ width: '100%' }} size="large" icon="save" htmlType="submit" type="ghost">保存</Button>
                 </Col>
               </Row>
@@ -231,20 +245,7 @@ class Dataview extends React.Component {
         </Form>
         <div className={styles.chart}>
           {this.props.loading ? <Spin /> : <div />}
-          <LineChart
-            width={750} height={500} data={datas}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <Legend />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip />
-            <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" dot={{ stroke: 'red', strokeWidth: 10 }} />
-          </LineChart>
-
-
+          <ChartComponect data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" isFlip={this.state.flipChart} />
         </div>
       </div>
     );

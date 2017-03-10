@@ -39,7 +39,7 @@ type cmdArgs struct {
 type Service struct {
 	common.Collections
 	RWMux             *sync.RWMutex
-	client            *rest.DrillClient
+	client            rest.Client
 	dataSourceManager *data.DataSourceManager
 	executor          *data.Executor
 }
@@ -50,7 +50,7 @@ func NewService(coll common.Collections, restUrls []string) (s *Service, err err
 		RWMux:             &sync.RWMutex{},
 		client:            rest.NewDrillClient(restUrls),
 		dataSourceManager: data.NewDataSourceManager(),
-		executor:          data.NewExecutor(),
+		executor:          data.NewExecutor(&coll, restUrls),
 		//Config:      cfg,
 	}
 	return s, nil
@@ -282,7 +282,7 @@ GET /v1/datasources/<Id>/tables/<TableName>
 */
 type TableSchema struct {
 	DatasourceId string              `json:"datasourceId"`
-	TableName    string              `json:"tableName"`
+	Table        string              `json:"table"`
 	Fields       []map[string]string `json:"fields"`
 	Desc         string              `json:"desc"`
 }
@@ -304,7 +304,7 @@ func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret T
 		err = ErrorShowTables(err1)
 		return
 	}
-	ret = TableSchema{DatasourceId: id, TableName: name, Fields: res}
+	ret = TableSchema{DatasourceId: id, Table: name, Fields: res}
 	return
 }
 
@@ -1243,8 +1243,10 @@ func (s *Service) GetLayouts_(args *cmdArgs, env *rpcutil.Env) (ret common.Layou
 POST /v1/datas?type=<DataType>
 {
 	"querys" : <Querys>,
+	"datasetId" : <DatasetId>
 }
 */
+
 func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
 	_dataType := strings.ToUpper(env.Req.FormValue("type"))
 	dataType := common.JSON
@@ -1258,6 +1260,7 @@ func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		return
 	}
 	var req common.Code
+	fmt.Println(string(_data))
 	if err = json.Unmarshal(_data, &req); err != nil {
 		err = ErrQueryDatas(err, UNMARSHAL_JSON_FAILED_MESSAGE)
 		return
@@ -1278,9 +1281,10 @@ func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
 	}
 
 	var req common.Code
-	if err = s.CodeColl.Find(M{"id": _codeId}).One(&ret); err != nil {
+	if err = s.CodeColl.Find(M{"id": _codeId}).One(&req); err != nil {
 		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("codeId %s is not exist", _codeId))
 		return
 	}
+
 	return s.executor.Execute(data.QueryConfig{dataType, req})
 }

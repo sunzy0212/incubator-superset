@@ -7,7 +7,7 @@ import { request } from '../utils';
 export async function postQuerys(params) {
   return request(`/v1/datas?type=${params.formatType}`, {
     method: 'post',
-    body: JSON.stringify(params),
+    body: JSON.stringify(params.code),
   });
 }
 

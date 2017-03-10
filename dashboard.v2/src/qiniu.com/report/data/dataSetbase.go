@@ -1,46 +1,62 @@
 package data
 
 import (
+	"fmt"
+	"strings"
 	"sync"
 
+	"github.com/qiniu/log.v1"
 	"qiniu.com/report/common"
 )
 
+type M map[string]interface{}
 type DataSetManager struct {
-	mux  *sync.RWMutex
-	sets map[string]DataSetInterface //缓存起连接来，定期清理
+	mux *sync.RWMutex
+	*common.Collections
+	// dataSourceManager *DataSourceManager
+	codes map[string]common.Code //缓存起连接来，定期清理
 }
 
-func NewDataSetManager() *DataSetManager {
+func NewDataSetManager(colls *common.Collections) *DataSetManager {
 	return &DataSetManager{
-		mux:  &sync.RWMutex{},
-		sets: make(map[string]DataSetInterface),
+		Collections: colls,
+		mux:         &sync.RWMutex{},
+		codes:       make(map[string]common.Code),
 	}
 }
 
-func (m *DataSetManager) gcDataSource() {
+func (m *DataSetManager) GenSqlFromCode(code common.Code) (sql string, err error) {
+	var dataset common.DataSet
+	if err = m.DataSetColl.Find(M{"id": code.DatasetId}).One(&dataset); err != nil {
+		log.Error(err)
+		return
+	}
 
-}
-
-func genDataSet(ds common.DataSet) DataSetInterface {
-	return DataSetImpl{ds}
-}
-
-func (m *DataSetManager) Get(ds common.DataSet) DataSetInterface {
-	if v, ok := m.sets[ds.Id]; !ok {
-		dsi := genDataSet(ds).(DataSetInterface)
-		m.sets[ds.Id] = dsi
-		return dsi
+	querys := code.Querys
+	selectFields := querys["selectFields"].([]interface{})
+	selectSection := ""
+	if len(selectFields) == 0 {
+		selectSection = "*"
 	} else {
-		return v
+		_selectFields := make([]string, 0)
+		for _, v := range selectFields {
+			_selectFields = append(_selectFields, fmt.Sprintf("`%s`", v.(string)))
+		}
+		selectSection = strings.Join(_selectFields, ",")
 	}
-	return nil
-}
 
-type DataSetImpl struct {
-	Dataset common.DataSet
-}
-
-func (d DataSetImpl) Execute() interface{} {
-	return nil
+	formFields := make([]string, 0)
+	fmt.Println(dataset.DataSources)
+	for _, ds := range dataset.DataSources {
+		var datasource common.DataSource
+		fmt.Println(ds, "========", ds.DatasourceId)
+		if err = m.DataSourceColl.Find(M{"id": ds.DatasourceId}).One(&datasource); err != nil {
+			log.Errorf("failed to get datasource by id[%s] ~ %v", ds.DatasourceId, err)
+			return
+		}
+		formFields = append(formFields, fmt.Sprintf("%s.%s.%s", datasource.Name, datasource.DbName, ds.Table))
+	}
+	fromSection := strings.Join(formFields, ",")
+	sql = fmt.Sprintf("SELECT %s FROM %s", selectSection, fromSection)
+	return
 }
