@@ -15,16 +15,19 @@ export default {
     chart: {},
     dataset: {},
     addOns: {
-      wheres: [{ field: 'wf1', operator: '=', data: '数据' }, { field: 'wf2', operator: 'NOT', data: '数据2' }],
+      // wheres: [{ field: 'wf1', operator: '=', data: '数据' }],
+      wheres: [],
       havings: [],
-      filters: [{ field: 'ff1', operator: '=', data: '数据' }, { field: 'ff2', operator: 'NOT', data: '数据2' }],
+      // filters: [{ field: 'ff1', operator: '=', data: '数据' }],
     },
     selectFields: [],
     metricFields: [],
     groupFields: [],
     timeField: '',
     rangeDatatime: '',
-    operatorOptions: [{ name: 'not_in', alias: 'NOT IN' }, { name: 'in', alias: 'NOT IN' }, { name: 'equal', alias: '==' }],
+    operatorOptions: [{ name: 'NIN', alias: 'NOT IN' }, { name: 'IN', alias: 'IN' }, { name: 'EQ', alias: '=' },
+      { name: 'NQ', alias: '<>' }, { name: 'GT', alias: '>' }, { name: 'LT', alias: '<' },
+      { name: 'GE', alias: '>=' }, { name: 'LE', alias: '<=' }, { name: 'LIKE', alias: 'LIKE' }],
     dayOptions: [{ name: 'day0', alias: '当前' }, { name: 'day1', alias: '1 天前' },
       { name: 'day7', alias: '7 天前' }, { name: 'day30', alias: '30 天前' }],
     datas: [],
@@ -107,7 +110,7 @@ export default {
           dirId: payload.dirId,
           xaxis: payload.xaxis,
           yaxis: payload.yaxis,
-          // type: payload.chartType,
+          filters: payload.filters,
         }));
 
         if (data2.success) {
@@ -141,7 +144,7 @@ export default {
           dirId: payload.dirId,
           xaxis: payload.xaxis,
           yaxis: payload.yaxis,
-          // type: payload.chartType,
+          filters: payload.filters,
         }));
         if (data2.success) {
           yield put({
@@ -158,9 +161,9 @@ export default {
       const saveChartProps = {
         dirId: payload.dir.id,
         title: payload.title,
-        type: 'chart',
         xaxis: payload.xaxis,
         yaxis: payload.yaxis,
+        filters: payload.filters,
         type: payload.type,
       };
 

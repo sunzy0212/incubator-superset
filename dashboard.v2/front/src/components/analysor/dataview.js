@@ -25,6 +25,7 @@ class Dataview extends React.Component {
       chartType: 'line',
       xaxis: [],
       yaxis: [],
+      filters: [],
       xx: [],
       yy: [],
       flipChart: false,
@@ -44,6 +45,9 @@ class Dataview extends React.Component {
     });
   }
 
+  // 哈哈，I get it
+  componentDidUpdate = () => { ReactDOM.findDOMNode(this).scrollIntoView({ behavior: 'smooth' }); }
+
   matchFields = (allFields, fields) => {
     const res = [];
     fields.forEach((x) => {
@@ -57,19 +61,33 @@ class Dataview extends React.Component {
   }
 
   handleXaxisChange = (fields) => {
-    console.log(`selected ${fields}`);
     const xaxis = this.matchFields(this.props.allFields, fields);
     this.setState({ xaxis });
   }
 
   handleYaxisChange = (fields) => {
-    console.log(`selected ${fields}`);
     const tmp = this.matchFields(this.props.allFields, fields);
     const yaxis = [];
     tmp.forEach((item) => {
       yaxis.push({ ...item, type: this.state.chartType });
     });
     this.setState({ yaxis });
+  }
+
+  handleFiltersChange = (fields) => {
+    const tmp = this.matchFields(this.props.allFields, fields);
+    const filters = [];
+
+    tmp.forEach((item) => {
+      filters.push({ ...item, optionDatas: new Set() });
+    });
+
+    this.props.datas.forEach((item) => {
+      filters.forEach((r) => {
+        r.optionDatas.add(item[r.name]);
+      });
+    });
+    this.setState({ filters });
   }
 
   handleChartTypeChange = (e) => {
@@ -99,6 +117,7 @@ class Dataview extends React.Component {
             title: this.props.chart.title || `图表${new Date().toJSON()}`,
             xaxis: this.state.xaxis,
             yaxis: this.state.yaxis,
+            filters: this.state.filters,
             type: this.state.flipChart ? 'flipchart' : 'chart',
           },
           onSaveOrUpdate,
@@ -129,6 +148,29 @@ class Dataview extends React.Component {
     return this.state.xaxis.length !== 0 || this.state.yaxis.length !== 0;
   }
 
+  genFilterSelections = () => {
+    const genOptions = (item) => {
+      const res = [];
+      item.optionDatas.forEach((val) => {
+        res.push(<Option key={val.toString()} value={val.toString()}>{val.toString()}</Option>);
+      });
+      return res;
+    };
+
+    return (<Row gutter={24}>
+      { this.state.filters.map((item) => {
+        return (<Col key={item.name} span={6}>
+          {item.name}
+          <Select key={item.name} style={{ width: '100%' }}>
+            {
+              genOptions(item)
+            }
+          </Select>
+        </Col>);
+      })
+      }
+    </Row>);
+  }
 
   render() {
     const formItemLayout = {
@@ -146,13 +188,13 @@ class Dataview extends React.Component {
         <Form onSubmit={this.handleSubmit}>
           <Collapse activeKey={this.props.datas.length !== 0 ? '1' : '0'}>
             <Panel header={<Icon type="area-chart" />} key="1">
+
               <Row gutter={6}>
-                <Col lg={6} md={6}>
-                  <p icon="info">X轴&nbsp;
+                <Col lg={9} md={9}>
+                  <p icon="info">行&nbsp;
                   <Tooltip title="请选择你的线条对应的字段，如果多个则按照顺序拼接"><Icon type="info-circle" />
                   </Tooltip>
                   </p>
-
                   <FormItem >
                     {getFieldDecorator('x_axis', {
                       initialValue: xaxis.map((item) => { return item.name; }),
@@ -169,8 +211,9 @@ class Dataview extends React.Component {
                   )}
                   </FormItem>
                 </Col>
-                <Col lg={6} md={6}>
-                  <p icon="info">Y轴&nbsp;
+
+                <Col lg={9} md={9}>
+                  <p icon="info">列&nbsp;
                   <Tooltip title="请选择你的线条对应的字段，如果多个则按照顺序拼接"><Icon type="info-circle" />
                   </Tooltip>
                   </p>
@@ -190,29 +233,27 @@ class Dataview extends React.Component {
                   )}
                   </FormItem>
                 </Col>
+
                 <Col lg={6} md={6}>
-                  <p icon="info">Series&nbsp;
-                  <Tooltip title="请选择你的线条对应的字段，如果多个则按照顺序拼接"><Icon type="info-circle" />
+                  <p icon="info">自定义筛选器&nbsp;
+                  <Tooltip title="请选择对应的字段名，用作分组条件查询"><Icon type="info-circle" />
                   </Tooltip>
                   </p>
-
-                  <Select multiple defaultValue="jack" style={{ width: '100%' }}>
-                    <Option value="jack">Jack</Option>
-                    <Option value="lucy">Lucy</Option>
-                    <Option value="Yiminghe">yiminghe</Option>
-                  </Select>
-                </Col>
-                <Col lg={6} md={6}>
-                  <p icon="info">Series Limit&nbsp;
-                  <Tooltip title="请选择你的线条对应的字段，如果多个则按照顺序拼接"><Icon type="info-circle" />
-                  </Tooltip>
-                  </p>
-
-                  <Select defaultValue="unlimit" style={{ width: '100%' }}>
-                    <Option value="jack">10</Option>
-                    <Option value="lucy">50</Option>
-                    <Option value="Yiminghe">100</Option>
-                  </Select>
+                  <FormItem >
+                    {getFieldDecorator('filters', {
+                      initialValue: [],
+                    })(
+                      <Select
+                        multiple
+                        showSearch
+                        placeholder="条件字段名"
+                        style={{ width: '100%' }}
+                        onChange={this.handleFiltersChange}
+                      >
+                        {this.genOptionsOfSelect(yy)}
+                      </Select>,
+                    )}
+                  </FormItem>
                 </Col>
               </Row>
 
@@ -245,7 +286,13 @@ class Dataview extends React.Component {
         </Form>
         <div className={styles.chart}>
           {this.props.loading ? <Spin /> : <div />}
-          <ChartComponect data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" isFlip={this.state.flipChart} />
+          {this.genFilterSelections()}
+          <Row>
+            <Col>
+              {this.props.datas.length === 0 ? <div>请在左边👈查询数据</div> : <ChartComponect data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" isFlip={this.state.flipChart} />
+              }
+            </Col>
+          </Row>
         </div>
       </div>
     );
