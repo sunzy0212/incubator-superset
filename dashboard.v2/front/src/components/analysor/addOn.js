@@ -8,8 +8,9 @@ class AddOn extends React.Component {
     super();
     const value = props.value || {};
     this.state = {
+      value,
       field: value.field || '',
-      operator: value.operator || '=',
+      operator: value.operator || '',
       data: value.data || '',
     };
   }
@@ -50,7 +51,7 @@ class AddOn extends React.Component {
 
   render() {
     const { size } = this.props;
-    const { type, index, fieldOptions, operatorOptions, deleteAddOns } = this.props.value;
+    const { type, index, fieldOptions, operatorOptions, deleteAddOns } = this.state.value;
     const state = this.state;
     return (
       <span>

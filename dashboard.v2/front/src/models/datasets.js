@@ -130,7 +130,7 @@ export default {
     updateName(state, action) {
       if (action.payload.isDimensions === false) {
         state.measures = action.payload.data;
-      }else {
+      } else {
         state.dimensions = action.payload.data;
       }
       return {
@@ -184,8 +184,7 @@ export default {
       datasources[res.datasourceId] = { datasourceId: res.datasourceId, table: res.table };
       res.fields.forEach((e) => {
         dimensions.push({
-          datasetId: res.datasourceId,
-          table: res.table,
+          datasource: { datasourceId: res.datasourceId, table: res.table },
           name: e.field,
           type: e.type });
       });

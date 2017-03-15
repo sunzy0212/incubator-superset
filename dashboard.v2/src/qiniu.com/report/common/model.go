@@ -140,23 +140,24 @@ type Relationship struct {
 	Right    DataSourceTable `json:"right" bson:"right"`
 	Relation RelationType    `json:"relation" bson:"relation"`
 }
+
+type Field struct {
+	Datasource DataSourceTable `json:"datasource" bson:"datasource"`
+	Name       string          `json:"name" bson:"name"`
+	Type       string          `json:"type" bson:"type"`
+	Alias      string          `json:"alias" bson:"alias"`
+	Action     string          `json:"action" bson:"action"`
+}
+
 type Dimension struct {
-	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
-	Name         string `json:"name" bson:"name"`
-	Alias        string `json:"alias" bson:"alias"`
+	Field
 }
 
 type Measure struct {
-	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
-	Name         string `json:"name" bson:"name"`
-	Alias        string `json:"alias" bson:"alias"`
-	Action       string `json:"action" bson:"action"`
+	Field
 }
 type TimeField struct {
-	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
-	Name         string `json:"name" bson:"name"`
-	Alias        string `json:"alias" bson:"alias"`
-	Action       string `json:"action" bson:"action"`
+	Field
 }
 
 type DataSet struct {
@@ -231,15 +232,16 @@ type Report struct {
 }
 */
 type Chart struct {
-	Id       string              `json:"id" bson:"id"`
-	Type     string              `json:"type" bson:"type"`
-	Title    string              `json:"title" bson:"title"`
-	SubTitle string              `json:"subTitle" bson:"subTitle"`
-	Stack    bool                `json:"stack" bson:"stack"`
-	Xaxis    []map[string]string `json:"xaxis" bson:"xaxis"`
-	Yaxis    []map[string]string `json:"yaxis" bson:"yaxis"`
-	CodeId   string              `json:"codeId" bson:"codeId"`
-	DirId    string              `json:"dirId" bson:"dirId"`
+	Id       string  `json:"id" bson:"id"`
+	Type     string  `json:"type" bson:"type"`
+	Title    string  `json:"title" bson:"title"`
+	SubTitle string  `json:"subTitle" bson:"subTitle"`
+	Stack    bool    `json:"stack" bson:"stack"`
+	Xaxis    []Field `json:"xaxis" bson:"xaxis"`
+	Yaxis    []Field `json:"yaxis" bson:"yaxis"`
+	Filters  []Field `json:"filters" bson:"filters"`
+	CodeId   string  `json:"codeId" bson:"codeId"`
+	DirId    string  `json:"dirId" bson:"dirId"`
 }
 
 /*

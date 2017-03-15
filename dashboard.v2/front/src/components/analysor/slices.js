@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 import { Form, Collapse, Select, Tooltip, Row, Col, Icon, DatePicker, Button } from 'antd';
 import AddOn from './addOn';
 import styles from './slices.less';
@@ -18,9 +17,15 @@ const customPanelStyle = {
 };
 
 class Slices extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
+    const selectKeys = props.selectFields.map((item) => { return item.name; });
+    const metricKeys = props.metricFields.map((item) => { return item.name; });
+    const groupKeys = props.groupFields.map((item) => { return item.name; });
     this.state = {
+      selectKeys,
+      metricKeys,
+      groupKeys,
       addOns_where: [],
       addOns_having: [],
       addOns_filter: [],
@@ -34,10 +39,6 @@ class Slices extends React.Component {
       addOns_filter: nextProps.addOns.filters,
     });
   }
-
-  // 哈哈，I get it
-  componentDidUpdate = () => { ReactDOM.findDOMNode(this).scrollIntoView({ behavior: 'smooth' }); }
-
 
   handleReset = () => {
     this.props.form.resetFields();
@@ -85,19 +86,19 @@ class Slices extends React.Component {
     switch (type) {
       case ADDONS_WHERE: {
         const addOnsWhere = this.state.addOns_where;
-        addOnsWhere.push({ field: '', operator: '=', data: '' });
+        addOnsWhere.push({ field: '', operator: 'EQ', data: '' });
         this.setState({ addOns_where: addOnsWhere });
         break;
       }
       case ADDONS_HAVING: {
         const addOnsHaving = this.state.addOns_having;
-        addOnsHaving.push({ field: '', operator: '=', data: '' });
+        addOnsHaving.push({ field: '', operator: 'EQ', data: '' });
         this.setState({ addOns_having: addOnsHaving });
         break;
       }
       case ADDONS_FILTER: {
         const addOnsFilter = this.state.addOns_filter;
-        addOnsFilter.push({ field: '', operator: '=', data: '' });
+        addOnsFilter.push({ field: '', operator: 'EQ', data: '' });
         this.setState({ addOns_filter: addOnsFilter });
         break;
       }
@@ -157,11 +158,17 @@ class Slices extends React.Component {
     });
   }
 
+  handleGroupSelectChange = (keys) => {
+    console.log(keys);
+    this.props.form.resetFields(['selectFields']);
+    this.setState({ selectKeys: keys });
+  }
+
   render() {
-    const { addOns_where, addOns_having, addOns_filter } = this.state;
-    const { dimensions, measures, times, operatorOptions,
-      selectFields, metricFields, groupFields, form } = this.props;
+    const { addOns_where, addOns_having } = this.state;
+    const { dimensions, measures, times, operatorOptions, form } = this.props;
     const { getFieldDecorator } = form;
+
     return (
       <Form onSubmit={this.handleSubmit} className={styles.form1}>
         <Row gutter={2}>
@@ -175,7 +182,7 @@ class Slices extends React.Component {
           </Col>
           <Col lg={8} md={8}>
             <Button style={{ width: '100%' }} icon="play-circle-o" size="large" type="primary" htmlType="submit">
-              执行</Button>
+              查询</Button>
           </Col>
         </Row>
         <br />
@@ -212,7 +219,7 @@ class Slices extends React.Component {
             </p>
             <FormItem >
               {getFieldDecorator('selectFields', {
-                initialValue: selectFields,
+                initialValue: this.state.selectKeys,
               })(
                 <Select
                   multiple
@@ -231,7 +238,7 @@ class Slices extends React.Component {
 
             <FormItem >
               {getFieldDecorator('metricFields', {
-                initialValue: metricFields,
+                initialValue: this.state.metricKeys,
               })(
                 <Select
                   multiple
@@ -250,12 +257,13 @@ class Slices extends React.Component {
 
             <FormItem >
               {getFieldDecorator('groupFields', {
-                initialValue: groupFields,
+                initialValue: this.state.groupKeys,
               })(
                 <Select
                   multiple
                   showSearch
                   placeholder="分组"
+                  onChange={this.handleGroupSelectChange}
                 >
                   {genOptionsOfSelect(dimensions)}
                 </Select>,
@@ -286,18 +294,6 @@ class Slices extends React.Component {
             <Button
               type="dashed" size="large" icon="plus" style={{ width: '100%' }}
               onClick={() => this.addAddOns(ADDONS_HAVING)}
-            />
-          </Panel>
-
-          <Panel header="过滤(Filter)" key="5" style={customPanelStyle}>
-            <p icon="info">Filter&nbsp;
-              <Tooltip title="Filter 规则"><Icon type="info-circle" />
-              </Tooltip>
-            </p>
-            {this.genFilter('filter', addOns_filter, dimensions, operatorOptions)}
-            <Button
-              type="dashed" size="large" icon="plus" style={{ width: '100%' }}
-              onClick={() => this.addAddOns(ADDONS_FILTER)}
             />
           </Panel>
         </Collapse>
