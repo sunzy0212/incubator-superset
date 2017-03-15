@@ -34,3 +34,10 @@ export async function updateDataSet(params) {
     body: JSON.stringify(params.dataset),
   });
 }
+
+export async function getTableData(params) {
+  return request(`/v1/datas?type=${params.type}`, {
+    method: 'post',
+    body: JSON.stringify({ datasetId: params.datasourceId }),
+  });
+}

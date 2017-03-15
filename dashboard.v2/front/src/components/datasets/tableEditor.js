@@ -1,13 +1,13 @@
 import React, { PropTypes } from 'react';
-import { Table, Form, Button, Input } from 'antd';
+import { Form, Button, Input } from 'antd';
+import TableTreeModal from './tableTreeModal'
 
 const FormItem = Form.Item;
 
-const TableEditor = ({ loading, save, form: {
+const TableEditor = ({ save, loadTableTree, datasourceList, tableTreeVisibles,
+  getTableData, tables, onCancelLoad, onLoadOk, loadTableData, form: {
   getFieldDecorator,
   validateFields,
-  // getFieldsValue,
-  // getFieldsValues,
 },
 }) => {
   const formItemLayout = {
@@ -26,6 +26,14 @@ const TableEditor = ({ loading, save, form: {
       }
     });
   }
+  const props = {
+    datasourceList,
+    tableTreeVisibles,
+    getTableData,
+    tables,
+    onCancelLoad,
+    onLoadOk,
+  }
 
   return (
     <div>
@@ -41,21 +49,28 @@ const TableEditor = ({ loading, save, form: {
             ],
           })(<Input />)}
         </FormItem>
-
         <FormItem wrapperCol={{ span: 12, offset: 6 }}>
           <Button type="primary" htmlType="submit" size="large">保存</Button>
         </FormItem>
         <FormItem wrapperCol={{ span: 12, offset: 6 }}>
-          <Button type="primary" htmlType="submit" size="large">加载数据源</Button>
+          <Button type="primary" size="large" onClick={loadTableTree}>加载表结构</Button>
+        </FormItem>
+        <FormItem wrapperCol={{ span: 12, offset: 6 }}>
+          <Button type="primary" size="large" onClick={loadTableData}>加载表数据</Button>
         </FormItem>
       </Form>
-
+      <TableTreeModal {...props} />
     </div>
   );
 };
 
 TableEditor.propTypes = {
-  loading: PropTypes.bool,
+  loadTableTree: PropTypes.func,
+  loadTableData: PropTypes.func,
+  datasourceList: PropTypes.array,
+  getTableData: PropTypes.func,
+  onCancelLoad: PropTypes.func,
+  onLoadOk: PropTypes.func,
 };
 
 export default Form.create()(TableEditor);

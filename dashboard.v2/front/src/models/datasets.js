@@ -1,6 +1,6 @@
 import { parse } from 'qs';
-import { saveDataSet, updateDataSet, getDataSet, deleteDataSet } from '../services/datasets';
-import { getSchema } from '../services/datasource';
+import { saveDataSet, updateDataSet, getDataSet, deleteDataSet, getTableData } from '../services/datasets';
+import { getSchema, listDatasources, showTables } from '../services/datasource';
 
 
 export default {
@@ -10,21 +10,37 @@ export default {
     modalSpace: { dimensions: false, measures: false },
     modalVisibles: { toSave: false },
     renameModalVisibles: false,
+    tableTreeVisibles: false,
     loading: false,
     datasources: {},
     dataset: {},
     relationships: [],
     currentRecord: {},
-    dimensions: [{ name: 'id', alias: '' }, { name: 'name', alias: '' },
-      { name: 'age', alias: '' }, { name: 'sex', alias: '' }],
-    measures: [{ name: 'total', alias: '总数' }, { name: 'avg', alias: '平均' },
-      { name: 'min', alias: '最小' }, { name: 'max', alias: '最大' }],
+    dimensions: [],
+    measures: [],
     times: [],
+    datasourceList: [],
+    tables: [],
+    tableData: [],
+    currentDatasetId: '',
   },
   subscriptions: {
 
   },
   effects: {
+    *queryDatasources({
+      payload,
+    }, { call, put }) {
+      const data = yield call(listDatasources, parse(payload));
+      if (data.success) {
+        yield put({
+          type: 'listDatasources',
+          payload: {
+            datasourceList: data.result.datasources,
+          },
+        });
+      }
+    },
     *newDataSet({
       payload,
     }, { call, put }) {
@@ -40,7 +56,16 @@ export default {
             datasource: { ...payload },
           },
         });
+        if (payload.datasetName !== undefined) {
+          yield put({
+            type: 'saveOrUpdate',
+            payload: {
+              name: payload.datasetName,
+            },
+          });
+        }
       }
+      yield put({ type: 'hideTableTree' });
       yield put({ type: 'hideLoading' });
     },
 
@@ -69,7 +94,7 @@ export default {
         const data = yield call(saveDataSet, parse({ name: payload.name }));
         if (data.success) {
           datasets.dataset = data.result;
-          yield put({ type: 'updateState', payload: { dataset: data.result } });
+          yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId:datasets.dataset.id } });
         }
       }
       const data = yield call(updateDataSet, parse({
@@ -85,7 +110,8 @@ export default {
         },
       }));
       if (data.success) {
-        yield put({ type: 'updateState', payload: { dataset: data.result } });
+        console.log(data.result);
+        yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId:datasets.dataset.id } });
       }
 
       yield put({ type: 'hideLoading' });
@@ -98,6 +124,33 @@ export default {
           type: 'deleteDataSource',
           ...payload,
         });
+      }
+    },
+    *loadTables({ payload }, { call, put }) {
+      const data = yield call(showTables, parse(payload));
+      if (data.success) {
+        yield put({
+          type: 'listTables',
+          payload: {
+            tables: data.result.tables,
+          },
+        });
+      } else {
+        console.log('show error');
+      }
+    },
+
+    *getTableData({ payload }, { call, put }) {
+      const data = yield call(getTableData, parse(payload));
+      if (data.success) {
+        yield put({
+          type: 'listTableData',
+          payload: {
+            tableData: data.result,
+          },
+        });
+      } else {
+        console.log('show error');
       }
     },
   },
@@ -140,6 +193,28 @@ export default {
       };
     },
 
+    exchangeElement(state, action) {
+      return {
+        ...state,
+        dimensions: action.payload.cDimensions,
+        measures: action.payload.cMeasures,
+      };
+    },
+
+    transformType(state, action) {
+      return {
+        ...state,
+        dimensions: action.payload.cDimensions,
+      };
+    },
+
+    checkAggregation(state, action) {
+      return {
+        ...state,
+        measures: action.payload.cMeasures,
+      };
+    },
+
     hideRenameModal(state) {
       return {
         ...state,
@@ -177,7 +252,31 @@ export default {
         times: tmp.dataset.times,
       };
     },
-
+    listDatasources(state, action) {
+      return {
+        ...state,
+        ...action.payload,
+        tableTreeVisibles: true,
+      };
+    },
+    listTables(state, action) {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
+    listTableData(state, action) {
+      return {
+        ...state,
+        tableData: action.payload.tableData,
+      };
+    },
+    hideTableTree(state) {
+      return {
+        ...state,
+        tableTreeVisibles: false,
+      };
+    },
     generateFileds(state, action) {
       const res = action.payload.schema;
       const datasources = state.datasources;
