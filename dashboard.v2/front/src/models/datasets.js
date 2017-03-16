@@ -193,28 +193,6 @@ export default {
       };
     },
 
-    exchangeElement(state, action) {
-      return {
-        ...state,
-        dimensions: action.payload.cDimensions,
-        measures: action.payload.cMeasures,
-      };
-    },
-
-    transformType(state, action) {
-      return {
-        ...state,
-        dimensions: action.payload.cDimensions,
-      };
-    },
-
-    checkAggregation(state, action) {
-      return {
-        ...state,
-        measures: action.payload.cMeasures,
-      };
-    },
-
     hideRenameModal(state) {
       return {
         ...state,

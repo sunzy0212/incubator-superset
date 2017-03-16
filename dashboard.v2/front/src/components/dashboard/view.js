@@ -5,6 +5,7 @@ import { Link } from 'dva/router';
 import { Row, Col, Icon, Spin, Select } from 'antd';
 import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
+import SelectComponent from './selectComponent';
 
 class View extends React.Component {
 
@@ -13,6 +14,7 @@ class View extends React.Component {
     this.state = {
       chartData: [],
       codeData: {},
+      where: [],
       initFlag: false,
     };
     const { chartId } = props;
@@ -34,14 +36,14 @@ class View extends React.Component {
         that.setState({
           chartData: data,
         });
-        that.getCodeData(data.codeId, data.type, data.xaxis, data.yaxis, data.title);
+        that.getCodeData(data.codeId, data.type, data.xaxis, data.yaxis, data.title, data.filters);
       },
       (jqXHR, textStatus, errorThrown) => {
         console.log('reject', textStatus, jqXHR, errorThrown);
       });
   }
 
-  getCodeData(codeId, _type, _xaxis, _yaxis, _title) {
+  getCodeData(codeId, _type, _xaxis, _yaxis, _title, _filters) {
     const that = this;
     $.ajax({
       url: `/v1/datas?codeId=${codeId}&type=${_type}`,
@@ -56,6 +58,7 @@ class View extends React.Component {
           xaxis: _xaxis,
           yaxis: _yaxis,
           title: _title,
+          filters: _filters,
         };
         that.setState({ codeData: temp });
       },
@@ -73,9 +76,33 @@ class View extends React.Component {
         });
       }
     });
-    // console.log(this.props.chartId);
-    // console.log(layouts);
     this.props.removeChart(layouts);
+  }
+
+  handleFiltersChange = (filters, data) => {
+    const cFilters = [];
+
+    filters.forEach((item) => {
+      cFilters.push({ ...item, optionDatas: new Set() });
+    });
+
+    data.forEach((item) => {
+      cFilters.forEach((r) => {
+        r.optionDatas.add(item[r.name]);
+      });
+    });
+    return cFilters;
+  }
+
+  getNewChartData = (key, value) => {
+    const item = [{
+      field: key,
+      operator: 'EQ',
+      data: value,
+    }]
+    this.state.where.push(item);
+    console.log(key);
+    console.log(value);
   }
 
   isFlip(type) {
@@ -88,6 +115,8 @@ class View extends React.Component {
   render() {
     const { codeData } = this.state;
     if (codeData.data !== undefined) {
+      const cfilter = this.handleFiltersChange(codeData.filters, codeData.data);
+      console.log(codeData);
       return (
         <div className={styles.box}>
           <Row gutter={24}>
@@ -107,6 +136,9 @@ class View extends React.Component {
                 <a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a>
               </div>
             </Col>
+          </Row>
+          <Row gutter={24}>
+            <SelectComponent getNewChartData={this.getNewChartData} filters={cfilter} />
           </Row>
           <ResponsiveContainer>
             <ChartComponent
