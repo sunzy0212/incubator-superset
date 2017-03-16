@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import { Modal, Row, Col } from 'antd';
+import { Modal, Row, Col, Icon, Button } from 'antd';
 import styles from './modal.less';
 
 const DataSetModal = ({
@@ -18,52 +18,15 @@ const DataSetModal = ({
     <Modal
       visible={visible}
       title="支持如下数据源"
-      width={700}
+      width={500}
       onCancel={onCancel}
       style={{ top: 20 }}
       footer={[]}
     >
       <Row gutter={24}>
         <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
-          </Seat>
-        </Col>
-        <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'INFLUXDB', action: 'ADD', onOk, item }} >INFLUXDB</Link>
-          </Seat>
-        </Col>
-        <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
-          </Seat>
-        </Col>
-        <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
-          </Seat>
-        </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
-          </Seat>
-        </Col>
-        <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
-          </Seat>
-        </Col>
-        <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
-          </Seat>
-        </Col>
-        <Col span={6} >
-          <Seat>
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }} >MYSQL</Link>
+          <Seat >
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >MYSQL</Button></Link>
           </Seat>
         </Col>
       </Row>
