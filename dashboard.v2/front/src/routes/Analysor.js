@@ -9,7 +9,7 @@ import Dataview from '../components/analysor/dataview';
 import styles from './Analysor.less';
 
 function Analysor({ dispatch, analysor }) {
-  const { loading, dataset, addOns, operatorOptions, dayOptions, datas,
+  const { loading, dataset, wheres, havings, operatorOptions, dayOptions, datas,
     selectFields, metricFields, groupFields, timeField, chart, dirs } = analysor;
 
   const { id, name, dimensions, measures, times } = dataset;
@@ -27,7 +27,8 @@ function Analysor({ dispatch, analysor }) {
   };
   const slicesProps = {
     datasetId: id,
-    addOns,
+    wheres,
+    havings,
     dayOptions,
     operatorOptions,
     dimensions,
@@ -39,7 +40,7 @@ function Analysor({ dispatch, analysor }) {
     onExecute(querys) {
       dispatch({
         type: 'analysor/execute',
-        payload: { datasetId: id, querys },
+        payload: { datasetId: id, ...querys },
       });
     },
   };

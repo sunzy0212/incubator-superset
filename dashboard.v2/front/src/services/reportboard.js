@@ -24,6 +24,6 @@ export async function getChartData(params) {
 
 export async function getCodeData(params) {
   return request(`/v1/datas?codeId=${params.codeId}&type=${params.type}`, {
-    method: 'get',
+    method: 'post',
   });
 }

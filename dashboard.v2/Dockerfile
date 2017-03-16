@@ -5,25 +5,13 @@ MAINTAINER CHENXIN WEN "wenchenxin@qiniu.com"
 #	echo "deb http://archive.ubuntu.com/ubuntu trusty-updates main universe\n" >> /etc/apt/sources.list
 
 #RUN apt-get update && apt-get install -y mongodb
-RUN apt-get update && \
-    apt-get -y --no-install-recommends install curl ca-certificates  && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl http://7xqd3r.com1.z0.glb.clouddn.com/authproxy/authproxy.2016.08.linux-amd64.tar.gz > /tmp/authproxy.tar.gz && \
-    cd /tmp/ && \
-    tar zxvf authproxy.tar.gz && \
-    mkdir -p /authproxy && \
-    mv _package/authproxy /authproxy && \
-	rm -rf /tmp/* && \
-	mkdir -p /report
+RUN mkdir -p /report
 
-COPY qiniu-cas.yml /authproxy/
 COPY dist /report
-COPY start-all.sh /
+COPY start.sh /
 
-RUN chmod a+x /start-all.sh
+RUN chmod a+x /start.sh
 EXPOSE 8001
 WORKDIR /report
-#ENTRYPOINT ["/bin/bash","-c","/start.sh"]  For no ldap
-ENTRYPOINT ["/bin/bash","-c","/start-all.sh"]
+ENTRYPOINT ["/bin/bash","-c","/start.sh"]
 

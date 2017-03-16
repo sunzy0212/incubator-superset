@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { ResponsiveContainer } from 'recharts';
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import { Row, Col, Icon, Spin } from 'antd';
+import { Row, Col, Icon, Spin, Select } from 'antd';
 import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
 
@@ -45,7 +45,7 @@ class View extends React.Component {
     const that = this;
     $.ajax({
       url: `/v1/datas?codeId=${codeId}&type=${_type}`,
-      type: 'get',
+      type: 'post',
       dataType: 'JSON',
       contentType: 'application/json; charset=utf-8',
     }).then(

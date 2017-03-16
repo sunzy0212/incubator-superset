@@ -181,11 +181,19 @@ type DataSet struct {
 }
 */
 type Dir struct {
-	Id   string `json:"id" bson:"id"`
-	Type string `json:"type" bson:"type"`
-	Name string `json:"name" bson:"name"`
-	Pre  string `json:"pre" bson:"pre"`
-	Post string `json:"post" bson:"post"`
+	Id         string `json:"id" bson:"id"`
+	Type       string `json:"type" bson:"type"`
+	Name       string `json:"name" bson:"name"`
+	Pre        string `json:"pre" bson:"pre"`
+	Post       string `json:"post" bson:"post"`
+	AccessTime string `json:"accessTime" bson:"accessTime"`
+}
+
+// 表达式
+type Evaluation struct {
+	Field    Field  `json:"field" bson:"field"`
+	Operator string `json:"operator" bson:"operator"`
+	Data     string `json:"data" bson:"data"`
 }
 
 /*
@@ -199,11 +207,16 @@ type Dir struct {
 }
 */
 type Code struct {
-	Id         string                 `json:"id" bson:"id"`
-	Name       string                 `json:"name" bson:"name"`
-	DatasetId  string                 `json:"datasetId" bson:"datasetId"`
-	Querys     map[string]interface{} `json:"querys" bson:"querys"`
-	CreateTime string                 `json:"createTime" bson:"createTime"`
+	Id           string       `json:"id" bson:"id"`
+	Name         string       `json:"name" bson:"name"`
+	DatasetId    string       `json:"datasetId" bson:"datasetId"`
+	SelectFields []Field      `json:"selectFields" bson:"selectFields"`
+	MetricFields []Field      `json:"metricFields" bson:"metricFields"`
+	GroupFields  []Field      `json:"groupFields" bson:"groupFields"`
+	TimeField    Field        `json:"timeField" bson:"timeField"`
+	Wheres       []Evaluation `json:"wheres" bson:"wheres"`
+	Havings      []Evaluation `json:"havings" bson:"havings"`
+	CreateTime   string       `json:"createTime" bson:"createTime"`
 }
 
 /**report

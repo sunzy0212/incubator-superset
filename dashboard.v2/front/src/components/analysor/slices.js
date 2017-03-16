@@ -10,7 +10,6 @@ const FormItem = Form.Item;
 
 const ADDONS_WHERE = 'where';
 const ADDONS_HAVING = 'having';
-const ADDONS_FILTER = 'filter';
 
 const customPanelStyle = {
   borderRadius: 4,
@@ -22,22 +21,34 @@ class Slices extends React.Component {
     const selectKeys = props.selectFields.map((item) => { return item.name; });
     const metricKeys = props.metricFields.map((item) => { return item.name; });
     const groupKeys = props.groupFields.map((item) => { return item.name; });
+
     this.state = {
       selectKeys,
       metricKeys,
       groupKeys,
       addOns_where: [],
       addOns_having: [],
-      addOns_filter: [],
     };
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      addOns_where: nextProps.addOns.wheres,
-      addOns_having: nextProps.addOns.havings,
-      addOns_filter: nextProps.addOns.filters,
+      allFields: [].concat(nextProps.dimensions).concat(nextProps.measures).concat(nextProps.times),
+      addOns_where: nextProps.wheres,
+      addOns_having: nextProps.havings,
     });
+  }
+
+  matchFields = (allFields, fields) => {
+    const res = [];
+    fields.forEach((x) => {
+      allFields.forEach((item) => {
+        if (x === item.name) {
+          res.push(Object.assign(item));
+        }
+      });
+    });
+    return res;
   }
 
   handleReset = () => {
@@ -51,6 +62,7 @@ class Slices extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
         const { selectFields, metricFields, groupFields, timeField, rangeDatatime } = values;
+
         const getAddOnDatas = (type) => {
           const res = [];
           for (let i = 0; i < 22; i++) {  // 最大预留，22 暂定
@@ -59,22 +71,21 @@ class Slices extends React.Component {
             if (value === undefined) {
               break;
             }
-            res.push({ field: value.field, operator: value.operator, data: value.data });
+            res.push({ field: this.matchFields(this.state.allFields, [value.field])[0],
+              operator: value.operator,
+              data: value.data });
           }
           return res;
         };
 
         const querys = {
-          selectFields,
-          metricFields,
-          groupFields,
-          timeField,
+          selectFields: this.matchFields(this.state.allFields, selectFields),
+          metricFields: this.matchFields(this.state.allFields, metricFields),
+          groupFields: this.matchFields(this.state.allFields, groupFields),
+          timeField: this.matchFields(this.state.allFields, timeField)[0],
           rangeDatatime,
-          addOns: {
-            wheres: getAddOnDatas(ADDONS_WHERE),
-            havings: getAddOnDatas(ADDONS_HAVING),
-            filters: getAddOnDatas(ADDONS_FILTER),
-          },
+          wheres: getAddOnDatas(ADDONS_WHERE),
+          havings: getAddOnDatas(ADDONS_HAVING),
         };
 
         this.props.onExecute(querys);
@@ -96,12 +107,6 @@ class Slices extends React.Component {
         this.setState({ addOns_having: addOnsHaving });
         break;
       }
-      case ADDONS_FILTER: {
-        const addOnsFilter = this.state.addOns_filter;
-        addOnsFilter.push({ field: '', operator: 'EQ', data: '' });
-        this.setState({ addOns_filter: addOnsFilter });
-        break;
-      }
       default:
     }
   }
@@ -119,11 +124,6 @@ class Slices extends React.Component {
       case ADDONS_HAVING: {
         const addOnsHaving = this.state.addOns_having.filter(exclude);
         this.setState({ addOns_having: addOnsHaving });
-        break;
-      }
-      case ADDONS_FILTER: {
-        const addOnsFilter = this.state.addOns_filter.filter(exclude);
-        this.setState({ addOns_filter: addOnsFilter });
         break;
       }
       default:
@@ -159,7 +159,6 @@ class Slices extends React.Component {
   }
 
   handleGroupSelectChange = (keys) => {
-    console.log(keys);
     this.props.form.resetFields(['selectFields']);
     this.setState({ selectKeys: keys });
   }
@@ -195,7 +194,7 @@ class Slices extends React.Component {
             </p>
             <FormItem >
               {getFieldDecorator('timeField', {
-                initialValue: '',
+                initialValue: [],
               })(
                 <Select placeholder="Please select a time field if need">
                   {genOptionsOfSelect(times)}

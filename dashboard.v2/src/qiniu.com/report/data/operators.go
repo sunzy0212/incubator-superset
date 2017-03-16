@@ -11,3 +11,11 @@ var OP = map[string]string{
 	"LE":   "<=",
 	"LIKE": "like",
 }
+
+type SourceType int32
+
+const (
+	FIELD_TYPE_STRING    = "string"
+	FIELD_TYPE_NUMBER    = "number"
+	FIELD_TYPE_TIMESTAMP = "timestamp"
+)
