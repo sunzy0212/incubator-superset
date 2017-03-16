@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { ResponsiveContainer } from 'recharts';
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import { Row, Col, Icon, Spin, Select } from 'antd';
+import { Row, Col, Icon, Spin } from 'antd';
 import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
 import SelectComponent from './selectComponent';
@@ -14,7 +14,7 @@ class View extends React.Component {
     this.state = {
       chartData: [],
       codeData: {},
-      where: [],
+      wheres: [],
       initFlag: false,
     };
     const { chartId } = props;
@@ -36,29 +36,30 @@ class View extends React.Component {
         that.setState({
           chartData: data,
         });
-        that.getCodeData(data.codeId, data.type, data.xaxis, data.yaxis, data.title, data.filters);
+        that.getCodeData(data.codeId, data.type, null);
       },
       (jqXHR, textStatus, errorThrown) => {
         console.log('reject', textStatus, jqXHR, errorThrown);
       });
   }
 
-  getCodeData(codeId, _type, _xaxis, _yaxis, _title, _filters) {
+  getCodeData(codeId, _type, wheres) {
     const that = this;
     $.ajax({
       url: `/v1/datas?codeId=${codeId}&type=${_type}`,
       type: 'post',
       dataType: 'JSON',
+      data: JSON.stringify({ wheres }),
       contentType: 'application/json; charset=utf-8',
     }).then(
       (_data) => {
         const temp = {
           data: _data,
           type: _type,
-          xaxis: _xaxis,
-          yaxis: _yaxis,
-          title: _title,
-          filters: _filters,
+          xaxis: that.state.chartData.xaxis,
+          yaxis: that.state.chartData.yaxis,
+          title: that.state.chartData.title,
+          filters: that.state.chartData.filters,
         };
         that.setState({ codeData: temp });
       },
@@ -94,15 +95,39 @@ class View extends React.Component {
     return cFilters;
   }
 
-  getNewChartData = (key, value) => {
-    const item = [{
-      field: key,
+  getNewChartData = (fieldObj, value) => {
+    const item = {
+      field: {
+        action: fieldObj.action,
+        alias: fieldObj.alias,
+        name: fieldObj.name,
+        type: fieldObj.type,
+      },
       operator: 'EQ',
       data: value,
-    }]
-    this.state.where.push(item);
-    console.log(key);
-    console.log(value);
+    };
+    let currentWheres = Object.assign(this.state.wheres);
+    if (value === '全部') {
+      currentWheres = currentWheres.filter(x => x.field.name !== fieldObj.name);
+    } else {
+      let count = 0;
+      let name = '';
+      currentWheres.forEach((ele) => {
+        if (ele.field.name !== fieldObj.name) {
+          count += 1;
+        } else {
+          name = fieldObj.name;
+        }
+      });
+      if (count === currentWheres.length) {
+        currentWheres.push(item);
+      } else {
+        currentWheres = currentWheres.filter(x => x.field.name !== name);
+        currentWheres.push(item);
+      }
+    }
+    this.state.wheres = currentWheres;
+    this.getCodeData(this.state.chartData.codeId, this.state.chartData.type, this.state.wheres);
   }
 
   isFlip(type) {
@@ -116,7 +141,6 @@ class View extends React.Component {
     const { codeData } = this.state;
     if (codeData.data !== undefined) {
       const cfilter = this.handleFiltersChange(codeData.filters, codeData.data);
-      console.log(codeData);
       return (
         <div className={styles.box}>
           <Row gutter={24}>
