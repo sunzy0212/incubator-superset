@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -25,23 +26,23 @@ func NewDataSetManager(colls *common.Collections) *DataSetManager {
 	}
 }
 
-func (m *DataSetManager) GenSqlFromCode(code common.Code) (sql string, err error) {
+func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error) {
+	code := cfg.Code
 	var dataset common.DataSet
 	if err = m.DataSetColl.Find(M{"id": code.DatasetId}).One(&dataset); err != nil {
 		log.Error(err)
 		return
 	}
 
-	querys := code.Querys
 	//SELECT SECTION
-	selectFields := querys["selectFields"]
+	selectFields := code.SelectFields
 	selectSection := ""
-	if selectFields == nil || len(selectFields.([]interface{})) == 0 {
+	if selectFields == nil || len(selectFields) == 0 {
 		selectSection = "*"
 	} else {
 		_selectFields := make([]string, 0)
-		for _, v := range selectFields.([]interface{}) {
-			_selectFields = append(_selectFields, fmt.Sprintf("`%s`", v.(string)))
+		for _, v := range selectFields {
+			_selectFields = append(_selectFields, fmt.Sprintf("`%s`", v.Name))
 		}
 		selectSection = strings.Join(_selectFields, ",")
 	}
@@ -59,63 +60,63 @@ func (m *DataSetManager) GenSqlFromCode(code common.Code) (sql string, err error
 	fromSection := strings.Join(formFields, ",")
 	sql = fmt.Sprintf("SELECT %s FROM %s", selectSection, fromSection)
 
-	//GROUPBY SECTION
-	tmpGroupFields := querys["groupFields"]
-	if tmpGroupFields != nil && len(tmpGroupFields.([]interface{})) != 0 {
-		groupFields := make([]string, 0)
-		for _, v := range tmpGroupFields.([]interface{}) {
-			groupFields = append(groupFields, fmt.Sprintf("`%s`", v.(string)))
-		}
-		sql += fmt.Sprintf(" GROUP BY %s ", strings.Join(groupFields, ","))
-	}
-
-	addOns := querys["addOns"]
-	if addOns == nil || len(addOns.(map[string]interface{})) == 0 {
-		return
-	}
 	//WHERE SECTION
-	tmpWhereFields := addOns.(map[string]interface{})["wheres"]
-	if tmpWhereFields != nil && len(tmpWhereFields.([]interface{})) != 0 {
+	tmpWhereFields := code.Wheres
+	if tmpWhereFields != nil && len(tmpWhereFields) != 0 {
 		whereFields := make([]string, 0)
-		for _, v := range tmpWhereFields.([]interface{}) {
-			addon := v.(map[string]interface{})
-			field := addon["field"].(string)
-			opera := OP[addon["operator"].(string)]
-			data := addon["data"]
-			switch data.(type) {
-			case int, int64, int32:
-				data = data.(int64)
-			case float64, float32:
-				data = data.(float64)
-			case string:
-				data = fmt.Sprintf("'%s'", data)
+		for _, v := range tmpWhereFields {
+			field := v.Field.Name
+			opera := OP[v.Operator]
+			evaluation := ""
+			switch strings.ToLower(v.Field.Type) {
+			case "number":
+				data, err := strconv.ParseFloat(v.Data, 64)
+				if err != nil {
+					log.Errorf("error while parse %v to float", v.Data)
+				}
+				evaluation = fmt.Sprintf(" `%s` %s %v ", field, opera, data)
+			case "string":
+				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, v.Data)
 			default:
-				fmt.Println("没匹配到") //TODO
+				fmt.Println("没匹配到") //TODO String is ok
 			}
-			whereFields = append(whereFields, fmt.Sprintf(" `%s` %s %v ", field, opera, data))
+			whereFields = append(whereFields, evaluation)
 		}
 		sql += fmt.Sprintf(" WHERE %s ", strings.Join(whereFields, " AND ")) //OR转化为AND?暂定
 	}
 
+	//GROUPBY SECTION
+	tmpGroupFields := code.GroupFields
+	if tmpGroupFields != nil && len(tmpGroupFields) != 0 {
+		groupFields := make([]string, 0)
+		for _, v := range tmpGroupFields {
+			groupFields = append(groupFields, fmt.Sprintf("`%s`", v.Name))
+		}
+		sql += fmt.Sprintf(" GROUP BY %s ", strings.Join(groupFields, ","))
+	}
+
 	//Having SECTION
 	//TODO having的规则，必须要groupBY语义下。
-	tmpHavingFields := addOns.(map[string]interface{})["havings"]
-	if tmpHavingFields != nil && len(tmpHavingFields.([]interface{})) != 0 {
+	tmpHavingFields := code.Havings
+	if tmpHavingFields != nil && len(tmpHavingFields) != 0 {
 		havingFields := make([]string, 0)
-		for _, v := range tmpHavingFields.([]interface{}) {
-			addon := v.(map[string]interface{})
-			field := addon["field"].(string)
-			opera := OP[addon["operator"].(string)]
-			data := addon["data"]
-			switch data.(type) {
-			case int, int64, int32:
-				data = data.(int64)
-			case float64, float32:
-				data = data.(float64)
+		for _, v := range tmpHavingFields {
+			field := v.Field.Name
+			opera := OP[v.Operator]
+			evaluation := ""
+			switch strings.ToLower(v.Field.Type) {
+			case "number":
+				data, err := strconv.ParseFloat(v.Data, 64)
+				if err != nil {
+					log.Errorf("error while parse %v to float", v.Data)
+				}
+				evaluation = fmt.Sprintf(" `%s` %s %v ", field, opera, data)
+			case "string":
+				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, v.Data)
 			default:
-				fmt.Println("没匹配到") //TODO
+				fmt.Println("没匹配到") //TODO String is ok
 			}
-			havingFields = append(havingFields, fmt.Sprintf(" `%s` %s %v ", field, opera, data))
+			havingFields = append(havingFields, evaluation)
 		}
 		sql += fmt.Sprintf(" HAVING %s ", strings.Join(havingFields, " AND ")) //OR转化为AND?暂定
 	}

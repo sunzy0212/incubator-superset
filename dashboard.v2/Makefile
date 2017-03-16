@@ -1,9 +1,10 @@
 all:
-	rm -rf dist && mkdir dist
+	rm -rf dist && rm -rf front/dist && mkdir dist
 	cd src/qiniu.com/report/; CGO_ENABLED=0 go build -a -o ../../../dist/reportd
-	cd front; npm run build
-	cp front/index.html dist/
-	cp -r front/static dist/
+	cp src/qiniu.com/report/report.conf dist/
+	cd front; npm install && npm run build
+	cp front/dist/* dist/
+	cp -r front/src/assets dist/
 
 install: all
 	@echo

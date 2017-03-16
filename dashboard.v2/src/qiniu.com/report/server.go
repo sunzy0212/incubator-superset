@@ -476,6 +476,7 @@ func (s *Service) PostDirs(env *rpcutil.Env) (ret common.Dir, err error) {
 	}
 
 	req.Id = fmt.Sprintf("dir_%s", req.Id)
+	req.AccessTime = common.GetCurrTime()
 	if err = db.DoInsert(s.DirColl, req); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
@@ -522,7 +523,7 @@ func (s *Service) PutDirs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 	req.Id = id
-
+	req.AccessTime = common.GetCurrTime()
 	err = db.DoUpdate(s.DirColl, M{"id": id}, req)
 	if err != nil {
 		err = errors.Info(ErrInternalError, err)
@@ -553,7 +554,7 @@ func (s *Service) GetDirs(env *rpcutil.Env) (ret TreeDirs, err error) {
 		return
 	}
 	ds := make([]common.Dir, 0)
-	if err = s.DirColl.Find(M{"type": _dirType}).All(&ds); err != nil {
+	if err = s.DirColl.Find(M{"type": _dirType}).Sort("-accessTime").All(&ds); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, "the dir is empty !")
 			return
@@ -642,7 +643,12 @@ POST /v1/datasets/<DatasetId>/codes
 Content-Type: application/json
 {
 	"name" : <Name>,
-	"querys" : <Querys>
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>
 }
 */
 
@@ -689,8 +695,14 @@ func (s *Service) PostDatasets_Codes(args *cmdArgs, env *rpcutil.Env) (ret commo
 PUT /v1/datasets/<DatasetId>/codes/<Id>
 Content-Type: application/json
 {
-    "name" : <Name>,
-	"querys" : <Querys>
+	"name" : <Name>,
+	"datasetId": <DatasetId>,
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>
 }
 */
 func (s *Service) PutDatasets_Codes_(args *cmdArgs, env *rpcutil.Env) (err error) {
@@ -740,8 +752,13 @@ GET /v1/datasets/<DatasetId>/codes
     {
 	"id" : <Id>,
 	"name" : <Name>,
-	"querys" : <Querys>,
-	"datasetId" : <DatasetId>,
+	"datasetId": <DatasetId>,
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>
 	},
     ...
     ]
@@ -772,10 +789,15 @@ GET /v1/datasets/<DatasetId>/codes/<Id>
 200 ok
 Content-Type: application/json
 {
-	"id" : <Id>,
+	"id": <Id>,
 	"name" : <Name>,
-	"querys" : <Querys>,
-	"datasetId" : <DatasetId>,
+	"datasetId": <DatasetId>,
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>
 }
 */
 
@@ -1240,14 +1262,11 @@ func (s *Service) GetLayouts_(args *cmdArgs, env *rpcutil.Env) (ret common.Layou
 }
 
 /*
-POST /v1/datas?type=<DataType>
-{
-	"querys" : <Querys>,
-	"datasetId" : <DatasetId>
-}
+POST /v1/datas?q=<CodeId>&type=<DataType>
 */
 
 func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
+	_codeId := env.Req.FormValue("codeId")
 	_dataType := strings.ToUpper(env.Req.FormValue("type"))
 	dataType := common.JSON
 	if _dataType != "" {
@@ -1260,31 +1279,25 @@ func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		return
 	}
 	var req common.Code
-	fmt.Println(string(_data))
-	if err = json.Unmarshal(_data, &req); err != nil {
-		err = ErrQueryDatas(err, UNMARSHAL_JSON_FAILED_MESSAGE)
-		return
-	}
-	return s.executor.Execute(data.QueryConfig{dataType, req})
-}
-
-/*
-GET /v1/datas?q=<CodeId>&type=<DataType>
-*/
-
-func (s *Service) GetDatas(env *rpcutil.Env) (ret interface{}, err error) {
-	_codeId := env.Req.FormValue("codeId")
-	_dataType := strings.ToUpper(env.Req.FormValue("type"))
-	dataType := common.JSON
-	if _dataType != "" {
-		dataType = common.ToDataFormatType(_dataType)
+	if len(_data) != 0 {
+		if err = json.Unmarshal(_data, &req); err != nil {
+			err = ErrQueryDatas(err, UNMARSHAL_JSON_FAILED_MESSAGE)
+			return
+		}
 	}
 
-	var req common.Code
-	if err = s.CodeColl.Find(M{"id": _codeId}).One(&req); err != nil {
-		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("codeId %s is not exist", _codeId))
-		return
+	var code common.Code
+	if _codeId != "" {
+		if err = s.CodeColl.Find(M{"id": _codeId}).One(&code); err != nil {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("codeId %s is not exist", _codeId))
+			return
+		}
+		if req.Wheres != nil && len(req.Wheres) != 0 {
+			code.Wheres = append(code.Wheres, req.Wheres...) //先只有Wheres语料要处理
+		}
+	} else {
+		code = req
 	}
 
-	return s.executor.Execute(data.QueryConfig{dataType, req})
+	return s.executor.Execute(data.QueryConfig{dataType, code})
 }

@@ -14,17 +14,15 @@ export default {
     code: {},
     chart: {},
     dataset: {},
-    addOns: {
-      // wheres: [{ field: 'wf1', operator: '=', data: '数据' }],
-      wheres: [],
-      havings: [],
-      // filters: [{ field: 'ff1', operator: '=', data: '数据' }],
-    },
+
+    wheres: [], // wheres: [{ field: 'wf1', operator: '=', data: '数据' }],
+    havings: [], // filters: [{ field: 'ff1', operator: '=', data: '数据' }],
     selectFields: [],
     metricFields: [],
     groupFields: [],
     timeField: '',
     rangeDatatime: '',
+
     operatorOptions: [{ name: 'NIN', alias: 'NOT IN' }, { name: 'IN', alias: 'IN' }, { name: 'EQ', alias: '=' },
       { name: 'NQ', alias: '<>' }, { name: 'GT', alias: '>' }, { name: 'LT', alias: '<' },
       { name: 'GE', alias: '>=' }, { name: 'LE', alias: '<=' }, { name: 'LIKE', alias: 'LIKE' }],
@@ -78,7 +76,7 @@ export default {
     *execute({
       payload,
     }, { call, put }) {
-      yield put({ type: 'initState', payload: { ...payload.querys } });
+      yield put({ type: 'initState', payload: { ...payload } });
       const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
       if (data.success) {
         yield put({

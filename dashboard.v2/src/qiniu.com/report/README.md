@@ -294,8 +294,13 @@ DELETE /v1/datasets/<Id>
 {
 	id			string
 	name		string
-	datasourceId	  string
-	querys 		map[string]interface{}
+	datasetId	  string
+	selectFields []Field
+	metricFields []Field
+	groupFields  []Field
+	timeField    Field
+	wheres       []Evaluation
+	havings      []Evaluation
 	createTime 	timestamp
 }
 ```
@@ -305,7 +310,12 @@ POST /v1/datasets/<DatasetId>/codes
 Content-Type: application/json
 {
 	"name" : <Name>,
-	"querys" : <Querys> 
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>
 }
 ```
 返回包：
@@ -315,8 +325,14 @@ Content-Type: application/json
 {
 	"id" : <Id>,
 	"name" : <Name>,
-	"querys" : <Querys>,
-	"datasetId" : <DatasetId>,
+	"datasetId": <DatasetId>,
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>,
+	"createTime": <CreateTime>
 }
 ```
 
@@ -326,7 +342,12 @@ PUT /v1/datasets/<DatasetId>/codes/<CodeId>
 Content-Type: application/json
 {
 	"name" : <Name>,
-	"querys" : <Querys> 
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>
 }
 ```
 返回包：
@@ -350,8 +371,14 @@ Content-Type: application/json
     {
 	"id" : <Id>,
 	"name" : <Name>,
-	"querys" : <Querys>,
-	"datasetId" : <DatasetId>,
+	"datasetId": <DatasetId>,
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>,
+	"createTime": <CreateTime>
 	},
     ...
     ]
@@ -365,8 +392,14 @@ Content-Type: application/json
 {
 	"id" : <Id>,
 	"name" : <Name>,
-	"querys" : <Querys>,
-	"datasetId" : <DatasetId>,
+	"datasetId": <DatasetId>,
+	"SelectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>,
+	"createTime": <CreateTime>
 }
 ```
 #### 删除code
@@ -465,7 +498,8 @@ Content-Type: application/json
 		"type": <Type>,
 		"name": <Name>,
 		"pre": <Pre>,
-		"subDir": <Null>
+		"subDir": <Null>,
+		"accessTime": <accessTime>
 	},
     {
 		"id": <Id>,
@@ -478,9 +512,11 @@ Content-Type: application/json
 			"type": <Type>,
 			"name": <Name>,
 			"pre": <Pre>,
-			"subDir": <Null>
+			"subDir": <Null>,
+			"accessTime": <accessTime>
 		}
-      ]
+		],
+		"accessTime": <accessTime>
     }
   ]
 }
@@ -583,12 +619,13 @@ Content-Type: application/json
 	"lines" : <Lines>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
+	"filters": <Filters>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
 }
 ```
-注：Lines, Xaxis和Yaxis为[]map[string]string类型，其值比如：[{name:'字段1',alais:'字段1别名'}]
+注：Filters, Xaxis和Yaxis为[]Field类型，其值比如：[{name:'字段1',alais:'字段1别名'}]
 返回包：
 
 ```
@@ -601,6 +638,7 @@ Content-Type: application/json
 	"lines" : <Lines>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
+	"filters": <Filters>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
@@ -618,6 +656,7 @@ Content-Type: application/json
 	"lines" : <Lines>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
+	"filters": <Filters>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
@@ -635,6 +674,7 @@ Content-Type: application/json
 	"lines" : <Lines>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
+	"filters": <Filters>,
 	"stack" : <True|False>,
 	"codeId" : <CodeId>,
 	"dirId" : <DirId>
@@ -659,6 +699,7 @@ Content-Type: application/json
         "lines" : <Lines>,
 	    "xaxis" : <Xaxis>,
 	    "yaxis" : <Yaxis>,
+		"filters": <Filters>,
 	    "stack" : <True|False>,
 	    "codeId" : <CodeId>,
 	    "dirId" : <DirId>
@@ -684,6 +725,7 @@ Content-Type: application/json
     "lines" : <Lines>,
     "xaxis" : <Xaxis>,
     "yaxis" : <Yaxis>,
+	"filters": <Filters>,
     "stack" : <True|False>,
     "codeId" : <CodeId>,
     "dirId" : <DirId>
@@ -750,12 +792,21 @@ Content-Type: application/json
 ```
 ### 数据查询接口
 ```
-GET /v1/datas?codeId=<CodeId>&type=<DataType>
+POST /v1/datas?codeId=<CodeId>&type=<DataType>
+{
+	"wheres": <Wheres>,
+}
+
 或者
 POST /v1/datas?type=<DataType>
 {
-	"querys" : <Querys>,
-	"datasetId" : <DatasetId>
+	"datasetId": <DatasetId>,
+	"selectFields": <SelectFields>,
+	"metricFields": <MetricFields>,
+	"groupFields": <GroupFields>,
+	"timeField": <TimeField>,
+	"wheres": <Wheres>,
+	"havings": <Havings>
 }
 ```
 

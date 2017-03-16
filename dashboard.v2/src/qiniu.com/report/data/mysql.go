@@ -63,6 +63,23 @@ func (m *MySQL) GenStorage() rest.Storage {
 	}
 }
 
+func (m *MySQL) getFieldTypeFromSourceType(src string) string {
+	numBerTypes := []string{"int", "tinyint", "smallint", "mediumint", "bigint", "float", "double", "decimal"}
+	stringTypes := []string{"text", "char", "varchar"}
+	tmp := strings.ToLower(src)
+	for _, v := range numBerTypes {
+		if strings.HasPrefix(tmp, v) {
+			return FIELD_TYPE_NUMBER
+		}
+	}
+	for _, v := range stringTypes {
+		if strings.HasPrefix(tmp, v) {
+			return FIELD_TYPE_STRING
+		}
+	}
+	return tmp
+}
+
 func (m *MySQL) Schema(tableName string) ([]map[string]string, error) {
 	ret := make([]map[string]string, 0)
 	conn, err := m.GetConn()
@@ -83,7 +100,7 @@ func (m *MySQL) Schema(tableName string) ([]map[string]string, error) {
 			continue
 		}
 		_ret["field"] = field
-		_ret["type"] = dtype
+		_ret["type"] = m.getFieldTypeFromSourceType(dtype)
 		ret = append(ret, _ret)
 	}
 	return ret, nil

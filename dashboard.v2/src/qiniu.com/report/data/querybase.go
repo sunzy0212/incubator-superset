@@ -28,7 +28,7 @@ func NewExecutor(colls *common.Collections, restUrls []string) *Executor {
 
 func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {
 	log.Debugf("Try get data from code:%#v", cfg.Code)
-	sql, err := e.dataSetManager.GenSqlFromCode(cfg.Code)
+	sql, err := e.dataSetManager.GenSqlFromCode(cfg)
 	if err != nil {
 		log.Error(err)
 		return
