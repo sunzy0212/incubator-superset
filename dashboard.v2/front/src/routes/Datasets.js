@@ -30,8 +30,8 @@ function Datasets({ dispatch, datasets }) {
         Object.assign(record),
       );
       dispatch({
-        type: 'datasets/exchangeElement',
-        payload: { cDimensions, cMeasures },
+        type: 'datasets/updateState',
+        payload: { dimensions: cDimensions, measures: cMeasures },
       });
     },
     transformToDate(record) {
@@ -45,8 +45,8 @@ function Datasets({ dispatch, datasets }) {
         }
       });
       dispatch({
-        type: 'datasets/transformType',
-        payload: { cDimensions },
+        type: 'datasets/updateState',
+        payload: { dimensions: cDimensions },
       });
     },
     transformToNumber(record) {
@@ -60,8 +60,8 @@ function Datasets({ dispatch, datasets }) {
         }
       });
       dispatch({
-        type: 'datasets/transformType',
-        payload: { cDimensions },
+        type: 'datasets/updateState',
+        payload: { dimensions: cDimensions },
       });
     },
   };
@@ -106,8 +106,8 @@ function Datasets({ dispatch, datasets }) {
         Object.assign(record),
       );
       dispatch({
-        type: 'datasets/exchangeElement',
-        payload: { cMeasures, cDimensions },
+        type: 'datasets/updateState',
+        payload: { measures: cMeasures, dimensions: cDimensions },
       });
     },
     checkAggregation(record, type) {
@@ -121,8 +121,8 @@ function Datasets({ dispatch, datasets }) {
         }
       });
       dispatch({
-        type: 'datasets/checkAggregation',
-        payload: { cMeasures },
+        type: 'datasets/updateState',
+        payload: { measures: cMeasures },
       });
     },
   };

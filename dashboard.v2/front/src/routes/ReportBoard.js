@@ -129,7 +129,7 @@ function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
       return (
         <ResponsiveReactGridLayout
           onLayoutChange={onLayoutChange} onBreakpointChange={onBreakpointChange}
-          layouts={cLayouts} cols={ponitsContainer.cols} rowHeight={410}
+          layouts={cLayouts} cols={ponitsContainer.cols} rowHeight={460}
         >
           {
             genViews(cChartList)
