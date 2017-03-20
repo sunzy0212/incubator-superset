@@ -105,10 +105,10 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 			}
 			timeFields = append(timeFields, evaluation)
 		}
-		if tmpWhereFields != nil || len(tmpWhereFields) == 0 {
+		if tmpWhereFields == nil || len(tmpWhereFields) == 0 {
 			sql += fmt.Sprintf(" WHERE %s ", strings.Join(timeFields, " AND "))
 		} else {
-			sql += fmt.Sprintf(" %s ", strings.Join(timeFields, " AND "))
+			sql += fmt.Sprintf(" AND %s ", strings.Join(timeFields, " AND "))
 		}
 
 	}
