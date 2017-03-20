@@ -313,7 +313,7 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeField": <TimeField>,
+	"timeFields": <TimeFields>,
 	"wheres": <Wheres>,
 	"havings": <Havings>
 }
@@ -329,7 +329,7 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeField": <TimeField>,
+	"timeFields": <TimeFields>,
 	"wheres": <Wheres>,
 	"havings": <Havings>,
 	"createTime": <CreateTime>
@@ -345,7 +345,7 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeField": <TimeField>,
+	"timeFields": <TimeFields>,
 	"wheres": <Wheres>,
 	"havings": <Havings>
 }

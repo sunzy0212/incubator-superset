@@ -147,6 +147,7 @@ type Field struct {
 	Type       string          `json:"type" bson:"type"`
 	Alias      string          `json:"alias" bson:"alias"`
 	Action     string          `json:"action" bson:"action"`
+	Transform  string          `json:"transform" bson:"transform"`
 }
 
 type Dimension struct {
@@ -213,7 +214,7 @@ type Code struct {
 	SelectFields []Field      `json:"selectFields" bson:"selectFields"`
 	MetricFields []Field      `json:"metricFields" bson:"metricFields"`
 	GroupFields  []Field      `json:"groupFields" bson:"groupFields"`
-	TimeField    Field        `json:"timeField" bson:"timeField"`
+	TimeFields   []Evaluation `json:"timeFields" bson:"timeFields"`
 	Wheres       []Evaluation `json:"wheres" bson:"wheres"`
 	Havings      []Evaluation `json:"havings" bson:"havings"`
 	CreateTime   string       `json:"createTime" bson:"createTime"`

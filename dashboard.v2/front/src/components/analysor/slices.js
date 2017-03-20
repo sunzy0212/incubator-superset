@@ -33,7 +33,7 @@ class Slices extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      allFields: [].concat(nextProps.dimensions).concat(nextProps.measures).concat(nextProps.times),
+      allFields: [].concat(nextProps.dimensions).concat(nextProps.measures),
       addOns_where: nextProps.wheres,
       addOns_having: nextProps.havings,
     });
@@ -77,13 +77,19 @@ class Slices extends React.Component {
           }
           return res;
         };
+        const getWhereDatas = (res, tField, rangeDate) => {
+          if (tField !== undefined && rangeDate !== undefined) {
+            res.push({ field: this.matchFields(this.state.allFields, [tField])[0], operator: 'GE', data: new Date(rangeDate[0]).valueOf().toString() });
+            res.push({ field: this.matchFields(this.state.allFields, [tField])[0], operator: 'LE', data: new Date(rangeDate[1]).valueOf().toString() });
+          }
+          return res;
+        };
 
         const querys = {
           selectFields: this.matchFields(this.state.allFields, selectFields),
           metricFields: this.matchFields(this.state.allFields, metricFields),
           groupFields: this.matchFields(this.state.allFields, groupFields),
-          timeField: this.matchFields(this.state.allFields, timeField)[0],
-          rangeDatatime,
+          timeFields: getWhereDatas([], timeField, rangeDatatime),
           wheres: getAddOnDatas(ADDONS_WHERE),
           havings: getAddOnDatas(ADDONS_HAVING),
         };
