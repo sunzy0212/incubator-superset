@@ -59,6 +59,7 @@ func (client *EmailClient) Send() error {
 
 	} else {
 		auth = nil
+		return
 	}
 
 	subject := client.Subject + "\n"

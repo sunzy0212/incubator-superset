@@ -840,6 +840,68 @@ Content-Type: application/json
 
 + `type`为数据类型 可选`json`,`csv`,`excel`
 
+
+#### 创建模板
+```
+POST /v1/templates
+{
+	"name":<Name>,
+	"cronId":<JobId>,
+	"reportId": <ReportId>
+}
+```
+返回包
+
+```
+200 OK
+Content-Type: application/json
+{
+	"id":<Id>,
+	"name":<Name>,
+	"cronId":<JobId>,
+	"reportId": <ReportId>,
+	"createTime": <CreateTime>,
+	"updateTIme": <UpdateTIme>,
+}
+```
+
+#### 修改模板
+```
+POST /v1/templates/<tempId>
+{
+	"name":<Name>,
+	"cronId":<JobId>,
+	"reportId": <ReportId>
+}
+```
+返回包
+
+```
+200 OK
+Content-Type: application/json
+{
+	"id":<Id>,
+	"name":<Name>,
+	"cronId":<JobId>,
+	"reportId": <ReportId>,
+	"createTime": <CreateTime>,
+	"updateTIme": <UpdateTIme>,
+}
+```
+
+#### 删除模板
+请求包
+
+```
+DELETE /v1/templates/<tempId>
+```
+返回包
+
+```
+200 OK
+```
+
+
 #### 设置一个crontab task
 ```
 POST /v1/templates/<tempId>/crons
