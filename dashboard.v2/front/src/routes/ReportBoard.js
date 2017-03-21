@@ -102,6 +102,7 @@ function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
   };
 
   const viewProps = {
+    status,
     currentLayouts,
     report,
     getChartData(chartId) {

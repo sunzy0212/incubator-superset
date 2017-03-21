@@ -1,9 +1,10 @@
 import React, { PropTypes } from 'react';
 import { Table, Menu, Dropdown, Icon } from 'antd';
+import TransformDate from './transformDate';
 
 const SubMenu = Menu.SubMenu;
-const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transformToDate,
-  transformToNumber, checkAggregation, records }) => {
+const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transformToDate, transformDateVisible, onCancelCreate,
+  transformToNumber, checkAggregation, records, currentRecord, onCreateOk }) => {
   function genDropMenu(record) {
     const dimensionMenu = (
       <Menu style={{ width: 130 }} mode="vertical">
@@ -67,24 +68,38 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
         </a>
       </Dropdown >);
   }
+
+  function genItem(text, record) {
+    const time = (
+      <span>
+        <Icon type="calendar" /> {record.name}
+      </span>
+        );
+    const str = (
+      <span>
+        <Icon type="file-text" /> {record.name}
+      </span>
+    );
+    const number = (
+      <span>
+        <Icon type="calculator" /> {record.name}
+      </span>
+    );
+    if (record.item.type === 'timestamp') {
+      return time;
+    } else if (record.item.type === 'string') {
+      return str;
+    } else {
+      return number;
+    }
+  }
   const columns = [
     {
       title,
       dataIndex: 'name',
       key: 'name',
       width: 120,
-      render: (text, record) => (
-        record.item.type === 'timestamp' ?
-        (
-          <span>
-            <Icon type="calendar" /> {record.name}
-          </span>
-        ) : (
-          <span>
-            {record.name}
-          </span>
-        )
-      ),
+      render: (text, record) => genItem(text, record),
     },
     {
       title: '',
@@ -104,11 +119,23 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
     });
   });
 
+  const props = {
+    transformDateVisible,
+    onCancelCreate,
+    currentRecord,
+    onCreateOk,
+  }
+
+  console.log(transformDateVisible);
+
   function rowClick(record, index) {
     console.log(record, index);
   }
   return (
     <div>
+      <div>
+        <TransformDate {...props} />
+      </div>
       <Table
         columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
         onRowClick={rowClick}
@@ -123,5 +150,9 @@ FieldHolder.propTypes = {
   transToMeasure: PropTypes.func,
   checkAggregation: PropTypes.func,
   records: PropTypes.array,
+  transformDateVisible: PropTypes.bool,
+  onCancelCreate: PropTypes.func,
+  onCreateOk: PropTypes.func,
+  currentRecord: PropTypes.object,
 };
 export default FieldHolder;

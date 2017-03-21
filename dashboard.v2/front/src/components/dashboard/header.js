@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import { Button, Form, Input, Row, Col, Icon } from 'antd';
+import { Button, Form, Input, Row, Col, Icon, DatePicker } from 'antd';
 import ReportDeleteModal from './deleteReport';
 
 const FormItem = Form.Item;
 const MODE_READ = 'read';
 const MODE_ALTER = 'alter';
+const { RangePicker } = DatePicker;
 const Header = ({
   status,
   titleStatus,
@@ -49,9 +50,13 @@ const Header = ({
     saveChartToReport(report.id, layouts);
   }
 
+  function onChangeDateRange(item) {
+    console.log(item);
+  }
+
   return (
     <Row gutter={24}>
-      <Col lg={12} md={12}>
+      <Col lg={8} md={8}>
         <Input.Group compact>
           <Col lg={2} md={2}>
             {status === MODE_READ ? <Icon type="lock" />
@@ -98,11 +103,14 @@ const Header = ({
       <Col lg={1} md={1} >
         <span className="ant-divider" />
       </Col>
-      <Col lg={8} md={8} offset={2}>
+      <Col lg={6} md={6} offset={2}>
         {status === MODE_READ ? <Button type="ghost" icon="reload">刷新</Button>
           : <Button type="ghost" icon="save" onClick={onSave}>保存</Button>}
         <Button type="ghost" onClick={openModal} icon="delete">删除</Button>
         <Button type="ghost" icon="rocket">导出</Button>
+      </Col>
+      <Col lg={4} md={4}>
+        <RangePicker showTime onOk={onChangeDateRange} format="YYYY-MM-DD" />
       </Col>
       < ReportDeleteModal {...props} />
     </Row>
