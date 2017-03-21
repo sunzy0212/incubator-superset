@@ -60,6 +60,14 @@ var (
 		return httputil.NewError(400, fmt.Sprintf("E4206: Post Layout Failed : %s", err.Error()))
 	}
 
+	ErrPostTemplate = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4501: Post Template Failed : %s", err.Error()))
+	}
+
+	ErrPostCronTask = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4601: Post CronTask Failed : %s", err.Error()))
+	}
+
 	ErrNONEXISTENT_MESSAGE = func(err error, mgs interface{}) *httputil.ErrorInfo {
 		return httputil.NewError(404, fmt.Sprintf("E4301: %v", mgs))
 	}

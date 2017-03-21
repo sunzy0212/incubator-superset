@@ -87,6 +87,10 @@ func main() {
 		cfg.M.DB = os.Getenv("MONGO_DB")
 	}
 
+	if os.Getenv("DRILL_HOST") != "" {
+		cfg.Drill.Urls = []string{os.Getenv("DRILL_HOST")}
+	}
+
 	log.SetOutputLevel(cfg.S.DebugLevel)
 	if cfg.S.MaxProcs > runtime.NumCPU() || cfg.S.MaxProcs <= 0 {
 		runtime.GOMAXPROCS(runtime.NumCPU()/2 + 1)

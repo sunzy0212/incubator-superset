@@ -57,7 +57,11 @@ export async function deleteChart(params) {
 export async function saveReport(params) {
   return request(`/v1/reports/${params.reportId}`, {
     method: 'put',
-    body: JSON.stringify({ dirId: params.dirId, name: params.name }),
+    body: JSON.stringify({
+      dirId: params.dirId,
+      name: params.name,
+      isTemplate: params.isTemplate || false,
+    }),
   });
 }
 
@@ -83,6 +87,7 @@ export async function addReport(params) {
     body: JSON.stringify({
       dirId: params.dirId,
       name: params.name,
+      isTemplate: params.isTemplate || false,
     }),
   });
 }
