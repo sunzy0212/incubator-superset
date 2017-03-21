@@ -12,13 +12,14 @@ import (
 
 	"github.com/qiniu/errors"
 	"github.com/qiniu/http/rpcutil.v1"
-	"github.com/qiniu/log.v1"
+	"qiniupkg.com/x/log.v7"
 
 	"qiniu.com/report/common"
 	"qiniu.com/report/common/db"
 	. "qiniu.com/report/common/errors"
 	"qiniu.com/report/data"
 	"qiniu.com/report/rest"
+	"qiniu.com/report/sched"
 )
 
 type M map[string]interface{}
@@ -42,6 +43,7 @@ type Service struct {
 	client            rest.Client
 	dataSourceManager *data.DataSourceManager
 	executor          *data.Executor
+	scheduler         *sched.Scheduler
 }
 
 func NewService(coll common.Collections, restUrls []string) (s *Service, err error) {
@@ -51,6 +53,7 @@ func NewService(coll common.Collections, restUrls []string) (s *Service, err err
 		client:            rest.NewDrillClient(restUrls),
 		dataSourceManager: data.NewDataSourceManager(),
 		executor:          data.NewExecutor(&coll, restUrls),
+		scheduler:         sched.NewScheduler(),
 		//Config:      cfg,
 	}
 	return s, nil
@@ -851,14 +854,25 @@ func (s *Service) PostReports(env *rpcutil.Env) (ret common.Report, err error) {
 		err = ErrorPostReport(err)
 		return
 	}
-	var b bool
-	if b, err = db.IsExist(s.ReportColl, M{"name": req.Name, "dirId": req.DirId}); err != nil {
-		err = errors.Info(ErrInternalError, err)
+	if req.Name == "" {
+		err = ErrorPostReport(fmt.Errorf("the report name '%s' is null", req.Name))
 		return
 	}
-	if b {
-		err = ErrorPostReport(fmt.Errorf("the report name '%s' is already exist", req.Name))
-		return
+
+	if req.IsTemplate == false {
+		if req.DirId == "" {
+			err = ErrorPostReport(fmt.Errorf("the report's dirId '%s' is null", req.DirId))
+			return
+		}
+		var b bool
+		if b, err = db.IsExist(s.ReportColl, M{"name": req.Name, "dirId": req.DirId}); err != nil {
+			err = errors.Info(ErrInternalError, err)
+			return
+		}
+		if b {
+			err = ErrorPostReport(fmt.Errorf("the report name '%s' is already exist", req.Name))
+			return
+		}
 	}
 
 	if req.Id, err = common.GenId(); err != nil {
@@ -932,12 +946,19 @@ func (s *Service) PutReports_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 
-	updateDoc["createTime"] = common.GetCurrTime()
-
+	updateDoc["updateTime"] = common.GetCurrTime()
 	if err = db.DoUpdate(s.ReportColl, M{"id": id}, M{"$set": updateDoc}); err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
+
+	if req.IsTemplate == true {
+		if err = db.DoUpdate(s.TemplateColl, M{"reportId": id}, M{"$set": updateDoc}); err != nil {
+			err = errors.Info(ErrInternalError, err)
+			return
+		}
+	}
+
 	log.Infof("success to update report %s: %+v", id, updateDoc)
 	return
 }
@@ -1300,4 +1321,197 @@ func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
 	}
 
 	return s.executor.Execute(data.QueryConfig{dataType, code})
+}
+
+func (s *Service) PostTemplates(env *rpcutil.Env) (ret common.Template, err error) {
+	var data []byte
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.Template
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = errors.Info(ErrInternalError, MARSHAL_JSON_FAILED_MESSAGE).Detail(err)
+		return
+	}
+
+	if req.Id, err = common.GenId(); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	req.Id = fmt.Sprintf("template_%s", req.Id)
+	req.CreateTime = common.GetCurrTime()
+	req.UpdateTime = common.GetCurrTime()
+
+	if err = db.DoInsert(s.TemplateColl, req); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+
+	ret = req
+	log.Infof("success to insert template: %+v", req)
+	return
+}
+
+func (s *Service) PutTemplates_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	var data []byte
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var req common.Template
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrPostTemplate(err)
+		return
+	}
+
+	updateDoc := M{}
+	if req.Name != "" {
+		updateDoc["name"] = req.Name
+	}
+
+	if len(updateDoc) == 0 {
+		err = ErrPostTemplate(fmt.Errorf("at least one parameter when update the template, but get  ", req))
+		return
+	}
+
+	updateDoc["updateTime"] = common.GetCurrTime()
+	if err = db.DoUpdate(s.TemplateColl, M{"id": id}, M{"$set": updateDoc}); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	log.Infof("success to update template %s: %+v", id, updateDoc)
+	return
+}
+
+type RetTemplates struct {
+	Templates []common.Template `json:"templates"`
+}
+
+func (s *Service) GetTemplates(args *cmdArgs, env *rpcutil.Env) (ret RetTemplates, err error) {
+	res := make([]common.Template, 0)
+	if err = s.TemplateColl.Find(M{}).Sort("-updateTime").All(&res); err != nil {
+		if err == mgo.ErrNotFound {
+			err = nil
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+
+	for i, v := range res {
+		var c common.Crontab
+		if err = s.CrontabColl.Find(M{"id": v.CronId}).One(&c); err != nil {
+			log.Errorf("error while fetch crontab for template %s, err ~ $v ", v.Id, err)
+			err = nil
+			continue
+		}
+		res[i].Crontab = c
+	}
+
+	ret.Templates = res
+	log.Infof("success to get templates %v", ret)
+	return
+}
+
+/*
+DELETE /v1/templates/<TemplateId>
+*/
+func (s *Service) DeleteTemplates_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	id := args.CmdArgs[0]
+	var temp common.Template
+	if err = s.TemplateColl.Find(M{"id": id}).One(&temp); err != nil {
+		err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("template %s is not exist", id))
+		return
+	}
+
+	err = s.DeleteReports_(&cmdArgs{[]string{temp.ReportId}}, env)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	if err = db.DoDelete(s.TemplateColl, M{"id": id}); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to delete template %s", id)
+	return
+}
+
+func (s *Service) PostTemplates_Crons(args *cmdArgs, env *rpcutil.Env) (ret interface{}, err error) {
+	tempId := args.CmdArgs[0]
+	var _data []byte
+	if _data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+	var crontab common.Crontab
+	if len(_data) != 0 {
+		if err = json.Unmarshal(_data, &crontab); err != nil {
+			err = ErrPostCronTask(err)
+			return
+		}
+	}
+	if crontab.Id != "" {
+		var c common.Crontab
+		if err = s.CrontabColl.Find(M{"id": crontab.Id}).One(&c); err != nil {
+			err = ErrPostCronTask(err)
+			return
+		}
+		s.scheduler.RemoveJob(c.JobId)
+	} else {
+		crontab.CreateTime = common.GetCurrTime()
+	}
+	var job sched.Job
+	if job, err = sched.Get(crontab); err != nil {
+		err = ErrPostCronTask(err)
+		return
+	}
+
+	if crontab.JobId, err = s.scheduler.AddJob(job); err != nil {
+		err = ErrPostCronTask(err)
+		return
+	}
+
+	if crontab.Id, err = common.GenId(); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	crontab.Id = fmt.Sprintf("cron_%s", crontab.Id)
+	crontab.UpdateTime = common.GetCurrTime()
+	if err = db.DoUpsert(s.CrontabColl, M{"id": crontab.Id}, crontab); err != nil {
+		err = ErrPostCronTask(err)
+		return
+	}
+	updateDoc := M{"cronId": crontab.Id}
+	if err = db.DoUpdate(s.TemplateColl, M{"id": tempId}, M{"$set": updateDoc}); err != nil {
+		err = ErrPostCronTask(err)
+		return
+	}
+	return
+}
+
+func (s *Service) DeleteTemplates_Crons_(args *cmdArgs, env *rpcutil.Env) (err error) {
+	tempId := args.CmdArgs[0]
+	cronId := args.CmdArgs[1]
+	var c common.Crontab
+	if err = s.CrontabColl.Find(M{"id": cronId}).One(&c); err != nil {
+		err = ErrPostCronTask(err)
+		return
+	}
+	s.scheduler.RemoveJob(c.JobId)
+	if err = db.DoDelete(s.CrontabColl, M{"id": c.Id}); err != nil {
+		return fmt.Errorf("failed to delete crontab job %s , try again", c.Name)
+	}
+	updateDoc := M{"cronId": ""}
+	if err = db.DoUpdate(s.TemplateColl, M{"id": tempId}, M{"$set": updateDoc}); err != nil {
+		err = ErrPostCronTask(err)
+		return
+	}
+
+	return
 }

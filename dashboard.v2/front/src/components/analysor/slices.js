@@ -249,6 +249,22 @@ class Slices extends React.Component {
               )}
             </FormItem>
 
+          </Panel>
+          <Panel header="条件(Where)" key="3" style={customPanelStyle}>
+            <p icon="info">Where&nbsp;
+              <Tooltip title="WHERE 语句"><Icon type="info-circle" />
+              </Tooltip>
+            </p>
+            {this.genFilter('where', addOns_where, dimensions, operatorOptions)}
+
+            <Button
+              type="dashed" size="large" icon="plus" style={{ width: '100%' }}
+              onClick={() => this.addAddOns(ADDONS_WHERE)}
+            />
+          </Panel>
+
+          <Panel header="分组筛选(GroupBy/Having)" key="4" style={customPanelStyle}>
+
             <p icon="info">GroupBy&nbsp;
               <Tooltip title="GROUP BY 语句"><Icon type="info-circle" />
               </Tooltip>
@@ -269,21 +285,6 @@ class Slices extends React.Component {
               )}
             </FormItem>
 
-          </Panel>
-          <Panel header="条件(Where)" key="3" style={customPanelStyle}>
-            <p icon="info">Where&nbsp;
-              <Tooltip title="WHERE 语句"><Icon type="info-circle" />
-              </Tooltip>
-            </p>
-            {this.genFilter('where', addOns_where, dimensions, operatorOptions)}
-
-            <Button
-              type="dashed" size="large" icon="plus" style={{ width: '100%' }}
-              onClick={() => this.addAddOns(ADDONS_WHERE)}
-            />
-          </Panel>
-
-          <Panel header="分组筛选(Having)" key="4" style={customPanelStyle}>
             <p icon="info">Having&nbsp;
               <Tooltip title="Having 语句"><Icon type="info-circle" />
               </Tooltip>

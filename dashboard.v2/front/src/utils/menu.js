@@ -15,8 +15,15 @@ module.exports = [
     icon: 'desktop',
   },
   {
-    key: 'analysor',
-    name: '分析器',
-    icon: 'solution',
+    key: 'operator',
+    name: '总控中心',
+    icon: 'setting',
+    child: [
+      {
+        key: 'template',
+        name: '模板引擎',
+        icon: 'solution',
+      },
+    ],
   },
 ];

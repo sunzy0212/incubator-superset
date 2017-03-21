@@ -12,8 +12,6 @@ var OP = map[string]string{
 	"LIKE": "like",
 }
 
-type SourceType int32
-
 const (
 	FIELD_TYPE_STRING    = "string"
 	FIELD_TYPE_NUMBER    = "number"

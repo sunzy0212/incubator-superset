@@ -39,7 +39,8 @@ function Aside({ siderFold, darkTheme, location, changeTheme }) {
         {siderFold ? '' : <span>{config.logoText}</span>}
       </div>
       <Menu
-        mode={siderFold ? 'vertical' : 'inline'}
+        // mode={siderFold ? 'vertical' : 'inline'}
+        mode="vertical"
         theme={darkTheme ? 'dark' : 'light'}
         defaultSelectedKeys={[location.pathname.split('/')[location.pathname.split('/').length - 1] || 'dashboard']}
       >

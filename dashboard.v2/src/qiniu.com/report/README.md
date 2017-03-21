@@ -840,3 +840,45 @@ Content-Type: application/json
 
 + `type`为数据类型 可选`json`,`csv`,`excel`
 
+#### 设置一个crontab task
+```
+POST /v1/templates/<tempId>/crons
+{
+	"id":<Id>,
+	"name":<Name>,
+	"type":<Type>,
+	"cron":<Cron>,
+	"jobId":<JobId>,
+	"spec":<Spec>,
+	"desc":<Desc>
+}
+```
+返回包
+
+```
+200 OK
+Content-Type: application/json
+{
+	"id":<Id>,
+	"name":<Name>,
+	"type":<Type>,
+	"cron":<Cron>,
+	"jobId":<JobId>,
+	"spec":<Spec>,
+	"desc":<Desc>,
+	"createTime":<CreateTime>,
+	"updateTime":<UpdateTime>
+}
+```
+
+#### 删除Crontab
+请求包
+
+```
+DELETE /v1/templates/<tempId>/crons/<Id>
+```
+返回包
+
+```
+200 OK
+```

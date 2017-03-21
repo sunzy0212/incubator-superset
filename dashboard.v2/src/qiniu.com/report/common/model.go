@@ -102,6 +102,8 @@ type Collections struct {
 	ReportColl     mgoutil.Collection `coll:"report"`
 	ChartColl      mgoutil.Collection `coll:"chart"`
 	LayoutColl     mgoutil.Collection `coll:"layout"`
+	CrontabColl    mgoutil.Collection `coll:"crontab"`
+	TemplateColl   mgoutil.Collection `coll:"template"`
 }
 
 /*
@@ -230,7 +232,18 @@ type Report struct {
 	Id         string `json:"id" bson:"id"`
 	DirId      string `json:"dirId" bson:"dirId"`
 	Name       string `json:"name" bson:"name"`
+	IsTemplate bool   `json:"isTemplate" bson:"isTemplate"`
 	CreateTime string `json:"createTime" bson:"createTime"`
+}
+
+type Template struct {
+	Id         string  `json:"id" bson:"id"`
+	Name       string  `json:"name" bson:"name"`
+	Crontab    Crontab `json:"crontab" bson:"-"`
+	CronId     string  `json:"cronId" bson:"cronId"`
+	ReportId   string  `json:"reportId" bson:"reportId"`
+	CreateTime string  `json:"createTime" bson:"createTime"`
+	UpdateTime string  `json:"updateTime" bson:"updateTime"`
 }
 
 /*
@@ -266,6 +279,18 @@ type Chart struct {
 type Layout struct {
 	ReportId string                   `json:"reportId" bson:"reportId"`
 	Layouts  []map[string]interface{} `json:"layouts" bson:"layouts"`
+}
+
+type Crontab struct {
+	Id         string                 `json:"id" bson:"id"`
+	Name       string                 `json:"name" bson:"name"`
+	Type       string                 `json:"type" bson:"type"`
+	Cron       string                 `json:"cron" bson:"cron"`
+	JobId      int                    `json:"jobId" bson:"jobId"`
+	Spec       map[string]interface{} `json:"spec" bson:"spec"`
+	Desc       string                 `json:"desc" bson:"desc"`
+	CreateTime string                 `json:"createTime" bson:"createTime"`
+	UpdateTime string                 `json:"updateTime" bson:"updateTime"`
 }
 
 func (db *Collections) EnsureIndex() {

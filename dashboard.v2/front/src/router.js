@@ -1,6 +1,8 @@
 import React from 'react';
 import { Router } from 'dva/router';
 
+import Operator from "./routes/Operator.js";
+
 const cached = {};
 function registerModel(app, model) {
   if (!cached[model.namespace]) {
@@ -116,6 +118,17 @@ function RouterConfig({ history, app }) {
       },
 
       {
+        path: '/reportboard/:id',
+        name: 'singleReportboard',
+        getComponent(nextState, cb) {
+          require.ensure([], (require) => {
+            registerModel(app, require('./models/dashboard/reportboard'));
+            cb(null, require('./routes/ReportBoard'));
+          });
+        },
+      },
+
+      {
         path: '/analysor',
         name: 'analysor',
         getComponent(nextState, cb) {
@@ -136,6 +149,29 @@ function RouterConfig({ history, app }) {
           },
         ],
       },
+
+
+      {
+        path: '/operator',
+        name: 'operator',
+        getComponent(nextState, cb) {
+          require.ensure([], (require) => {
+            registerModel(app, require('./models/operator'));
+            cb(null, require('./routes/Operator'));
+          });
+        },
+        childRoutes: [
+          {
+            path: 'template',
+            getComponent(nextState, cb) {
+              require.ensure([], (require) => {
+                cb(null, require('./components/operator/template'));
+              });
+            },
+          },
+        ],
+      },
+
     ],
   };
 
