@@ -19,6 +19,7 @@ const Header = ({
   deleteReport,
   currentLayouts,
   saveChartToReport,
+  refreshChart,
   form: {
     getFieldDecorator,
     validateFields,
@@ -51,7 +52,8 @@ const Header = ({
   }
 
   function onChangeDateRange(item) {
-    console.log(item);
+    console.log(item[0].valueOf());
+    refreshChart(item[0].valueOf(),item[1].valueOf())
   }
 
   return (
@@ -122,6 +124,7 @@ Header.propTypes = {
   deleteReport: PropTypes.func,
   openModal: PropTypes.func,
   saveChartToReport: PropTypes.func,
+  refreshChart: PropTypes.func,
 };
 
 export default Form.create()(Header);

@@ -10,7 +10,7 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 
 function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
-  const { status, titleStatus, loading, report, layouts, addChartId,
+  const { status, titleStatus, loading, report, layouts, addChartId, timeRange,
     ponitsContainer } = reportboard;
   const { deleteModalVisible } = dashboard;
   const currentLayouts = { lg: [] };
@@ -99,12 +99,22 @@ function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
         type: 'reportboard/hideModal',
       });
     },
+    refreshChart(start, end) {
+      console.log(start);
+      dispatch({
+        type: 'reportboard/refreshChart',
+        payload: {
+          timeRange: { start, end },
+        },
+      });
+    },
   };
-
+  console.log(timeRange);
   const viewProps = {
     status,
     currentLayouts,
     report,
+    timeRange,
     getChartData(chartId) {
       dispatch({
         type: 'reportboard/getChartData',

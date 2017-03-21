@@ -15,6 +15,7 @@ export default {
     modalVisible: false,
     report: {},
     layouts: {},
+    timeRange: { start: '', end: '' },
     ponitsContainer: { breakpoints: { lg: 996, md: 768, sm: 500, xs: 200, xxs: 0 },
       cols: { lg: 12, md: 12, sm: 12, xs: 12, xxs: 12 } },
   },
@@ -198,6 +199,12 @@ export default {
       return {
         ...state,
         layouts: action.payload.layouts,
+      };
+    },
+    refreshChart(state, action) {
+      return {
+        ...state,
+        ...action.payload,
       };
     },
 

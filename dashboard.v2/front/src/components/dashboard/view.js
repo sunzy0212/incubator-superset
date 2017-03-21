@@ -7,7 +7,6 @@ import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
 import SelectComponent from './selectComponent';
 const MODE_READ = 'read';
-const MODE_ALTER = 'alter';
 class View extends React.Component {
 
   constructor(props) {
@@ -18,10 +17,28 @@ class View extends React.Component {
       wheres: [],
       initFlag: false,
     };
-    const { chartId } = props;
+    const { chartId, timeRange } = props;
     if (this.state.initFlag === false) {
       this.getChartData(chartId);
       this.state.initFlag = true;
+    }
+    console.log(timeRange);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log(this.state.initFlag);
+    console.log(nextProps.timeRange);
+    let timeFields = [];
+    if (this.state.initFlag === true && this.state.chartData.codeId !== undefined) {
+      timeFields = [{
+        operator: 'LT',
+        data: nextProps.timeRange.end.toString(),
+      }, {
+        operator: 'GT',
+        data: nextProps.timeRange.start.toString(),
+      }];
+      this.getCodeData(this.state.chartData.codeId,
+        this.state.chartData.type, this.state.wheres, timeFields);
     }
   }
 
@@ -37,20 +54,21 @@ class View extends React.Component {
         that.setState({
           chartData: data,
         });
-        that.getCodeData(data.codeId, data.type, null);
+        that.getCodeData(data.codeId, data.type, [], null);
       },
       (jqXHR, textStatus, errorThrown) => {
         console.log('reject', textStatus, jqXHR, errorThrown);
       });
   }
 
-  getCodeData(codeId, _type, wheres) {
+  getCodeData(codeId, _type, wheres, timeFields) {
     const that = this;
+    console.log(timeFields);
     $.ajax({
       url: `/v1/datas?codeId=${codeId}&type=${_type}`,
       type: 'post',
       dataType: 'JSON',
-      data: JSON.stringify({ wheres }),
+      data: JSON.stringify({ wheres, timeFields }),
       contentType: 'application/json; charset=utf-8',
     }).then(
       (_data) => {
@@ -128,7 +146,8 @@ class View extends React.Component {
       }
     }
     this.state.wheres = currentWheres;
-    this.getCodeData(this.state.chartData.codeId, this.state.chartData.type, this.state.wheres);
+    this.getCodeData(this.state.chartData.codeId,
+      this.state.chartData.type, this.state.wheres, null);
   }
 
   isFlip(type) {
@@ -206,6 +225,7 @@ View.propTypes = {
   removeChart: PropTypes.func,
   currentLayouts: PropTypes.object,
   status: PropTypes.string,
+  timeRange: PropTypes.object,
 };
 
 export default View;
