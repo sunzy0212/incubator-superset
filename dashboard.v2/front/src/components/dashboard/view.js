@@ -6,7 +6,8 @@ import { Row, Col, Icon, Spin } from 'antd';
 import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
 import SelectComponent from './selectComponent';
-
+const MODE_READ = 'read';
+const MODE_ALTER = 'alter';
 class View extends React.Component {
 
   constructor(props) {
@@ -156,8 +157,8 @@ class View extends React.Component {
                 <a><Icon type="download" /></a>
                 <span className="ant-divider" />
                 <a><Icon type="reload" /></a>
-                <span className="ant-divider" />
-                <a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a>
+                {this.props.status === MODE_READ ? ''
+                  : <span><span className="ant-divider" /><a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a></span>}
               </div>
             </Col>
           </Row>
@@ -204,6 +205,7 @@ View.propTypes = {
   chartId: PropTypes.string,
   removeChart: PropTypes.func,
   currentLayouts: PropTypes.object,
+  status: PropTypes.string,
 };
 
 export default View;

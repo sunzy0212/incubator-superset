@@ -66,6 +66,7 @@ func (m *MySQL) GenStorage() rest.Storage {
 func (m *MySQL) getFieldTypeFromSourceType(src string) string {
 	numBerTypes := []string{"int", "tinyint", "smallint", "mediumint", "bigint", "float", "double", "decimal"}
 	stringTypes := []string{"text", "char", "varchar"}
+	dateTypes := []string{"date"}
 	tmp := strings.ToLower(src)
 	for _, v := range numBerTypes {
 		if strings.HasPrefix(tmp, v) {
@@ -75,6 +76,11 @@ func (m *MySQL) getFieldTypeFromSourceType(src string) string {
 	for _, v := range stringTypes {
 		if strings.HasPrefix(tmp, v) {
 			return FIELD_TYPE_STRING
+		}
+	}
+	for _, v := range dateTypes {
+		if strings.HasPrefix(tmp, v) {
+			return FIELD_TYPE_TIMESTAMP
 		}
 	}
 	return tmp

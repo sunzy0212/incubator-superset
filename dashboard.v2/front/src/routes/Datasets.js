@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'dva';
 import { Layout, Row, Col, Tabs, Table } from 'antd';
-import FieldHolder from '../components/datasets/filedsHolder';
+import FieldHolder from '../components/datasets/fieldsHolder';
 import TableEditor from '../components/datasets/tableEditor';
 import RenameModal from '../components/datasets/renameModal';
 
@@ -9,13 +9,14 @@ const { Sider, Content } = Layout;
 const TabPane = Tabs.TabPane;
 
 function Datasets({ dispatch, datasets }) {
-  const { loading, dimensions, measures, renameModalVisibles, currentRecord,
-    modalSpace, datasourceList, tableTreeVisibles, tables, tableData, currentDatasetId } = datasets;
+  const { loading, dimensions, measures, renameModalVisibles, currentRecord, transformDateVisible,
+    modalSpace, datasourceList, tableTreeVisibles, tables, tableData, currentDatasetId, times, currentDatasetName } = datasets;
 
   const dimensionsProps = {
     title: '维度',
     records: dimensions,
     renameModalVisibles,
+    transformDateVisible,
     currentRecord,
     onEditor(data, title) {
       dispatch({
@@ -35,18 +36,9 @@ function Datasets({ dispatch, datasets }) {
       });
     },
     transformToDate(record) {
-      const cDimensions = [];
-      dimensions.forEach((ele, j) => {
-        cDimensions.push(
-          Object.assign(ele),
-        );
-        if (ele.name === record.item.name) {
-          cDimensions[j].type = 'timestamp';
-        }
-      });
       dispatch({
-        type: 'datasets/updateState',
-        payload: { dimensions: cDimensions },
+        type: 'datasets/showTransformDate',
+        payload: { record },
       });
     },
     transformToNumber(record) {
@@ -62,6 +54,38 @@ function Datasets({ dispatch, datasets }) {
       dispatch({
         type: 'datasets/updateState',
         payload: { dimensions: cDimensions },
+      });
+    },
+    onCancelCreate() {
+      dispatch({
+        type: 'datasets/hideTransformDate',
+      });
+    },
+    onCreateOk(data) {
+      const cDimensions = [];
+      const cTimes = Object.assign(times);
+      let timeItem = {};
+      dimensions.forEach((ele, j) => {
+        cDimensions.push(
+          Object.assign(ele),
+        );
+        if (ele.name === data.currentRecord.item.name) {
+          cDimensions[j].type = 'timestamp';
+          cDimensions[j].transform = '2006-01-02';
+          timeItem = cDimensions[j];
+        }
+      });
+      if (cTimes.length === 0) {
+        cTimes.push(timeItem);
+      }
+      cTimes.forEach((ele) => {
+        if (ele.name !== data.currentRecord.item.name) {
+          cTimes.push(timeItem);
+        }
+      });
+      dispatch({
+        type: 'datasets/saveTransformDate',
+        payload: { dimensions: cDimensions, times: cTimes },
       });
     },
   };
@@ -81,7 +105,6 @@ function Datasets({ dispatch, datasets }) {
       sortedInfo: sorter,
     });
   }
-
 
   const measuresProps = {
     title: '度量',
@@ -155,6 +178,7 @@ function Datasets({ dispatch, datasets }) {
     tableTreeVisibles,
     tables,
     tableData,
+    currentDatasetName,
     save(data) {
       dispatch({
         type: 'datasets/saveOrUpdate',

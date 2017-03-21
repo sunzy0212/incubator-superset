@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
 import { Form, Button, Input } from 'antd';
-import TableTreeModal from './tableTreeModal'
+import TableTreeModal from './tableTreeModal';
 
 const FormItem = Form.Item;
 
-const TableEditor = ({ save, loadTableTree, datasourceList, tableTreeVisibles,
+const TableEditor = ({ save, loadTableTree, datasourceList, tableTreeVisibles, currentDatasetName,
   getTableData, tables, onCancelLoad, onLoadOk, loadTableData, form: {
   getFieldDecorator,
   validateFields,
@@ -40,7 +40,7 @@ const TableEditor = ({ save, loadTableTree, datasourceList, tableTreeVisibles,
       <Form inline onSubmit={handleSubmit}>
         <FormItem label="名称：" {...formItemLayout}>
           {getFieldDecorator('name', {
-            initialValue: '',
+            initialValue: currentDatasetName,
             rules: [
               {
                 required: true,
@@ -71,6 +71,7 @@ TableEditor.propTypes = {
   getTableData: PropTypes.func,
   onCancelLoad: PropTypes.func,
   onLoadOk: PropTypes.func,
+  currentDatasetName: PropTypes.string,
 };
 
 export default Form.create()(TableEditor);

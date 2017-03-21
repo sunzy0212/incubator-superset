@@ -11,6 +11,7 @@ export default {
     modalVisibles: { toSave: false },
     renameModalVisibles: false,
     tableTreeVisibles: false,
+    transformDateVisible: false,
     loading: false,
     datasources: {},
     dataset: {},
@@ -23,6 +24,7 @@ export default {
     tables: [],
     tableData: [],
     currentDatasetId: '',
+    currentDatasetName: '',
   },
   subscriptions: {
 
@@ -94,9 +96,15 @@ export default {
         const data = yield call(saveDataSet, parse({ name: payload.name }));
         if (data.success) {
           datasets.dataset = data.result;
-          yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId:datasets.dataset.id } });
+          yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId: datasets.dataset.id, currentDatasetName: payload.name } });
         }
       }
+      const cTimes = [];
+      datasets.dimensions.forEach((ele) => {
+        if (ele.type === 'timestamp') {
+          cTimes.push(ele);
+        }
+      });
       const data = yield call(updateDataSet, parse({
         id: datasets.dataset.id,
         dataset: {
@@ -105,13 +113,13 @@ export default {
           relationships: datasets.relationships,
           dimensions: datasets.dimensions,
           measures: datasets.measures,
-          times: datasets.times,
+          times: cTimes,
           createTime: datasets.createTime,
         },
       }));
       if (data.success) {
         console.log(data.result);
-        yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId:datasets.dataset.id } });
+        yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId: datasets.dataset.id } });
       }
 
       yield put({ type: 'hideLoading' });
@@ -253,6 +261,25 @@ export default {
       return {
         ...state,
         tableTreeVisibles: false,
+      };
+    },
+    showTransformDate(state, action) {
+      return {
+        ...state,
+        transformDateVisible: true,
+        currentRecord: action.payload.record,
+      };
+    },
+    hideTransformDate(state) {
+      return {
+        ...state,
+        transformDateVisible: false,
+      };
+    },
+    saveTransformDate(state) {
+      return {
+        ...state,
+        transformDateVisible: false,
       };
     },
     generateFileds(state, action) {
