@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { Link } from 'dva/router';
 import { Card, Icon } from 'antd';
 import MySQL from './modals/mysql';
@@ -6,15 +6,17 @@ import InfluxDB from './modals/influxdb';
 
 class DataSourceEditor extends React.Component {
 
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
       saveLoading: false,
+      sourceProps: props.location.state,
     };
   }
 
   genDatasourceEditView = () => {
-    const { type, item, onOk } = this.props.location.state;
+    const { type, item, onOk } = this.state.sourceProps;
+
     const props = {
       saveLoading: this.state.saveLoading,
       type,
@@ -33,7 +35,7 @@ class DataSourceEditor extends React.Component {
     }
   }
   render() {
-    const { type, action } = this.props.location.state;
+    const { type, action } = this.state.sourceProps;
     return (
       <div style={{ background: '#ECECEC', padding: '10px' }}>
 
@@ -47,11 +49,5 @@ class DataSourceEditor extends React.Component {
     );
   }
   }
-DataSourceEditor.propTypes = {
-  type: PropTypes.string,
-  action: PropTypes.string,
-  item: PropTypes.object,
-  onOk: PropTypes.func,
-};
 
 export default DataSourceEditor;
