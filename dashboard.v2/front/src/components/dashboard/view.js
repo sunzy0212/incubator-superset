@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import { ResponsiveContainer } from 'recharts';
 import React, { PropTypes } from 'react';
+import SelectComponent from './selectComponent';
 import { Link } from 'dva/router';
 import { Row, Col, Icon, Spin } from 'antd';
 import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
-import SelectComponent from './selectComponent';
+
 const MODE_READ = 'read';
 class View extends React.Component {
 
@@ -17,17 +18,14 @@ class View extends React.Component {
       wheres: [],
       initFlag: false,
     };
-    const { chartId, timeRange } = props;
+    const { chartId } = props;
     if (this.state.initFlag === false) {
       this.getChartData(chartId);
       this.state.initFlag = true;
     }
-    console.log(timeRange);
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log(this.state.initFlag);
-    console.log(nextProps.timeRange);
     let timeFields = [];
     if (this.state.initFlag === true && this.state.chartData.codeId !== undefined) {
       timeFields = [{
@@ -63,7 +61,6 @@ class View extends React.Component {
 
   getCodeData(codeId, _type, wheres, timeFields) {
     const that = this;
-    console.log(timeFields);
     $.ajax({
       url: `/v1/datas?codeId=${codeId}&type=${_type}`,
       type: 'post',
@@ -208,8 +205,8 @@ class View extends React.Component {
                 <a><Icon type="download" /></a>
                 <span className="ant-divider" />
                 <a><Icon type="reload" /></a>
-                <span className="ant-divider" />
-                <a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a>
+                {this.props.status === MODE_READ ? ''
+                  : <span><span className="ant-divider" /><a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a></span>}
               </div>
             </Col>
           </Row>
@@ -225,7 +222,6 @@ View.propTypes = {
   removeChart: PropTypes.func,
   currentLayouts: PropTypes.object,
   status: PropTypes.string,
-  timeRange: PropTypes.object,
 };
 
 export default View;

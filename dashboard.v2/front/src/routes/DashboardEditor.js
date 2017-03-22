@@ -4,9 +4,11 @@ import { Row, Col } from 'antd';
 import { classnames } from '../utils';
 import Aside from '../components/dashboard/editor/aside';
 import styles from './Dashboard.less';
+import Header from '../components/dashboard/header';
 
-function DashboardEditor({ children, dispatch, dashboardEditor }) {
+function DashboardEditor({ children, dispatch, dashboardEditor,reportboard }) {
   const { isShow, dirs, charts } = dashboardEditor;
+  const { status, titleStatus, report, currentLayouts, isHeaderShow } = reportboard;
   const asideProps = {
     dirs,
     charts,
@@ -23,6 +25,44 @@ function DashboardEditor({ children, dispatch, dashboardEditor }) {
       });
     },
   };
+
+  const headerProps = {
+    status,
+    titleStatus,
+    report,
+    currentLayouts,
+    editTitle() {
+      dispatch({ type: 'reportboard/editTitle' });
+    },
+    updateTitle(name) {
+      dispatch({
+        type: 'reportboard/updateTitle',
+        payload: { name, dirId: report.dirId, reportId: report.id },
+      });
+    },
+    saveChartToReport(rId, cLayouts) {
+      dispatch({
+        type: 'dashboardEditor/updateLayout',
+        payload: {
+          reportId: rId,
+          layouts: cLayouts,
+        },
+      });
+    },
+    openModal() {
+      dispatch({
+        type: 'reportboard/showDeleteModal',
+      });
+    },
+    refreshChart(start, end) {
+      dispatch({
+        type: 'reportboard/refreshChart',
+        payload: {
+          timeRange: { start, end },
+        },
+      });
+    },
+  };
   return (
     <div className={styles.sideBar}>
       <Row gutter={24}>
@@ -35,7 +75,17 @@ function DashboardEditor({ children, dispatch, dashboardEditor }) {
           <Aside {...asideProps} />
         </Col>
         <Col lg={19} md={21}>
-          {children}
+          <Row gutter={12}>
+            <Col lg={24} md={24}>
+              {isHeaderShow === false ? ''
+                : <Header {...headerProps} />}
+            </Col>
+          </Row>
+          <Row gutter={12}>
+            <Col lg={24} md={24}>
+              {children}
+            </Col>
+          </Row>
         </Col>
       </Row>
     </div>
@@ -45,11 +95,12 @@ function DashboardEditor({ children, dispatch, dashboardEditor }) {
 DashboardEditor.propsType = {
   dispatch: PropTypes.func,
   isShow: PropTypes.bool,
+  reportboard: PropTypes.object,
 };
 
 
 function mapStateToProps(state) {
-  return { dashboardEditor: state.dashboardEditor };
+  return { dashboardEditor: state.dashboardEditor, reportboard: state.reportboard };
 }
 export default connect(mapStateToProps)(DashboardEditor);
 

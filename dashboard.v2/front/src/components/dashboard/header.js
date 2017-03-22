@@ -52,8 +52,7 @@ const Header = ({
   }
 
   function onChangeDateRange(item) {
-    console.log(item[0].valueOf());
-    refreshChart(item[0].valueOf(),item[1].valueOf())
+    refreshChart(item[0].valueOf(), item[1].valueOf());
   }
 
   return (
@@ -108,7 +107,8 @@ const Header = ({
       <Col lg={6} md={6} offset={2}>
         {status === MODE_READ ? <Button type="ghost" icon="reload">刷新</Button>
           : <Button type="ghost" icon="save" onClick={onSave}>保存</Button>}
-        <Button type="ghost" onClick={openModal} icon="delete">删除</Button>
+        {status !== MODE_READ ? ''
+          : <Button type="ghost" onClick={openModal} icon="delete">删除</Button>}
         <Button type="ghost" icon="rocket">导出</Button>
       </Col>
       <Col lg={4} md={4}>
