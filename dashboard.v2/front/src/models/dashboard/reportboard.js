@@ -1,5 +1,5 @@
 import { parse } from 'qs';
-import { getReport, getLayouts, queryCode, saveReport } from '../../services/dashboard';
+import { getReport, getLayouts, queryCode } from '../../services/dashboard';
 import { getChartData, getCodeData } from '../../services/reportboard';
 const REPORT_PATH = '/dashboard/';
 const EDIT_REPORT_PATH = '/dashboard/edit/';
@@ -14,7 +14,6 @@ export default {
     loading: false,
     status: MODE_READ,
     isHeaderShow: true,
-    titleStatus: MODE_READ,
     modalVisible: false,
     report: {},
     layouts: {},
@@ -119,17 +118,6 @@ export default {
       }
       yield put({ type: 'hideLoading' });
     },
-
-    *updateTitle({
-      payload,
-    }, { call, put }) {
-      yield put({ type: 'showLoading' });
-      const data = yield call(saveReport, parse(payload));
-      if (data.success) {
-        yield put({ type: 'saveTitle', payload });
-      }
-      yield put({ type: 'hideLoading' });
-    },
   },
   reducers: {
 
@@ -165,27 +153,11 @@ export default {
         loading: false,
       };
     },
-
-    editTitle(state) {
-      return {
-        ...state,
-        titleStatus: MODE_ALTER,
-      };
-    },
     initChartData(state, action) {
       return {
         ...state,
         chartData: action.payload.chartData,
         codeData: action.payload.codeData,
-      };
-    },
-    saveTitle(state, action) {
-      const report = state.report;
-      report.name = action.payload.name;
-      return {
-        ...state,
-        titleStatus: MODE_READ,
-        report,
       };
     },
     addChartToReport(state, action) {

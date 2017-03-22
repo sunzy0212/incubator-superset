@@ -1,12 +1,15 @@
 import { parse } from 'qs';
-import { getDirs, getAllReports, setLayouts, getChartsByDirId } from '../../services/dashboard';
+import { getDirs, getAllReports, setLayouts, getChartsByDirId, saveReport } from '../../services/dashboard';
 
+const MODE_READ = 'read';
+const MODE_ALTER = 'alter';
 export default {
   namespace: 'dashboardEditor',
   state: {
     loading: false,
     isShow: true,
     dirs: [],
+    titleStatus: MODE_READ,
     charts: [],
   },
   subscriptions: {
@@ -77,6 +80,16 @@ export default {
       }
       yield put({ type: 'hideLoading' });
     },
+    *updateTitle({
+      payload,
+    }, { call, put }) {
+      yield put({ type: 'showLoading' });
+      const data = yield call(saveReport, parse(payload));
+      if (data.success) {
+        yield put({ type: 'saveTitle', payload });
+      }
+      yield put({ type: 'hideLoading' });
+    },
   },
   reducers: {
     triggle(state) {
@@ -101,6 +114,21 @@ export default {
       return {
         ...state,
         loading: false,
+      };
+    },
+    editTitle(state) {
+      return {
+        ...state,
+        titleStatus: MODE_ALTER,
+      };
+    },
+    saveTitle(state, action) {
+      const report = state.report;
+      report.name = action.payload.name;
+      return {
+        ...state,
+        titleStatus: MODE_READ,
+        report,
       };
     },
 

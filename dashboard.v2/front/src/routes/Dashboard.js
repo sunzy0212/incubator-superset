@@ -9,7 +9,8 @@ import Header from '../components/dashboard/header';
 function Dashboard({ children, dispatch, dashboard, reportboard }) {
   const { isShow, modalVisible, modalCreateVisible,
     deleteModalVisible, currentDir, dirs, reports } = dashboard;
-  const { status, titleStatus, report, currentLayouts, isHeaderShow } = reportboard;
+  const { report, currentLayouts, isHeaderShow } = reportboard;
+
   const adideProps = {
     modalVisible,
     modalCreateVisible,
@@ -70,20 +71,9 @@ function Dashboard({ children, dispatch, dashboard, reportboard }) {
   };
 
   const headerProps = {
-    status,
-    titleStatus,
     report,
     deleteModalVisible,
     currentLayouts,
-    editTitle() {
-      dispatch({ type: 'reportboard/editTitle' });
-    },
-    updateTitle(name) {
-      dispatch({
-        type: 'reportboard/updateTitle',
-        payload: { name, dirId: report.dirId, reportId: report.id },
-      });
-    },
     deleteReport(reportId) {
       dispatch({
         type: 'dashboard/deleteReport',

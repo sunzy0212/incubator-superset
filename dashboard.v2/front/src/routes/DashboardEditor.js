@@ -4,11 +4,11 @@ import { Row, Col } from 'antd';
 import { classnames } from '../utils';
 import Aside from '../components/dashboard/editor/aside';
 import styles from './Dashboard.less';
-import Header from '../components/dashboard/header';
+import EditHeader from '../components/dashboard/editHeader';
 
-function DashboardEditor({ children, dispatch, dashboardEditor,reportboard }) {
+function DashboardEditor({ children, dispatch, dashboardEditor, reportboard }) {
   const { isShow, dirs, charts } = dashboardEditor;
-  const { status, titleStatus, report, currentLayouts, isHeaderShow } = reportboard;
+  const { report, currentLayouts, isHeaderShow } = reportboard;
   const asideProps = {
     dirs,
     charts,
@@ -27,16 +27,14 @@ function DashboardEditor({ children, dispatch, dashboardEditor,reportboard }) {
   };
 
   const headerProps = {
-    status,
-    titleStatus,
     report,
     currentLayouts,
     editTitle() {
-      dispatch({ type: 'reportboard/editTitle' });
+      dispatch({ type: 'dashboardEditor/editTitle' });
     },
     updateTitle(name) {
       dispatch({
-        type: 'reportboard/updateTitle',
+        type: 'dashboardEditor/updateTitle',
         payload: { name, dirId: report.dirId, reportId: report.id },
       });
     },
@@ -47,11 +45,6 @@ function DashboardEditor({ children, dispatch, dashboardEditor,reportboard }) {
           reportId: rId,
           layouts: cLayouts,
         },
-      });
-    },
-    openModal() {
-      dispatch({
-        type: 'reportboard/showDeleteModal',
       });
     },
     refreshChart(start, end) {
@@ -78,7 +71,7 @@ function DashboardEditor({ children, dispatch, dashboardEditor,reportboard }) {
           <Row gutter={12}>
             <Col lg={24} md={24}>
               {isHeaderShow === false ? ''
-                : <Header {...headerProps} />}
+                : <EditHeader {...headerProps} />}
             </Col>
           </Row>
           <Row gutter={12}>
