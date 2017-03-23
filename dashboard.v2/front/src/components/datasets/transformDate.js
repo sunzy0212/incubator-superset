@@ -23,7 +23,6 @@ const TransformDate = ({ transformDateVisible, onCreateOk, onCancelCreate, curre
       }
     });
   }
-  console.log(currentRecord.item);
   return (
     <Modal
       visible={transformDateVisible}

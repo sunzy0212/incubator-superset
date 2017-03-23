@@ -1316,6 +1316,9 @@ func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		if req.Wheres != nil && len(req.Wheres) != 0 {
 			code.Wheres = append(code.Wheres, req.Wheres...) //先只有Wheres语料要处理
 		}
+		if req.RangeTimes != nil && len(req.RangeTimes) != 0 {
+			code.RangeTimes = append(code.RangeTimes, req.RangeTimes...)
+		}
 	} else {
 		code = req
 	}

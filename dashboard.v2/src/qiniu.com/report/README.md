@@ -298,7 +298,7 @@ DELETE /v1/datasets/<Id>
 	selectFields []Field
 	metricFields []Field
 	groupFields  []Field
-	timeField    Field
+	timeFields   []Field
 	wheres       []Evaluation
 	havings      []Evaluation
 	createTime 	timestamp
@@ -375,7 +375,7 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeField": <TimeField>,
+	"timeFields": <TimeFields>,
 	"wheres": <Wheres>,
 	"havings": <Havings>,
 	"createTime": <CreateTime>
@@ -396,7 +396,7 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeField": <TimeField>,
+	"timeFields": <TimeFields>,
 	"wheres": <Wheres>,
 	"havings": <Havings>,
 	"createTime": <CreateTime>
@@ -805,6 +805,7 @@ POST /v1/datas?type=<DataType>
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
 	"timeField": <TimeField>,
+	"rangeTimes": <RangeTimes>,
 	"wheres": <Wheres>,
 	"havings": <Havings>
 }

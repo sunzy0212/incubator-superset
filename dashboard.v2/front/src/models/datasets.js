@@ -1,7 +1,7 @@
 import { parse } from 'qs';
 import { saveDataSet, updateDataSet, getDataSet, deleteDataSet, getTableData } from '../services/datasets';
 import { getSchema, listDatasources, showTables } from '../services/datasource';
-
+import getQueryObject from '../utils/common';
 
 export default {
   namespace: 'datasets',
@@ -27,7 +27,16 @@ export default {
     currentDatasetName: '',
   },
   subscriptions: {
-
+    setup({ dispatch, history }) {
+      return history.listen((item) => {
+        const urlObj = getQueryObject(item.search);
+        for (const k in urlObj) {
+          if (k === 'datasetId') {
+            dispatch({ type: 'updateState', payload: { currentDatasetId: urlObj[k] } });
+          }
+        }
+      });
+    },
   },
   effects: {
     *queryDatasources({

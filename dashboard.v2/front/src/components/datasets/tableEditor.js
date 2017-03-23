@@ -4,7 +4,7 @@ import TableTreeModal from './tableTreeModal';
 
 const FormItem = Form.Item;
 
-const TableEditor = ({ save, loadTableTree, datasourceList, tableTreeVisibles, currentDatasetName,
+const TableEditor = ({ save, datasourceList, tableTreeVisibles, currentDatasetName,
   getTableData, tables, onCancelLoad, onLoadOk, loadTableData, form: {
   getFieldDecorator,
   validateFields,
@@ -51,9 +51,6 @@ const TableEditor = ({ save, loadTableTree, datasourceList, tableTreeVisibles, c
         </FormItem>
         <FormItem wrapperCol={{ span: 12, offset: 6 }}>
           <Button type="primary" htmlType="submit" size="large">保存</Button>
-        </FormItem>
-        <FormItem wrapperCol={{ span: 12, offset: 6 }}>
-          <Button type="primary" size="large" onClick={loadTableTree}>加载表结构</Button>
         </FormItem>
         <FormItem wrapperCol={{ span: 12, offset: 6 }}>
           <Button type="primary" size="large" onClick={loadTableData}>加载表数据</Button>
