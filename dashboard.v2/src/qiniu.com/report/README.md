@@ -840,13 +840,13 @@ Content-Type: application/json
 
 + `type`为数据类型 可选`json`,`csv`,`excel`
 
-
 #### 创建模板
 ```
 POST /v1/templates
 {
-	"name":<Name>,
-	"cronId":<JobId>,
+	"name": <Name>,
+	"email": <Email>,
+	"reporter": <Reporter>,
 	"reportId": <ReportId>
 }
 ```
@@ -858,8 +858,10 @@ Content-Type: application/json
 {
 	"id":<Id>,
 	"name":<Name>,
-	"cronId":<JobId>,
+	"email": <Email>,
+	"reporter": <Reporter>,
 	"reportId": <ReportId>,
+	"crons": <Crons>,
 	"createTime": <CreateTime>,
 	"updateTIme": <UpdateTIme>,
 }
@@ -870,7 +872,8 @@ Content-Type: application/json
 POST /v1/templates/<tempId>
 {
 	"name":<Name>,
-	"cronId":<JobId>,
+	"email": <Email>,
+	"reporter": <Reporter>,
 	"reportId": <ReportId>
 }
 ```
@@ -882,7 +885,8 @@ Content-Type: application/json
 {
 	"id":<Id>,
 	"name":<Name>,
-	"cronId":<JobId>,
+	"email": <Email>,
+	"reporter": <Reporter>,
 	"reportId": <ReportId>,
 	"createTime": <CreateTime>,
 	"updateTIme": <UpdateTIme>,
@@ -901,7 +905,6 @@ DELETE /v1/templates/<tempId>
 200 OK
 ```
 
-
 #### 设置一个crontab task
 ```
 POST /v1/templates/<tempId>/crons
@@ -911,8 +914,8 @@ POST /v1/templates/<tempId>/crons
 	"type":<Type>,
 	"cron":<Cron>,
 	"jobId":<JobId>,
-	"spec":<Spec>,
-	"desc":<Desc>
+	"rules": <Rules>,
+	"spec": <Spec>
 }
 ```
 返回包
@@ -926,8 +929,8 @@ Content-Type: application/json
 	"type":<Type>,
 	"cron":<Cron>,
 	"jobId":<JobId>,
-	"spec":<Spec>,
-	"desc":<Desc>,
+	"rules": <Rules>,
+	"spec": <Spec>
 	"createTime":<CreateTime>,
 	"updateTime":<UpdateTime>
 }
