@@ -73,7 +73,7 @@ function RouterConfig({ history, app }) {
         name: 'dashboard',
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            // app.model(require('./models/dashboard/dashboard'));
+            registerModel(app, require('./models/dashboard/reportboard'));
             registerModel(app, require('./models/dashboard/dashboard'));
             cb(null, require('./routes/Dashboard'));
           });

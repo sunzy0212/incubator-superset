@@ -1,13 +1,13 @@
 import $ from 'jquery';
 import { ResponsiveContainer } from 'recharts';
 import React, { PropTypes } from 'react';
+import SelectComponent from './selectComponent';
 import { Link } from 'dva/router';
 import { Row, Col, Icon, Spin } from 'antd';
 import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
-import SelectComponent from './selectComponent';
+
 const MODE_READ = 'read';
-const MODE_ALTER = 'alter';
 class View extends React.Component {
 
   constructor(props) {
@@ -25,6 +25,21 @@ class View extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    let timeFields = [];
+    if (this.state.initFlag === true && this.state.chartData.codeId !== undefined) {
+      timeFields = [{
+        operator: 'LT',
+        data: nextProps.timeRange.end.toString(),
+      }, {
+        operator: 'GT',
+        data: nextProps.timeRange.start.toString(),
+      }];
+      this.getCodeData(this.state.chartData.codeId,
+        this.state.chartData.type, this.state.wheres, timeFields);
+    }
+  }
+
   getChartData(chartId) {
     const that = this;
     $.ajax({
@@ -37,20 +52,20 @@ class View extends React.Component {
         that.setState({
           chartData: data,
         });
-        that.getCodeData(data.codeId, data.type, null);
+        that.getCodeData(data.codeId, data.type, [], null);
       },
       (jqXHR, textStatus, errorThrown) => {
         console.log('reject', textStatus, jqXHR, errorThrown);
       });
   }
 
-  getCodeData(codeId, _type, wheres) {
+  getCodeData(codeId, _type, wheres, timeFields) {
     const that = this;
     $.ajax({
       url: `/v1/datas?codeId=${codeId}&type=${_type}`,
       type: 'post',
       dataType: 'JSON',
-      data: JSON.stringify({ wheres }),
+      data: JSON.stringify({ wheres, timeFields }),
       contentType: 'application/json; charset=utf-8',
     }).then(
       (_data) => {
@@ -128,7 +143,8 @@ class View extends React.Component {
       }
     }
     this.state.wheres = currentWheres;
-    this.getCodeData(this.state.chartData.codeId, this.state.chartData.type, this.state.wheres);
+    this.getCodeData(this.state.chartData.codeId,
+      this.state.chartData.type, this.state.wheres, null);
   }
 
   isFlip(type) {
@@ -189,8 +205,8 @@ class View extends React.Component {
                 <a><Icon type="download" /></a>
                 <span className="ant-divider" />
                 <a><Icon type="reload" /></a>
-                <span className="ant-divider" />
-                <a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a>
+                {this.props.status === MODE_READ ? ''
+                  : <span><span className="ant-divider" /><a onClick={this.removeChart.bind(this)}><Icon type="delete" /></a></span>}
               </div>
             </Col>
           </Row>

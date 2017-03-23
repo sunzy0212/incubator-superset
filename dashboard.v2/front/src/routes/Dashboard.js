@@ -4,9 +4,13 @@ import { Row, Col } from 'antd';
 import { classnames } from '../utils';
 import Aside from '../components/dashboard/aside';
 import styles from './Dashboard.less';
+import Header from '../components/dashboard/header';
 
-function Dashboard({ children, dispatch, dashboard }) {
-  const { isShow, modalVisible, modalCreateVisible, currentDir, dirs, reports } = dashboard;
+function Dashboard({ children, dispatch, dashboard, reportboard }) {
+  const { isShow, modalVisible, modalCreateVisible,
+    deleteModalVisible, currentDir, dirs, reports } = dashboard;
+  const { report, currentLayouts, isHeaderShow } = reportboard;
+
   const adideProps = {
     modalVisible,
     modalCreateVisible,
@@ -66,6 +70,44 @@ function Dashboard({ children, dispatch, dashboard }) {
     },
   };
 
+  const headerProps = {
+    report,
+    deleteModalVisible,
+    currentLayouts,
+    deleteReport(reportId) {
+      dispatch({
+        type: 'dashboard/deleteReport',
+        payload: { rId: reportId },
+      });
+    },
+    saveChartToReport(rId, cLayouts) {
+      dispatch({
+        type: 'dashboardEditor/updateLayout',
+        payload: {
+          reportId: rId,
+          layouts: cLayouts,
+        },
+      });
+    },
+    openModal() {
+      dispatch({
+        type: 'dashboard/showDeleteModal',
+      });
+    },
+    onCancel() {
+      dispatch({
+        type: 'dashboard/hideModal',
+      });
+    },
+    refreshChart(start, end) {
+      dispatch({
+        type: 'reportboard/refreshChart',
+        payload: {
+          timeRange: { start, end },
+        },
+      });
+    },
+  };
   return (
     <div className={styles.sideBar} >
       <Row gutter={24}>
@@ -78,9 +120,20 @@ function Dashboard({ children, dispatch, dashboard }) {
           <Aside {...adideProps} />
         </Col>
         <Col lg={19} md={21}>
-          {children}
+          <Row gutter={12}>
+            <Col lg={24} md={24}>
+              {isHeaderShow === false ? ''
+                : <Header {...headerProps} />}
+            </Col>
+          </Row>
+          <Row gutter={12}>
+            <Col lg={24} md={24}>
+              {children}
+            </Col>
+          </Row>
         </Col>
       </Row>
+
     </div>
   );
 }
@@ -89,11 +142,12 @@ Dashboard.propsType = {
   dispatch: PropTypes.func,
   isShow: PropTypes.bool,
   reports: PropTypes.array,
+  reportboard: PropTypes.object,
 };
 
 
 function mapStateToProps(state) {
-  return { dashboard: state.dashboard };
+  return { dashboard: state.dashboard, reportboard: state.reportboard };
 }
 export default connect(mapStateToProps)(Dashboard);
 

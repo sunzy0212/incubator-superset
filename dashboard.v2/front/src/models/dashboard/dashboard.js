@@ -13,6 +13,7 @@ export default {
     reports: [],
     currentDir: {},
     addChartId: '',
+    isShowHeader: false,
   },
   subscriptions: {
     setup({ dispatch }) {
