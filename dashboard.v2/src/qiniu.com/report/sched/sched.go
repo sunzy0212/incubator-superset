@@ -45,9 +45,9 @@ func (s *Scheduler) Stop() {
 func Get(c common.Crontab) (Job, error) {
 	switch strings.ToUpper(c.Type) {
 	case "REPORT":
-		return &Report{name: c.Name, spec: c.Cron}, nil
+		return NewReportSender(c.Cron, c.Spec.(common.Reporter)), nil
 	case "EMAIL":
-		return &Email{name: c.Name, spec: c.Cron}, nil
+		return NewEmailSender(c.Cron, c.Spec.(common.Email)), nil
 	default:
 		return nil, fmt.Errorf("%s not support yet", c.Type)
 	}

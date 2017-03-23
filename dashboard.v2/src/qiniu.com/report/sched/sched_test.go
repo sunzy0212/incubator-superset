@@ -2,12 +2,16 @@ package sched
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"testing"
 	"time"
+
+	"qiniu.com/report/common"
 )
 
 func TestClient(t *testing.T) {
-	c := NewReport("", ReportConfig{}).getRpcClient()
+	c := NewReportSender("", common.Reporter{}).getRpcClient()
 	var ret interface{}
 	err := c.Call(nil, &ret, "http://localhost:8000/v1/datas?codeId=code_AOdheKlAGZeqVPC4&type=json")
 	t.Log(ret, err)
@@ -23,4 +27,26 @@ func TestAddJobs(t *testing.T) {
 	time.Sleep(10 * time.Second)
 	fmt.Println("exit")
 	s.Stop()
+}
+
+func TestSendEmail(t *testing.T) {
+	e := common.Email{Subject: "邮件测试",
+		Username: "wenchenxin@qiniu.com",
+		Password: "******************",
+		Receiver: []string{"wenchenxin@qiniu.com"},
+	}
+	body := []byte("")
+	response, err := http.Get("https://godoc.org/gopkg.in/gomail.v2")
+	if err != nil {
+		t.Error(err)
+	} else {
+		defer response.Body.Close()
+		body, err = ioutil.ReadAll(response.Body)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+	client := newEmailClient(e, body)
+	err = client.Send()
+	t.Log(err)
 }

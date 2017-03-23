@@ -26,8 +26,9 @@ const Switcher = ({
       }].concat(rangeArray(0, 59).map((i) => { return { value: `m${i}`, label: `${i}分` }; })),
     }].concat(rangeArray(0, 23).map((i) => { return { value: `h${i}`, label: `${i}点` }; })),
   }, {
-    value: 'month',
+    value: 'week',
     label: '每周',
+    disabled: true,
     children: rangeArray(1, 7).map((i) => {
       return { value: `w${i}`,
         label: `星期${i}`,
@@ -43,9 +44,9 @@ const Switcher = ({
       if (!err) {
         const data = {
           tempId: record.id,
-          cronId: record.crontab.id,
+          cronId: record.cronId,
           switch: record.crontab.jobId === 0,
-          spec: { rules: values.ruleData },
+          rules: values.ruleData,
         };
         onSwitch(data);
       }
@@ -53,8 +54,8 @@ const Switcher = ({
   }
 
   let initSpec = [];
-  if (record.crontab !== undefined && record.crontab.spec !== undefined) {
-    initSpec = record.crontab.spec.rules;
+  if (record.crontab !== undefined && record.crontab.rules !== undefined) {
+    initSpec = record.crontab.rules;
   }
 
   return (

@@ -67,13 +67,29 @@ export default {
     },
 
     *setCrontab({ payload }, { put }) {
-      let cron = '';
-      // mock
-      cron = '* * * * * ?';
-      payload.spec.rules.forEach((item) => {
-        // 判断生成cron
+      let cron = '* * * * * ?';
 
-      });
+      const tempCron = ['*', '*', '*', '*', '*', '?'];
+      const rules = payload.rules;
+      if (rules.length > 0 && rules[0] === 'day') {
+        if (rules.length === 2) {
+          tempCron[0] = '0';
+          tempCron[1] = '0';
+          tempCron[2] = _.trimStart(rules[1], 'h');
+        }
+        if (rules.length === 3) {
+          tempCron[0] = '0';
+          tempCron[1] = _.trimStart(rules[2], 'm');
+        }
+        if (rules.length === 4) {
+          tempCron[0] = _.trimStart(rules[3], 's');
+        }
+      } else {
+        console.log('not suppor yet');
+      }
+
+      cron = _.join(tempCron, ' ');
+
 
       if (payload.switch) {
         yield put({
