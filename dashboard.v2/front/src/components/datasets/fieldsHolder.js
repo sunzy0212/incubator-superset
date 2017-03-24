@@ -126,8 +126,6 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
     onCreateOk,
   }
 
-  console.log(transformDateVisible);
-
   function rowClick(record, index) {
     console.log(record, index);
   }

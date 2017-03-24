@@ -26,9 +26,9 @@ class View extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let timeFields = [];
+    let rangeTimes = [];
     if (this.state.initFlag === true && this.state.chartData.codeId !== undefined) {
-      timeFields = [{
+      rangeTimes = [{
         operator: 'LT',
         data: nextProps.timeRange.end.toString(),
       }, {
@@ -36,7 +36,7 @@ class View extends React.Component {
         data: nextProps.timeRange.start.toString(),
       }];
       this.getCodeData(this.state.chartData.codeId,
-        this.state.chartData.type, this.state.wheres, timeFields);
+        this.state.chartData.type, this.state.wheres, rangeTimes);
     }
   }
 
@@ -59,13 +59,13 @@ class View extends React.Component {
       });
   }
 
-  getCodeData(codeId, _type, wheres, timeFields) {
+  getCodeData(codeId, _type, wheres, rangeTimes) {
     const that = this;
     $.ajax({
       url: `/v1/datas?codeId=${codeId}&type=${_type}`,
       type: 'post',
       dataType: 'JSON',
-      data: JSON.stringify({ wheres, timeFields }),
+      data: JSON.stringify({ wheres, rangeTimes }),
       contentType: 'application/json; charset=utf-8',
     }).then(
       (_data) => {

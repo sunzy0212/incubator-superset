@@ -1,8 +1,11 @@
 import { parse } from 'qs';
+import _ from 'lodash';
 import { saveDataSet, updateDataSet, getDataSet, deleteDataSet, getTableData } from '../services/datasets';
 import { getSchema, listDatasources, showTables } from '../services/datasource';
 
-
+const DATASET_PATH = '/datasets';
+const DATASET_INDEX = 10;
+const DATASETID_LENGTH = 24;
 export default {
   namespace: 'datasets',
   state: {
@@ -27,7 +30,16 @@ export default {
     currentDatasetName: '',
   },
   subscriptions: {
-
+    setup({ dispatch, history }) {
+      return history.listen(({ pathname }) => {
+        if (_.startsWith(pathname, DATASET_PATH)) {
+          if (_.startsWith(pathname, `${DATASET_PATH}/dataset_`)) {
+            const id = pathname.substr(DATASET_INDEX, DATASETID_LENGTH);
+            dispatch({ type: 'updateState', payload: { currentDatasetId: id } });
+          }
+        }
+      });
+    },
   },
   effects: {
     *queryDatasources({
@@ -108,7 +120,7 @@ export default {
       const data = yield call(updateDataSet, parse({
         id: datasets.dataset.id,
         dataset: {
-          name: datasets.dataset.name,
+          name: payload.name,
           datasources: datasets.datasources,
           relationships: datasets.relationships,
           dimensions: datasets.dimensions,
@@ -118,7 +130,6 @@ export default {
         },
       }));
       if (data.success) {
-        console.log(data.result);
         yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId: datasets.dataset.id } });
       }
 
@@ -230,12 +241,13 @@ export default {
       const tmp = action.payload;
       return {
         ...state,
-        dataset: tmp.dataset.dataset,
+        dataset: tmp.dataset,
         relationships: tmp.dataset.relationships,
         datasources: tmp.dataset.datasources,
         dimensions: tmp.dataset.dimensions,
         measures: tmp.dataset.measures,
         times: tmp.dataset.times,
+        currentDatasetName: tmp.dataset.name,
       };
     },
     listDatasources(state, action) {

@@ -1,11 +1,12 @@
 import { parse } from 'qs';
 import { getReport, getLayouts, queryCode } from '../../services/dashboard';
 import { getChartData, getCodeData } from '../../services/reportboard';
+import getQueryObject from '../../utils/common';
+
 const REPORT_PATH = '/dashboard/';
 const EDIT_REPORT_PATH = '/dashboard/edit/';
 const REPORTBOARD_PATH = '/reportboard/';
 const REPORTID_LENGTH = 23;
-const DATE_LENGTH = 5;
 const MODE_READ = 'read';
 const MODE_ALTER = 'alter';
 export default {
@@ -31,12 +32,12 @@ export default {
         let index = pathname.indexOf(EDIT_REPORT_PATH);
         const reportboardIndex = pathname.indexOf(REPORTBOARD_PATH);
         let reportId = '';
-        let currentTimeRange = '';
         let status = MODE_READ;
-        if (item.pathname.includes('date')) {
-          const dateIndex = pathname.indexOf('date');
-          currentTimeRange = pathname.substr(dateIndex + DATE_LENGTH, pathname.length - 1);
-          console.log('show the current timerange', currentTimeRange);
+        const urlObj = getQueryObject(item.pathname);
+        for (const k in urlObj) {
+          if (k === 'date') {
+            dispatch({ type: 'setStatus', payload: { currentTimeRange: urlObj[k] } });
+          }
         }
         if (index !== -1) {
           reportId = pathname.substr(index + EDIT_REPORT_PATH.length, REPORTID_LENGTH);
@@ -57,9 +58,6 @@ export default {
           dispatch({ type: 'setStatus', payload: { status, isHeaderShow: true } });
         } else {
           dispatch({ type: 'setStatus', payload: { isHeaderShow: false } });
-        }
-        if (currentTimeRange !== '') {
-          dispatch({ type: 'setStatus', payload: { currentTimeRange } });
         }
       });
     },
