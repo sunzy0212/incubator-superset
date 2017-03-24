@@ -184,7 +184,7 @@ class View extends React.Component {
           <ResponsiveContainer>
             <ChartComponent
               data={codeData.data} xaxis={codeData.xaxis} yaxis={codeData.yaxis}
-              title={codeData.title} isFlip={this.isFlip(codeData.type)}
+              title={codeData.title} isFlip={this.isFlip(codeData.type)} unit={codeData.yaxis[0].unit}
             />
           </ResponsiveContainer>
         </div>
