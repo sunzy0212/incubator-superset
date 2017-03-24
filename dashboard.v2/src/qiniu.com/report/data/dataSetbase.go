@@ -79,7 +79,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 			case "string":
 				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, v.Data)
 			default:
-				fmt.Println("没匹配到") //TODO String is ok
+				fmt.Println("where---没匹配到") //TODO String is ok
 			}
 			whereFields = append(whereFields, evaluation)
 		}
@@ -88,7 +88,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 
 	//TIMEFIELDS SECTION
 	tmpTimeFields := code.TimeFields
-	if tmpTimeFields != nil && len(tmpTimeFields) != 0 {
+	if tmpTimeFields != nil && len(tmpTimeFields) != 0 && len(code.RangeTimes) == 0 {
 		timeFields := make([]string, 0)
 		for _, v := range tmpTimeFields {
 			field := v.Field.Name
@@ -101,7 +101,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 				ts := tsDate.Format(v.Field.Transform)
 				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, ts)
 			default:
-				fmt.Println("没匹配到") //TODO String is ok
+				fmt.Println("timefield---没匹配到") //TODO String is ok
 			}
 			timeFields = append(timeFields, evaluation)
 		}
@@ -115,11 +115,9 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 
 	//RANGETIMES SECTION
 	tmpRangeTimes := code.RangeTimes
-	if tmpRangeTimes != nil && len(tmpRangeTimes) != 0 && len(dataset.Times) != 0 {
+	if tmpRangeTimes != nil && len(tmpRangeTimes) != 0 && len(code.TimeFields) > 0 {
 		timeFields := make([]string, 0)
-
-		//get timefield from dataset
-		timeField := dataset.Times[0].Field
+		timeField := code.TimeFields[0].Field
 		for _, v := range tmpRangeTimes {
 			field := timeField.Name
 			opera := OP[v.Operator]
@@ -131,7 +129,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 				ts := tsDate.Format(timeField.Transform)
 				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, ts)
 			default:
-				fmt.Println("没匹配到") //TODO String is ok
+				fmt.Println("rangetime--没匹配到") //TODO String is ok
 			}
 			timeFields = append(timeFields, evaluation)
 		}
@@ -172,7 +170,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 			case "string":
 				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, v.Data)
 			default:
-				fmt.Println("没匹配到") //TODO String is ok
+				fmt.Println("having---没匹配到") //TODO String is ok
 			}
 			havingFields = append(havingFields, evaluation)
 		}

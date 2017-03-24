@@ -42,7 +42,7 @@ const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
       className: '',
       render: record => (
         <span>
-          <Link className="ant-dropdown-link" to={`/datasets?datasetId=${record.key}`} onClick={() => onInitDataSet(record.key)}>预处理
+          <Link className="ant-dropdown-link" to={`/datasets/${record.key}`} onClick={() => onInitDataSet(record.key)}>预处理
           </Link>
           <span className="ant-divider" />
           <Popconfirm title="确定删除该数据集吗？" onConfirm={() => onDelete(record.key)}>

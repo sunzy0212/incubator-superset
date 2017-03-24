@@ -66,6 +66,18 @@ function RouterConfig({ history, app }) {
             cb(null, require('./routes/Datasets'));
           });
         },
+        childRoutes: [
+          {
+            path: ':id',
+            name: 'dataset',
+            getComponent(nextState, cb) {
+              require.ensure([], (require) => {
+                registerModel(app, require('./models/datasets'));
+                cb(null, require('./routes/Datasets'));
+              });
+            },
+          },
+        ],
       },
 
       {

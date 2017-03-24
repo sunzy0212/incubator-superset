@@ -14,14 +14,13 @@ export default {
     code: {},
     chart: {},
     dataset: {},
-
     wheres: [], // wheres: [{ field: 'wf1', operator: '=', data: '数据' }],
     havings: [], // filters: [{ field: 'ff1', operator: '=', data: '数据' }],
     selectFields: [],
     metricFields: [],
     groupFields: [],
-    timeField: '',
-    rangeDatatime: '',
+    timeFields: [],
+    rangeTimes: [],
 
     operatorOptions: [{ name: 'NIN', alias: 'NOT IN' }, { name: 'IN', alias: 'IN' }, { name: 'EQ', alias: '=' },
       { name: 'NQ', alias: '<>' }, { name: 'GT', alias: '>' }, { name: 'LT', alias: '<' },
@@ -76,6 +75,7 @@ export default {
     *execute({
       payload,
     }, { call, put }) {
+      console.log(payload);
       yield put({ type: 'initState', payload: { ...payload } });
       const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
       if (data.success) {
@@ -92,14 +92,20 @@ export default {
       payload,
     }, { call, put, select }) {
       const analysorState = yield select(state => state.analysor);
-      const { dataset, addOns, selectFields, metricFields, groupFields, timeField,
-        rangeDatatime } = analysorState;
+      const { dataset, addOns, selectFields, metricFields, groupFields, timeFields,
+        rangeTimes } = analysorState;
       const data = yield call(saveCode, parse({
         datasetId: dataset.id,
         data: {
           name: payload.name,
-          querys: { addOns, selectFields, metricFields, groupFields, timeField, rangeDatatime },
-        } }));
+          addOns,
+          selectFields,
+          metricFields,
+          groupFields,
+          timeFields,
+          rangeTimes,
+        },
+      }));
       if (data.success) {
         const data2 = yield call(saveChart, parse({
           title: payload.title,
@@ -124,14 +130,19 @@ export default {
       payload,
     }, { put, call, select }) {
       const analysorState = yield select(state => state.analysor);
-      const { code, chart, dataset, addOns, selectFields, metricFields, groupFields, timeField,
-        rangeDatatime } = analysorState;
+      const { code, chart, dataset, addOns, selectFields, metricFields, groupFields, timeFields,
+        rangeTimes } = analysorState;
       const data = yield call(updateCode, parse({
         codeId: code.id,
         datasetId: dataset.id,
         data: {
           name: code.name,
-          querys: { addOns, selectFields, metricFields, groupFields, timeField, rangeDatatime },
+          addOns,
+          selectFields,
+          metricFields,
+          groupFields,
+          timeFields,
+          rangeTimes,
         } }));
       if (data.success) {
         const data2 = yield call(updateChart, parse({
@@ -181,7 +192,7 @@ export default {
       payload,
     }, { put, select }) {
       const analysorState = yield select(state => state.analysor);
-      const { code, chart } = analysorState;
+      const { code } = analysorState;
       if (code.id === undefined || code.id === '') {
         yield put({ type: 'save', payload });
       } else {

@@ -649,7 +649,7 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeField": <TimeField>,
+	"timeFields": <TimeFields>,
 	"wheres": <Wheres>,
 	"havings": <Havings>
 }
@@ -662,12 +662,12 @@ func (s *Service) PostDatasets_Codes(args *cmdArgs, env *rpcutil.Env) (ret commo
 		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
 		return
 	}
+
 	var req common.Code
 	if err = json.Unmarshal(data, &req); err != nil {
 		err = ErrorPostCode(err)
 		return
 	}
-
 	var b bool
 	if b, err = db.IsExist(s.DataSetColl, M{"id": datasetId}); err != nil {
 		err = errors.Info(ErrInternalError, err)
@@ -689,6 +689,7 @@ func (s *Service) PostDatasets_Codes(args *cmdArgs, env *rpcutil.Env) (ret commo
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
+
 	ret = req
 	log.Infof("success to insert code: %+v", req)
 	return
@@ -734,6 +735,7 @@ func (s *Service) PutDatasets_Codes_(args *cmdArgs, env *rpcutil.Env) (err error
 	req.Id = codeId
 	req.DatasetId = datasetId
 	req.CreateTime = common.GetCurrTime()
+
 	err = db.DoUpdate(s.CodeColl, M{"id": codeId, "datasetId": datasetId}, req)
 	if err != nil {
 		if err == mgo.ErrNotFound {
