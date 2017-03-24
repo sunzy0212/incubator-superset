@@ -10,14 +10,14 @@ class Template extends React.Component {
     super();
     this.state = {
       visible: false,
-      currItem: {},
+      currItem: { email: {}, reporter: {} },
       templates: [],
     };
   }
   componentWillReceiveProps(nextProps) {
     this.setState({
       visible: false,
-      templates: this.getData(nextProps.templates) || [],
+      templates: nextProps.templates,
     });
   }
 
@@ -69,8 +69,7 @@ class Template extends React.Component {
         name: e.name,
         desc: e.desc,
         reportId: e.reportId,
-        cronId: e.cronId,
-        crontab: Object.assign({}, e.crontab),
+        item: e,
       });
     });
     return data;
@@ -108,8 +107,11 @@ class Template extends React.Component {
         title: '日报',
         key: 'report',
         render: (record) => {
+          const cronId = record.item.reporter.cronId;
           const switcherProps = {
-            record: record.crontab.type === 'REPORT' ? record : { ...record, crontab: { jobId: 0 } },
+            record: { ...record.item,
+              cronId,
+              crontab: record.item.crons[cronId] || { jobId: 0 } },
             onSwitch: this.onReportSwitch,
           };
           return <Switcher {...switcherProps} />;
@@ -118,8 +120,11 @@ class Template extends React.Component {
         title: '邮件',
         key: 'email',
         render: (record) => {
+          const cronId = record.item.email.cronId;
           const switcherProps = {
-            record: record.crontab.type === 'EMAIL' ? record : { ...record, crontab: { jobId: 0 } },
+            record: { ...record.item,
+              cronId,
+              crontab: record.item.crons[cronId] || { jobId: 0 } },
             onSwitch: this.onEmailSwitch,
           };
           return <Switcher {...switcherProps} />;
@@ -130,7 +135,7 @@ class Template extends React.Component {
         className: '',
         render: record => (
           <span>
-            <a onClick={() => this.showEditor(record)}>编辑</a>
+            <a onClick={() => this.showEditor(record.item)}>编辑</a>
             <span className="ant-divider" />
 
             <Popconfirm title="确定删除该模板吗？" onConfirm={() => this.onDelete(record.id)}>

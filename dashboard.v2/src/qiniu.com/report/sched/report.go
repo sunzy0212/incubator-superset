@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/qiniu/rpc.v1"
+	"qiniu.com/report/common"
 )
 
-type Report struct {
-	name string
+type ReportSender struct {
+	common.Reporter
 	spec string
 }
 
@@ -17,21 +18,21 @@ type ReportConfig struct {
 	Name string `json:"name"`
 }
 
-func NewReport(spec string, cfg ReportConfig) *Report {
-	return &Report{name: cfg.Name, spec: spec}
+func NewReportSender(spec string, cfg common.Reporter) *ReportSender {
+	return &ReportSender{Reporter: cfg, spec: spec}
 }
 
-func (r *Report) Spec() string {
+func (r *ReportSender) Spec() string {
 	return r.spec
 }
-func (r *Report) Name() string {
-	return r.name
+func (r *ReportSender) Name() string {
+	return r.Name()
 }
-func (r *Report) Type() string {
+func (r *ReportSender) Type() string {
 	return "REPORT"
 }
 
-func (r *Report) Run() {
+func (r *ReportSender) Run() {
 	//新建目录
 	//
 	//新建报表
@@ -39,6 +40,6 @@ func (r *Report) Run() {
 	log.Println(fmt.Sprintf("执行`%s`: spec{%s}\ttype:%s", r.Name(), r.Spec(), r.Type()))
 }
 
-func (r Report) getRpcClient() rpc.Client {
+func (r ReportSender) getRpcClient() rpc.Client {
 	return rpc.NewClientTimeout(time.Duration(10*time.Second), time.Duration(10*time.Second))
 }

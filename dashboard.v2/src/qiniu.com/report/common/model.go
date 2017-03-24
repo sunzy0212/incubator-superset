@@ -237,14 +237,26 @@ type Report struct {
 	CreateTime string `json:"createTime" bson:"createTime"`
 }
 
+type Email struct {
+	Subject  string   `json:"subject"`
+	Username string   `json:"username" bson:"username"`
+	Password string   `json:"password" bson:"password"`
+	Receiver []string `json:"receiver" bson:"receiver"`
+	CronId   string   `json:"cronId" bson:"cronId"`
+}
+type Reporter struct {
+	CronId string `json:"cronId" bson:"cronId"`
+}
+
 type Template struct {
-	Id         string  `json:"id" bson:"id"`
-	Name       string  `json:"name" bson:"name"`
-	Crontab    Crontab `json:"crontab" bson:"-"`
-	CronId     string  `json:"cronId" bson:"cronId"`
-	ReportId   string  `json:"reportId" bson:"reportId"`
-	CreateTime string  `json:"createTime" bson:"createTime"`
-	UpdateTime string  `json:"updateTime" bson:"updateTime"`
+	Id         string             `json:"id" bson:"id"`
+	Name       string             `json:"name" bson:"name"`
+	Email      Email              `json:"email" bson:"email"`
+	Reporter   Reporter           `json:"reporter" bson:"reporter"`
+	Crons      map[string]Crontab `json:"crons" bson:"-"`
+	ReportId   string             `json:"reportId" bson:"reportId"`
+	CreateTime string             `json:"createTime" bson:"createTime"`
+	UpdateTime string             `json:"updateTime" bson:"updateTime"`
 }
 
 /*
@@ -283,15 +295,15 @@ type Layout struct {
 }
 
 type Crontab struct {
-	Id         string                 `json:"id" bson:"id"`
-	Name       string                 `json:"name" bson:"name"`
-	Type       string                 `json:"type" bson:"type"`
-	Cron       string                 `json:"cron" bson:"cron"`
-	JobId      int                    `json:"jobId" bson:"jobId"`
-	Spec       map[string]interface{} `json:"spec" bson:"spec"`
-	Desc       string                 `json:"desc" bson:"desc"`
-	CreateTime string                 `json:"createTime" bson:"createTime"`
-	UpdateTime string                 `json:"updateTime" bson:"updateTime"`
+	Id         string      `json:"id" bson:"id"`
+	Name       string      `json:"name" bson:"name"`
+	Type       string      `json:"type" bson:"type"`
+	Cron       string      `json:"cron" bson:"cron"`
+	JobId      int         `json:"jobId" bson:"jobId"`
+	Rules      []string    `json:"rules" bson:"rules"`
+	Spec       interface{} `json:"spec" bson:"spec"`
+	CreateTime string      `json:"createTime" bson:"createTime"`
+	UpdateTime string      `json:"updateTime" bson:"updateTime"`
 }
 
 func (db *Collections) EnsureIndex() {

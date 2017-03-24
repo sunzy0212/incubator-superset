@@ -9,34 +9,34 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
+	"qiniu.com/report/common"
 	"qiniupkg.com/x/log.v7"
 )
 
-type Email struct {
-	name string
+type EmailSender struct {
+	common.Email
 	spec string
 }
 
-type EmailConfig struct {
-	Name string `json:"name"`
+func NewEmailSender(spec string, cfg common.Email) *EmailSender {
+	return &EmailSender{Email: cfg, spec: spec}
 }
 
-func NewEmail(spec string, cfg EmailConfig) *Email {
-	return &Email{name: cfg.Name, spec: spec}
-}
-
-func (r *Email) Spec() string {
+func (r *EmailSender) Spec() string {
 	return r.spec
 }
-func (r *Email) Name() string {
-	return r.name
+func (r *EmailSender) Name() string {
+	return r.Subject
 }
-func (r *Email) Type() string {
+func (r *EmailSender) Type() string {
 	return "EMAIL"
 }
 
-func (r *Email) Run() {
+func (r *EmailSender) Run() {
+	client := newEmailClient(r.Email, []byte(fmt.Sprintf("测试邮件，时间：%s", time.Now())))
+	client.Send()
 	log.Println(fmt.Sprintf("执行`%s`: spec{%s}\ttype:%s", r.Name(), r.Spec(), r.Type()))
 }
 
@@ -50,6 +50,18 @@ type EmailClient struct {
 	Password   string
 	ServerAddr string
 	ServerPort int
+}
+
+func newEmailClient(cfg common.Email, body []byte) *EmailClient {
+	return &EmailClient{
+		Receiver:   cfg.Receiver,
+		Subject:    cfg.Subject,
+		User:       cfg.Username,
+		Password:   cfg.Password,
+		ServerAddr: "smtp.exmail.qq.com",
+		ServerPort: 465,
+		Body:       body,
+	}
 }
 
 func (client *EmailClient) Send() error {
@@ -91,31 +103,37 @@ func (client *EmailClient) Send() error {
 
 	conn, err := tls.Dial("tcp", serverNamePort, tlsconfig)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
 	c, err := smtp.NewClient(conn, client.ServerAddr)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
 	// Auth
 	if err = c.Auth(auth); err != nil {
+		log.Error(err)
 		return err
 	}
 
 	// To && From
 	if err = c.Mail(client.User); err != nil {
+		log.Error(err)
 		return err
 	}
 
 	for _, r := range client.Receiver {
 		if err = c.Rcpt(r); err != nil {
+			log.Error(err)
 			return err
 		}
 	}
 	if client.CC != "" {
 		if err = c.Rcpt(client.CC); err != nil {
+			log.Error(err)
 			return err
 		}
 	}

@@ -1366,22 +1366,33 @@ func (s *Service) PutTemplates_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 
-	updateDoc := M{}
-	if req.Name != "" {
-		updateDoc["name"] = req.Name
-	}
-
-	if len(updateDoc) == 0 {
-		err = ErrPostTemplate(fmt.Errorf("at least one parameter when update the template, but get  ", req))
-		return
-	}
-
-	updateDoc["updateTime"] = common.GetCurrTime()
-	if err = db.DoUpdate(s.TemplateColl, M{"id": id}, M{"$set": updateDoc}); err != nil {
+	temp := common.Template{}
+	if err = s.TemplateColl.Find(M{"id": id}).One(&temp); err != nil {
+		if err == mgo.ErrNotFound {
+			err = nil
+			return
+		}
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
-	log.Infof("success to update template %s: %+v", id, updateDoc)
+
+	if req.Name != "" {
+		temp.Name = req.Name
+	}
+
+	if req.Email.Username != "" || req.Email.Password != "" || len(req.Email.Receiver) != 0 {
+		temp.Email.Username = req.Email.Username
+		temp.Email.Password = req.Email.Password
+		temp.Email.Receiver = req.Email.Receiver
+	}
+
+	//暂时这么多了
+
+	if err = db.DoUpdate(s.TemplateColl, M{"id": id}, temp); err != nil {
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	log.Infof("success to update template %s: %+v", id)
 	return
 }
 
@@ -1401,17 +1412,30 @@ func (s *Service) GetTemplates(args *cmdArgs, env *rpcutil.Env) (ret RetTemplate
 	}
 
 	for i, v := range res {
-		var c common.Crontab
-		if err = s.CrontabColl.Find(M{"id": v.CronId}).One(&c); err != nil {
-			log.Errorf("error while fetch crontab for template %s, err ~ $v ", v.Id, err)
-			err = nil
-			continue
+		crons := make(map[string]common.Crontab)
+		if v.Email.CronId != "" {
+			var c common.Crontab
+			if err = s.CrontabColl.Find(M{"id": v.Email.CronId}).One(&c); err != nil {
+				log.Warnf("error while fetch email-crontab id{%s} for template{%s}, err ~ %v ", v.Email.CronId, v.Id, err)
+				err = nil
+				continue
+			}
+			crons[c.Id] = c
 		}
-		res[i].Crontab = c
+		if v.Reporter.CronId != "" {
+			var c common.Crontab
+			if err = s.CrontabColl.Find(M{"id": v.Reporter.CronId}).One(&c); err != nil {
+				log.Warnf("error while fetch email-crontab id{%s} for template{%s}, err ~ %v ", v.Reporter.CronId, v.Id, err)
+				err = nil
+				continue
+			}
+			crons[c.Id] = c
+		}
+		res[i].Crons = crons
 	}
 
 	ret.Templates = res
-	log.Infof("success to get templates %v", ret)
+	log.Infof("success to get templates %#v", ret)
 	return
 }
 
@@ -1466,6 +1490,20 @@ func (s *Service) PostTemplates_Crons(args *cmdArgs, env *rpcutil.Env) (ret inte
 	} else {
 		crontab.CreateTime = common.GetCurrTime()
 	}
+	var temp common.Template
+	if err = s.TemplateColl.Find(M{"id": tempId}).One(&temp); err != nil {
+		err = ErrPostCronTask(err)
+		return
+	}
+
+	if strings.ToUpper(crontab.Type) == "EMAIL" {
+		temp.Email.Subject = temp.Name
+		crontab.Spec = temp.Email
+	}
+	if strings.ToUpper(crontab.Type) == "REPORT" {
+		crontab.Spec = temp.Reporter
+	}
+
 	var job sched.Job
 	if job, err = sched.Get(crontab); err != nil {
 		err = ErrPostCronTask(err)
@@ -1487,7 +1525,13 @@ func (s *Service) PostTemplates_Crons(args *cmdArgs, env *rpcutil.Env) (ret inte
 		err = ErrPostCronTask(err)
 		return
 	}
-	updateDoc := M{"cronId": crontab.Id}
+	updateDoc := M{}
+	if strings.ToUpper(crontab.Type) == "EMAIL" {
+		updateDoc["email.cronId"] = crontab.Id
+	}
+	if strings.ToUpper(crontab.Type) == "REPORT" {
+		updateDoc["reporter.cronId"] = crontab.Id
+	}
 	if err = db.DoUpdate(s.TemplateColl, M{"id": tempId}, M{"$set": updateDoc}); err != nil {
 		err = ErrPostCronTask(err)
 		return
@@ -1507,7 +1551,14 @@ func (s *Service) DeleteTemplates_Crons_(args *cmdArgs, env *rpcutil.Env) (err e
 	if err = db.DoDelete(s.CrontabColl, M{"id": c.Id}); err != nil {
 		return fmt.Errorf("failed to delete crontab job %s , try again", c.Name)
 	}
-	updateDoc := M{"cronId": ""}
+
+	updateDoc := M{}
+	if strings.ToUpper(c.Type) == "EMAIL" {
+		updateDoc["email.cronId"] = ""
+	}
+	if strings.ToUpper(c.Type) == "REPORT" {
+		updateDoc["reporter.cronId"] = ""
+	}
 	if err = db.DoUpdate(s.TemplateColl, M{"id": tempId}, M{"$set": updateDoc}); err != nil {
 		err = ErrPostCronTask(err)
 		return
