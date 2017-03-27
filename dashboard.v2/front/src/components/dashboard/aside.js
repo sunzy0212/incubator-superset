@@ -63,7 +63,7 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
   }];
 
   let data = [];
-  const rootDir = [{ id: 'Root', name: '根目录', subDir: [], dirFlag: true }]
+  const rootDir = [{ id: 'Root', name: '根目录', subDir: [], dirFlag: true }];
   rootDir[0].subDir = dirs;
   function handleInitData(currentDirs, transformArr) {
     currentDirs.forEach((dirEle, j) => {
@@ -91,7 +91,7 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
           });
         }
       });
-      if(dirEle.children !== undefined) {
+      if (dirEle.children !== undefined) {
         handleInitReport(dirEle.children);
       }
     });

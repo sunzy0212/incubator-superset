@@ -3,7 +3,7 @@ import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
 const ChartComponent = ({ data, xaxis, yaxis, title, isFlip, unit }) => {
-  let chartData = {}
+  let chartData = {};
   transformToChartData(data, xaxis, yaxis, title, isFlip, unit);
 
   const option = {

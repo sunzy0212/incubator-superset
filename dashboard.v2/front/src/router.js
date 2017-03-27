@@ -1,7 +1,7 @@
 import React from 'react';
 import { Router } from 'dva/router';
 
-import Operator from "./routes/Operator.js";
+import Operator from './routes/Operator.js';
 
 const cached = {};
 function registerModel(app, model) {

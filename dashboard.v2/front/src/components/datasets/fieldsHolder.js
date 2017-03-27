@@ -127,7 +127,7 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
     onCancelCreate,
     currentRecord,
     onCreateOk,
-  }
+  };
 
   const measureUnitProps = {
     MeasureUnitVisible,

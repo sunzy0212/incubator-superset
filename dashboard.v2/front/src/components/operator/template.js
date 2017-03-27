@@ -1,9 +1,11 @@
 import React from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import { Table, Popconfirm, Button } from 'antd';
+import { Table, Popconfirm, Button, message } from 'antd';
 import TemplateEditor from './templateEditor';
 import Switcher from './switcher';
+import { getDir } from '../../services/dashboard';
+
 
 class Template extends React.Component {
   constructor() {
@@ -11,6 +13,7 @@ class Template extends React.Component {
     this.state = {
       visible: false,
       currItem: { email: {}, reporter: {} },
+      currDir: { name: '' },
       templates: [],
     };
   }
@@ -75,10 +78,34 @@ class Template extends React.Component {
     return data;
   }
   showEditor=(record) => {
-    this.setState({
-      visible: true,
-      currItem: record,
-    });
+    let currDir = this.state.currDir;
+    const dirId = record.reporter.preDirId;
+    if (dirId !== undefined && dirId !== '') {
+      getDir({ id: dirId })
+       .then((data) => {
+         currDir = data.result;
+         this.setState({
+           visible: true,
+           currItem: record,
+           currDir,
+         });
+       })
+        .catch(() => {  // 日报目录被删除
+          message.error('日报目录不存在');
+          record.reporter.preDirId = '';
+          this.setState({
+            visible: true,
+            currItem: record,
+            currDir: { name: '' },
+          });
+        });
+    } else {
+      this.setState({
+        visible: true,
+        currItem: record,
+        currDir,
+      });
+    }
   }
 
   addTemplate = () => {
@@ -148,6 +175,7 @@ class Template extends React.Component {
     const templateEditorProps = {
       visible: this.state.visible,
       item: this.state.currItem,
+      currDir: this.state.currDir,
       onOk: this.onOk,
       onCancel: this.onCancel,
     };

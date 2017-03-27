@@ -45,7 +45,7 @@ const TreeModal = ({ visible, onOk, onCancel, dirs,
     });
   }
   const transformArr = [];
-  const rootDir = [{ id: 'Root', name: '根目录', subDir: [], dirFlag: true }]
+  const rootDir = [{ id: 'Root', name: '根目录', subDir: [], dirFlag: true }];
   rootDir[0].subDir = dirs;
   handleInitData(rootDir, transformArr);
   data = transformArr;

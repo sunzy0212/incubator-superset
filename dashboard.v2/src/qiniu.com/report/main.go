@@ -146,6 +146,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir(cfg.S.StaticPath)))
 	router.Mux.SetDefault(mux)
-	log.Infof("listening on :%s", cfg.S.Port)
+	log.Infof("listening on :%s use https", cfg.S.Port)
+	//log.Fatal(http.ListenAndServeTLS(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), "cert.pem", "key.pem", router.Register(srv)))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), router.Register(srv)))
 }

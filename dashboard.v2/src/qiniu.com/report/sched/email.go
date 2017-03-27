@@ -37,7 +37,7 @@ func (r *EmailSender) Type() string {
 func (r *EmailSender) Run() {
 	client := newEmailClient(r.Email, []byte(fmt.Sprintf("测试邮件，时间：%s", time.Now())))
 	client.Send()
-	log.Println(fmt.Sprintf("执行`%s`: spec{%s}\ttype:%s", r.Name(), r.Spec(), r.Type()))
+	log.Println(fmt.Sprintf("send email `%s`: spec{%s}\ttype:%s", r.Name(), r.Spec(), r.Type()))
 }
 
 type EmailClient struct {

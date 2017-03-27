@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { Modal, Form, Input, Button, Cascader } from 'antd';
 
-
 const FormItem = Form.Item;
 const formItemLayout = {
   labelCol: { span: 6 },
@@ -14,13 +13,15 @@ class TemplateEditor extends React.Component {
   constructor() {
     super();
     this.state = {
-      item: { email: {} },
+      item: { email: {}, reporter: {} },
+      currDir: { name: '' },
     };
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
       item: nextProps.item,
+      currDir: nextProps.currDir,
     });
   }
 
@@ -36,7 +37,16 @@ class TemplateEditor extends React.Component {
             password: values.password,
             receiver: _.split(values.receiver, ';'),
           },
+
+          reporter: {
+            name: values.dirName || values.name,
+            reportId: this.props.item.reportId,
+            preDirId: this.props.item.reporter.preDirId || '',
+            dirName: values.dirName,
+            rules: values.rules,
+          },
         };
+
         this.props.onOk(data);
       }
     });
@@ -47,18 +57,18 @@ class TemplateEditor extends React.Component {
       form: {
         getFieldDecorator,
       } } = this.props;
-    const { item } = this.state;
+    const { item, currDir } = this.state;
 
     const options = [{
-      value: 'templateName',
+      value: 'TEMP_NAME',
       label: '模板名',
       children: [{
-        value: 'day',
-        label: 'YYYY-mm-DD',
+        value: 'yyyy-MM-dd',
+        label: 'yyyy-MM-dd',
       }] },
     {
-      value: 'day',
-      label: 'YYYY-mm-DD',
+      value: 'yyyy-MM-dd',
+      label: 'yyyy-MM-dd',
     },
     ];
 
@@ -84,13 +94,13 @@ class TemplateEditor extends React.Component {
           <h4>日报规则</h4>
           <FormItem label="目录：" {...formItemLayout}>
             {getFieldDecorator('dirName', {
-              initialValue: item.dirName,
+              initialValue: currDir.name || '',
             })(<Input placeholder="默认模板名" />)}
           </FormItem>
 
           <FormItem label="生成规则：" {...formItemLayout}>
-            {getFieldDecorator('nickName', {
-              initialValue: item.nickName,
+            {getFieldDecorator('rules', {
+              initialValue: item.reporter.rules || [],
             })(<Cascader options={options} size="large" expandTrigger="hover" />)}
           </FormItem>
 
