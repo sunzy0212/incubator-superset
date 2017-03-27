@@ -22,7 +22,13 @@ class DataSourceEditor extends React.Component {
       type,
       item,
       onOk,
-      callBack: (saveLoading) => { this.setState({ saveLoading }); },
+      callBack: (saveLoading) => {
+        const that = this;
+        this.setState({ saveLoading });
+        setTimeout(() => {
+          that.setState({ saveLoading: false });
+        }, 5000);
+      },
     };
 
     switch (type.toUpperCase()) {

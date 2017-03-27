@@ -238,11 +238,12 @@ type Code struct {
 }
 */
 type Report struct {
-	Id         string `json:"id" bson:"id"`
-	DirId      string `json:"dirId" bson:"dirId"`
-	Name       string `json:"name" bson:"name"`
-	IsTemplate bool   `json:"isTemplate" bson:"isTemplate"`
-	CreateTime string `json:"createTime" bson:"createTime"`
+	Id         string            `json:"id" bson:"id"`
+	DirId      string            `json:"dirId" bson:"dirId"`
+	Name       string            `json:"name" bson:"name"`
+	IsTemplate bool              `json:"isTemplate" bson:"isTemplate"`
+	Args       map[string]string `json:"args" bson:"args"`
+	CreateTime string            `json:"createTime" bson:"createTime"`
 }
 
 type Email struct {

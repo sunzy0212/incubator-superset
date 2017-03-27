@@ -37,7 +37,12 @@ type Drill struct {
 	Urls []string `json:"urls"`
 }
 
+type Env struct {
+	Dev bool `json:"dev"`
+}
+
 type Config struct {
+	E     Env            `json:"env"`
 	M     mgoutil.Config `json:"mgo"`
 	S     EndPoint       `json:"service"`
 	Drill Drill          `json:"drill"`
@@ -71,6 +76,7 @@ func main() {
 	if err := config.Load(&cfg); err != nil {
 		log.Warn("Load report config file failed\n Use default config:")
 		cfg = Config{
+			Env{Dev: false},
 			mgoutil.Config{Host: "127.0.0.1", DB: "report"},
 			EndPoint{"8000", runtime.NumCPU()/2 + 1, 1, "./"},
 			Drill{
@@ -146,7 +152,11 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir(cfg.S.StaticPath)))
 	router.Mux.SetDefault(mux)
-	log.Infof("listening on :%s use https", cfg.S.Port)
-	//log.Fatal(http.ListenAndServeTLS(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), "cert.pem", "key.pem", router.Register(srv)))
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), router.Register(srv)))
+	if cfg.E.Dev {
+		log.Infof("listening on :%s use http", cfg.S.Port)
+		log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), router.Register(srv)))
+	} else {
+		log.Infof("listening on :%s use https", cfg.S.Port)
+		log.Fatal(http.ListenAndServeTLS(fmt.Sprintf("0.0.0.0:%s", cfg.S.Port), "cert.pem", "key.pem", router.Register(srv)))
+	}
 }

@@ -2,6 +2,7 @@ import { parse } from 'qs';
 import { routerRedux } from 'dva/router';
 import { listDatasources, saveDataSource, deleteDataSource, showTables } from '../services/datasource';
 import { listDataSets } from '../services/datasets';
+import { message } from 'antd';
 
 
 export default {
@@ -55,6 +56,8 @@ export default {
       if (data.success) {
         yield put({ type: 'queryDatasources' });
         yield put(routerRedux.push('/datasource'));
+      } else {
+        message.error(`保存数据失败：${data.err.message}`);
       }
     },
 

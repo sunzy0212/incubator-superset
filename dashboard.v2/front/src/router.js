@@ -87,6 +87,7 @@ function RouterConfig({ history, app }) {
           require.ensure([], (require) => {
             registerModel(app, require('./models/dashboard/reportboard'));
             registerModel(app, require('./models/dashboard/dashboard'));
+            registerModel(app, require('./models/operator'));
             cb(null, require('./routes/Dashboard'));
           });
         },

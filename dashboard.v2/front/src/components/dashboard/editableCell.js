@@ -4,10 +4,12 @@ import { Icon, Input } from 'antd';
 import styles from './aside.less';
 
 class EditableCell extends React.Component {
+
   state = {
     key: this.props.id,
     dirFlag: this.props.dirFlag,
     value: this.props.value,
+    args: this.props.args,
     editable: false,
   }
   handleChange = (e) => {
@@ -24,7 +26,7 @@ class EditableCell extends React.Component {
     this.setState({ editable: true });
   }
   render() {
-    const { key, value, editable, dirFlag } = this.state;
+    const { key, value, args, editable, dirFlag } = this.state;
     if (dirFlag === true) {
       return (<span className={styles.editable_cell}>
         {
@@ -55,7 +57,7 @@ class EditableCell extends React.Component {
       </span>);
     } else {
       return (
-        <Link className={styles.editable_link} to={`/dashboard/${key}`} ><Icon type="file" />{value || ' '}</Link>
+        <Link className={styles.editable_link} to={`/dashboard/${key}`} query={args} ><Icon type="file" />{value || ' '}</Link>
       );
     }
   }

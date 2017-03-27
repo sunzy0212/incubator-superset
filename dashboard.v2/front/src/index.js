@@ -9,7 +9,7 @@ import './index.html';
 const app = dva({
   history: hashHistory,
   onError(e) {
-    message.error(e.message, /* duration */3);
+    message.error(e.message, /* duration */5);
   },
 });
 

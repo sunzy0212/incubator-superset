@@ -434,6 +434,7 @@ report
 	id		string
 	dirId	string
 	name	string
+	args 	map[string]string
 	createTime	timestamp
 }
 ```
@@ -555,7 +556,8 @@ POST /v1/reports
 Content-Type: application/json
 {
 	"dirId": <DirId>,
-    "name" : <Name>
+	"name" : <Name>,
+	"args" : <Args>
 }
 ```
 返回包：
@@ -568,8 +570,9 @@ Content-Type: application/json
 PUT /v1/reports/<reportId>
 Content-Type: application/json
 {
-    "dirId": <DirId>,
-    "name" : <Name>
+	"dirId": <DirId>,
+	"name" : <Name>,
+	"args" : <Args>
 }
 ```
 返回包：
@@ -593,6 +596,7 @@ Content-Type: application/json
         "id" : <Id>,
 		"dirId":<DirId>,
         "name" : <Name>,
+        "args" : <Args>,
         "createTime" : <CreateTime>
     },
     ...
@@ -611,6 +615,7 @@ Content-Type: application/json
 {
 	"id" : <Id>,
 	"name" : <Name>,
+	"args" : <Args>,
 	"createTime" : <CreateTime>
 }
 ```

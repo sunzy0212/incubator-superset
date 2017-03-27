@@ -46,7 +46,7 @@ const Header = ({
             <Icon type="lock" />
           </Col>
           <Col lg={20} md={20} >
-            <Form inline onSubmit={handleSubmit}>
+            <Form layout="inline" onSubmit={handleSubmit}>
               <FormItem wrapperCol={{ span: 16 }}><div style={{ width: '250px' }}>{report.name} </div></FormItem>
             </Form>
           </Col>
