@@ -10,7 +10,8 @@ const TabPane = Tabs.TabPane;
 
 function Datasets({ dispatch, datasets }) {
   const { loading, dimensions, measures, renameModalVisibles, currentRecord, transformDateVisible,
-    modalSpace, datasourceList, tableTreeVisibles, tables, tableData, currentDatasetId, times, currentDatasetName } = datasets;
+    modalSpace, datasourceList, tableTreeVisibles, tables, tableData,
+    currentDatasetId, times, currentDatasetName, MeasureUnitVisible } = datasets;
 
   const dimensionsProps = {
     title: '维度',
@@ -18,6 +19,7 @@ function Datasets({ dispatch, datasets }) {
     renameModalVisibles,
     transformDateVisible,
     currentRecord,
+    MeasureUnitVisible,
     onEditor(data, title) {
       dispatch({
         type: 'datasets/showRenameModal',
@@ -53,6 +55,47 @@ function Datasets({ dispatch, datasets }) {
       });
       dispatch({
         type: 'datasets/updateState',
+        payload: { dimensions: cDimensions },
+      });
+    },
+    transformToString(record) {
+      const cDimensions = [];
+      dimensions.forEach((ele, j) => {
+        cDimensions.push(
+          Object.assign(ele),
+        );
+        if (ele.name === record.item.name) {
+          cDimensions[j].type = 'string';
+        }
+      });
+      dispatch({
+        type: 'datasets/updateState',
+        payload: { dimensions: cDimensions },
+      });
+    },
+    showMeasureUnit(record) {
+      dispatch({
+        type: 'datasets/showMeasureUnit',
+        payload: { record },
+      });
+    },
+    onCancelUnit() {
+      dispatch({
+        type: 'datasets/hideMeasureUnit',
+      });
+    },
+    addMeasureUnit(record) {
+      const cDimensions = [];
+      dimensions.forEach((ele, j) => {
+        cDimensions.push(
+          Object.assign(ele),
+        );
+        if (ele.name === record.currentRecord.name) {
+          cDimensions[j].unit = record.unit;
+        }
+      });
+      dispatch({
+        type: 'datasets/saveMeasureUnit',
         payload: { dimensions: cDimensions },
       });
     },

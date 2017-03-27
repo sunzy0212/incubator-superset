@@ -150,6 +150,7 @@ type Field struct {
 	Alias      string          `json:"alias" bson:"alias"`
 	Action     string          `json:"action" bson:"action"`
 	Transform  string          `json:"transform" bson:"transform"`
+	Unit       string          `json:"unit" bson:"unit"`
 }
 
 type Dimension struct {

@@ -15,6 +15,7 @@ export default {
     renameModalVisibles: false,
     tableTreeVisibles: false,
     transformDateVisible: false,
+    MeasureUnitVisible: false,
     loading: false,
     datasources: {},
     dataset: {},
@@ -288,10 +289,29 @@ export default {
         transformDateVisible: false,
       };
     },
+    showMeasureUnit(state, action) {
+      return {
+        ...state,
+        MeasureUnitVisible: true,
+        currentRecord: action.payload.record,
+      };
+    },
+    hideMeasureUnit(state) {
+      return {
+        ...state,
+        MeasureUnitVisible: false,
+      };
+    },
     saveTransformDate(state) {
       return {
         ...state,
         transformDateVisible: false,
+      };
+    },
+    saveMeasureUnit(state) {
+      return {
+        ...state,
+        MeasureUnitVisible: false,
       };
     },
     generateFileds(state, action) {
