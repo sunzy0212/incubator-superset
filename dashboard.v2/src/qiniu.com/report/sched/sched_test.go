@@ -50,3 +50,14 @@ func TestSendEmail(t *testing.T) {
 	err = client.Send()
 	t.Log(err)
 }
+
+func TestReport(t *testing.T) {
+	cfg := common.Reporter{
+		ReportId: "report_AEGA0FJvMarj4ZOI",
+		PreDirId: "dir_DKSWQHmNyHmhRFud",
+		Name:     "test report",
+		Rules:    []string{"yyyy-MM-dd"},
+	}
+	client := NewReportSender("", cfg)
+	client.Run()
+}

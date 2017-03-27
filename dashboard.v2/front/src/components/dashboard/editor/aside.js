@@ -14,7 +14,7 @@ const Aside = ({ dirs, getChartData, charts, addChartToReport,
       treeDirs.push({
         key: dirEle.id,
         title: dirEle.name,
-        children: [{key: `key+${j}`, title: ''}],
+        children: [{ key: `key+${j}`, title: '' }],
         idDir: true,
       });
 
@@ -34,7 +34,7 @@ const Aside = ({ dirs, getChartData, charts, addChartToReport,
         treeDirs.push({
           key: dirEle.id,
           title: dirEle.name,
-          children: [{key: `key+${j}`, title: ''}],
+          children: [{ key: `key+${j}`, title: '' }],
           idDir: true,
         });
       }

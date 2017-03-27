@@ -521,6 +521,25 @@ Content-Type: application/json
   ]
 }
 ```
+#### 获取目录
+```
+GET /v1/dirs/<Id>
+```
+返回包
+
+```
+200 OK
+Content-Type: application/json
+{
+	"id": <Id>,
+	"type": <Type>,
+	"name": <Name>,
+	"pre": <Pre>,
+	"subDir": <Null>,
+	"accessTime": <accessTime>
+}
+```
+
 #### 删除目录
 ```
 DELETE /v1/dirs/<Id>

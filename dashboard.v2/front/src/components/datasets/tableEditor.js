@@ -33,7 +33,7 @@ const TableEditor = ({ save, loadTableTree, datasourceList, tableTreeVisibles, c
     tables,
     onCancelLoad,
     onLoadOk,
-  }
+  };
 
   return (
     <div>

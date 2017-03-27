@@ -12,7 +12,7 @@ export default {
     },
     loginButtonLoading: false,
     siderFold: localStorage.getItem('antdAdminSiderFold') === 'true',
-    darkTheme: localStorage.getItem('antdAdminDarkTheme') === 'true',
+    darkTheme: localStorage.getItem('antdAdminDarkTheme') === 'false',
   },
   subscriptions: {
     setup({ dispatch }) {

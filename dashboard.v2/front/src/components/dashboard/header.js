@@ -40,7 +40,7 @@ const Header = ({
     });
   }
   function onSave() {
-    const layouts = []
+    const layouts = [];
     currentLayouts.lg.forEach((ele) => {
       layouts.push({
         chartId: ele.i,

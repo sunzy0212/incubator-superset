@@ -1,7 +1,7 @@
 import { parse } from 'qs';
 import _ from 'lodash';
 import { getTemplates, postTemplate, deleteTemplate, updateTemplate, postCrontab, deleteCrontab } from '../services/operator';
-import { addReport } from '../services/dashboard';
+import { addReport, addDir, updateDir } from '../services/dashboard';
 
 
 const OPERATOR_TEMPLATE_PATH = '/operator/template';
@@ -12,7 +12,6 @@ export default {
     templates: [],
   },
   subscriptions: {
-
     setup({ dispatch, history }) {
       return history.listen(({ pathname }) => {
         if (_.startsWith(pathname, OPERATOR_TEMPLATE_PATH)) {
@@ -49,11 +48,32 @@ export default {
     },
 
     *updateTemplate({ payload }, { call, put }) {
-      const data = yield call(updateTemplate, parse(payload));
-      if (data.success) {
-        yield put({
-          type: 'queryTemplates',
-        });
+      const { reporter } = payload;
+      if (reporter.rules.length !== 0) {
+        if (reporter.preDirId === '') {
+          const dirData = yield call(addDir,
+            parse({ type: 'REPORT', name: reporter.dirName || reporter.name, pre: 'ROOT' }));
+          if (dirData.success) {
+            reporter.preDirId = dirData.result.id;
+            const data = yield call(updateTemplate, parse({ ...payload, reporter }));
+            if (data.success) {
+              yield put({
+                type: 'queryTemplates',
+              });
+            }
+          }
+        } else {
+          const dirData = yield call(updateDir,
+            parse({ type: 'REPORT', name: reporter.dirName || reporter.name, pre: 'ROOT', id: reporter.preDirId }));
+          if (dirData.success) {
+            const data = yield call(updateTemplate, parse({ ...payload, reporter }));
+            if (data.success) {
+              yield put({
+                type: 'queryTemplates',
+              });
+            }
+          }
+        }
       }
     },
 

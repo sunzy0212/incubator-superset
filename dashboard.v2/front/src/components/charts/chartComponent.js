@@ -3,7 +3,7 @@ import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
 const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
-  let chartData = {}
+  let chartData = {};
   transformToChartData(data, xaxis, yaxis, title, isFlip);
 
   const option = {
@@ -67,7 +67,6 @@ const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
       type: 'value',
     }];
     if (cIsFlip === true) {
-
       yType = [{
         type: 'category',
         data: currentName,

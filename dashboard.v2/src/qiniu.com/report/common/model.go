@@ -245,7 +245,11 @@ type Email struct {
 	CronId   string   `json:"cronId" bson:"cronId"`
 }
 type Reporter struct {
-	CronId string `json:"cronId" bson:"cronId"`
+	ReportId string   `json:"reportId" bson:"reportId"`
+	PreDirId string   `json:"preDirId" bson:"preDirId"`
+	Name     string   `json:"name" bson:"name"`
+	Rules    []string `json:"rules" bson:"rules"`
+	CronId   string   `json:"cronId" bson:"cronId"`
 }
 
 type Template struct {

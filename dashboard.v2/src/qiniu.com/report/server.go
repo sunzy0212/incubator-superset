@@ -570,6 +570,20 @@ func (s *Service) GetDirs(env *rpcutil.Env) (ret TreeDirs, err error) {
 	return
 }
 
+func (s *Service) GetDirs_(args *cmdArgs, env *rpcutil.Env) (ret common.Dir, err error) {
+	id := args.CmdArgs[0]
+
+	if err = s.DirColl.Find(M{"id": id}).One(&ret); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the dir is not exsit !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	log.Infof("success to get dir: %v", ret)
+	return
+}
+
 func genTreeDirs(root string, dirs []common.Dir) []Dir {
 	treeDirs := make([]Dir, 0)
 	for _, v := range dirs {
@@ -1385,8 +1399,13 @@ func (s *Service) PutTemplates_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		temp.Email.Password = req.Email.Password
 		temp.Email.Receiver = req.Email.Receiver
 	}
-
-	//暂时这么多了
+	fmt.Println(fmt.Sprintf("%#v", req))
+	if req.Reporter.Name != "" || req.Reporter.PreDirId != "" || len(req.Reporter.Rules) != 0 {
+		temp.Reporter.Name = req.Reporter.Name
+		temp.Reporter.ReportId = req.Reporter.ReportId
+		temp.Reporter.PreDirId = req.Reporter.PreDirId
+		temp.Reporter.Rules = req.Reporter.Rules
+	}
 
 	if err = db.DoUpdate(s.TemplateColl, M{"id": id}, temp); err != nil {
 		err = errors.Info(ErrInternalError, err)

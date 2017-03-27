@@ -10,6 +10,13 @@ export async function getDirs(params) {
   });
 }
 
+export async function getDir(params) {
+  return request(`/v1/dirs/${params.id}`, {
+    method: 'get',
+    data: params,
+  });
+}
+
 export async function getChartsByDirId(params) {
   return request(`/v1/charts?dirId=${params.dirId}`, {
     method: 'get',
@@ -96,6 +103,19 @@ export async function addReport(params) {
 export async function addDir(params) {
   return request('/v1/dirs', {
     method: 'post',
+    body: JSON.stringify({
+      pre: params.pre,
+      name: params.name,
+      post: '',
+      type: params.type,
+    }),
+  });
+}
+
+// PUT /v1/dirs
+export async function updateDir(params) {
+  return request(`/v1/dirs/${params.id}`, {
+    method: 'put',
     body: JSON.stringify({
       pre: params.pre,
       name: params.name,
