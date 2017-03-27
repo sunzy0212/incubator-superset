@@ -150,6 +150,7 @@ type Field struct {
 	Alias      string          `json:"alias" bson:"alias"`
 	Action     string          `json:"action" bson:"action"`
 	Transform  string          `json:"transform" bson:"transform"`
+	Unit       string          `json:"unit" bson:"unit"`
 }
 
 type Dimension struct {
@@ -199,6 +200,12 @@ type Evaluation struct {
 	Data     string `json:"data" bson:"data"`
 }
 
+// 表达式
+type Condition struct {
+	Operator string `json:"operator" bson:"operator"`
+	Data     string `json:"data" bson:"data"`
+}
+
 /*
 {
     id      string
@@ -217,6 +224,7 @@ type Code struct {
 	MetricFields []Field      `json:"metricFields" bson:"metricFields"`
 	GroupFields  []Field      `json:"groupFields" bson:"groupFields"`
 	TimeFields   []Evaluation `json:"timeFields" bson:"timeFields"`
+	RangeTimes   []Condition  `json:"rangeTimes" bson:"rangeTimes"`
 	Wheres       []Evaluation `json:"wheres" bson:"wheres"`
 	Havings      []Evaluation `json:"havings" bson:"havings"`
 	CreateTime   string       `json:"createTime" bson:"createTime"`

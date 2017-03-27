@@ -1,10 +1,13 @@
 import React, { PropTypes } from 'react';
 import { Table, Menu, Dropdown, Icon } from 'antd';
 import TransformDate from './transformDate';
+import MeasureUnit from './measureUnit'
 
 const SubMenu = Menu.SubMenu;
-const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transformToDate, transformDateVisible, onCancelCreate,
-  transformToNumber, checkAggregation, records, currentRecord, onCreateOk }) => {
+const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transformToDate,
+  transformDateVisible, onCancelCreate, transformToNumber, transformToString,
+  checkAggregation, addMeasureUnit, records, currentRecord, onCreateOk,
+  MeasureUnitVisible, onCancelUnit, showMeasureUnit }) => {
   function genDropMenu(record) {
     const dimensionMenu = (
       <Menu style={{ width: 130 }} mode="vertical">
@@ -12,14 +15,17 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
           <a onClick={() => onEditor(record, title)}> 重命名</a>
         </Menu.Item >
         <Menu.Item >
-          <a onClick={() => onEditor(record, title)}> 复制字段</a>
+          <a onClick={() => showMeasureUnit(record, title)}> 添加计量单位</a>
         </Menu.Item >
         <SubMenu key="sub1" title={<span>转换数据类型</span>}>
           <Menu.Item >
             <a onClick={() => transformToDate(record)}> 转换为日期</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => transformToNumber(record)}> 还原为数字</a>
+            <a onClick={() => transformToString(record)}> 转换为字符</a>
+          </Menu.Item >
+          <Menu.Item >
+            <a onClick={() => transformToNumber(record)}> 转换为数字</a>
           </Menu.Item >
         </SubMenu>
         <Menu.Item >
@@ -31,9 +37,6 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
       <Menu style={{ width: 130 }} mode="vertical">
         <Menu.Item >
           <a onClick={() => onEditor(record, title)}> 重命名</a>
-        </Menu.Item >
-        <Menu.Item >
-          <a onClick={() => onEditor(record, title)}> 复制字段</a>
         </Menu.Item >
         <SubMenu key="sub1" title={<span>聚合方法</span>}>
           <Menu.Item >
@@ -126,7 +129,12 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
     onCreateOk,
   };
 
-  console.log(transformDateVisible);
+  const measureUnitProps = {
+    MeasureUnitVisible,
+    onCancelUnit,
+    currentRecord,
+    addMeasureUnit,
+  }
 
   function rowClick(record, index) {
     console.log(record, index);
@@ -135,6 +143,7 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
     <div>
       <div>
         <TransformDate {...props} />
+        <MeasureUnit {...measureUnitProps} />
       </div>
       <Table
         columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
@@ -148,6 +157,8 @@ FieldHolder.propTypes = {
   onEditor: PropTypes.func,
   transToDimension: PropTypes.func,
   transToMeasure: PropTypes.func,
+  transformToString: PropTypes.func,
+  addMeasureUnit: PropTypes.func,
   checkAggregation: PropTypes.func,
   records: PropTypes.array,
   transformDateVisible: PropTypes.bool,

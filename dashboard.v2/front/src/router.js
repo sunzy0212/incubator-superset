@@ -66,6 +66,18 @@ function RouterConfig({ history, app }) {
             cb(null, require('./routes/Datasets'));
           });
         },
+        childRoutes: [
+          {
+            path: ':id',
+            name: 'dataset',
+            getComponent(nextState, cb) {
+              require.ensure([], (require) => {
+                registerModel(app, require('./models/datasets'));
+                cb(null, require('./routes/Datasets'));
+              });
+            },
+          },
+        ],
       },
 
       {
@@ -73,7 +85,7 @@ function RouterConfig({ history, app }) {
         name: 'dashboard',
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            // app.model(require('./models/dashboard/dashboard'));
+            registerModel(app, require('./models/dashboard/reportboard'));
             registerModel(app, require('./models/dashboard/dashboard'));
             cb(null, require('./routes/Dashboard'));
           });

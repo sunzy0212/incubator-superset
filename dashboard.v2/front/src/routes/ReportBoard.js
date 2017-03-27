@@ -2,17 +2,14 @@ import React, { PropTypes } from 'react';
 import { connect } from 'dva';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { Spin, Button } from 'antd';
-import Header from '../components/dashboard/header';
 import View from '../components/dashboard/view';
 import styles from './ReportBoard.less';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
-
-function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
-  const { status, titleStatus, loading, report, layouts, addChartId,
+function ReportBoard({ dispatch, reportboard }) {
+  const { status, loading, report, layouts, addChartId, timeRange,
     ponitsContainer } = reportboard;
-  const { deleteModalVisible } = dashboard;
   const currentLayouts = { lg: [] };
   const chartList = [];
   if (addChartId !== undefined) {
@@ -55,56 +52,17 @@ function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
 
   function onLayoutChange(layout) {
     currentLayouts.lg = layout;
+    dispatch({
+      type: 'reportboard/layoutChange',
+      payload: { currentLayouts },
+    });
   }
-  function onBreakpointChange(breakpoint) {
-  }
-
-  const headerProps = {
-    status,
-    titleStatus,
-    report,
-    deleteModalVisible,
-    currentLayouts,
-    editTitle() {
-      dispatch({ type: 'reportboard/editTitle' });
-    },
-    updateTitle(name) {
-      dispatch({
-        type: 'reportboard/updateTitle',
-        payload: { name, dirId: report.dirId, reportId: report.id },
-      });
-    },
-    deleteReport(reportId) {
-      dispatch({
-        type: 'dashboard/deleteReport',
-        payload: { rId: reportId },
-      });
-    },
-    saveChartToReport(rId, cLayouts) {
-      dispatch({
-        type: 'dashboardEditor/updateLayout',
-        payload: {
-          reportId: rId,
-          layouts: cLayouts,
-        },
-      });
-    },
-    openModal() {
-      dispatch({
-        type: 'dashboard/showDeleteModal',
-      });
-    },
-    onCancel() {
-      dispatch({
-        type: 'reportboard/hideModal',
-      });
-    },
-  };
 
   const viewProps = {
     status,
     currentLayouts,
     report,
+    timeRange,
     getChartData(chartId) {
       dispatch({
         type: 'reportboard/getChartData',
@@ -129,7 +87,7 @@ function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
     } else {
       return (
         <ResponsiveReactGridLayout
-          onLayoutChange={onLayoutChange} onBreakpointChange={onBreakpointChange}
+          onLayoutChange={onLayoutChange}
           layouts={cLayouts} cols={ponitsContainer.cols} rowHeight={460}
         >
           {
@@ -150,7 +108,6 @@ function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
 
   return (
     <div className={styles.main}>
-      <Header {...headerProps} />
       <div>
         <Spin tip="Loading..." spinning={loading}>
           {
@@ -165,10 +122,9 @@ function ReportBoard({ dispatch, reportboard, dashboard, dashboardEditor }) {
 ReportBoard.propTypes = {
   dispatch: PropTypes.func,
   reportboard: PropTypes.object,
-  dashboard: PropTypes.object,
 };
 
 function mapStateToProps(state) {
-  return { reportboard: state.reportboard, dashboard: state.dashboard };
+  return { reportboard: state.reportboard };
 }
 export default connect(mapStateToProps)(ReportBoard);

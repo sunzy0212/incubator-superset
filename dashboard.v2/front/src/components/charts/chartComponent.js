@@ -2,9 +2,9 @@ import React, { PropTypes } from 'react';
 import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
-const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
+const ChartComponent = ({ data, xaxis, yaxis, title, isFlip, unit }) => {
   let chartData = {};
-  transformToChartData(data, xaxis, yaxis, title, isFlip);
+  transformToChartData(data, xaxis, yaxis, title, isFlip, unit);
 
   const option = {
     tooltip: {
@@ -27,8 +27,9 @@ const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
     series: chartData.data,
   };
 
-  function transformToChartData(cData, cXaxis, cYaxis, cChartTitle, cIsFlip) {
+  function transformToChartData(cData, cXaxis, cYaxis, cChartTitle, cIsFlip, cUnit) {
     const lineTag = [];
+    const lineAlias = [];
     const lineType = [];
     const nameTag = [];
     const currentName = [];
@@ -36,6 +37,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
     const series = [];
     cYaxis.forEach((ele) => {
       lineTag.push(ele.name);
+      lineAlias.push(ele.alias !== '' ? ele.alias : ele.name);
       lineType.push(ele.type);
     });
 
@@ -53,7 +55,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
       });
       currentData.push(cTemp);
       series.push({
-        name: lineEle,
+        name: (lineAlias[i] !== '') ? lineAlias[i] : lineEle,
         data: currentData[i],
         type: lineType[i],
         areaStyle: { normal: {} },
@@ -65,11 +67,17 @@ const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
     }];
     let yType = [{
       type: 'value',
+      axisLabel: {
+        formatter: `{value} ${(cUnit !== undefined) ? cUnit : ''}`,
+      },
     }];
     if (cIsFlip === true) {
       yType = [{
         type: 'category',
         data: currentName,
+        axisLabel: {
+          formatter: `{value} ${(cUnit !== undefined) ? cUnit : ''}`,
+        },
       }];
       xType = [{
         type: 'value',
@@ -78,7 +86,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, isFlip }) => {
     const temp = {
       name: currentName,
       data: series,
-      legend: lineTag,
+      legend: lineAlias,
       title: cChartTitle,
       xType,
       yType,
@@ -285,6 +293,7 @@ ChartComponent.propTypes = {
   yaxis: PropTypes.array,
   title: PropTypes.string,
   isFlip: PropTypes.bool,
+  unit: PropTypes.string,
 };
 
 export default ChartComponent;

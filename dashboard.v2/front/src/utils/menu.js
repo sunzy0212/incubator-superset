@@ -1,10 +1,5 @@
 module.exports = [
   {
-    key: 'datasets',
-    name: '数据集',
-    icon: 'appstore',
-  },
-  {
     key: 'datasource',
     name: '数据源',
     icon: 'appstore-o',

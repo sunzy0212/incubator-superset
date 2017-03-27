@@ -89,6 +89,7 @@ export default {
     *setCrontab({ payload }, { put }) {
       let cron = '* * * * * ?';
 
+      // 根据前端的级联选项去生成调度规则生成适用后端的crontab表达式
       const tempCron = ['*', '*', '*', '*', '*', '?'];
       const rules = payload.rules;
       if (rules.length > 0 && rules[0] === 'day') {
