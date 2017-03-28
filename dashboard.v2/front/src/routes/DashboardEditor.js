@@ -8,7 +8,7 @@ import EditHeader from '../components/dashboard/editHeader';
 
 function DashboardEditor({ children, dispatch, dashboardEditor, reportboard }) {
   const { isShow, dirs, charts } = dashboardEditor;
-  const { report, currentLayouts, isHeaderShow } = reportboard;
+  const { report, currentLayouts, isHeaderShow, currentTimeRange } = reportboard;
   const asideProps = {
     dirs,
     charts,
@@ -29,6 +29,7 @@ function DashboardEditor({ children, dispatch, dashboardEditor, reportboard }) {
   const headerProps = {
     report,
     currentLayouts,
+    currentTimeRange,
     editTitle() {
       dispatch({ type: 'dashboardEditor/editTitle' });
     },

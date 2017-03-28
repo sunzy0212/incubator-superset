@@ -33,10 +33,10 @@ export default {
         const reportboardIndex = pathname.indexOf(REPORTBOARD_PATH);
         let reportId = '';
         let status = MODE_READ;
-        const urlObj = getQueryObject(item.pathname);
-        for (const k in urlObj) {
+        dispatch({ type: 'setStatus', payload: { currentTimeRange: '' } });
+        for (const k in item.query) {
           if (k === 'date') {
-            dispatch({ type: 'setStatus', payload: { currentTimeRange: urlObj[k] } });
+            dispatch({ type: 'setStatus', payload: { currentTimeRange: item.query[k] } });
           }
         }
         if (index !== -1) {

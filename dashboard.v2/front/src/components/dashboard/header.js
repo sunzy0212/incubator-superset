@@ -7,13 +7,13 @@ const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
 const Header = ({
   report,
-  editTitle,
   deleteModalVisible,
   updateTitle,
   openModal,
   onCancel,
   deleteReport,
   refreshChart,
+  currentTimeRange,
   form: {
     validateFields,
   },
@@ -64,9 +64,9 @@ const Header = ({
         <Button type="danger" onClick={openModal} icon="delete">删除</Button>
         <Button type="ghost" icon="rocket">导出</Button>
       </Col>
-      <Col lg={4} md={4}>
+      { currentTimeRange === '' ? <Col lg={4} md={4}>
         <RangePicker showTime onOk={onChangeDateRange} format="YYYY-MM-DD" />
-      </Col>
+      </Col> : '' }
       < ReportDeleteModal {...props} />
     </Row>
   );
