@@ -6,8 +6,8 @@ import EditableCell from './editableCell';
 import styles from './aside.less';
 
 const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
-  openModal, currentDir, addDirModal, onOk,
-  onCreateOk, onCancel, onCancelCreate, onDelete,
+  openModal, currentDir, addDirModal, onOk, queryDirs,
+  onCreateOk, onCancel, onCancelCreate, onDelete, onDeleteReport,
 }) => {
   const props = {
     visible: modalVisible,
@@ -19,6 +19,8 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
     onCancel,
     onCancelCreate,
     onDelete,
+    onDeleteReport,
+    queryDirs,
   };
 
   function genDropMenu(text, record) {
@@ -33,11 +35,26 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
           </Popconfirm >
         </Menu.Item>
       </Menu >);
+    const reportMenu = (
+      <Menu>
+        <Menu.Item >
+          <Popconfirm title="确定删除该报表吗？" onConfirm={() => onDeleteReport(record.key)} >
+            <a>删除报表</a>
+          </Popconfirm >
+        </Menu.Item>
+      </Menu >);
     if (record.dirFlag === true) {
       return (
         <Dropdown overlay={menu} >
           <a className="ant-dropdown-link" >
             <Icon type="bars" />
+          </a>
+        </Dropdown >);
+    } else {
+      return (
+        <Dropdown overlay={reportMenu} >
+          <a className="ant-dropdown-link" >
+            <Icon type="delete" />
           </a>
         </Dropdown >);
     }
@@ -108,7 +125,7 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
         <div id="modalMount" />
         <Input.Search placeholder="关键字查找" onSearch={value => console.log(value)} />
       </div>
-      <Table columns={columns} size={'small'} pagination={false} dataSource={data} showHeader={false} />
+      <Table columns={columns} size={'small'} pagination={false} dataSource={data} showHeader={false} onExpand={queryDirs} />
     </div>
   );
 };
@@ -126,6 +143,8 @@ Aside.propTypes = {
   onCancel: PropTypes.func,
   onCancelCreate: PropTypes.func,
   onDelete: PropTypes.func,
+  onDeleteReport: PropTypes.func,
+  queryDirs: PropTypes.func,
 };
 
 export default Aside;

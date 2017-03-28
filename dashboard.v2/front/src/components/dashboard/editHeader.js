@@ -12,6 +12,7 @@ const EditHeader = ({
   currentLayouts,
   saveChartToReport,
   refreshChart,
+  currentTimeRange,
   form: {
     getFieldDecorator,
     validateFields,
@@ -87,9 +88,9 @@ const EditHeader = ({
         <Button type="ghost" icon="save" onClick={onSave}>保存</Button>
         <Button type="ghost" icon="rocket">导出</Button>
       </Col>
-      <Col lg={4} md={4}>
+      { currentTimeRange === '' ? <Col lg={4} md={4}>
         <RangePicker showTime onOk={onChangeDateRange} format="YYYY-MM-DD" />
-      </Col>
+      </Col> : '' }
       < ReportDeleteModal {...props} />
     </Row>
   );

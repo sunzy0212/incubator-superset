@@ -9,7 +9,7 @@ import Header from '../components/dashboard/header';
 function Dashboard({ children, dispatch, dashboard, reportboard }) {
   const { isShow, modalVisible, modalCreateVisible,
     deleteModalVisible, currentDir, dirs, reports } = dashboard;
-  const { report, currentLayouts, isHeaderShow } = reportboard;
+  const { report, currentLayouts, isHeaderShow, currentTimeRange } = reportboard;
 
   const adideProps = {
     modalVisible,
@@ -23,10 +23,23 @@ function Dashboard({ children, dispatch, dashboard, reportboard }) {
         payload: { dirId: data.dirId, name: data.name },
       });
     },
+    queryDirs() {
+      dispatch({ type: 'dashboard/queryDirs',
+        payload: {
+          type: 'report',
+        },
+      });
+    },
     onDelete(id) {
       dispatch({
         type: 'dashboard/deleteDir',
         payload: { id },
+      });
+    },
+    onDeleteReport(id) {
+      dispatch({
+        type: 'dashboard/deleteReport',
+        payload: { rId: id },
       });
     },
     onCreateOk(data) {
@@ -74,6 +87,7 @@ function Dashboard({ children, dispatch, dashboard, reportboard }) {
     report,
     deleteModalVisible,
     currentLayouts,
+    currentTimeRange,
     deleteReport(reportId) {
       dispatch({
         type: 'dashboard/deleteReport',
