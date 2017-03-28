@@ -39,7 +39,11 @@ func (r *ReportSender) Run() {
 		name = fmt.Sprintf("%s-%s", r.Name(), dateFormatString)
 	}
 
-	req := common.Report{DirId: r.PreDirId, Name: name}
+	req := common.Report{
+		DirId: r.PreDirId,
+		Name:  name,
+		Args:  map[string]string{"date": time.Now().Format("2006-01-02")},
+	}
 	var res common.Report
 	err := client.CallWithJson(nil, &res, url+"/v1/reports", req)
 	if err != nil {

@@ -1,15 +1,12 @@
 import React, { PropTypes } from 'react';
-import { Link } from 'dva/router';
 import { Menu, Icon, Button, Input, Table, Dropdown, Popconfirm } from 'antd';
 import TreeModal from './treeModal';
 import TreeDirModal from './treeDirModal';
 import EditableCell from './editableCell';
 import styles from './aside.less';
 
-const SubMenu = Menu.SubMenu;
-const MenuItem = Menu.Item;
-
-const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, currentDir, addDirModal, onOk,
+const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
+  openModal, currentDir, addDirModal, onOk,
   onCreateOk, onCancel, onCancelCreate, onDelete,
 }) => {
   const props = {
@@ -48,11 +45,13 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
 
   const columns = [{
     title: 'Name',
-    dataIndex: 'name',
+    // dataIndex: 'name',
     key: 'name',
     width: '90%',
-    render: (text, record) => (
-      <EditableCell value={text} id={record.key} dirFlag={record.dirFlag} />),
+    render: record => (
+      <EditableCell
+        value={record.name} args={record.args} id={record.key} dirFlag={record.dirFlag}
+      />),
   }, {
     title: 'Edit',
     key: 'edit',
@@ -87,6 +86,8 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
           dirEle.children.push({
             key: e.id,
             name: e.name,
+            args: e.args,
+            isTemplate: e.isTemplate,
             dirFlag: false,
           });
         }
@@ -98,26 +99,6 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports, openModal, cur
   }
   handleInitReport(transformArr);
   data = transformArr;
-
-  function genSubMenu(_dirs, _reports) {
-    return _dirs.map((item) => {
-      return (
-        <SubMenu key={item.id} title={<span > <Icon type="folder" /> {item.name} </span>} >
-          {genSubMenu(item.subDir, _reports)}
-          {genMenuItem(_reports[item.id])}
-        </SubMenu>
-      );
-    });
-    function genMenuItem(__reports) {
-      if (__reports !== undefined && __reports.length !== 0) {
-        return __reports.map((report) => {
-          return (<MenuItem key={report.id} >
-            <Link to={`/dashboard/${report.id}`} > < Icon type="file" /> {report.name} </Link>
-          </MenuItem>);
-        });
-      }
-    }
-  }
 
   return (
     <div className={styles.main} >
