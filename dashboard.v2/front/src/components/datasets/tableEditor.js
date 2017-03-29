@@ -37,7 +37,7 @@ const TableEditor = ({ save, datasourceList, tableTreeVisibles, currentDatasetNa
 
   return (
     <div>
-      <Form inline onSubmit={handleSubmit}>
+      <Form layout="inline" onSubmit={handleSubmit}>
         <FormItem label="名称：" {...formItemLayout}>
           {getFieldDecorator('name', {
             initialValue: currentDatasetName,
@@ -62,7 +62,6 @@ const TableEditor = ({ save, datasourceList, tableTreeVisibles, currentDatasetNa
 };
 
 TableEditor.propTypes = {
-  loadTableTree: PropTypes.func,
   loadTableData: PropTypes.func,
   datasourceList: PropTypes.array,
   getTableData: PropTypes.func,

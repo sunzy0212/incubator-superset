@@ -284,11 +284,14 @@ class Dataview extends React.Component {
           </Collapse>
         </Form>
         <div className={styles.chart}>
-          {this.props.loading ? <Spin /> : <div />}
           {this.genFilterSelections()}
           <Row>
             <Col>
-              {this.props.datas.length === 0 ? <div>请在左边👈查询数据</div> : <ChartComponect data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" isFlip={this.state.flipChart} />
+              {this.props.datas.length === 0 && this.props.loading === false ? <div>请在左边👈查询数据</div> :
+                (this.props.loading ? <Spin /> :
+                <ChartComponect
+                  data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" isFlip={this.state.flipChart}
+                />)
               }
             </Col>
           </Row>

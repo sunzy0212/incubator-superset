@@ -16,7 +16,6 @@ export default {
     tableTreeVisibles: false,
     transformDateVisible: false,
     MeasureUnitVisible: false,
-    loading: false,
     datasources: {},
     dataset: {},
     relationships: [],

@@ -44,8 +44,8 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
               {(record.item.action === 'sum') ? (<Icon type="check-circle" />) : null}求和</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => checkAggregation(record, 'averge')}>
-              {(record.item.action === 'averge') ? (<Icon type="check-circle" />) : null}平均值</a>
+            <a onClick={() => checkAggregation(record, 'avg')}>
+              {(record.item.action === 'arg') ? (<Icon type="check-circle" />) : null}平均值</a>
           </Menu.Item >
           <Menu.Item >
             <a onClick={() => checkAggregation(record, 'max')}>

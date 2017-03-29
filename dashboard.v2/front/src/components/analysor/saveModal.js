@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Modal, Form, Button, Input, Tree, Icon } from 'antd';
+import { Modal, Form, Button, Input, Tree, Icon, message } from 'antd';
 
 const FormItem = Form.Item;
 const TreeNode = Tree.TreeNode;
@@ -31,23 +31,25 @@ class SaveModal extends React.Component {
   }
 
   componentWillReceiveProps(nextprops) {
-    const dirs = JSON.parse(JSON.stringify(nextprops.dirs));
-    let expandedKeys = ['ROOT'];
-    let selectedKeys = ['ROOT'];
+    if (!this.state.visible) {  // visible 为fasle才初始化该component的state。目的是为了再次modal时，清空上一次脏数据。
+      const dirs = JSON.parse(JSON.stringify(nextprops.dirs));
+      let expandedKeys = ['ROOT'];
+      let selectedKeys = ['ROOT'];
 
-    if (nextprops.chart.id !== undefined && nextprops.chart.id !== '') {
-      expandedKeys = [nextprops.chart.dirId].concat(expandedKeys);
-      selectedKeys = [nextprops.chart.dirId];
+      if (nextprops.chart.id !== undefined && nextprops.chart.id !== '') {
+        expandedKeys = [nextprops.chart.dirId].concat(expandedKeys);
+        selectedKeys = [nextprops.chart.dirId];
+      }
+
+      this.setState({
+        add: { flag: true, count: 0 },
+        visible: true,
+        dirs,
+        currDir: this.matchDir(dirs, nextprops.chart.dirId),
+        expandedKeys,
+        selectedKeys,
+      });
     }
-
-    this.setState({
-      add: { flag: true, count: 0 },
-      visible: true,
-      dirs,
-      currDir: this.matchDir(dirs, nextprops.chart.dirId),
-      expandedKeys,
-      selectedKeys,
-    });
   }
 
   componentDidUpdate() {
@@ -57,9 +59,7 @@ class SaveModal extends React.Component {
   }
 
   onCancel =() => {
-    this.setState({
-      visible: false,
-    });
+    this.clear();
   }
 
   onSelect = (info) => {
@@ -73,6 +73,17 @@ class SaveModal extends React.Component {
   onExpand =(expandedKeys) => {
     this.setState({
       expandedKeys,
+    });
+  }
+
+  clear = () => {
+    this.setState({
+      add: { flag: true, count: 0 },
+      visible: false,
+      dirs: [],
+      currDir: {},
+      expandedKeys: [],
+      selectedKeys: [],
     });
   }
 
@@ -94,15 +105,17 @@ class SaveModal extends React.Component {
 
   handleOk = () => {
     const dir = this.state.currDir;
+    if (dir.id === undefined) {
+      message.error('请选择目录');
+      return;
+    }
     this.props.form.validateFields((err, values) => {
       if (!err) {
         const data = this.props.data;
         data.title = values.title;
         data.dir = dir;
         this.props.onSaveOrUpdate(data);
-        this.setState({
-          visible: false,
-        });
+        this.clear();
       }
     });
   }

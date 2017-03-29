@@ -75,7 +75,6 @@ export default {
     *execute({
       payload,
     }, { call, put }) {
-      console.log(payload);
       yield put({ type: 'initState', payload: { ...payload } });
       const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
       if (data.success) {
@@ -122,6 +121,7 @@ export default {
             type: 'initState',
             payload: { code: data.result, chart: data2.result },
           });
+          yield put({ type: 'queryDirs', payload: { type: 'chart' } });
         }
       }
     },
@@ -160,6 +160,7 @@ export default {
             type: 'initState',
             payload: { code: data.result, chart: data2.result },
           });
+          yield put({ type: 'queryDirs', payload: { type: 'chart' } });
         }
       }
     },
@@ -199,9 +200,8 @@ export default {
         yield put({ type: 'update', payload });
       }
     },
-
-
   },
+
   reducers: {
     initState(state, action) {
       return {
