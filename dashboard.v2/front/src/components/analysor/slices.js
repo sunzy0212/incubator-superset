@@ -63,6 +63,23 @@ class Slices extends React.Component {
         console.log('Received values of form: ', values);
         const { selectFields, metricFields, groupFields, timeField, rangeDatatime } = values;
 
+        // 当Select 为空，group不为空时，清空group不为空时
+        if (selectFields.length === 0 && groupFields.length > 0) {
+          while (groupFields.shift()); // 清空groupFields
+        }
+
+        // 当Select 和 metric 都选择后，group字段如果是空，在提交时补充
+        if (metricFields.length > 0 && selectFields.length > 0) {
+          selectFields.forEach((item) => {
+            for (const r in groupFields) {
+              if (item === r) {
+                break;
+              }
+            }
+            groupFields.push(item);
+          });
+        }
+
         const getAddOnDatas = (type) => {
           const res = [];
           for (let i = 0; i < 22; i++) {  // 最大预留，22 暂定

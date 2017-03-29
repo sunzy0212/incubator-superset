@@ -8,8 +8,8 @@ import Dataview from '../components/analysor/dataview';
 
 import styles from './Analysor.less';
 
-function Analysor({ dispatch, analysor }) {
-  const { loading, dataset, wheres, havings, operatorOptions, dayOptions, datas,
+function Analysor({ dispatch, loading, analysor }) {
+  const { dataset, wheres, havings, operatorOptions, dayOptions, datas,
     selectFields, metricFields, groupFields, timeField, chart, dirs } = analysor;
 
   const { id, name, dimensions, measures, times } = dataset;

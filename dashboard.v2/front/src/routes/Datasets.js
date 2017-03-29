@@ -8,8 +8,8 @@ import RenameModal from '../components/datasets/renameModal';
 const { Sider, Content } = Layout;
 const TabPane = Tabs.TabPane;
 
-function Datasets({ dispatch, datasets }) {
-  const { loading, dimensions, measures, renameModalVisibles, currentRecord, transformDateVisible,
+function Datasets({ dispatch, loading, datasets }) {
+  const { dimensions, measures, renameModalVisibles, currentRecord, transformDateVisible,
     modalSpace, datasourceList, tableTreeVisibles, tables, tableData,
     currentDatasetId, times, currentDatasetName, MeasureUnitVisible } = datasets;
 
@@ -290,7 +290,12 @@ function Datasets({ dispatch, datasets }) {
       <Layout>
         <Content style={{ margin: '1px 1px', padding: 0, background: '#fff' }}>
           <Tabs onChange={callback} type="card">
-            <TabPane tab="开始" key="1"><TableEditor {...tableEditorProps} /><Table columns={columns} dataSource={tableData} onChange={handleChange} /></TabPane>
+            <TabPane tab="开始" key="1">
+              <TableEditor {...tableEditorProps} />
+              <Table
+                loading={loading} columns={columns} dataSource={tableData} onChange={handleChange}
+              />
+            </TabPane>
             <TabPane tab="连接" key="2">多数据源(多表)，关联关系的工作区</TabPane>
             <TabPane tab="图表" key="3">图形的区域，暂时略</TabPane>
           </Tabs>
@@ -303,7 +308,7 @@ function Datasets({ dispatch, datasets }) {
 }
 
 function mapStateToProps(state) {
-  return { datasets: state.datasets };
+  return { datasets: state.datasets, loading: state.loading.models.datasets };
 }
 Datasets.propTypes = {
   dispatch: PropTypes.func,

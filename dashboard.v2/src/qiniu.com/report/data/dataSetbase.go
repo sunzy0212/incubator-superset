@@ -27,6 +27,24 @@ func NewDataSetManager(colls *common.Collections) *DataSetManager {
 	}
 }
 
+func (m *DataSetManager) GenExpression(key, action string) string {
+	switch strings.ToUpper(action) {
+	case "SUM":
+		return fmt.Sprintf("SUM(`%s`) AS `%s`", key, key)
+	case "AVG":
+		return fmt.Sprintf("AVG(`%s`) AS `%s`", key, key)
+	case "MAX":
+		return fmt.Sprintf("MAX(`%s`) AS `%s`", key, key)
+	case "MIN":
+		return fmt.Sprintf("MIN(`%s`) AS `%s`", key, key)
+	case "COUNT":
+		return fmt.Sprintf("COUNT(`%s`) AS `%s`", key, key)
+	default:
+		return ""
+	}
+	return ""
+}
+
 func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error) {
 	code := cfg.Code
 	var dataset common.DataSet
@@ -37,15 +55,25 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 
 	//SELECT SECTION
 	selectFields := code.SelectFields
+	metricFields := code.MetricFields
 	selectSection := ""
-	if selectFields == nil || len(selectFields) == 0 {
+	if (selectFields == nil || len(selectFields) == 0) && (metricFields == nil || len(metricFields) == 0) {
 		selectSection = "*"
 	} else {
 		_selectFields := make([]string, 0)
 		for _, v := range selectFields {
 			_selectFields = append(_selectFields, fmt.Sprintf("`%s`", v.Name))
 		}
-		selectSection = strings.Join(_selectFields, ",")
+
+		////  Metrics
+		_metricFields := make([]string, 0)
+		if metricFields != nil && len(metricFields) > 0 {
+			for _, v := range metricFields {
+				_metricFields = append(_metricFields, fmt.Sprintf("%s", m.GenExpression(v.Name, v.Action)))
+			}
+		}
+
+		selectSection = strings.Join(append(_selectFields, _metricFields...), ",")
 	}
 
 	//FROM SECTION

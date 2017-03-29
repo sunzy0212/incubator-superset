@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Table, Menu, Dropdown, Icon } from 'antd';
 import TransformDate from './transformDate';
-import MeasureUnit from './measureUnit'
+import MeasureUnit from './measureUnit';
 
 const SubMenu = Menu.SubMenu;
 const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transformToDate,
@@ -44,8 +44,8 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
               {(record.item.action === 'sum') ? (<Icon type="check-circle" />) : null}求和</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => checkAggregation(record, 'averge')}>
-              {(record.item.action === 'averge') ? (<Icon type="check-circle" />) : null}平均值</a>
+            <a onClick={() => checkAggregation(record, 'avg')}>
+              {(record.item.action === 'avg') ? (<Icon type="check-circle" />) : null}平均值</a>
           </Menu.Item >
           <Menu.Item >
             <a onClick={() => checkAggregation(record, 'max')}>
@@ -134,7 +134,7 @@ const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transf
     onCancelUnit,
     currentRecord,
     addMeasureUnit,
-  }
+  };
 
   function rowClick(record, index) {
     console.log(record, index);

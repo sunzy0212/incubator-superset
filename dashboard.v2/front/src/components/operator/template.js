@@ -24,10 +24,14 @@ class Template extends React.Component {
     });
   }
 
-  onDelete = (id) => {
+  onDelete = (record) => {
+    if (Object.keys(record.item.crons).length > 0) {
+      message.error('删除模板失败，请先停止任务!');
+      return;
+    }
     this.props.dispatch({
       type: 'operator/removeTemplate',
-      payload: { id },
+      payload: { id: record.id },
     });
   }
 
@@ -165,7 +169,7 @@ class Template extends React.Component {
             <a onClick={() => this.showEditor(record.item)}>编辑</a>
             <span className="ant-divider" />
 
-            <Popconfirm title="确定删除该模板吗？" onConfirm={() => this.onDelete(record.id)}>
+            <Popconfirm title="确定删除该模板吗？" onConfirm={() => this.onDelete(record)}>
               <a icon="delete">删除</a>
             </Popconfirm>
           </span>
