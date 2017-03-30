@@ -7,8 +7,8 @@ import styles from './ReportBoard.less';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
-function ReportBoard({ dispatch, reportboard }) {
-  const { status, loading, report, layouts, addChartId, timeRange,
+function ReportBoard({ dispatch, loading, reportboard }) {
+  const { status, report, layouts, addChartId, timeRange,
     ponitsContainer } = reportboard;
   const currentLayouts = { lg: [] };
   const chartList = [];
@@ -125,6 +125,6 @@ ReportBoard.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return { reportboard: state.reportboard };
+  return { reportboard: state.reportboard, loading: state.loading.models.reportboard };
 }
 export default connect(mapStateToProps)(ReportBoard);

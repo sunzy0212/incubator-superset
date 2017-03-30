@@ -10,8 +10,8 @@ import styles from './Datasource.less';
 
 const TabPane = Tabs.TabPane;
 
-function Datasource({ dispatch, datasource }) {
-  const { loading, saveLoading, item, modalVisible, datasources, tables,
+function Datasource({ dispatch, loading, datasource }) {
+  const { item, modalVisible, datasources, tables,
     datasets } = datasource;
 
   const datasourceListProps = {
@@ -55,7 +55,6 @@ function Datasource({ dispatch, datasource }) {
 
 
   const datasetModalProps = {
-    saveLoading,
     visible: modalVisible,
     item,
     onOk(data) {
@@ -151,12 +150,14 @@ function Datasource({ dispatch, datasource }) {
 Datasource.propTypes = {
   dispatch: PropTypes.func,
   datasource: PropTypes.object,
-  datasets: PropTypes.object,
 };
 
 
 function mapStateToProps(state) {
-  return { datasource: state.datasource, datasets: state.datasets, loading: state.loading.models.datasource };
+  return {
+    datasource: state.datasource,
+    loading: state.loading.models.datasource,
+  };
 }
 
 export default connect(mapStateToProps)(Datasource);

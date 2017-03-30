@@ -4,8 +4,6 @@ import { getDirs, openDir, addReport, getAllReports, addDir, deleteDir, deleteRe
 export default {
   namespace: 'dashboard',
   state: {
-    loading: false,
-    isShow: true,
     modalVisible: false,
     deleteModalVisible: false,
     modalCreateVisible: false,
@@ -28,7 +26,6 @@ export default {
     *queryDirs({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(getDirs, parse(payload));
       if (data.success) {
         yield put({
@@ -38,12 +35,10 @@ export default {
           },
         });
       }
-      yield put({ type: 'hideLoading' });
     },
     *openDir({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(openDir, parse(payload));
       if (data.success) {
         yield put({
@@ -54,12 +49,10 @@ export default {
           },
         });
       }
-      yield put({ type: 'hideLoading' });
     },
     *getAllReports({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(getAllReports, parse(payload));
       if (data.success) {
         yield put({
@@ -69,24 +62,20 @@ export default {
           },
         });
       }
-      yield put({ type: 'hideLoading' });
     },
     *addReport({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(addReport, parse(payload));
       if (data.success) {
         yield put({
           type: 'getAllReports',
         });
       }
-      yield put({ type: 'hideLoading' });
     },
     *addDir({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(addDir, parse(payload));
       if (data.success) {
         yield put({
@@ -96,12 +85,10 @@ export default {
           },
         });
       }
-      yield put({ type: 'hideLoading' });
     },
     *deleteReport({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(deleteReport, parse(payload));
       if (data.success) {
         yield put({
@@ -112,7 +99,6 @@ export default {
           ...payload,
         });
       }
-      yield put({ type: 'hideLoading' });
     },
     *deleteDir({ payload }, { call, put }) {
       const data = yield call(deleteDir, parse(payload));
@@ -174,12 +160,6 @@ export default {
       return {
         ...state,
         modalCreateVisible: false,
-      };
-    },
-    triggle(state) {
-      return {
-        ...state,
-        isShow: !state.isShow,
       };
     },
     listDirs(state, action) {

@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import { ResponsiveContainer } from 'recharts';
 import React, { PropTypes } from 'react';
-import SelectComponent from './selectComponent';
 import { Link } from 'dva/router';
 import { Row, Col, Icon, Spin } from 'antd';
+import SelectComponent from './selectComponent';
 import styles from './view.less';
 import ChartComponent from '../charts/chartComponent';
+
 
 const MODE_READ = 'read';
 class View extends React.Component {

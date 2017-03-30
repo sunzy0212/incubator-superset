@@ -6,10 +6,10 @@ import Aside from '../components/dashboard/aside';
 import styles from './Dashboard.less';
 import Header from '../components/dashboard/header';
 
-function Dashboard({ children, dispatch, dashboard, reportboard }) {
-  const { isShow, modalVisible, modalCreateVisible,
+function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
+  const { modalVisible, modalCreateVisible,
     deleteModalVisible, currentDir, dirs, reports } = dashboard;
-  const { report, currentLayouts, isHeaderShow, currentTimeRange } = reportboard;
+  const { report, currentLayouts, currentTimeRange } = reportboard;
 
   const adideProps = {
     modalVisible,
@@ -110,7 +110,7 @@ function Dashboard({ children, dispatch, dashboard, reportboard }) {
     },
     onCancel() {
       dispatch({
-        type: 'dashboard/hideModal',
+        type: 'dashboard/hideDeleteModal',
       });
     },
     refreshChart(start, end) {
@@ -127,17 +127,13 @@ function Dashboard({ children, dispatch, dashboard, reportboard }) {
       <Row gutter={24}>
         <Col
           lg={5} md={3}
-          className={classnames({ [styles.animateWrap]: isShow },
-    { [styles.active]: isShow }, { [styles.downIn]: isShow },
-    { [styles.animateWrap]: !isShow })}
         >
           <Aside {...adideProps} />
         </Col>
         <Col lg={19} md={21}>
           <Row gutter={12}>
             <Col lg={24} md={24}>
-              {isHeaderShow === false ? ''
-                : <Header {...headerProps} />}
+              <Header {...headerProps} />
             </Col>
           </Row>
           <Row gutter={12}>
@@ -154,14 +150,17 @@ function Dashboard({ children, dispatch, dashboard, reportboard }) {
 
 Dashboard.propsType = {
   dispatch: PropTypes.func,
-  isShow: PropTypes.bool,
-  reports: PropTypes.array,
+  dashboard: PropTypes.array,
   reportboard: PropTypes.object,
 };
 
 
 function mapStateToProps(state) {
-  return { dashboard: state.dashboard, reportboard: state.reportboard };
+  return {
+    dashboard: state.dashboard,
+    reportboard: state.reportboard,
+    loading: state.loading.models.dashboard,
+  };
 }
 export default connect(mapStateToProps)(Dashboard);
 

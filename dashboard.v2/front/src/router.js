@@ -115,7 +115,7 @@ function RouterConfig({ history, app }) {
         path: '/dashboard/edit',
         name: 'dashboardEditor',
         onEnter() {
-          registerModel(app, require('./models/dashboard/dashboard'));
+          registerModel(app, require('./models/dashboard/editor'));
         },
         getComponent(nextState, cb) {
           require.ensure([], (require) => {

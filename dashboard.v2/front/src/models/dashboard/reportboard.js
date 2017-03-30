@@ -1,10 +1,9 @@
 import { parse } from 'qs';
-import { getReport, getLayouts, queryCode } from '../../services/dashboard';
-import { getChartData, getCodeData } from '../../services/reportboard';
-import getQueryObject from '../../utils/common';
+import _ from 'lodash';
+import { getReport, getLayouts } from '../../services/dashboard';
 
-const REPORT_PATH = '/dashboard/';
-const EDIT_REPORT_PATH = '/dashboard/edit/';
+const DASHBOARD_PATH = '/dashboard/';
+const DASHBOARD_EDIT_PATH = '/dashboard/edit/';
 const REPORTBOARD_PATH = '/reportboard/';
 const REPORTID_LENGTH = 23;
 const MODE_READ = 'read';
@@ -12,10 +11,7 @@ const MODE_ALTER = 'alter';
 export default {
   namespace: 'reportboard',
   state: {
-    loading: false,
     status: MODE_READ,
-    isHeaderShow: true,
-    modalVisible: false,
     report: {},
     layouts: {},
     chartList: [],
@@ -27,37 +23,25 @@ export default {
   },
   subscriptions: {
     setup({ dispatch, history }) {
-      return history.listen((item) => {
-        const pathname = item.pathname;
-        let index = pathname.indexOf(EDIT_REPORT_PATH);
-        const reportboardIndex = pathname.indexOf(REPORTBOARD_PATH);
+      return history.listen(({ pathname, query }) => {
         let reportId = '';
         let status = MODE_READ;
-        dispatch({ type: 'setStatus', payload: { currentTimeRange: '' } });
-        for (const k in item.query) {
-          if (k === 'date') {
-            dispatch({ type: 'setStatus', payload: { currentTimeRange: item.query[k] } });
-          }
+        const date = query[date];
+        let currentTimeRange = '';
+        if (date !== undefined && date !== '') {
+          currentTimeRange = date;
         }
-        if (index !== -1) {
-          reportId = pathname.substr(index + EDIT_REPORT_PATH.length, REPORTID_LENGTH);
+        if (_.startsWith(pathname, DASHBOARD_EDIT_PATH)) {
+          reportId = pathname.substr(DASHBOARD_EDIT_PATH.length, REPORTID_LENGTH);
           status = MODE_ALTER;
-        } else {
-          index = pathname.indexOf(REPORT_PATH);
-          if (index !== -1) {
-            reportId = pathname.substr(index + REPORT_PATH.length, REPORTID_LENGTH);
-            status = MODE_READ;
-          }
-        }
-        if (reportboardIndex !== -1) {
-          reportId = pathname.substr(index + REPORTBOARD_PATH.length + 1, REPORTID_LENGTH);
-          status = MODE_READ;
+        } else if (_.startsWith(pathname, DASHBOARD_PATH)) {
+          reportId = pathname.substr(DASHBOARD_PATH.length, REPORTID_LENGTH);
+        } else if (_.startsWith(pathname, REPORTBOARD_PATH)) {
+          reportId = pathname.substr(REPORTBOARD_PATH.length, REPORTID_LENGTH);
         }
         if (reportId !== '') {
           dispatch({ type: 'queryReport', payload: { reportId } });
-          dispatch({ type: 'setStatus', payload: { status, isHeaderShow: true } });
-        } else {
-          dispatch({ type: 'setStatus', payload: { isHeaderShow: false } });
+          dispatch({ type: 'updateState', payload: { currentTimeRange, status } });
         }
       });
     },
@@ -66,98 +50,27 @@ export default {
     *queryReport({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const report = yield call(getReport, parse(payload));
       const layouts = yield call(getLayouts, parse(payload));
       yield put({
-        type: 'renderReport',
+        type: 'updateState',
         payload: {
           report: report.result,
           layouts: layouts.result.layouts,
         },
       });
-      yield put({ type: 'hideLoading' });
-    },
-    *query({
-      payload,
-    }, { call, put }) {
-      yield put({ type: 'showChartLoading' });
-      const data = yield call(queryCode, parse({ q: payload.codeId,
-        type: payload.type }));
-      if (data.success) {
-        yield put({
-          type: 'renderChart',
-          payload: {
-            chartId: payload.id,
-            data: data.result,
-          },
-        });
-      }
-    },
-
-    *getChartData({
-      payload,
-    }, { call, put }) {
-      yield put({ type: 'showLoading' });
-      const data = yield call(getChartData, parse(payload));
-      const chartToCode = {
-        codeId: data.result.codeId,
-        type: data.result.type,
-      };
-      const codeData = yield call(getCodeData, parse(chartToCode));
-      if (data.success && codeData.success) {
-        yield put({
-          type: 'initChartData',
-          payload: {
-            chartData: data.result,
-            codeData: codeData.result,
-          },
-        });
-      }
-      yield put({ type: 'hideLoading' });
     },
   },
+
   reducers: {
 
-    setStatus(state, action) {
+    updateState(state, action) {
       return {
         ...state,
         ...action.payload,
       };
     },
 
-    showLoading(state) {
-      return {
-        ...state,
-        loading: true,
-      };
-    },
-
-    showModal(state) {
-      return {
-        ...state,
-        modalVisible: true,
-      };
-    },
-    hideModal(state) {
-      return {
-        ...state,
-        modalVisible: false,
-      };
-    },
-    hideLoading(state) {
-      return {
-        ...state,
-        loading: false,
-      };
-    },
-    initChartData(state, action) {
-      return {
-        ...state,
-        chartData: action.payload.chartData,
-        codeData: action.payload.codeData,
-      };
-    },
     addChartToReport(state, action) {
       return {
         ...state,
@@ -165,25 +78,11 @@ export default {
         addChartId: action.payload.chartId,
       };
     },
-    breakpointChange(state) {
-      return {
-        ...state,
-      };
-    },
 
     layoutChange(state, action) {
       return {
         ...state,
         ...action.payload,
-      };
-    },
-
-    renderReport(state, action) {
-      return {
-        ...state,
-        report: action.payload.report,
-        layout: action.payload.layout,
-        layouts: action.payload.layouts,
       };
     },
 
@@ -197,12 +96,6 @@ export default {
       return {
         ...state,
         ...action.payload,
-      };
-    },
-
-    renderChart(state) {
-      return {
-        ...state,
       };
     },
   },

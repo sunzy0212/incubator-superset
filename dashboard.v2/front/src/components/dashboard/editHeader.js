@@ -1,15 +1,13 @@
 import React, { PropTypes } from 'react';
-import { Button, Form, Input, Row, Col, Icon, DatePicker } from 'antd';
-import ReportDeleteModal from './deleteReport';
+import { Button, Form, Input, Row, Col, Popconfirm, DatePicker } from 'antd';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
 
 const EditHeader = ({
+  history,
   report,
   updateTitle,
-  onCancel,
-  deleteReport,
   currentLayouts,
   saveChartToReport,
   refreshChart,
@@ -19,20 +17,6 @@ const EditHeader = ({
     validateFields,
   },
 }) => {
-  const props = {
-    onCancel,
-    deleteReport,
-    currentId: report.id,
-  };
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    validateFields((err, values) => {
-      if (!err) {
-        updateTitle(values.name);
-      }
-    });
-  }
   function onSave(e) {
     e.preventDefault();
     const layouts = [];
@@ -48,6 +32,11 @@ const EditHeader = ({
       }
     });
     saveChartToReport(report.id, layouts);
+    history.push(`/dashboard/${report.id}`);
+  }
+
+  function onCancel() {
+    history.push(`/dashboard/${report.id}`);
   }
 
   function onChangeDateRange(item) {
@@ -57,7 +46,7 @@ const EditHeader = ({
   return (
     <Row gutter={24}>
       <Col lg={8} md={8}>
-        <Form onSubmit={handleSubmit}>
+        <Form>
           <FormItem >
             {getFieldDecorator('name', {
               initialValue: report.name,
@@ -77,18 +66,18 @@ const EditHeader = ({
       </Col>
       <Col lg={6} md={6} offset={2}>
         <Button type="ghost" icon="save" size="small" onClick={onSave}>保存</Button>
-        <Button type="ghost" icon="rocket" size="small" >导出</Button>
+        <Popconfirm title="确定取消保存吗？" onConfirm={() => onCancel()}>
+          <Button type="ghost" icon="close-square-o" size="small" >取消</Button>
+        </Popconfirm>
       </Col>
       { currentTimeRange === '' ? <Col lg={4} md={4}>
         <RangePicker showTime onOk={onChangeDateRange} format="YYYY-MM-DD" />
       </Col> : '' }
-      < ReportDeleteModal {...props} />
     </Row>
   );
 };
 
 EditHeader.propTypes = {
-  deleteReport: PropTypes.func,
   saveChartToReport: PropTypes.func,
   refreshChart: PropTypes.func,
 };
