@@ -30,7 +30,7 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
           <a onClick={() => addDirModal(record)}> 添加目录</a>
         </Menu.Item >
         <Menu.Item >
-          <Popconfirm title="确定删除该数据源吗？" onConfirm={() => onDelete(record.key)} >
+          <Popconfirm title="确定删除该报表目录吗？" onConfirm={() => onDelete(record.key)} >
             <a>删除目录</a>
           </Popconfirm >
         </Menu.Item>

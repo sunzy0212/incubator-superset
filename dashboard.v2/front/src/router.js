@@ -28,7 +28,6 @@ function RouterConfig({ history, app }) {
         name: 'login',
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/app'));
             cb(null, require('./routes/Login'));
           });
         },
@@ -37,10 +36,12 @@ function RouterConfig({ history, app }) {
       {
         path: '/datasource',
         name: 'datasource',
+        onEnter() {
+          registerModel(app, require('./models/datasource'));
+          registerModel(app, require('./models/datasets'));
+        },
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/datasource'));
-            registerModel(app, require('./models/datasets'));
             cb(null, require('./routes/Datasource'));
           });
         },
@@ -51,7 +52,6 @@ function RouterConfig({ history, app }) {
         name: 'datasourceConfig',
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/datasource'));
             cb(null, require('./components/datasource/datasourceEditor'));
           });
         },
@@ -60,9 +60,11 @@ function RouterConfig({ history, app }) {
       {
         path: '/datasets',
         name: 'datasets',
+        onEnter() {
+          registerModel(app, require('./models/datasets'));
+        },
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/datasets'));
             cb(null, require('./routes/Datasets'));
           });
         },
@@ -83,11 +85,12 @@ function RouterConfig({ history, app }) {
       {
         path: '/dashboard',
         name: 'dashboard',
+        onEnter() {
+          registerModel(app, require('./models/dashboard/dashboard'));
+          registerModel(app, require('./models/dashboard/reportboard'));
+        },
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/dashboard/reportboard'));
-            registerModel(app, require('./models/dashboard/dashboard'));
-            registerModel(app, require('./models/operator'));
             cb(null, require('./routes/Dashboard'));
           });
         },
@@ -96,9 +99,11 @@ function RouterConfig({ history, app }) {
           {
             path: ':id',
             name: 'reportboard',
+            onEnter() {
+              registerModel(app, require('./models/dashboard/reportboard'));
+            },
             getComponent(nextState, cb) {
               require.ensure([], (require) => {
-                registerModel(app, require('./models/dashboard/reportboard'));
                 cb(null, require('./routes/ReportBoard'));
               });
             },
@@ -109,10 +114,11 @@ function RouterConfig({ history, app }) {
       {
         path: '/dashboard/edit',
         name: 'dashboardEditor',
+        onEnter() {
+          registerModel(app, require('./models/dashboard/dashboard'));
+        },
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/dashboard/dashboard'));
-            registerModel(app, require('./models/dashboard/editor'));
             cb(null, require('./routes/DashboardEditor'));
           });
         },
@@ -120,9 +126,11 @@ function RouterConfig({ history, app }) {
           {
             path: ':id',
             name: 'reportboard',
+            onEnter() {
+              registerModel(app, require('./models/dashboard/reportboard'));
+            },
             getComponent(nextState, cb) {
               require.ensure([], (require) => {
-                registerModel(app, require('./models/dashboard/reportboard'));
                 cb(null, require('./routes/ReportBoard'));
               });
             },
@@ -133,9 +141,11 @@ function RouterConfig({ history, app }) {
       {
         path: '/reportboard/:id',
         name: 'singleReportboard',
+        onEnter() {
+          registerModel(app, require('./models/dashboard/reportboard'));
+        },
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/dashboard/reportboard'));
             cb(null, require('./routes/ReportBoard'));
           });
         },
@@ -144,10 +154,11 @@ function RouterConfig({ history, app }) {
       {
         path: '/analysor',
         name: 'analysor',
+        onEnter() {
+          registerModel(app, require('./models/analysor'));
+        },
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            // app.model(require('./models/dashboard/dashboard'));
-            registerModel(app, require('./models/analysor'));
             cb(null, require('./routes/Analysor'));
           });
         },
@@ -167,9 +178,12 @@ function RouterConfig({ history, app }) {
       {
         path: '/operator',
         name: 'operator',
+        onEnter() {
+          registerModel(app, require('./models/operator'));
+        },
+
         getComponent(nextState, cb) {
           require.ensure([], (require) => {
-            registerModel(app, require('./models/operator'));
             cb(null, require('./routes/Operator'));
           });
         },

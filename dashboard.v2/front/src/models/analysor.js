@@ -38,8 +38,28 @@ export default {
             const id = _.trimStart(pathname, `${ANALYSOR_PATH}/`);
             dispatch({ type: 'initAnalysor', payload: { id } });
           }
+          dispatch({ type: 'queryDirs', payload: { type: 'chart' } });
+        } else {
+          dispatch({
+            type: 'updateState',
+            payload: {
+              loading: false,
+              code: {},
+              chart: {},
+              dataset: {},
+              wheres: [],
+              havings: [],
+              selectFields: [],
+              metricFields: [],
+              groupFields: [],
+              timeFields: [],
+              rangeTimes: [],
+              datas: [],
+              dirs: [],
+            },
+          });
         }
-        dispatch({ type: 'queryDirs', payload: { type: 'chart' } });
+
       });
     },
   },
@@ -49,7 +69,7 @@ export default {
       const data = yield call(getDirs, parse(payload));
       if (data.success) {
         yield put({
-          type: 'initState',
+          type: 'updateState',
           payload: {
             dirs: data.result.dirs,
           },
@@ -64,7 +84,7 @@ export default {
       const data = yield call(getDataSet, parse({ id: payload.id }));
       if (data.success) {
         yield put({
-          type: 'initState',
+          type: 'updateState',
           payload: {
             dataset: data.result,
           },
@@ -75,11 +95,11 @@ export default {
     *execute({
       payload,
     }, { call, put }) {
-      yield put({ type: 'initState', payload: { ...payload } });
+      yield put({ type: 'updateState', payload: { ...payload } });
       const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
       if (data.success) {
         yield put({
-          type: 'initState',
+          type: 'updateState',
           payload: {
             datas: data.result,
           },
@@ -118,7 +138,7 @@ export default {
 
         if (data2.success) {
           yield put({
-            type: 'initState',
+            type: 'updateState',
             payload: { code: data.result, chart: data2.result },
           });
           yield put({ type: 'queryDirs', payload: { type: 'chart' } });
@@ -157,7 +177,7 @@ export default {
         }));
         if (data2.success) {
           yield put({
-            type: 'initState',
+            type: 'updateState',
             payload: { code: data.result, chart: data2.result },
           });
           yield put({ type: 'queryDirs', payload: { type: 'chart' } });
@@ -203,7 +223,7 @@ export default {
   },
 
   reducers: {
-    initState(state, action) {
+    updateState(state, action) {
       return {
         ...state,
         ...action.payload,

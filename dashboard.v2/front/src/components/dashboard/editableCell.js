@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'dva/router';
-import { Icon, Input } from 'antd';
+import { Icon, Input, Tooltip } from 'antd';
 import styles from './aside.less';
 
 class EditableCell extends React.Component {
@@ -57,7 +57,11 @@ class EditableCell extends React.Component {
       </span>);
     } else {
       return (
-        <Link className={styles.editable_link} to={`/dashboard/${key}`} query={args} ><Icon type="file" />{value || ' '}</Link>
+        <Tooltip title={value}>
+          <Link className={styles.editable_link} to={`/dashboard/${key}`} query={args} >
+            <Icon type="file" />{`${(value || ' ').substr(0, 12)}..`}
+          </Link>
+        </Tooltip>
       );
     }
   }

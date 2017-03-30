@@ -4,6 +4,7 @@ import ReportDeleteModal from './deleteReport';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
+
 const EditHeader = ({
   report,
   updateTitle,
@@ -56,37 +57,27 @@ const EditHeader = ({
   return (
     <Row gutter={24}>
       <Col lg={8} md={8}>
-        <Input.Group compact>
-          <Col lg={2} md={2}>
-            <Icon type="unlock" />
-          </Col>
-          <Col lg={20} md={20} >
-            <Form inline onSubmit={handleSubmit}>
-              <FormItem wrapperCol={{ span: 16 }}>
-                {getFieldDecorator('name', {
-                  initialValue: report.name,
-                  rules: [
-                    {
-                      required: true,
-                      message: '报表名不予许为空',
-                    },
-                  ],
-                })(<Input />)}
-              </FormItem>
-            </Form>
-          </Col>
-          <Col lg={2} md={2}>
-            <span />
-          </Col>
-        </Input.Group>
+        <Form onSubmit={handleSubmit}>
+          <FormItem >
+            {getFieldDecorator('name', {
+              initialValue: report.name,
+              rules: [
+                {
+                  required: true,
+                  message: '报表名不予许为空',
+                },
+              ],
+            })(<Input size="default" />)}
+          </FormItem>
+        </Form>
       </Col>
 
       <Col lg={1} md={1} >
         <span className="ant-divider" />
       </Col>
       <Col lg={6} md={6} offset={2}>
-        <Button type="ghost" icon="save" onClick={onSave}>保存</Button>
-        <Button type="ghost" icon="rocket">导出</Button>
+        <Button type="ghost" icon="save" size="small" onClick={onSave}>保存</Button>
+        <Button type="ghost" icon="rocket" size="small" >导出</Button>
       </Col>
       { currentTimeRange === '' ? <Col lg={4} md={4}>
         <RangePicker showTime onOk={onChangeDateRange} format="YYYY-MM-DD" />

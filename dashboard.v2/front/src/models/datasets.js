@@ -37,6 +37,31 @@ export default {
             const id = pathname.substr(DATASET_INDEX, DATASETID_LENGTH);
             dispatch({ type: 'updateState', payload: { currentDatasetId: id } });
           }
+        } else {
+          dispatch({
+            type: 'updateState',
+            payload: {
+              inited: false,
+              modalSpace: { dimensions: false, measures: false },
+              modalVisibles: { toSave: false },
+              renameModalVisibles: false,
+              tableTreeVisibles: false,
+              transformDateVisible: false,
+              MeasureUnitVisible: false,
+              datasources: {},
+              dataset: {},
+              relationships: [],
+              currentRecord: {},
+              dimensions: [],
+              measures: [],
+              times: [],
+              datasourceList: [],
+              tables: [],
+              tableData: [],
+              currentDatasetId: '',
+              currentDatasetName: '',
+            },
+          });
         }
       });
     },

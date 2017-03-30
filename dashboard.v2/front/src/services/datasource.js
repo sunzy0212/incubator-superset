@@ -37,3 +37,10 @@ export async function getSchema(params) {
     data: params,
   });
 }
+
+export async function getTableData(params) {
+  return request(`/v1/datasources/${params.id}/tables/${params.tableName}/data`, {
+    method: 'get',
+    data: params,
+  });
+}

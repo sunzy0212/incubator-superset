@@ -8,13 +8,13 @@ import { getDir } from '../../services/dashboard';
 
 
 class Template extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
       visible: false,
       currItem: { email: {}, reporter: {} },
       currDir: { name: '' },
-      templates: [],
+      templates: props.templates,
     };
   }
   componentWillReceiveProps(nextProps) {

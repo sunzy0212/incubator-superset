@@ -108,7 +108,6 @@ function ReportBoard({ dispatch, reportboard }) {
 
   return (
     <div className={styles.main}>
-      <a href="javascript:location.href='mailto:?SUBJECT='+document.title+'&BODY='+escape(location.href);">发送邮件</a>
       <div>
         <Spin tip="Loading..." spinning={loading}>
           {

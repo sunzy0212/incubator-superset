@@ -34,8 +34,12 @@ var (
 		return httputil.NewError(400, fmt.Sprintf("E4212: Show table Failed : %s", err.Error()))
 	}
 
+	ErrorLoadTableData = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4213: Load table data Failed : %s", err.Error()))
+	}
+
 	ErrorTestDataSource = func(err error) *httputil.ErrorInfo {
-		return httputil.NewError(400, fmt.Sprintf("E4213: Test DataSource Failed : %s", err.Error()))
+		return httputil.NewError(400, fmt.Sprintf("E4214: Test DataSource Failed : %s", err.Error()))
 	}
 
 	ErrorPostDataSet = func(err error) *httputil.ErrorInfo {
