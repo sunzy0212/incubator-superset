@@ -55,7 +55,7 @@ func NewService(coll common.Collections, restUrls []string) (s *Service, err err
 		client:            client,
 		dataSourceManager: data.NewDataSourceManager(),
 		executor:          data.NewExecutor(&coll, restUrls),
-		scheduler:         sched.NewScheduler(),
+		scheduler:         sched.NewScheduler(&coll),
 		//Config:      cfg,
 	}
 	return s, nil
@@ -320,13 +320,15 @@ func (s *Service) GetDatasources_Tables_Data(args *cmdArgs, env *rpcutil.Env) (r
 	id := args.CmdArgs[0]
 	tableName := args.CmdArgs[1]
 
-	limit := uint64(100)
-	limit, err = strconv.ParseUint(strings.TrimSpace(env.Req.FormValue("limit")), 10, 64)
-	if err != nil {
-		err = errors.Info(ErrInternalError, err)
-		return
-	}
+	limit := uint64(50)
+	_limit := strings.TrimSpace(env.Req.FormValue("limit"))
+	if _limit != "" {
+		if limit, err = strconv.ParseUint(_limit, 10, 64); err != nil {
+			err = errors.Info(ErrInternalError, err)
+			return
+		}
 
+	}
 	var ds common.DataSource
 	if err = s.DataSourceColl.Find(M{"id": id}).One(&ds); err != nil {
 		if err == mgo.ErrNotFound {

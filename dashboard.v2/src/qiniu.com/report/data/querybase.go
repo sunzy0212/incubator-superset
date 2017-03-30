@@ -56,7 +56,7 @@ func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {
 	}
 	log.Infof("success to get result , length=%d", len(res.Rows))
 	for i, v := range res.Rows {
-		log.Infof("%d -> %v", i, v)
+		log.Debugf("%d -> %v", i, v)
 	}
 	return res.Rows, nil
 }
