@@ -3,8 +3,7 @@
   "scripts": {
     "start": "PORT=8001 roadhog server",
     "build": "roadhog build",
-	"lint": "eslint --ext .js src test",
-	"precommit": "npm run lint"
+    "lint": "eslint --ext .js src test"
   },
   "dependencies": {
     "antd": "^2.7.0",
@@ -12,6 +11,7 @@
     "classnames": "^2.2.5",
     "dva": "^1.2.1",
     "dva-loading": "^0.2.0",
+    "echarts-for-react": "^1.2.0",
     "lodash": "^4.17.4",
     "qs": "^6.3.0",
     "react": "^15.4.2",

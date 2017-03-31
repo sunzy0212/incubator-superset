@@ -20,6 +20,7 @@ const TablesList = ({ loading, tables, newDataSet }) => {
     {
       title: '表名',
       key: 'name',
+      sorter: (a, b) => a.name > b.name,
       render: record => <Popover
         title={`预览${record.name}`} trigger="click"
         content={<PreView
@@ -95,7 +96,7 @@ class PreView extends React.Component {
   render() {
     const columns = [];
     this.state.datas.columns.forEach((name) => {
-      columns.push({ title: name, dataIndex: name, key: name });
+      columns.push({ title: name, dataIndex: name, key: name, sorter: (a, b) => a > b });
     });
 
     const data = [];
