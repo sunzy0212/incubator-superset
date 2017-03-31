@@ -40,7 +40,7 @@ func (m *DataSetManager) GenExpression(key, action string) string {
 	case "COUNT":
 		return fmt.Sprintf("COUNT(`%s`) AS `%s`", key, key)
 	default:
-		return ""
+		return fmt.Sprintf("SUM(`%s`) AS `%s`", key, key)
 	}
 	return ""
 }

@@ -151,9 +151,9 @@ Content-Type: application/json
 	]
 }
 ```
-#### 获取数据源信息（比如：表）
+#### 获取数据源表数据
 ```
-GET /v1/datasources/<Id>/tables/<TableName>
+GET /v1/datasources/<Id>/tables/<TableName>/data
 ```
 返回包:
 
@@ -161,12 +161,15 @@ GET /v1/datasources/<Id>/tables/<TableName>
 200 OK
 Content-Type: application/json
 {
-	"datasourceId": <DatasourceId>,
-	"tableName": <TableName>,
-	"fields": <Fields>,
-	"desc": <Desc>
+	"columns": [string...],
+	"rows": [
+	{key1:<val1>,key2:<val2>,key3:<val3>...}
+	{key1:<val1>,key2:<val2>,key3:<val3>...}
+	...
+	]
 }
 ```
+
 
 ### 数据集管理
 dataset数据结构

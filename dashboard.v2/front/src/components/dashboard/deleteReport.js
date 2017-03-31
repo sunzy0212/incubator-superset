@@ -1,8 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Modal, Button, Form } from 'antd';
 
-const ReportDeleteModal = ({ deleteModalVisible, onCancel, currentId, deleteReport,
-   }) => {
+const ReportDeleteModal = ({ deleteModalVisible, onCancel, currentId, deleteReport }) => {
   function handleOk() {
     deleteReport(currentId);
   }
@@ -26,6 +25,8 @@ const ReportDeleteModal = ({ deleteModalVisible, onCancel, currentId, deleteRepo
 };
 
 ReportDeleteModal.propTypes = {
+  currentId: PropTypes.string,
+  deleteModalVisible: PropTypes.bool,
   deleteReport: PropTypes.func,
   onCancel: PropTypes.func,
 };

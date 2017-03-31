@@ -30,7 +30,7 @@ function Datasets({ dispatch, loading, datasets }) {
       const cDimensions = dimensions.filter(x => x.name !== record.item.name);
       const cMeasures = measures;
       cMeasures.push(
-        Object.assign(record),
+        Object.assign(record.item),
       );
       dispatch({
         type: 'datasets/updateState',
@@ -169,7 +169,7 @@ function Datasets({ dispatch, loading, datasets }) {
       const cMeasures = measures.filter(x => x.name !== record.item.name);
       const cDimensions = dimensions;
       cDimensions.push(
-        Object.assign(record),
+        Object.assign(record.item),
       );
       dispatch({
         type: 'datasets/updateState',

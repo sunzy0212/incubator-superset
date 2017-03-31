@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -47,13 +48,14 @@ type Service struct {
 }
 
 func NewService(coll common.Collections, restUrls []string) (s *Service, err error) {
+	client := rest.NewDrillClient(restUrls)
 	s = &Service{
 		Collections:       coll,
 		RWMux:             &sync.RWMutex{},
-		client:            rest.NewDrillClient(restUrls),
+		client:            client,
 		dataSourceManager: data.NewDataSourceManager(),
 		executor:          data.NewExecutor(&coll, restUrls),
-		scheduler:         sched.NewScheduler(),
+		scheduler:         sched.NewScheduler(&coll),
 		//Config:      cfg,
 	}
 	return s, nil
@@ -308,6 +310,40 @@ func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret T
 		return
 	}
 	ret = TableSchema{DatasourceId: id, Table: name, Fields: res}
+	return
+}
+
+/*
+GET /v1/datasources/<Id>/tables/<TableName>/data
+*/
+func (s *Service) GetDatasources_Tables_Data(args *cmdArgs, env *rpcutil.Env) (ret rest.Results, err error) {
+	id := args.CmdArgs[0]
+	tableName := args.CmdArgs[1]
+
+	limit := uint64(50)
+	_limit := strings.TrimSpace(env.Req.FormValue("limit"))
+	if _limit != "" {
+		if limit, err = strconv.ParseUint(_limit, 10, 64); err != nil {
+			err = errors.Info(ErrInternalError, err)
+			return
+		}
+
+	}
+	var ds common.DataSource
+	if err = s.DataSourceColl.Find(M{"id": id}).One(&ds); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("datasource id:%s is not exist", id))
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+		return
+	}
+	ret, err = s.executor.GetDataByDataSource(ds, tableName, limit)
+	if err != nil {
+		log.Error(err)
+		err = ErrorLoadTableData(err)
+		return
+	}
 	return
 }
 

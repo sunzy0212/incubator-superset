@@ -1,14 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'dva';
 import { Row, Col } from 'antd';
-import { classnames } from '../utils';
 import Aside from '../components/dashboard/editor/aside';
 import styles from './Dashboard.less';
 import EditHeader from '../components/dashboard/editHeader';
 
-function DashboardEditor({ children, dispatch, dashboardEditor, reportboard }) {
-  const { isShow, dirs, charts } = dashboardEditor;
-  const { report, currentLayouts, isHeaderShow, currentTimeRange } = reportboard;
+function DashboardEditor({ history, children, dispatch, loading, dashboardEditor, reportboard }) {
+  const { dirs, charts } = dashboardEditor;
+  const { report, currentLayouts, currentTimeRange } = reportboard;
   const asideProps = {
     dirs,
     charts,
@@ -27,12 +26,10 @@ function DashboardEditor({ children, dispatch, dashboardEditor, reportboard }) {
   };
 
   const headerProps = {
+    history,
     report,
     currentLayouts,
     currentTimeRange,
-    editTitle() {
-      dispatch({ type: 'dashboardEditor/editTitle' });
-    },
     updateTitle(name) {
       dispatch({
         type: 'dashboardEditor/updateTitle',
@@ -60,19 +57,13 @@ function DashboardEditor({ children, dispatch, dashboardEditor, reportboard }) {
   return (
     <div className={styles.sideBar}>
       <Row gutter={24}>
-        <Col
-          lg={5} md={3}
-          className={classnames({ [styles.animateWrap]: isShow },
-            { [styles.active]: isShow }, { [styles.downIn]: isShow },
-            { [styles.animateWrap]: !isShow })}
-        >
+        <Col lg={5} md={3} >
           <Aside {...asideProps} />
         </Col>
         <Col lg={19} md={21}>
           <Row gutter={12}>
             <Col lg={24} md={24}>
-              {isHeaderShow === false ? ''
-                : <EditHeader {...headerProps} />}
+              <EditHeader {...headerProps} />
             </Col>
           </Row>
           <Row gutter={12}>
@@ -88,13 +79,18 @@ function DashboardEditor({ children, dispatch, dashboardEditor, reportboard }) {
 
 DashboardEditor.propsType = {
   dispatch: PropTypes.func,
-  isShow: PropTypes.bool,
+  dashboardEditor: PropTypes.object,
   reportboard: PropTypes.object,
+  loading: PropTypes.bool,
 };
 
 
 function mapStateToProps(state) {
-  return { dashboardEditor: state.dashboardEditor, reportboard: state.reportboard };
+  return {
+    dashboardEditor: state.dashboardEditor,
+    reportboard: state.reportboard,
+    loading: state.loading.models.dashboardEditor,
+  };
 }
 export default connect(mapStateToProps)(DashboardEditor);
 

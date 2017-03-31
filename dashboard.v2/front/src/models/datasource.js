@@ -1,16 +1,14 @@
 import { parse } from 'qs';
 import { routerRedux } from 'dva/router';
+import { message } from 'antd';
 import { listDatasources, saveDataSource, deleteDataSource, showTables } from '../services/datasource';
 import { listDataSets } from '../services/datasets';
-import { message } from 'antd';
-
 
 export default {
   namespace: 'datasource',
   state: {
     modalVisible: false,
     item: {},
-    dataSetType: 'MYSQL',
     datasources: [],
     tables: [],
     datasets: [],
@@ -27,7 +25,7 @@ export default {
       const data = yield call(listDatasources, parse(payload));
       if (data.success) {
         yield put({
-          type: 'listDatasources',
+          type: 'updateState',
           payload: {
             datasources: data.result.datasources,
           },
@@ -41,7 +39,7 @@ export default {
       const data = yield call(listDataSets, parse(payload));
       if (data.success) {
         yield put({
-          type: 'listDatasets',
+          type: 'updateState',
           payload: {
             datasets: data.result.datasets,
           },
@@ -75,7 +73,7 @@ export default {
       const data = yield call(showTables, parse(payload));
       if (data.success) {
         yield put({
-          type: 'listTables',
+          type: 'updateState',
           payload: {
             tables: data.result.tables,
           },
@@ -100,21 +98,7 @@ export default {
       };
     },
 
-    listDatasources(state, action) {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
-
-    listDatasets(state, action) {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
-
-    listTables(state, action) {
+    updateState(state, action) {
       return {
         ...state,
         ...action.payload,
