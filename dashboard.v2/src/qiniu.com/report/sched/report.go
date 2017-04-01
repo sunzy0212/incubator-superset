@@ -1,7 +1,10 @@
 package sched
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
+	"os"
 
 	"time"
 
@@ -30,7 +33,10 @@ func (r *ReportSender) Type() string {
 }
 
 func (r *ReportSender) Run() {
-	url := "http://localhost:8000"
+	url := "https://localhost:8000"
+	if tmp := os.Getenv("REPORT_WEB_HOST"); tmp != "" {
+		url = tmp
+	}
 	client := r.getRpcClient()
 	//新建报表
 	dateFormatString := time.Now().Format("2006-01-02T1504")
@@ -66,5 +72,8 @@ func (r *ReportSender) Run() {
 }
 
 func (r *ReportSender) getRpcClient() rpc.Client {
-	return rpc.NewClientTimeout(time.Duration(10*time.Second), time.Duration(10*time.Second))
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	return rpc.Client{&http.Client{Transport: tr}}
 }
