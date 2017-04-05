@@ -1,14 +1,20 @@
-all:
+all: report
+report:
 	rm -rf dist && rm -rf front/dist && mkdir dist
 	cd dist; openssl genrsa -out key.pem 2048
 	cd dist; openssl req -new -x509 -key key.pem -out cert.pem -days 3650
-	cd src/qiniu.com/report/; CGO_ENABLED=0 go build -a -o ../../../dist/reportd
+	cd src/qiniu.com/report/; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o ../../../dist/reportd
 	cp src/qiniu.com/report/report.conf dist/
 	cd front; npm install && npm run build
 	cp front/dist/* dist/
 	cp -r front/src/assets dist/
+	
+apps:
+	cd agent; yarn install && yarn run build
+	cd agent/build; mkdir templates; mv index.html templates
+	cd src/qiniu.com/agent/; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o ../../../agent/build/appd
 
-install: all
+install: apps report
 	@echo
 
 test:
