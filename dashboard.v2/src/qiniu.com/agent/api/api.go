@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/martini-contrib/render"
 	"qiniupkg.com/kirk/kirksdk"
@@ -82,7 +81,7 @@ func New(cfg Conf) (*Context, error) {
 			"report": kirksdk.ServiceInfo{},
 		},
 	}
-	go ret.inpsectsCheck()
+
 	return ret, nil
 }
 
@@ -97,6 +96,7 @@ func (c *Context) Allocate(r render.Render) {
 		err = c.qcosClient.CreateStack(nil, kirksdk.CreateStackArgs{Name: STACK_NAME})
 		if err != nil {
 			log.Error("Failed to create stack ~ ", err)
+			return
 		}
 	}
 
@@ -234,7 +234,7 @@ func (c *Context) allocateMongoIfNotExist() (host string, err error) {
 			log.Error(err)
 			return
 		}
-		return fmt.Sprint("%s.%s", config.Name, STACK_NAME), nil
+		return fmt.Sprintf("%s.%s", config.Name, STACK_NAME), nil
 	}
 
 	return ret.ContainerIPs[0], nil
@@ -247,27 +247,33 @@ type Status struct {
 }
 
 func (c *Context) GetInspects(r render.Render) {
+	c.inpsects()
 	r.JSON(200, c.Status)
 }
 
-func (c *Context) inpsectsCheck() {
-	ticker := time.NewTicker(30 * time.Second)
-	for {
-		select {
-		case <-ticker.C:
-			log.Info("try to get inspect of services")
-			ret, err := c.qcosClient.GetServiceInspect(nil, STACK_NAME, SERVICE_MONGO_NAME)
-			if err != nil {
-				log.Error(err)
-			}
-			c.Status["mongo"] = ret
-
-			ret, err = c.qcosClient.GetServiceInspect(nil, STACK_NAME, SERVICE_REPORT_NAME)
-			if err != nil {
-				log.Error(err)
-			}
-			c.Status["report"] = ret
-
-		}
+func (c *Context) IsDeleted(r render.Render) {
+	isDeleted := false
+	_, err := c.qcosClient.GetStack(nil, STACK_NAME)
+	if err != nil {
+		//not exsit than create stack
+		isDeleted = true
 	}
+	r.JSON(200, map[string]bool{"isDeleted": isDeleted})
+}
+
+func (c *Context) inpsects() {
+
+	log.Info("try to get inspect of services")
+	ret, err := c.qcosClient.GetServiceInspect(nil, STACK_NAME, SERVICE_MONGO_NAME)
+	if err != nil {
+		log.Error(err)
+	}
+	c.Status["mongo"] = ret
+
+	ret, err = c.qcosClient.GetServiceInspect(nil, STACK_NAME, SERVICE_REPORT_NAME)
+	if err != nil {
+		log.Error(err)
+	}
+	c.Status["report"] = ret
+
 }

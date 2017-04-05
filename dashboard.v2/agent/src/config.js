@@ -21,15 +21,16 @@ class Config extends Component {
         body: JSON.stringify({ data: '' }),
       }).then((data) => {
         console.log(data);
-        if (data.Status==="success"){
-            this.props.callBack();
-        }
-
         this.setState({
           status: 'finish',
           percent: 100,
           deployResult: data,
         });
+        if (data.Status === 'success') {
+          setTimeout(function () {
+            this.props.callBack();
+          }, 60000);
+        }
       });
   }
 
@@ -42,7 +43,6 @@ class Config extends Component {
   }
 
   render() {
-    console.log('=======', this.props);
     return (<div className="steps-content">
       {this.state.status === 'proccess' ? <Progress type="circle" percent={this.state.percent} /> : ''
         }

@@ -22,9 +22,9 @@ func main() {
 		//		}
 	})
 	//https://jira.qiniu.io/browse/QCOS-3809
-	os.Getenv("USER_APP_URI")
-	//	ak := os.Getenv("USER_ACCOUNT_AK")
-	//	sk := os.Getenv("USER_ACCOUNT_SK")
+	appUri := os.Getenv("USER_APP_URI")
+	ak := os.Getenv("USER_ACCOUNT_AK")
+	sk := os.Getenv("USER_ACCOUNT_SK")
 
 	webApp.Use(cors.Allow(&cors.Options{
 		AllowOrigins:     []string{"*"},
@@ -54,13 +54,15 @@ func main() {
 		r.JSON(200, config)
 	})
 	api, _ := api.New(api.Conf{
-		USER_ACCOUNT_AK: "7gE4xWhNArG0NoFdLq76Kq0oPgIzdAs0ji-ZRxd9",
-		USER_ACCOUNT_SK: "KwOxQ5CJtaCoUdS_oVqZE-gdS9v1kOvsCWAmdr_2",
-		USER_APP_URI:    "wenchenxin.ffffffffffffffff",
+		USER_ACCOUNT_AK: ak,     //"7gE4xWhNArG0NoFdLq76Kq0oPgIzdAs0ji-ZRxd9",
+		USER_ACCOUNT_SK: sk,     //"KwOxQ5CJtaCoUdS_oVqZE-gdS9v1kOvsCWAmdr_2",
+		USER_APP_URI:    appUri, //"wenchenxin.test1",
 	})
 	webApp.Group("/api", func(r martini.Router) {
 		r.Get("/deployed", api.IsDeployed)
+		r.Get("/isDeleted", api.IsDeleted)
 		r.Post("/allocate", api.Allocate)
+		r.Post("/update", api.UpdateReport)
 		r.Get("/inspects", api.GetInspects)
 	})
 

@@ -16,10 +16,36 @@ class App extends Component {
     super();
     this.state = {
       isDeploy: false,
+      isDeleted: false,
       report: {},
+      services: {},
       webroot: 'https://',
     };
     this.isDeploy();
+    this.isDeleted();
+    this.getReport();
+  }
+
+
+  componentDidMount() {
+    setInterval(() => {
+      if (this.state.isDeploy) {
+        this.isDeleted();
+        this.getReport();
+      }
+    }, 10000);
+  }
+
+  getReport = () => {
+    request(`${common.URL}/api/inspects`,
+      {
+        method: 'GET',
+      }).then((data) => {
+        this.setState({
+          services: data,
+          report: data.report,
+        });
+      });
   }
 
 
@@ -28,9 +54,20 @@ class App extends Component {
       {
         method: 'GET',
       }).then((data) => {
-        console.log('caaaaaal', data);
         this.setState({
           isDeploy: data.result,
+        });
+      });
+  }
+
+
+  isDeleted=() => {
+    request(`${common.URL}/api/isDeleted`,
+      {
+        method: 'GET',
+      }).then((data) => {
+        this.setState({
+          isDeleted: data.isDeleted,
         });
       });
   }
@@ -40,17 +77,14 @@ class App extends Component {
       {
         method: 'GET',
       }).then((data) => {
-        console.log('================ip=', data);
         window.open(`https://${data.report.apPorts[0].ip}`, 'newwindow');
-          // this.setState({
-          //     report: data.report,
-          //     webroot: `https://${data.report.apPorts.ip}`,
-          // });
       });
   }
   callBack=() => {
-    console.log('caaaaaaaaaaaaaaaaaaaalllllll');
     this.isDeploy();
+    this.setState({
+      isDeleted: false,
+    });
   }
 
   render() {
@@ -87,13 +121,13 @@ class App extends Component {
               </Col>
               <Col span={4} offset={16}>
                 <Button
-                  type="primary" size="large" disabled={this.state.report.apPorts === null}
+                  type="primary" size="large" disabled={this.state.report.apPorts === undefined || this.state.report.apPorts === null}
                   onClick={() => this.openUrl()}
                 >打开报表Portal</Button>
               </Col>
             </Row>
           </Header>
-          <Content>{this.state.isDeploy ? <Monitor /> : <Config {...configProps} />}
+          <Content>{this.state.isDeploy && !this.state.isDeleted ? <Monitor services={this.state.services} /> : <Config {...configProps} />}
           </Content>
           <Footer>@七牛云</Footer>
         </Layout>

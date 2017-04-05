@@ -1,17 +1,39 @@
 import React, { Component } from 'react';
-import { Table } from 'antd';
+import { Table, Button } from 'antd';
 import request from './utils/request';
 import common from './utils/common';
 import './App.css';
 
 class Monitor extends Component {
 
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
-      tables: {},
+      tables: props.services,
+      upgrading_report: false,
     };
-    this.getStatus();
+  }
+
+  componentWillReceiveProps(nextprops) {
+    this.setState({
+      tables: nextprops.services,
+    });
+  }
+
+
+  onUpgrade = () => {
+    this.setState({
+      upgrading_report: true,
+    });
+    request(`${common.URL}/api/update`,
+      {
+        method: 'POST',
+      }).then((data) => {
+        console.log(data);
+        this.setState({
+          upgrading_report: false,
+        });
+      });
   }
 
   getStatus = () => {
@@ -25,6 +47,7 @@ class Monitor extends Component {
         });
       });
   }
+
 
   render() {
     const columns = [
@@ -45,12 +68,19 @@ class Monitor extends Component {
         title: '状态',
         dataIndex: 'status',
         key: 'status',
+      }, {
+        title: '操作',
+        key: 'action',
+        render: record => (
+          <div>
+            <Button type="primary" loading={this.state.upgrading_report && record.name === 'report'} disabled={record.name === 'mongo'} onClick={() => this.onUpgrade(record.name)}>升级</Button>
+          </div>),
+
       },
     ];
     const data = [];
 
     Object.keys(this.state.tables).forEach((e) => {
-      console.log('==============================', e, this.state.tables[e]);
       data.push({
         key: e,
         name: e,
