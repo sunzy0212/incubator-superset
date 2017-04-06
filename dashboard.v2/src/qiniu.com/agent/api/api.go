@@ -114,7 +114,7 @@ func (c *Context) Allocate(r render.Render) {
 		Name:        SERVICE_REPORT_NAME,
 		Spec: kirksdk.ServiceSpec{
 			AutoRestart: "always",
-			Image:       "wenchenxin/report2:latest",
+			Image:       "report-app/report2:latest",
 			UnitType:    default_report_quota,
 			Envs: []string{
 				fmt.Sprintf("QINIU_ACCESS_KEY=%s", c.USER_ACCOUNT_AK),
@@ -211,7 +211,7 @@ func (c *Context) allocateMongoIfNotExist() (host string, err error) {
 		Spec: kirksdk.ServiceSpec{
 			AutoRestart: "always",
 			Command:     []string{"mongod"},
-			Image:       "wenchenxin/mongo:latest",
+			Image:       "report-app/mongo:latest",
 			UnitType:    default_mongo_quota,
 			Envs:        []string{},
 		},

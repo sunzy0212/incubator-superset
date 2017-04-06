@@ -10,7 +10,7 @@ import (
 func TestKirkSdk(t *testing.T) {
 	cfg := kirksdk.AccountConfig{
 		AccessKey: "7gE4xWhNArG0NoFdLq76Kq0oPgIzdAs0ji-ZRxd9",
-		SecretKey: "KwOxQ5CJtaCoUdS_oVqZE-gdS9v1kOvsCWAmdr_2",
+		SecretKey: "8888888888888888888888888888888888888888",
 		Host:      kirksdk.DefaultAccountHost,
 	}
 	accountClient := kirksdk.NewAccountClient(cfg)
