@@ -1,6 +1,8 @@
 import { parse } from 'qs';
 import _ from 'lodash';
-import { getReport, getLayouts } from '../../services/dashboard';
+import { message } from 'antd';
+import { routerRedux } from 'dva/router';
+import { getReport, getLayouts, setLayouts } from '../../services/dashboard';
 
 const DASHBOARD_PATH = '/dashboard/';
 const DASHBOARD_EDIT_PATH = '/dashboard/edit/';
@@ -14,8 +16,6 @@ export default {
     status: MODE_READ,
     report: {},
     layouts: {},
-    chartList: [],
-    currentLayouts: { lg: [] },
     currentTimeRange: '',
     timeRange: { start: '', end: '' },
     ponitsContainer: { breakpoints: { lg: 996, md: 768, sm: 500, xs: 200, xxs: 0 },
@@ -26,10 +26,14 @@ export default {
       return history.listen(({ pathname, query }) => {
         let reportId = '';
         let status = MODE_READ;
-        const date = query[date];
+        const date = query.date;
         let currentTimeRange = '';
+        let timeRange = { start: '', end: '' };
         if (date !== undefined && date !== '') {
           currentTimeRange = date;
+          const start = new Date(_.replace('DATE 00:00:00+0800', 'DATE', date)).getTime();
+          const end = new Date(_.replace('DATE 23:59:59+0800', 'DATE', date)).getTime();
+          timeRange = { start, end };
         }
         if (_.startsWith(pathname, DASHBOARD_EDIT_PATH)) {
           reportId = pathname.substr(DASHBOARD_EDIT_PATH.length, REPORTID_LENGTH);
@@ -41,7 +45,7 @@ export default {
         }
         if (reportId !== '') {
           dispatch({ type: 'queryReport', payload: { reportId } });
-          dispatch({ type: 'updateState', payload: { currentTimeRange, status } });
+          dispatch({ type: 'updateState', payload: { currentTimeRange, status, timeRange } });
         }
       });
     },
@@ -60,6 +64,22 @@ export default {
         },
       });
     },
+
+    *updateLayout({}, { call, put, select }) {
+      const reportboard = yield select(state => state.reportboard);
+      const layouts = {
+        reportId: reportboard.report.id,
+        layouts: reportboard.layouts,
+      };
+      const data = yield call(setLayouts, parse(layouts));
+      if (data.success) {
+        message.success('保存成功！');
+        yield put(routerRedux.push(`/dashboard/${reportboard.report.id}`));
+      } else {
+        message.error('保存失败！');
+      }
+    },
+
   },
 
   reducers: {
@@ -72,24 +92,64 @@ export default {
     },
 
     addChartToReport(state, action) {
-      return {
-        ...state,
-        ...action.payload,
-        addChartId: action.payload.chartId,
-      };
+      const chartId = action.payload.chartId;
+      const layouts = state.layouts;
+
+      let allreadyExist = false;
+      layouts.forEach((elem) => {
+        if (elem.chartId === chartId) {
+          allreadyExist = true;
+        }
+      });
+
+      if (allreadyExist) {
+        message.warn('图表已添加，不能重复添加');
+        return { ...state };
+      } else {
+        const newChart = {
+          chartId,
+          data: {
+            i: chartId,
+            x: layouts.length % 2 === 0 ? 0 : 6,
+            y: Infinity,
+            w: 6,
+            h: 1,
+            isDraggable: true,
+            isResizable: true,
+            minW: 4,
+            maxW: 12,
+            maxH: 1,
+          },
+        };
+
+        layouts.push(newChart);
+
+        return {
+          ...state,
+          layouts,
+        };
+      }
     },
 
     layoutChange(state, action) {
+      const layouts = [];
+      action.payload.layouts.forEach((elem) => {
+        layouts.push({ chartId: elem.i, data: elem });
+      });
       return {
         ...state,
-        ...action.payload,
+        layouts,
       };
     },
 
-    renderLayouts(state, action) {
+    removeChart(state, action) {
+      const chartId = action.payload.chartId;
+      const layouts = state.layouts.filter((elem) => {
+        return (elem.chartId !== chartId);
+      });
       return {
         ...state,
-        layouts: action.payload.layouts,
+        layouts,
       };
     },
     refreshChart(state, action) {
@@ -98,5 +158,6 @@ export default {
         ...action.payload,
       };
     },
+
   },
 };

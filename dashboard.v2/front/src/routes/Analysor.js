@@ -14,6 +14,8 @@ function Analysor({ dispatch, loading, analysor }) {
 
   const { id, name, dimensions, measures, times } = dataset;
 
+  const allFields = [].concat(times).concat(dimensions).concat(measures);
+
   const headerProps = {
     id,
     name,
@@ -34,9 +36,11 @@ function Analysor({ dispatch, loading, analysor }) {
     dimensions,
     measures,
     times,
+    timeField,
     selectFields,
     metricFields,
     groupFields,
+    allFields,
     onExecute(querys) {
       dispatch({
         type: 'analysor/execute',
@@ -51,9 +55,9 @@ function Analysor({ dispatch, loading, analysor }) {
     dirs,
     datas,
     timeField,
-    allFields: [].concat(dimensions).concat(measures).concat(times),
     selectFields,
     metricFields,
+    allFields,
     onSaveOrUpdate(args) {
       dispatch({
         type: 'analysor/saveOrUpdate',

@@ -42,11 +42,3 @@ export async function updateChart(params) {
     body: JSON.stringify(params),
   });
 }
-
-// GET /v1/datas?codeId=<CodeId>&type=<DataType>
-export async function queryCode(params) {
-  return request('/v1/datas', {
-    method: 'get',
-    params,
-  });
-}

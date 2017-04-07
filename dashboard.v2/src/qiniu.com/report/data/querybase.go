@@ -58,5 +58,8 @@ func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {
 	for i, v := range res.Rows {
 		log.Debugf("%d -> %v", i, v)
 	}
+	if len(res.Rows) == 1 && len(res.Rows[0]) == 0 {
+		return make([]string, 0), nil
+	}
 	return res.Rows, nil
 }

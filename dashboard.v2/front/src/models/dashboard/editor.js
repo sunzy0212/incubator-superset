@@ -30,18 +30,6 @@ export default {
         });
       }
     },
-    *updateLayout({
-      payload,
-    }, { call, put }) {
-      const layouts = {
-        reportId: payload.reportId,
-        layouts: payload.layouts,
-      };
-      const data = yield call(setLayouts, parse(layouts));
-      if (data.success) {
-        // todo
-      }
-    },
 
     *getChartsByDirId({
       payload,
@@ -58,10 +46,10 @@ export default {
     },
     *updateTitle({
       payload,
-    }, { call, put }) {
+    }, { call }) {
       const data = yield call(saveReport, parse(payload));
       if (data.success) {
-        message.success('保存成功！');
+        // message.success('保存成功！');
       } else {
         message.success('保存失败！！！');
       }

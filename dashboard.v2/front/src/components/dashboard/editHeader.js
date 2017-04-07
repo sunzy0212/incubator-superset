@@ -8,8 +8,7 @@ const EditHeader = ({
   history,
   report,
   updateTitle,
-  currentLayouts,
-  saveChartToReport,
+  saveChartsToReport,
   refreshChart,
   currentTimeRange,
   form: {
@@ -19,20 +18,13 @@ const EditHeader = ({
 }) => {
   function onSave(e) {
     e.preventDefault();
-    const layouts = [];
-    currentLayouts.lg.forEach((ele) => {
-      layouts.push({
-        chartId: ele.i,
-        data: [ele],
-      });
-    });
+
     validateFields((err, values) => {
       if (!err) {
         updateTitle(values.name);
       }
     });
-    saveChartToReport(report.id, layouts);
-    history.push(`/dashboard/${report.id}`);
+    saveChartsToReport();
   }
 
   function onCancel() {
@@ -78,7 +70,7 @@ const EditHeader = ({
 };
 
 EditHeader.propTypes = {
-  saveChartToReport: PropTypes.func,
+  saveChartsToReport: PropTypes.func,
   refreshChart: PropTypes.func,
 };
 

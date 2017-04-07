@@ -223,7 +223,7 @@ type Code struct {
 	SelectFields []Field      `json:"selectFields" bson:"selectFields"`
 	MetricFields []Field      `json:"metricFields" bson:"metricFields"`
 	GroupFields  []Field      `json:"groupFields" bson:"groupFields"`
-	TimeFields   []Evaluation `json:"timeFields" bson:"timeFields"`
+	TimeField    Field        `json:"timeField" bson:"timeField"`
 	RangeTimes   []Condition  `json:"rangeTimes" bson:"rangeTimes"`
 	Wheres       []Evaluation `json:"wheres" bson:"wheres"`
 	Havings      []Evaluation `json:"havings" bson:"havings"`
@@ -323,7 +323,7 @@ func (db *Collections) EnsureIndex() {
 	db.DataSourceColl.EnsureIndexes("id,type :unique")
 	db.DataSetColl.EnsureIndexes("id:unique")
 	db.CodeColl.EnsureIndexes("type")
-	db.DirColl.EnsureIndexes("id :unique", "name:unique")
+	db.DirColl.EnsureIndexes("id,name:unique")
 	//db.ReportColl.EnsureIndexes("id,dirId,name :unique")
 	db.ChartColl.EnsureIndexes("reportId")
 	//db.Code.EnsureIndexes("")
