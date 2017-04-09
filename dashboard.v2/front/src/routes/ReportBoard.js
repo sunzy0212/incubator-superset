@@ -9,13 +9,12 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 
 function ReportBoard({ history, dispatch, loading, reportboard }) {
-  const { status, report, layouts, timeRange,
+  const { status, report, layouts, timeRange, reflush,
     ponitsContainer } = reportboard;
 
   const tmpLayouts = layouts.map((item) => {
     return item.data;
   });
-
 
   function onLayoutChange(clayouts) {
     dispatch({
@@ -28,6 +27,7 @@ function ReportBoard({ history, dispatch, loading, reportboard }) {
     status,
     report,
     timeRange,
+    reflush,
     getChartData(chartId) {
       dispatch({
         type: 'reportboard/getChartData',
@@ -38,6 +38,11 @@ function ReportBoard({ history, dispatch, loading, reportboard }) {
       dispatch({
         type: 'reportboard/removeChart',
         payload: { chartId },
+      });
+    },
+    cancelFlushFlag() {
+      dispatch({
+        type: 'reportboard/cancelFlushFlag',
       });
     },
   };

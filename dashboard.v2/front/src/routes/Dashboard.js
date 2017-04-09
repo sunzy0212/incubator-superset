@@ -111,7 +111,12 @@ function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
         type: 'dashboard/hideDeleteModal',
       });
     },
-    refreshChart(start, end) {
+    refreshChart() {
+      dispatch({
+        type: 'reportboard/refreshChart',
+      });
+    },
+    changeRangeTime(start, end) {
       dispatch({
         type: 'reportboard/refreshChart',
         payload: {

@@ -11,6 +11,7 @@ const Header = ({
   onCancel,
   deleteReport,
   refreshChart,
+  changeRangeTime,
   currentTimeRange,
 }) => {
   const props = {
@@ -21,7 +22,7 @@ const Header = ({
   };
 
   function onChangeDateRange(item) {
-    refreshChart(item[0].valueOf(), item[1].valueOf());
+    changeRangeTime(item[0].valueOf(), item[1].valueOf());
   }
 
   return (
@@ -44,7 +45,7 @@ const Header = ({
         <span className="ant-divider" />
       </Col>
       <Col lg={6} md={6} offset={2}>
-        <Button type="ghost" icon="reload" size="small">刷新</Button>
+        <Button type="ghost" icon="reload" size="small" onClick={() => refreshChart()}>刷新</Button>
         <Button type="danger" onClick={openModal} icon="delete" size="small">删除</Button>
         <Button type="ghost" icon="rocket" size="small">导出</Button>
         <a href="javascript:location.href='mailto:?SUBJECT='+document.title+'&BODY='+escape(location.href);"><Icon type="mail" /></a>

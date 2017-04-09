@@ -43,15 +43,18 @@ class View extends React.Component {
 
 
   componentWillReceiveProps(nextProps) {
-    let rangeTimes = [];
-    if (this.state.initFlag === true && this.state.chartData.codeId !== undefined) {
-      rangeTimes = [{
-        operator: 'LT',
-        data: nextProps.timeRange.end.toString(),
-      }, {
-        operator: 'GE',
-        data: nextProps.timeRange.start.toString(),
-      }];
+    if (nextProps.reflush === true) {
+      nextProps.cancelFlushFlag();
+      let rangeTimes = [];
+      if (this.props.timeRange.start !== '') {
+        rangeTimes = [{
+          operator: 'LT',
+          data: nextProps.timeRange.end.toString(),
+        }, {
+          operator: 'GE',
+          data: nextProps.timeRange.start.toString(),
+        }];
+      }
       this.setState({
         data: [],
         loading: true,

@@ -14,6 +14,7 @@ export default {
   namespace: 'reportboard',
   state: {
     status: MODE_READ,
+    reflush: false,
     report: {},
     layouts: {},
     currentTimeRange: '',
@@ -153,11 +154,22 @@ export default {
       };
     },
     refreshChart(state, action) {
+      let timeRange = state.timeRange;
+      if (action.payload !== undefined && action.payload.timeRange !== undefined) {
+        timeRange = action.payload.timeRange;
+      }
       return {
         ...state,
-        ...action.payload,
+        reflush: true,
+        timeRange,
       };
     },
 
+    cancelFlushFlag(state) {
+      return {
+        ...state,
+        reflush: false,
+      };
+    },
   },
 };
