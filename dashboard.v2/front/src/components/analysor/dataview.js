@@ -35,8 +35,8 @@ class Dataview extends React.Component {
   componentWillReceiveProps(nextProps) {
     ReactDOM.unmountComponentAtNode(document.getElementById('saveModal'));
 
-    const { selectFields, metricFields } = nextProps;
-    const xx = [].concat(selectFields).concat(metricFields);
+    const { timeField, selectFields, metricFields } = nextProps;
+    const xx = [timeField].concat(selectFields).concat(metricFields);
 
     this.setState({
       xx,

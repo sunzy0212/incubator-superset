@@ -4,11 +4,9 @@ import { Select, Row, Col } from 'antd';
 const Option = Select.Option;
 
 class SelectComponent extends React.Component {
-  constructor(props) {
+  constructor() {
     super();
-    const { filters } = props;
     this.state = {
-      filters,
       currentField: '',
     };
   }
@@ -35,10 +33,13 @@ class SelectComponent extends React.Component {
     };
 
     return (<Row gutter={24}>
-      { this.state.filters.map((item) => {
+      { this.props.filters.map((item) => {
         return (<Col style={{ marginLeft: '12px' }} key={item.name} span={5}>
           {item.name}
-          <Select defaultValue={'全部'} key={item.name} style={{ width: '70%' }} onChange={this.handleChange.bind(this)} onFocus={() => this.handleSelect(item)}>
+          <Select
+            defaultValue={'全部'} key={item.name} style={{ width: '70%' }}
+            onChange={this.handleChange.bind(this)} onFocus={() => this.handleSelect(item)}
+          >
             {
               genOptions(item)
             }

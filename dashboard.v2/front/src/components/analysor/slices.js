@@ -18,11 +18,15 @@ const customPanelStyle = {
 class Slices extends React.Component {
   constructor(props) {
     super();
+    const allFields = props.allFields;
+    const timeKey = props.timeField.name || '';
     const selectKeys = props.selectFields.map((item) => { return item.name; });
     const metricKeys = props.metricFields.map((item) => { return item.name; });
     const groupKeys = props.groupFields.map((item) => { return item.name; });
 
     this.state = {
+      allFields,
+      timeKey,
       selectKeys,
       metricKeys,
       groupKeys,
@@ -33,7 +37,7 @@ class Slices extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      allFields: [].concat(nextProps.dimensions).concat(nextProps.measures),
+      allFields: nextProps.allFields,
       addOns_where: nextProps.wheres,
       addOns_having: nextProps.havings,
     });
@@ -94,10 +98,11 @@ class Slices extends React.Component {
           }
           return res;
         };
-        const getWhereDatas = (res, tField, rangeDate) => {
+        const getWhereDatas = ( tField, rangeDate) => {
+          const res = [];
           if (tField !== undefined && rangeDate !== undefined) {
             res.push({ field: this.matchFields(this.state.allFields, [tField])[0], operator: 'GE', data: new Date(rangeDate[0]).valueOf().toString() });
-            res.push({ field: this.matchFields(this.state.allFields, [tField])[0], operator: 'LE', data: new Date(rangeDate[1]).valueOf().toString() });
+            res.push({ field: this.matchFields(this.state.allFields, [tField])[0], operator: 'LT', data: new Date(rangeDate[1]).valueOf().toString() });
           }
           return res;
         };
@@ -106,8 +111,8 @@ class Slices extends React.Component {
           selectFields: this.matchFields(this.state.allFields, selectFields),
           metricFields: this.matchFields(this.state.allFields, metricFields),
           groupFields: this.matchFields(this.state.allFields, groupFields),
-          timeFields: getWhereDatas([], timeField, rangeDatatime),
-          wheres: getAddOnDatas(ADDONS_WHERE),
+          timeField: this.matchFields(this.state.allFields, [timeField])[0],
+          wheres: getAddOnDatas(ADDONS_WHERE).concat(getWhereDatas(timeField, rangeDatatime)),
           havings: getAddOnDatas(ADDONS_HAVING),
         };
 
@@ -215,9 +220,10 @@ class Slices extends React.Component {
               <Tooltip title="请选择你所要使用的字段作为时间轴"><Icon type="info-circle" />
               </Tooltip>
             </p>
+
             <FormItem >
               {getFieldDecorator('timeField', {
-                initialValue: [],
+                initialValue: this.state.timeKey,
               })(
                 <Select placeholder="Please select a time field if need">
                   {genOptionsOfSelect(times)}

@@ -9,8 +9,7 @@ import Header from '../components/dashboard/header';
 function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
   const { modalVisible, modalCreateVisible,
     deleteModalVisible, currentDir, dirs, reports } = dashboard;
-  const { report, currentLayouts, currentTimeRange } = reportboard;
-
+  const { report, currentTimeRange } = reportboard;
   const adideProps = {
     modalVisible,
     modalCreateVisible,
@@ -86,7 +85,6 @@ function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
   const headerProps = {
     report,
     deleteModalVisible,
-    currentLayouts,
     currentTimeRange,
     deleteReport(reportId) {
       dispatch({
@@ -113,7 +111,12 @@ function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
         type: 'dashboard/hideDeleteModal',
       });
     },
-    refreshChart(start, end) {
+    refreshChart() {
+      dispatch({
+        type: 'reportboard/refreshChart',
+      });
+    },
+    changeRangeTime(start, end) {
       dispatch({
         type: 'reportboard/refreshChart',
         payload: {

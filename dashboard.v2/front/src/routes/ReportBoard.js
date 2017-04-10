@@ -7,114 +7,88 @@ import styles from './ReportBoard.less';
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
-function ReportBoard({ dispatch, loading, reportboard }) {
-  const { status, report, layouts, addChartId, timeRange,
+
+function ReportBoard({ history, dispatch, loading, reportboard }) {
+  const { status, report, layouts, timeRange, reflush,
     ponitsContainer } = reportboard;
-  const currentLayouts = { lg: [] };
-  const chartList = [];
-  if (addChartId !== undefined) {
-    let count = 0;
-    let currentX = 6;
-    layouts.forEach((ele) => {
-      if (layouts.length % 2 === 0) {
-        currentX = 0;
-      }
-      if (ele.chartId !== addChartId) {
-        count += 1;
-      }
-    });
-    if (layouts.length === 0 || count === layouts.length) {
-      layouts.push({
-        chartId: addChartId,
-        data: [{
-          i: addChartId,
-          x: currentX,
-          y: Infinity,
-          w: 6,
-          h: 1,
-          isDraggable: true,
-          isResizable: true,
-          minW: 4,
-          maxW: 12,
-          maxH: 1,
-        }],
-      });
-    }
-  }
-  for (let i = 0; i < layouts.length; i++) {
-    currentLayouts.lg.push(layouts[i].data[0]);
-    chartList.push(layouts[i].chartId);
-  }
 
-  function handleChange(value) {
-    console.log(`selected ${value}`);
-  }
+  const tmpLayouts = layouts.map((item) => {
+    return item.data;
+  });
 
-  function onLayoutChange(layout) {
-    currentLayouts.lg = layout;
+  function onLayoutChange(clayouts) {
     dispatch({
       type: 'reportboard/layoutChange',
-      payload: { currentLayouts },
+      payload: { layouts: clayouts },
     });
   }
 
   const viewProps = {
     status,
-    currentLayouts,
     report,
     timeRange,
+    reflush,
     getChartData(chartId) {
       dispatch({
         type: 'reportboard/getChartData',
         payload: { cId: chartId },
       });
     },
-    removeChart(clayouts) {
+    removeChart(chartId) {
       dispatch({
-        type: 'reportboard/renderLayouts',
-        payload: { layouts: clayouts },
+        type: 'reportboard/removeChart',
+        payload: { chartId },
+      });
+    },
+    cancelFlushFlag() {
+      dispatch({
+        type: 'reportboard/cancelFlushFlag',
       });
     },
   };
 
-  function genReport(cLayouts, cChartList) {
-    if (cLayouts.length === 0) {
+  function genReport() {
+    if (layouts.length === 0) {
       return (
-        <div>
-          <Button type="dashed" size="large" onClick={handleChange} icon="plus" style={{ width: '100px' }} />
+        <div className={styles.addView}>
+          {status === 'read' ?
+            <div>
+              <Button ghost type="danger" size="large" icon="plus" onClick={() => history.push(`/dashboard/edit/${report.id}`)} />
+              <br />
+              <p>赶紧来制作报表吧 ！</p>
+            </div>
+            :
+            <div>
+              <h3>请展开左边👈的目录，拖拽图表到这里哦！</h3>
+            </div>
+          }
         </div>
       );
     } else {
+      const currentLayouts = { lg: tmpLayouts, md: tmpLayouts, sm: tmpLayouts };
       return (
         <ResponsiveReactGridLayout
           onLayoutChange={onLayoutChange}
-          layouts={cLayouts} cols={ponitsContainer.cols} rowHeight={460}
+          layouts={currentLayouts} cols={ponitsContainer.cols} rowHeight={460}
         >
           {
-            genViews(cChartList)
+            layouts.map((item) => {
+              const chartId = item.chartId;
+              return (<div style={{ width: '100%' }} key={chartId}>
+                <View {...viewProps} title={chartId} chartId={chartId} />
+              </div>);
+            })
           }
         </ResponsiveReactGridLayout>
       );
     }
   }
 
-  function genViews(_charts) {
-    return _charts.map((chartId) => {
-      return (<div style={{ width: '100%' }} key={chartId}>
-        <View {...viewProps} title={chartId} chartId={chartId} />
-      </div>);
-    });
-  }
-
   return (
     <div className={styles.main}>
-      <div>
-        <Spin tip="Loading..." spinning={loading}>
-          {
-          genReport(currentLayouts, chartList)
-        }
-        </Spin>
-      </div>
+      {
+        loading ? <Spin tip="Loading..." size="large" /> : genReport()
+      }
     </div>
   );
 }

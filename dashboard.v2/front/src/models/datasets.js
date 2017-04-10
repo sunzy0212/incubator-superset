@@ -136,12 +136,6 @@ export default {
           yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId: datasets.dataset.id, currentDatasetName: payload.name } });
         }
       }
-      const cTimes = [];
-      datasets.dimensions.forEach((ele) => {
-        if (ele.type === 'timestamp') {
-          cTimes.push(ele);
-        }
-      });
       const data = yield call(updateDataSet, parse({
         id: datasets.dataset.id,
         dataset: {
@@ -150,7 +144,7 @@ export default {
           relationships: datasets.relationships,
           dimensions: datasets.dimensions,
           measures: datasets.measures,
-          times: cTimes,
+          times: datasets.times,
           createTime: datasets.createTime,
         },
       }));
@@ -326,10 +320,11 @@ export default {
         MeasureUnitVisible: false,
       };
     },
-    saveTransformDate(state) {
+    saveTransformDate(state, action) {
       return {
         ...state,
         transformDateVisible: false,
+        ...action.payload,
       };
     },
     saveMeasureUnit(state) {

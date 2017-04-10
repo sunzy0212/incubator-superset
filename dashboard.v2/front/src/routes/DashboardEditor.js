@@ -7,7 +7,7 @@ import EditHeader from '../components/dashboard/editHeader';
 
 function DashboardEditor({ history, children, dispatch, loading, dashboardEditor, reportboard }) {
   const { dirs, charts } = dashboardEditor;
-  const { report, currentLayouts, currentTimeRange } = reportboard;
+  const { report, currentTimeRange } = reportboard;
   const asideProps = {
     dirs,
     charts,
@@ -28,7 +28,6 @@ function DashboardEditor({ history, children, dispatch, loading, dashboardEditor
   const headerProps = {
     history,
     report,
-    currentLayouts,
     currentTimeRange,
     updateTitle(name) {
       dispatch({
@@ -36,13 +35,9 @@ function DashboardEditor({ history, children, dispatch, loading, dashboardEditor
         payload: { name, dirId: report.dirId, reportId: report.id },
       });
     },
-    saveChartToReport(rId, cLayouts) {
+    saveChartsToReport() {
       dispatch({
-        type: 'dashboardEditor/updateLayout',
-        payload: {
-          reportId: rId,
-          layouts: cLayouts,
-        },
+        type: 'reportboard/updateLayout',
       });
     },
     refreshChart(start, end) {
@@ -54,6 +49,7 @@ function DashboardEditor({ history, children, dispatch, loading, dashboardEditor
       });
     },
   };
+
   return (
     <div className={styles.sideBar}>
       <Row gutter={24}>

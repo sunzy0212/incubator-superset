@@ -9,13 +9,13 @@ const { Sider, Content } = Layout;
 const TabPane = Tabs.TabPane;
 
 function Datasets({ dispatch, loading, datasets }) {
-  const { dimensions, measures, renameModalVisibles, currentRecord, transformDateVisible,
+  const { dimensions, measures, times, renameModalVisibles, currentRecord, transformDateVisible,
     modalSpace, datasourceList, tableTreeVisibles, tables, tableData,
-    currentDatasetId, times, currentDatasetName, MeasureUnitVisible } = datasets;
+    currentDatasetId, currentDatasetName, MeasureUnitVisible } = datasets;
 
   const dimensionsProps = {
     title: '维度',
-    records: dimensions,
+    records: [].concat(times).concat(dimensions),
     renameModalVisibles,
     transformDateVisible,
     currentRecord,
@@ -105,27 +105,9 @@ function Datasets({ dispatch, loading, datasets }) {
       });
     },
     onCreateOk(data) {
-      const cDimensions = [];
-      const cTimes = Object.assign(times);
-      let timeItem = {};
-      dimensions.forEach((ele, j) => {
-        cDimensions.push(
-          Object.assign(ele),
-        );
-        if (ele.name === data.currentRecord.item.name) {
-          cDimensions[j].type = 'timestamp';
-          cDimensions[j].transform = '2006-01-02';
-          timeItem = cDimensions[j];
-        }
-      });
-      if (cTimes.length === 0) {
-        cTimes.push(timeItem);
-      }
-      cTimes.forEach((ele) => {
-        if (ele.name !== data.currentRecord.item.name) {
-          cTimes.push(timeItem);
-        }
-      });
+      const cDimensions = dimensions.filter(x => x.name !== data.currentRecord.item.name);
+      const cTimes = times.filter(x => x.name !== data.currentRecord.item.name);
+      cTimes.push({ ...Object.assign(data.currentRecord.item), type: 'timestamp', transform: '2006-01-02' });
       dispatch({
         type: 'datasets/saveTransformDate',
         payload: { dimensions: cDimensions, times: cTimes },

@@ -121,7 +121,7 @@ func (c *Context) Allocate(r render.Render) {
 				fmt.Sprintf("QINIU_SECRET_KEY=%s", c.USER_ACCOUNT_SK),
 				fmt.Sprintf("MONGO_HOST=%s", mongoHost),
 				fmt.Sprintf("MONGO_DB=%s", "reportdb"),
-				fmt.Sprintf("DRILL_HOST=%s", "http://192.168.64.48:8047"),
+				fmt.Sprintf("DRILL_HOST=%s", "http://h168t2ni.nq.cloudappl.com"),
 				fmt.Sprintf("REPORT_WEB_HOST=%s", "")},
 		},
 		Stateful: true,

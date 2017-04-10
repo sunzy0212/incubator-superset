@@ -19,7 +19,7 @@ export default {
     selectFields: [],
     metricFields: [],
     groupFields: [],
-    timeFields: [],
+    timeField: {},
     rangeTimes: [],
 
     operatorOptions: [{ name: 'NIN', alias: 'NOT IN' }, { name: 'IN', alias: 'IN' }, { name: 'EQ', alias: '=' },
@@ -77,7 +77,6 @@ export default {
       }
     },
 
-
     *initAnalysor({
       payload,
     }, { call, put }) {
@@ -111,7 +110,7 @@ export default {
       payload,
     }, { call, put, select }) {
       const analysorState = yield select(state => state.analysor);
-      const { dataset, addOns, selectFields, metricFields, groupFields, timeFields,
+      const { dataset, addOns, selectFields, metricFields, groupFields, timeField,
         rangeTimes } = analysorState;
       const data = yield call(saveCode, parse({
         datasetId: dataset.id,
@@ -121,7 +120,7 @@ export default {
           selectFields,
           metricFields,
           groupFields,
-          timeFields,
+          timeField,
           rangeTimes,
         },
       }));
@@ -150,7 +149,7 @@ export default {
       payload,
     }, { put, call, select }) {
       const analysorState = yield select(state => state.analysor);
-      const { code, chart, dataset, addOns, selectFields, metricFields, groupFields, timeFields,
+      const { code, chart, dataset, addOns, selectFields, metricFields, groupFields, timeField,
         rangeTimes } = analysorState;
       const data = yield call(updateCode, parse({
         codeId: code.id,
@@ -161,7 +160,7 @@ export default {
           selectFields,
           metricFields,
           groupFields,
-          timeFields,
+          timeField,
           rangeTimes,
         } }));
       if (data.success) {
