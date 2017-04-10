@@ -84,7 +84,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 			log.Errorf("failed to get datasource by id[%s] ~ %v", ds.DatasourceId, err)
 			return
 		}
-		formFields = append(formFields, fmt.Sprintf("%s.%s.%s", datasource.Name, datasource.DbName, ds.Table))
+		formFields = append(formFields, fmt.Sprintf("%s_%s.%s.%s", datasource.AppUri, datasource.Name, datasource.DbName, ds.Table))
 	}
 	fromSection := strings.Join(formFields, ",")
 	sql = fmt.Sprintf("SELECT %s FROM %s", selectSection, fromSection)

@@ -27,9 +27,9 @@ func main() {
 	appUri := os.Getenv("USER_APP_URI")
 	ak := os.Getenv("USER_ACCOUNT_AK")
 	sk := os.Getenv("USER_ACCOUNT_SK")
-	log.Info("USER_APP_URI=%s", appUri)
-	log.Info("USER_ACCOUNT_AK=%s", ak)
-	log.Info("USER_ACCOUNT_SK=%s", sk)
+	log.Infof("USER_APP_URI=%s", appUri)
+	log.Infof("USER_ACCOUNT_AK=%s", ak)
+	log.Infof("USER_ACCOUNT_SK=%s", sk)
 	webApp.Use(cors.Allow(&cors.Options{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "DELETE"},
@@ -58,8 +58,8 @@ func main() {
 		r.JSON(200, config)
 	})
 	api, _ := api.New(api.Conf{
-		USER_ACCOUNT_AK: ak, //"7gE4xWhNArG0NoFdLq76Kq0oPgIzdAs0ji-ZRxd9",
-		USER_ACCOUNT_SK: sk, //"****************************************",
+		USER_ACCOUNT_AK: ak, //"lbyuSOdDXQrEQYi3DQcj--emTSEEtFILGFFulBHS",
+		USER_ACCOUNT_SK: sk,
 		USER_APP_URI:    appUri,
 	})
 	webApp.Group("/api", func(r martini.Router) {

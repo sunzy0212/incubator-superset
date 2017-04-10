@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
 	"runtime"
 	"syscall"
 	"time"
@@ -38,7 +39,8 @@ type Drill struct {
 }
 
 type Env struct {
-	Dev bool `json:"dev"`
+	Dev    bool   `json:"dev"`
+	AppUri string `json:"user_app_uri"`
 }
 
 type Config struct {
@@ -76,14 +78,24 @@ func main() {
 	if err := config.Load(&cfg); err != nil {
 		log.Warn("Load report config file failed\n Use default config:")
 		cfg = Config{
-			Env{Dev: false},
+			Env{Dev: false, AppUri: ""},
 			mgoutil.Config{Host: "127.0.0.1", DB: "report"},
 			EndPoint{"8000", runtime.NumCPU()/2 + 1, 1, "./"},
 			Drill{
-				Urls: []string{"http://localhost:8047"},
+				Urls: []string{"http://h168t2ni.nq.cloudappl.com"},
 			},
 		}
 		log.Infof("%+v", cfg)
+	}
+
+	re, _ := regexp.Compile("[~!@#$%^&*()<>,+=.\\-]")
+	if os.Getenv("USER_APP_URI") != "" {
+		cfg.E.AppUri = re.ReplaceAllString(os.Getenv("USER_APP_URI"), "_")
+		os.Setenv("APP_URI", cfg.E.AppUri)
+	} else {
+		hostname, _ := os.Hostname()
+		cfg.E.AppUri = re.ReplaceAllString(hostname, "_")
+		os.Setenv("APP_URI", cfg.E.AppUri)
 	}
 
 	if os.Getenv("MONGO_HOST") != "" {

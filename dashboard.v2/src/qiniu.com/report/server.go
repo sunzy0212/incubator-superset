@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -95,6 +96,8 @@ func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err 
 	req.Id = fmt.Sprintf("datasource_%s", req.Id)
 	req.CreateTime = common.GetCurrTime()
 	req.Type = strings.ToUpper(req.Type)
+
+	req.AppUri = os.Getenv("APP_URI")
 
 	storage := s.dataSourceManager.Get(req).GenStorage()
 	res, err1 := s.client.PostStorage(storage)
@@ -188,6 +191,7 @@ func (s *Service) PutDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	req.Id = id
 	req.Type = strings.ToUpper(req.Type)
 	req.CreateTime = common.GetCurrTime()
+	req.AppUri = os.Getenv("APP_URI")
 
 	storage := s.dataSourceManager.Get(req).GenStorage()
 	res, err1 := s.client.PostStorage(storage)

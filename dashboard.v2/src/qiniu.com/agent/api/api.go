@@ -58,6 +58,7 @@ func New(cfg Conf) (*Context, error) {
 	accountClient := kirksdk.NewAccountClient(config)
 	client, err := accountClient.GetQcosClient(nil, cfg.USER_APP_URI)
 	if err != nil {
+		panic(fmt.Errorf("init qcos client failed ~ %v", err))
 		return nil, err
 	}
 
@@ -65,7 +66,7 @@ func New(cfg Conf) (*Context, error) {
 	_, err = client.GetStack(nil, STACK_NAME)
 	if err != nil {
 		//not exsit than create stack
-		log.Error(err)
+		log.Warn(err)
 		deployed = false
 		err = nil
 	} else {
@@ -119,9 +120,9 @@ func (c *Context) Allocate(r render.Render) {
 			Envs: []string{
 				fmt.Sprintf("QINIU_ACCESS_KEY=%s", c.USER_ACCOUNT_AK),
 				fmt.Sprintf("QINIU_SECRET_KEY=%s", c.USER_ACCOUNT_SK),
+				fmt.Sprintf("USER_APP_URI=%s", c.USER_APP_URI),
 				fmt.Sprintf("MONGO_HOST=%s", mongoHost),
 				fmt.Sprintf("MONGO_DB=%s", "reportdb"),
-				fmt.Sprintf("DRILL_HOST=%s", "http://h168t2ni.nq.cloudappl.com"),
 				fmt.Sprintf("REPORT_WEB_HOST=%s", "")},
 		},
 		Stateful: true,

@@ -28,8 +28,8 @@ func NewExecutor(colls *common.Collections, restUrls []string) *Executor {
 	}
 }
 
-func (e *Executor) GetDataByDataSource(datasource common.DataSource, tableName string, limit uint64) (ret rest.Results, err error) {
-	tableSpec := fmt.Sprintf("%s.%s.%s", datasource.Name, datasource.DbName, tableName)
+func (e *Executor) GetDataByDataSource(ds common.DataSource, tableName string, limit uint64) (ret rest.Results, err error) {
+	tableSpec := fmt.Sprintf("%s_%s.%s.%s", ds.AppUri, ds.Name, ds.DbName, tableName)
 	sql := fmt.Sprintf("SELECT * FROM %s LIMIT %d", tableSpec, limit)
 	log.Debugf("query SQL[%s]", sql)
 	ret, err = e.client.Query(sql)
