@@ -58,8 +58,7 @@ func New(cfg Conf) (*Context, error) {
 	accountClient := kirksdk.NewAccountClient(config)
 	client, err := accountClient.GetQcosClient(nil, cfg.USER_APP_URI)
 	if err != nil {
-		panic(fmt.Errorf("init qcos client failed ~ %v", err))
-		return nil, err
+		return nil, fmt.Errorf("init qcos client failed ~ %v", err)
 	}
 
 	deployed := false
@@ -97,6 +96,7 @@ func (c *Context) Allocate(r render.Render) {
 		err = c.qcosClient.CreateStack(nil, kirksdk.CreateStackArgs{Name: STACK_NAME})
 		if err != nil {
 			log.Error("Failed to create stack ~ ", err)
+			r.JSON(400, Result{Status: RET_ERROR, Message: fmt.Sprintf("%v", err)})
 			return
 		}
 	}

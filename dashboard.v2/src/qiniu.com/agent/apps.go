@@ -57,11 +57,14 @@ func main() {
 		}{"running", "正在运行"}
 		r.JSON(200, config)
 	})
-	api, _ := api.New(api.Conf{
+	api, err := api.New(api.Conf{
 		USER_ACCOUNT_AK: ak, //"lbyuSOdDXQrEQYi3DQcj--emTSEEtFILGFFulBHS",
 		USER_ACCOUNT_SK: sk,
 		USER_APP_URI:    appUri,
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 	webApp.Group("/api", func(r martini.Router) {
 		r.Get("/deployed", api.IsDeployed)
 		r.Get("/isDeleted", api.IsDeleted)

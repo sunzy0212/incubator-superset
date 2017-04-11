@@ -1,9 +1,9 @@
 ### 创建报表应用
 ---
-1. 首先登陆七牛portal的应用平台
+1 . 首先登陆七牛portal的应用平台
 
 ![找到入口](http://oo6oqkila.bkt.clouddn.com/report1.png)
-2. 点击新建部署
+2 . 点击新建部署
 
 ![新建部署](http://oo6oqkila.bkt.clouddn.com/report2.png)
 填写好名字等等信息，然后确定新建
@@ -42,3 +42,7 @@
 到此我们已经了解了系统的使用和管理，下一步移步到我们的系统文档进行详细的操作指南吧！ 
 
 ## *enjoy yourself !!!*
+
+
+
+@七牛云

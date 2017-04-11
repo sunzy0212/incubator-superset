@@ -33,7 +33,7 @@ class App extends Component {
         this.isDeleted();
         this.getReport();
       }
-    }, 10000);
+    }, 20000);
   }
 
   getReport = () => {
@@ -80,18 +80,8 @@ class App extends Component {
         window.open(`https://${data.report.apPorts[0].ip}`, 'newwindow');
       });
   }
-  callBack=() => {
-    this.isDeploy();
-    this.setState({
-      isDeleted: false,
-    });
-  }
 
   render() {
-    const configProps = {
-      callBack: () => this.callBack(),
-    };
-
     return (
       <Layout>
         <Sider>
@@ -113,6 +103,7 @@ class App extends Component {
             </div>
           </div>
         </Sider>
+
         <Layout>
           <Header>
             <Row gutter={24}>
@@ -127,7 +118,7 @@ class App extends Component {
               </Col>
             </Row>
           </Header>
-          <Content>{this.state.isDeploy && !this.state.isDeleted ? <Monitor services={this.state.services} /> : <Config {...configProps} />}
+          <Content>{this.state.isDeploy && !this.state.isDeleted ? <Monitor services={this.state.services} /> : <Config />}
           </Content>
           <Footer>@七牛云</Footer>
         </Layout>
