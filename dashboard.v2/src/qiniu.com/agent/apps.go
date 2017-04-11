@@ -58,7 +58,7 @@ func main() {
 		r.JSON(200, config)
 	})
 	api, err := api.New(api.Conf{
-		USER_ACCOUNT_AK: ak, //"lbyuSOdDXQrEQYi3DQcj--emTSEEtFILGFFulBHS",
+		USER_ACCOUNT_AK: ak,
 		USER_ACCOUNT_SK: sk,
 		USER_APP_URI:    appUri,
 	})
@@ -69,6 +69,7 @@ func main() {
 		r.Get("/deployed", api.IsDeployed)
 		r.Get("/isDeleted", api.IsDeleted)
 		r.Post("/allocate", api.Allocate)
+		r.Get("/reportHost", api.GetReportHost)
 		r.Post("/update", api.UpdateReport)
 		r.Get("/inspects", api.GetInspects)
 	})

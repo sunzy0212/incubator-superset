@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Progress, message } from 'antd';
-import request from './utils/request';
 import common from './utils/common';
+import request from './utils/request';
 import './App.css';
 
 class Config extends Component {
@@ -20,15 +20,23 @@ class Config extends Component {
         method: 'POST',
         body: JSON.stringify({ data: '' }),
       }).then((data) => {
-        this.setState({
-          status: 'finish',
-          percent: 100,
-        });
         if (data.Status === 'success') {
           message.success('初始化成功!');
+          this.setState({
+            status: 'finish',
+            percent: 100,
+          });
         } else {
           message.error('初始化失败!');
+          this.setState({
+            status: 'init',
+            percent: 100,
+          });
         }
+
+        setTimeout(() => {
+          this.props.callBack();
+        }, 60000);
       });
   }
 

@@ -73,15 +73,24 @@ class App extends Component {
   }
 
   openUrl =() => {
-    request(`${common.URL}/api/inspects`,
+    request(`${common.URL}/api/reportHost`,
       {
         method: 'GET',
       }).then((data) => {
-        window.open(`https://${data.report.apPorts[0].ip}`, 'newwindow');
+        window.open(`https://${data.host}`, 'newwindow');
       });
+  }
+  callBack=() => {
+    this.isDeploy();
+    this.setState({
+      isDeleted: false,
+    });
   }
 
   render() {
+    const configProps = {
+      callBack: () => this.callBack(),
+    };
     return (
       <Layout>
         <Sider>
@@ -118,7 +127,7 @@ class App extends Component {
               </Col>
             </Row>
           </Header>
-          <Content>{this.state.isDeploy && !this.state.isDeleted ? <Monitor services={this.state.services} /> : <Config />}
+          <Content>{this.state.isDeploy && !this.state.isDeleted ? <Monitor services={this.state.services} /> : <Config {...configProps} />}
           </Content>
           <Footer>@七牛云</Footer>
         </Layout>

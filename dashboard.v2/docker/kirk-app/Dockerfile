@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 MAINTAINER CHENXIN WEN "wenchenxin@qiniu.com"
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-RUN apt-get update && apt-get install -y ca-certificates && \
+RUN apt-get update && apt-get install -y ca-certificates curl && \
     mkdir -p /apps
 COPY build /apps
 COPY bootstrap.sh /
