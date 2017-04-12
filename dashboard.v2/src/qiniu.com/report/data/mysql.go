@@ -52,7 +52,7 @@ func (m *MySQL) ShowTables() (map[string]string, error) {
 
 func (m *MySQL) GenStorage() rest.Storage {
 	return rest.Storage{
-		Name: m.Name, // TODO  should by `${Appid}_${Name}`
+		Name: fmt.Sprintf("%s_%s", m.AppUri, m.Name),
 		Config: rest.StorageConfig{
 			Type:    "jdbc",
 			Enabled: true,

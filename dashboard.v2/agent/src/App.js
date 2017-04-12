@@ -33,7 +33,7 @@ class App extends Component {
         this.isDeleted();
         this.getReport();
       }
-    }, 10000);
+    }, 20000);
   }
 
   getReport = () => {
@@ -73,11 +73,11 @@ class App extends Component {
   }
 
   openUrl =() => {
-    request(`${common.URL}/api/inspects`,
+    request(`${common.URL}/api/reportHost`,
       {
         method: 'GET',
       }).then((data) => {
-        window.open(`https://${data.report.apPorts[0].ip}`, 'newwindow');
+        window.open(`https://${data.host}`, 'newwindow');
       });
   }
   callBack=() => {
@@ -91,7 +91,6 @@ class App extends Component {
     const configProps = {
       callBack: () => this.callBack(),
     };
-
     return (
       <Layout>
         <Sider>
@@ -113,6 +112,7 @@ class App extends Component {
             </div>
           </div>
         </Sider>
+
         <Layout>
           <Header>
             <Row gutter={24}>

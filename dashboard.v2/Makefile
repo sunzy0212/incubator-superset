@@ -12,7 +12,7 @@ report:
 apps:
 	cd agent; yarn install && yarn run build
 	cd agent/build; mkdir templates; mv index.html templates
-	cd src/qiniu.com/agent/; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o ../../../agent/build/appd
+	cd src/qiniu.com/agent/;CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../../agent/build/appd
 
 install: apps report
 	@echo

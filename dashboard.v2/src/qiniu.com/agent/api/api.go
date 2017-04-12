@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/martini-contrib/render"
 	"qiniupkg.com/kirk/kirksdk"
@@ -50,32 +51,29 @@ var (
 )
 
 func New(cfg Conf) (*Context, error) {
-	config := kirksdk.AccountConfig{
-		AccessKey: cfg.USER_ACCOUNT_AK,
-		SecretKey: cfg.USER_ACCOUNT_SK,
-		Host:      kirksdk.DefaultAccountHost,
-	}
-	accountClient := kirksdk.NewAccountClient(config)
-	client, err := accountClient.GetQcosClient(nil, cfg.USER_APP_URI)
-	if err != nil {
-		return nil, err
+
+	config := kirksdk.QcosConfig{
+		AccessKey: "",
+		SecretKey: "",
+		Host:      "http://api.qcos.qiniu",
 	}
 
+	client := kirksdk.NewQcosClient(config)
+
 	deployed := false
-	_, err = client.GetStack(nil, STACK_NAME)
+	_, err := client.GetStack(nil, STACK_NAME)
 	if err != nil {
 		//not exsit than create stack
-		log.Error(err)
+		log.Warn(err)
 		deployed = false
 		err = nil
 	} else {
 		deployed = true
 	}
 	ret := &Context{
-		Conf:          cfg,
-		Delpoyed:      deployed,
-		accountClient: accountClient,
-		qcosClient:    client,
+		Conf:       cfg,
+		Delpoyed:   deployed,
+		qcosClient: client,
 		Status: map[string]kirksdk.ServiceInfo{
 			"mongo":  kirksdk.ServiceInfo{},
 			"report": kirksdk.ServiceInfo{},
@@ -96,6 +94,7 @@ func (c *Context) Allocate(r render.Render) {
 		err = c.qcosClient.CreateStack(nil, kirksdk.CreateStackArgs{Name: STACK_NAME})
 		if err != nil {
 			log.Error("Failed to create stack ~ ", err)
+			r.JSON(400, Result{Status: RET_ERROR, Message: fmt.Sprintf("%v", err)})
 			return
 		}
 	}
@@ -119,9 +118,9 @@ func (c *Context) Allocate(r render.Render) {
 			Envs: []string{
 				fmt.Sprintf("QINIU_ACCESS_KEY=%s", c.USER_ACCOUNT_AK),
 				fmt.Sprintf("QINIU_SECRET_KEY=%s", c.USER_ACCOUNT_SK),
+				fmt.Sprintf("USER_APP_URI=%s", c.USER_APP_URI),
 				fmt.Sprintf("MONGO_HOST=%s", mongoHost),
 				fmt.Sprintf("MONGO_DB=%s", "reportdb"),
-				fmt.Sprintf("DRILL_HOST=%s", "http://h168t2ni.nq.cloudappl.com"),
 				fmt.Sprintf("REPORT_WEB_HOST=%s", "")},
 		},
 		Stateful: true,
@@ -220,7 +219,7 @@ func (c *Context) allocateMongoIfNotExist() (host string, err error) {
 			kirksdk.VolumeSpec{
 				Name:      "mongodisk",
 				FsType:    "ext4",
-				UnitType:  "SATA_10G",
+				UnitType:  "SATA_50G",
 				MountPath: "/data/db",
 			},
 		},
@@ -249,6 +248,23 @@ type Status struct {
 func (c *Context) GetInspects(r render.Render) {
 	c.inpsects()
 	r.JSON(200, c.Status)
+}
+
+func (c *Context) GetReportHost(r render.Render) {
+	hostSign := struct {
+		Host string `json:"host"`
+		Sign string `json:"sign"`
+	}{Host: "", Sign: ""}
+	ret, err := c.qcosClient.GetServiceInspect(nil, STACK_NAME, SERVICE_REPORT_NAME)
+	if err != nil {
+		log.Error(err)
+		r.JSON(400, hostSign)
+		return
+	}
+	hostSign.Host = ret.ApPorts[0].IP
+	os.Getenv("USER_APP_AK")
+	os.Getenv("USER_APP_SK")
+	r.JSON(200, hostSign)
 }
 
 func (c *Context) IsDeleted(r render.Render) {

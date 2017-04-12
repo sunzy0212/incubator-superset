@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Progress } from 'antd';
-import request from './utils/request';
+import { Button, Progress, message } from 'antd';
 import common from './utils/common';
+import request from './utils/request';
 import './App.css';
 
 class Config extends Component {
@@ -20,17 +20,23 @@ class Config extends Component {
         method: 'POST',
         body: JSON.stringify({ data: '' }),
       }).then((data) => {
-        console.log(data);
-        this.setState({
-          status: 'finish',
-          percent: 100,
-          deployResult: data,
-        });
         if (data.Status === 'success') {
-          setTimeout(function () {
-            this.props.callBack();
-          }, 60000);
+          message.success('初始化成功!');
+          this.setState({
+            status: 'finish',
+            percent: 100,
+          });
+        } else {
+          message.error('初始化失败!');
+          this.setState({
+            status: 'init',
+            percent: 100,
+          });
         }
+
+        setTimeout(() => {
+          this.props.callBack();
+        }, 60000);
       });
   }
 
@@ -44,7 +50,10 @@ class Config extends Component {
 
   render() {
     return (<div className="steps-content">
-      {this.state.status === 'proccess' ? <Progress type="circle" percent={this.state.percent} /> : ''
+      {this.state.status !== 'init' ? <Progress
+        type="circle" percent={this.state.percent}
+        format={() => this.state.status === 'finish' ? '稍后\n跳转\n...' : `${this.state.percent}%`}
+      /> : ''
         }
       {this.state.status === 'init' ? <Button size="large" type="primary" ghost onClick={() => this.startInit()}><h1>初始化</h1></Button> : ''}
     </div>);
