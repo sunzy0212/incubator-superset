@@ -20,11 +20,7 @@ function Analysor({ dispatch, loading, analysor }) {
     id,
     name,
     onEditor(datasetId) {
-      dispatch(routerRedux.push('/datasets'));
-      dispatch({
-        type: 'datasets/initDataSet',
-        payload: { id: datasetId },
-      });
+      dispatch(routerRedux.push(`/datasets/${datasetId}`));
     },
   };
   const slicesProps = {

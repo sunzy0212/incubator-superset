@@ -213,10 +213,17 @@ Relationship
 
 #### 创建数据集
 ```
-PUT /v1/datasets
+POST /v1/datasets
 Content-Type: application/json
 {
-	"name" : <Name>,
+	"name": <Name>,
+	"dataSources": <DataSources>,
+	"relationships": <Relationships>,
+	"dimensions": <Dimensions>,
+	"measures": <Measures>,
+	"times":<Times>,
+	"createTime": <createTime>,
+	"updateTime": <updateTime>,
 }
 ```
 返回包：
@@ -226,7 +233,14 @@ Content-Type: application/json
 Content-Type: application/json
 {
 	"id" : <Id>,
-	"name" : <Name>
+	"name": <Name>,
+	"dataSources": <DataSources>,
+	"relationships": <Relationships>,
+	"dimensions": <Dimensions>,
+	"measures": <Measures>,
+	"times":<Times>,
+	"createTime": <createTime>,
+	"updateTime": <updateTime>,
 }
 ```
 #### 更新数据集

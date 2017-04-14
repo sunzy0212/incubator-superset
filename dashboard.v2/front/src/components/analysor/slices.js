@@ -19,10 +19,10 @@ class Slices extends React.Component {
   constructor(props) {
     super();
     const allFields = props.allFields;
-    const timeKey = props.timeField.name || '';
-    const selectKeys = props.selectFields.map((item) => { return item.name; });
-    const metricKeys = props.metricFields.map((item) => { return item.name; });
-    const groupKeys = props.groupFields.map((item) => { return item.name; });
+    const timeKey = props.timeField.id || '';
+    const selectKeys = props.selectFields.map((item) => { return item.id; });
+    const metricKeys = props.metricFields.map((item) => { return item.id; });
+    const groupKeys = props.groupFields.map((item) => { return item.id; });
 
     this.state = {
       allFields,
@@ -47,7 +47,7 @@ class Slices extends React.Component {
     const res = [];
     fields.forEach((x) => {
       allFields.forEach((item) => {
-        if (x === item.name) {
+        if (x === item.id) {
           res.push(Object.assign(item));
         }
       });
@@ -98,23 +98,33 @@ class Slices extends React.Component {
           }
           return res;
         };
-        const getWhereDatas = ( tField, rangeDate) => {
-          const res = [];
-          if (tField !== undefined && rangeDate !== undefined) {
-            res.push({ field: this.matchFields(this.state.allFields, [tField])[0], operator: 'GE', data: new Date(rangeDate[0]).valueOf().toString() });
-            res.push({ field: this.matchFields(this.state.allFields, [tField])[0], operator: 'LT', data: new Date(rangeDate[1]).valueOf().toString() });
-          }
-          return res;
-        };
+
+        let rangeTimes = [];
+        if (rangeDatatime !== undefined) {
+          rangeTimes = [{
+            operator: 'GE',
+            data: new Date(rangeDatatime[0]).valueOf().toString(),
+          }, {
+            operator: 'LT',
+            data: new Date(rangeDatatime[1]).valueOf().toString(),
+          }];
+        }
 
         const querys = {
           selectFields: this.matchFields(this.state.allFields, selectFields),
           metricFields: this.matchFields(this.state.allFields, metricFields),
           groupFields: this.matchFields(this.state.allFields, groupFields),
-          timeField: this.matchFields(this.state.allFields, [timeField])[0],
-          wheres: getAddOnDatas(ADDONS_WHERE).concat(getWhereDatas(timeField, rangeDatatime)),
+          wheres: getAddOnDatas(ADDONS_WHERE),
+          rangeTimes,
           havings: getAddOnDatas(ADDONS_HAVING),
         };
+
+        const _timeField = this.matchFields(this.state.allFields, [timeField])[0];
+        if (_timeField !== undefined) {
+          querys.selectFields = [_timeField].concat(querys.selectFields);
+          querys.groupFields = [_timeField].concat(querys.groupFields);
+          querys.timeField = _timeField;
+        }
 
         this.props.onExecute(querys);
       }
@@ -337,8 +347,8 @@ function genOptionsOfSelect(fields) {
   }
   return fields.map((item) => {
     return (<Option
-      key={item.name}
-      value={item.name}
+      key={item.id}
+      value={item.id}
     >
       {item.alias || item.name}</Option>);
   });
@@ -349,6 +359,10 @@ Slices.propTypes = {
   measures: PropTypes.array,
   times: PropTypes.array,
   operatorOptions: PropTypes.array,
+  selectFields: PropTypes.array,
+  metricFields: PropTypes.array,
+  groupFields: PropTypes.array,
+  timeField: PropTypes.object,
 };
 
 export default Form.create()(Slices);

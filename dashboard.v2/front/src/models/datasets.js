@@ -1,7 +1,9 @@
 import { parse } from 'qs';
 import _ from 'lodash';
-import { saveDataSet, updateDataSet, getDataSet, deleteDataSet, getTableData } from '../services/datasets';
-import { getSchema, listDatasources, showTables } from '../services/datasource';
+import { routerRedux } from 'dva/router';
+import { message } from 'antd';
+import { saveDataSet, updateDataSet, getDataSet, getDatasetData, deleteDataSet } from '../services/datasetApi';
+import { getSchema } from '../services/datasource';
 
 const DATASET_PATH = '/datasets';
 const DATASET_INDEX = 10;
@@ -9,25 +11,13 @@ const DATASETID_LENGTH = 24;
 export default {
   namespace: 'datasets',
   state: {
-    inited: false,
-    modalSpace: { dimensions: false, measures: false },
-    modalVisibles: { toSave: false },
-    renameModalVisibles: false,
-    tableTreeVisibles: false,
-    transformDateVisible: false,
-    MeasureUnitVisible: false,
-    datasources: {},
     dataset: {},
+    datasources: {},
     relationships: [],
-    currentRecord: {},
     dimensions: [],
     measures: [],
     times: [],
-    datasourceList: [],
-    tables: [],
     tableData: [],
-    currentDatasetId: '',
-    currentDatasetName: '',
   },
   subscriptions: {
     setup({ dispatch, history }) {
@@ -35,31 +25,19 @@ export default {
         if (_.startsWith(pathname, DATASET_PATH)) {
           if (_.startsWith(pathname, `${DATASET_PATH}/dataset_`)) {
             const id = pathname.substr(DATASET_INDEX, DATASETID_LENGTH);
-            dispatch({ type: 'updateState', payload: { currentDatasetId: id } });
+            dispatch({ type: 'queryDataset', payload: { id } });
           }
         } else {
           dispatch({
             type: 'updateState',
             payload: {
-              inited: false,
-              modalSpace: { dimensions: false, measures: false },
-              modalVisibles: { toSave: false },
-              renameModalVisibles: false,
-              tableTreeVisibles: false,
-              transformDateVisible: false,
-              MeasureUnitVisible: false,
-              datasources: {},
               dataset: {},
+              datasources: {},
               relationships: [],
-              currentRecord: {},
               dimensions: [],
               measures: [],
               times: [],
-              datasourceList: [],
-              tables: [],
               tableData: [],
-              currentDatasetId: '',
-              currentDatasetName: '',
             },
           });
         }
@@ -67,19 +45,27 @@ export default {
     },
   },
   effects: {
-    *queryDatasources({
+    *queryDataset({
       payload,
     }, { call, put }) {
-      const data = yield call(listDatasources, parse(payload));
+      const data = yield call(getDataSet, parse(payload));
       if (data.success) {
         yield put({
-          type: 'listDatasources',
+          type: 'updateState',
           payload: {
-            datasourceList: data.result.datasources,
+            dataset: data.result,
+            datasources: data.result.datasources,
+            relationships: data.result.relationships,
+            dimensions: data.result.dimensions,
+            measures: data.result.measures,
+            times: data.result.times,
           },
         });
+      } else {
+        message.error('获取数据集失败');
       }
     },
+
     *newDataSet({
       payload,
     }, { call, put }) {
@@ -111,7 +97,6 @@ export default {
     *initDataSet({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(getDataSet, parse({ id: payload.id }));
       if (data.success) {
         yield put({
@@ -121,131 +106,102 @@ export default {
           },
         });
       }
-      yield put({ type: 'hideLoading' });
     },
 
     *saveOrUpdate({
       payload,
     }, { call, put, select }) {
-      yield put({ type: 'showLoading' });
       const datasets = yield select(state => state.datasets);
       if (datasets.dataset.id === undefined || datasets.dataset.name === '') {
-        const data = yield call(saveDataSet, parse({ name: payload.name }));
-        if (data.success) {
-          datasets.dataset = data.result;
-          yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId: datasets.dataset.id, currentDatasetName: payload.name } });
-        }
-      }
-      const data = yield call(updateDataSet, parse({
-        id: datasets.dataset.id,
-        dataset: {
+        const data = yield call(saveDataSet, parse({
           name: payload.name,
           datasources: datasets.datasources,
           relationships: datasets.relationships,
           dimensions: datasets.dimensions,
           measures: datasets.measures,
           times: datasets.times,
-          createTime: datasets.createTime,
-        },
-      }));
-      if (data.success) {
-        yield put({ type: 'updateState', payload: { dataset: data.result, currentDatasetId: datasets.dataset.id } });
-      }
-
-      yield put({ type: 'hideLoading' });
-    },
-
-    *delete({ payload }, { call, put }) {
-      const data = yield call(deleteDataSet, parse(payload));
-      if (data.success) {
-        yield put({
-          type: 'deleteDataSource',
-          ...payload,
-        });
-      }
-    },
-    *loadTables({ payload }, { call, put }) {
-      const data = yield call(showTables, parse(payload));
-      if (data.success) {
-        yield put({
-          type: 'listTables',
-          payload: {
-            tables: data.result.tables,
-          },
-        });
+        }));
+        if (data.success) {
+          yield put(routerRedux.push(`/datasets/${data.result.id}`));
+        } else {
+          message.error('保存失败');
+        }
       } else {
-        console.log('show error');
+        const data = yield call(updateDataSet, parse({
+          id: datasets.dataset.id,
+          dataset: {
+            name: payload.name,
+            datasources: datasets.datasources,
+            relationships: datasets.relationships,
+            dimensions: datasets.dimensions,
+            measures: datasets.measures,
+            times: datasets.times,
+            createTime: datasets.createTime,
+          },
+        }));
+        if (data.success) {
+          yield put({ type: 'updateState', payload: { dataset: data.result } });
+        } else {
+          message.error('更新失败');
+        }
       }
     },
 
-    *getTableData({ payload }, { call, put }) {
-      const data = yield call(getTableData, parse(payload));
+    *queryDatasetData({ payload }, { call, put }) {
+      const data = yield call(getDatasetData, parse(payload));
       if (data.success) {
         yield put({
-          type: 'listTableData',
+          type: 'updateState',
           payload: {
             tableData: data.result,
           },
         });
       } else {
-        console.log('show error');
+        message.error('加载数据失败');
       }
     },
+
+    *delete({ payload }, { call, put }) {
+      const data = yield call(deleteDataSet, parse(payload));
+      if (data.success) {
+
+      } else {
+        message.error('删除失败');
+      }
+    },
+
   },
   reducers: {
-    showLoading(state) {
-      return {
-        ...state,
-        loading: true,
-      };
-    },
-    hideLoading(state) {
-      return {
-        ...state,
-        loading: false,
-      };
-    },
-
-    showRenameModal(state, action) {
-      let currentSpace = { dimensions: true, measures: false };
-      if (action.payload.title === '度量') {
-        currentSpace = { dimensions: false, measures: true };
-      }
-      return {
-        ...state,
-        renameModalVisibles: true,
-        currentRecord: action.payload.data,
-        modalSpace: currentSpace,
-      };
-    },
-
     updateName(state, action) {
-      if (action.payload.isDimensions === false) {
-        state.measures = action.payload.data;
-      } else {
-        state.dimensions = action.payload.data;
+      const { record, title } = action.payload;
+      const dimensions = state.dimensions;
+      const measures = state.measures;
+      const times = state.times;
+
+      if (title === '维度') {
+        dimensions.forEach((elem) => {
+          if (record.id === elem.id) {
+            elem.alias = record.alias;
+          }
+        });
+        times.forEach((elem) => {
+          if (record.id === elem.id) {
+            elem.alias = record.alias;
+          }
+        });
+      }
+      if (title === '度量') {
+        measures.forEach((elem) => {
+          if (record.id === elem.id) {
+            elem.alias = record.alias;
+          }
+        });
       }
       return {
         ...state,
-        renameModalVisibles: false,
-      };
-    },
-
-    hideRenameModal(state) {
-      return {
-        ...state,
-        renameModalVisibles: false,
-      };
-    },
-
-    toggleModal(state, action) {
-      const modalVisibles = {
-        ...state.modalVisibles,
-        ...action.payload,
-      };
-      return {
-        ...state,
-        modalVisibles,
+        dimensions,
+        measures,
+        times,
       };
     },
 
@@ -266,82 +222,98 @@ export default {
         dimensions: tmp.dataset.dimensions,
         measures: tmp.dataset.measures,
         times: tmp.dataset.times,
-        currentDatasetName: tmp.dataset.name,
       };
     },
-    listDatasources(state, action) {
-      return {
-        ...state,
-        ...action.payload,
-        tableTreeVisibles: true,
-      };
-    },
-    listTables(state, action) {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
-    listTableData(state, action) {
-      return {
-        ...state,
-        tableData: action.payload.tableData,
-      };
-    },
-    hideTableTree(state) {
-      return {
-        ...state,
-        tableTreeVisibles: false,
-      };
-    },
-    showTransformDate(state, action) {
-      return {
-        ...state,
-        transformDateVisible: true,
-        currentRecord: action.payload.record,
-      };
-    },
-    hideTransformDate(state) {
-      return {
-        ...state,
-        transformDateVisible: false,
-      };
-    },
-    showMeasureUnit(state, action) {
-      return {
-        ...state,
-        MeasureUnitVisible: true,
-        currentRecord: action.payload.record,
-      };
-    },
-    hideMeasureUnit(state) {
-      return {
-        ...state,
-        MeasureUnitVisible: false,
-      };
-    },
+
     saveTransformDate(state, action) {
+      const { record } = action.payload;
+      const dimensions = state.dimensions.filter(x => x.id !== record.id);
+      const times = state.times.filter(x => x.id !== record.id);
+      times.push({ ...Object.assign(record), type: 'timestamp', transform: '2006-01-02' });
       return {
         ...state,
-        transformDateVisible: false,
-        ...action.payload,
+        dimensions,
+        times,
       };
     },
-    saveMeasureUnit(state) {
+
+    saveTransformToNumber(state, action) {
+      const { record } = action.payload;
+      const dimensions = state.dimensions.map((elem) => {
+        if (elem.id === record.id) {
+          elem.type = 'number';
+        }
+        return elem;
+      });
       return {
         ...state,
-        MeasureUnitVisible: false,
+        dimensions,
+      };
+    },
+
+    saveTransformToString(state, action) {
+      const { record } = action.payload;
+      const dimensions = state.dimensions.map((elem) => {
+        if (elem.id === record.id) {
+          elem.type = 'string';
+        }
+        return elem;
+      });
+      return {
+        ...state,
+        dimensions,
+      };
+    },
+
+    saveMeasureUnit(state, action) {
+      const { record, title } = action.payload;
+      const dimensions = state.dimensions;
+      const measures = state.measures;
+      const times = state.times;
+
+      if (title === '维度') {
+        dimensions.forEach((elem) => {
+          if (record.id === elem.id) {
+            elem.unit = record.unit;
+          }
+        });
+        times.forEach((elem) => {
+          if (record.id === elem.id) {
+            elem.unit = record.unit;
+          }
+        });
+      }
+      if (title === '度量') {
+        measures.forEach((elem) => {
+          if (record.id === elem.id) {
+            elem.unit = record.unit;
+          }
+        });
+      }
+      return {
+        ...state,
+        dimensions,
+        measures,
+        times,
       };
     },
     generateFileds(state, action) {
       const res = action.payload.schema;
       const datasources = state.datasources;
       const dimensions = state.dimensions;
-      datasources[res.datasourceId] = { datasourceId: res.datasourceId, table: res.table };
+
+      datasources[res.tableId] = {
+        tableId: res.tableId,
+        datasourceId: res.datasourceId,
+        table: res.table,
+      };
+
       res.fields.forEach((e) => {
         dimensions.push({
-          datasource: { datasourceId: res.datasourceId, table: res.table },
+          id: e.id,
+          tableId: res.tableId,
           name: e.field,
+          alias: e.field,
           type: e.type });
       });
 
@@ -351,6 +323,5 @@ export default {
         dimensions,
       };
     },
-
   },
 };

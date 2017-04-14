@@ -2,7 +2,7 @@ import { parse } from 'qs';
 import { routerRedux } from 'dva/router';
 import { message } from 'antd';
 import { listDatasources, saveDataSource, deleteDataSource, showTables } from '../services/datasource';
-import { listDataSets } from '../services/datasets';
+import { listDataSets } from '../services/datasetApi';
 
 export default {
   namespace: 'datasource',

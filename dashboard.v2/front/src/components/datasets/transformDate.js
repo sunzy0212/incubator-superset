@@ -8,29 +8,29 @@ const formItemLayout = {
   wrapperCol: { span: 18 },
 };
 
-const TransformDate = ({ transformDateVisible, onCreateOk, onCancelCreate, currentRecord,
+const TransformDate = ({ modalVisible, onOk, onCancel, currRecord,
   form: {
-    getFieldDecorator, validateFields,
+    getFieldDecorator, validateFields, resetFields,
   } }) => {
   function handleOk() {
     validateFields((err, values) => {
       if (!err) {
-        const data = {
-          name: values.name,
-          currentRecord,
-        };
-        onCreateOk(data);
+        const record = Object.assign(currRecord);
+        record.transform = values.transform;
+        onOk({ record });
+        onCancel();
+        resetFields();
       }
     });
   }
   return (
     <Modal
-      visible={transformDateVisible}
-      title={`自定义日期格式 (${(currentRecord.item === undefined) ? '' : currentRecord.item.name})`}
+      visible={modalVisible}
+      title={`自定义日期格式 (${currRecord.transform || ''})`}
       onOk={handleOk}
-      onCancel={onCancelCreate}
+      onCancel={onCancel}
       footer={[
-        <Button key="back" type="ghost" size="large" onClick={onCancelCreate}>取消</Button>,
+        <Button key="back" type="ghost" size="large" onClick={onCancel}>取消</Button>,
         <Button key="submit" type="primary" size="large" onClick={handleOk}>
           保存
         </Button>,
@@ -54,8 +54,10 @@ const TransformDate = ({ transformDateVisible, onCreateOk, onCancelCreate, curre
 };
 
 TransformDate.propTypes = {
-  onCreateOk: PropTypes.func,
-  onCancelCreate: PropTypes.func,
+  modalVisible: PropTypes.bool,
+  currRecord: PropTypes.object,
+  onOk: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 export default Form.create()(TransformDate);

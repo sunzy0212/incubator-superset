@@ -1,169 +1,220 @@
 import React, { PropTypes } from 'react';
 import { Table, Menu, Dropdown, Icon } from 'antd';
+import RenameModal from './renameModal';
 import TransformDate from './transformDate';
 import MeasureUnit from './measureUnit';
 
 const SubMenu = Menu.SubMenu;
-const FieldHolder = ({ title, onEditor, transToMeasure, transToDimension, transformToDate,
-  transformDateVisible, onCancelCreate, transformToNumber, transformToString,
-  checkAggregation, addMeasureUnit, records, currentRecord, onCreateOk,
-  MeasureUnitVisible, onCancelUnit, showMeasureUnit }) => {
-  function genDropMenu(record) {
+
+class FieldHolder extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      renameModalVisible: false,
+      measureUnitVisible: false,
+      transformDateVisible: false,
+      currRecord: {},
+    };
+  }
+
+  showRenameModal = (record) => {
+    this.setState({
+      renameModalVisible: true,
+      currRecord: record,
+    });
+  }
+
+  showTransformModal = (record) => {
+    this.setState({
+      transformDateVisible: true,
+      currRecord: record,
+    });
+  }
+
+  showMeasureUnitModal = (record) => {
+    this.setState({
+      measureUnitVisible: true,
+      currRecord: record,
+    });
+  }
+
+  genDropMenu = (record) => {
     const dimensionMenu = (
       <Menu style={{ width: 130 }} mode="vertical">
         <Menu.Item >
-          <a onClick={() => onEditor(record, title)}> 重命名</a>
+          <a onClick={() => this.showRenameModal(record)}> 重命名</a>
         </Menu.Item >
         <Menu.Item >
-          <a onClick={() => showMeasureUnit(record, title)}> 添加计量单位</a>
+          <a onClick={() => this.showMeasureUnitModal(record)}> 添加计量单位</a>
         </Menu.Item >
         <SubMenu key="sub1" title={<span>转换数据类型</span>}>
           <Menu.Item >
-            <a onClick={() => transformToDate(record)}> 转换为日期</a>
+            <a onClick={() => this.showTransformModal(record)}> 转换为日期</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => transformToString(record)}> 转换为字符</a>
+            <a onClick={() => this.props.transformToString(record)}> 转换为字符</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => transformToNumber(record)}> 转换为数字</a>
+            <a onClick={() => this.props.transformToNumber(record)}> 转换为数字</a>
           </Menu.Item >
         </SubMenu>
         <Menu.Item >
-          <a onClick={() => transToMeasure(record)}> 转换为度量</a>
+          <a onClick={() => this.props.transToMeasure(record)}> 转换为度量</a>
         </Menu.Item >
       </Menu >);
 
     const measureMenu = (
       <Menu style={{ width: 130 }} mode="vertical">
         <Menu.Item >
-          <a onClick={() => onEditor(record, title)}> 重命名</a>
+          <a onClick={() => this.showRenameModal(record)}> 重命名</a>
         </Menu.Item >
         <SubMenu key="sub1" title={<span>聚合方法</span>}>
           <Menu.Item >
-            <a onClick={() => checkAggregation(record, 'sum')}>
-              {(record.item.action === 'sum') ? (<Icon type="check-circle" />) : null}求和</a>
+            <a onClick={() => this.props.checkAggregation(record, 'sum')}>
+              {(record.action === 'sum') ? (<Icon type="check-circle" />) : null}求和</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => checkAggregation(record, 'avg')}>
-              {(record.item.action === 'avg') ? (<Icon type="check-circle" />) : null}平均值</a>
+            <a onClick={() => this.props.checkAggregation(record, 'avg')}>
+              {(record.action === 'avg') ? (<Icon type="check-circle" />) : null}平均值</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => checkAggregation(record, 'max')}>
-              {(record.item.action === 'max') ? (<Icon type="check-circle" />) : null}最大</a>
+            <a onClick={() => this.props.checkAggregation(record, 'max')}>
+              {(record.action === 'max') ? (<Icon type="check-circle" />) : null}最大</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => checkAggregation(record, 'min')}>
-              {(record.item.action === 'min') ? (<Icon type="check-circle" />) : null}最小</a>
+            <a onClick={() => this.props.checkAggregation(record, 'min')}>
+              {(record.action === 'min') ? (<Icon type="check-circle" />) : null}最小</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => checkAggregation(record, 'count')}>
-              {(record.item.action === 'count') ? (<Icon type="check-circle" />) : null}计数</a>
+            <a onClick={() => this.props.checkAggregation(record, 'count')}>
+              {(record.action === 'count') ? (<Icon type="check-circle" />) : null}计数</a>
           </Menu.Item >
         </SubMenu>
         <Menu.Item >
-          <a onClick={() => transToDimension(record)}> 转换为维度</a>
+          <a onClick={() => this.props.transToDimension(record)}> 转换为维度</a>
         </Menu.Item >
       </Menu >);
     return (
-      <Dropdown overlay={title === '度量' ? measureMenu : dimensionMenu} >
+      <Dropdown overlay={this.props.title === '度量' ? measureMenu : dimensionMenu} >
         <a className="ant-dropdown-link" >
           <Icon type="bars" />
         </a>
       </Dropdown >);
   }
 
-  function genItem(text, record) {
+  genItem = (text, record) => {
     const time = (
       <span>
-        <Icon type="calendar" /> {record.name}
+        <Icon type="calendar" /> {text}
       </span>
-        );
+    );
     const str = (
       <span>
-        <Icon type="file-text" /> {record.name}
+        <Icon type="file-text" /> {text}
       </span>
     );
     const number = (
       <span>
-        <Icon type="calculator" /> {record.name}
+        <Icon type="calculator" /> {text}
       </span>
     );
-    if (record.item.type === 'timestamp') {
+    if (record.type === 'timestamp') {
       return time;
-    } else if (record.item.type === 'string') {
+    } else if (record.type === 'string') {
       return str;
     } else {
       return number;
     }
   }
-  const columns = [
-    {
+
+
+  render() {
+    const that = this;
+    const { title, onRenameOk, transformToDate, addMeasureUnit, records } = this.props;
+
+    const renameModalprops = {
+      modalVisible: this.state.renameModalVisible,
+      currRecord: this.state.currRecord,
       title,
-      dataIndex: 'name',
-      key: 'name',
-      width: 120,
-      render: (text, record) => genItem(text, record),
-    },
-    {
-      title: '',
-      key: 'action',
-      className: '',
-      width: 78,
-      render: (text, record, index) => genDropMenu(text, record, index),
-    }];
+      onOk: onRenameOk,
+      onCancel() {
+        that.setState({
+          renameModalVisible: false,
+        });
+      },
+    };
 
-  const data = [];
+    const transformDateProps = {
+      modalVisible: this.state.transformDateVisible,
+      currRecord: this.state.currRecord,
+      onOk: transformToDate,
+      onCancel() {
+        that.setState({
+          transformDateVisible: false,
+        });
+      },
+    };
 
-  records.forEach((e, i) => {
-    data.push({
-      key: i,
-      name: e.alias || e.name,
-      item: e,
+    const measureUnitProps = {
+      title,
+      modalVisible: this.state.measureUnitVisible,
+      currRecord: this.state.currRecord,
+      onOk: addMeasureUnit,
+      onCancel() {
+        that.setState({
+          measureUnitVisible: false,
+        });
+      },
+    };
+
+    const columns = [
+      {
+        title,
+        dataIndex: 'name',
+        key: 'name',
+        width: 120,
+        render: (text, record) => this.genItem(text, record.item),
+      },
+      {
+        title: '',
+        key: 'action',
+        className: '',
+        width: 78,
+        render: record => this.genDropMenu(record.item),
+      }];
+
+    const data = [];
+
+    records.forEach((e) => {
+      data.push({
+        key: e.id,
+        name: e.alias,
+        item: e,
+      });
     });
-  });
 
-  const props = {
-    transformDateVisible,
-    onCancelCreate,
-    currentRecord,
-    onCreateOk,
-  };
-
-  const measureUnitProps = {
-    MeasureUnitVisible,
-    onCancelUnit,
-    currentRecord,
-    addMeasureUnit,
-  };
-
-  function rowClick(record, index) {
-    console.log(record, index);
-  }
-  return (
-    <div>
+    return (
       <div>
-        <TransformDate {...props} />
-        <MeasureUnit {...measureUnitProps} />
+        <div>
+          <RenameModal {...renameModalprops} />
+          <TransformDate {...transformDateProps} />
+          <MeasureUnit {...measureUnitProps} />
+        </div>
+        <Table
+          columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
+        />
       </div>
-      <Table
-        columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
-        onRowClick={rowClick}
-      />
-    </div>
-  );
-};
+    );
+  }
+}
 FieldHolder.propTypes = {
   title: PropTypes.string,
-  onEditor: PropTypes.func,
+  onRenameOk: PropTypes.func,
   transToDimension: PropTypes.func,
   transToMeasure: PropTypes.func,
   transformToString: PropTypes.func,
   addMeasureUnit: PropTypes.func,
   checkAggregation: PropTypes.func,
   records: PropTypes.array,
-  transformDateVisible: PropTypes.bool,
-  onCancelCreate: PropTypes.func,
-  onCreateOk: PropTypes.func,
-  currentRecord: PropTypes.object,
 };
 export default FieldHolder;

@@ -10,11 +10,10 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 const ChartTypes = [
-  { name: 'line', alias: '线图' },
-  { name: 'bar', alias: '条形图' },
-  { name: 'pie', alias: '饼图' },
+  { id: 'line', name: 'line', alias: '线图' },
+  { id: 'bar', name: 'bar', alias: '条形图' },
+  { id: 'pie', name: 'pie', alias: '饼图' },
 ];
-
 
 class Dataview extends React.Component {
 
@@ -23,6 +22,7 @@ class Dataview extends React.Component {
     this.state = {
       visible: false,
       chartType: 'line',
+      lineTypes: [],
       xaxis: [],
       yaxis: [],
       filters: [],
@@ -34,10 +34,17 @@ class Dataview extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     ReactDOM.unmountComponentAtNode(document.getElementById('saveModal'));
-
     const { timeField, selectFields, metricFields } = nextProps;
-    const xx = [timeField].concat(selectFields).concat(metricFields);
-
+    const xx = [].concat(selectFields).concat(metricFields);
+    if (this.state.xaxis.length === 0 && this.state.yaxis.length === 0) {
+      this.setState({
+        xaxis: [timeField],
+        yaxis: metricFields,
+        lineTypes: metricFields.map(() => {
+          return 'line';
+        }),
+      });
+    }
     this.setState({
       xx,
       yy: xx, //TODO
@@ -51,7 +58,7 @@ class Dataview extends React.Component {
     const res = [];
     fields.forEach((x) => {
       allFields.forEach((item) => {
-        if (x === item.name) {
+        if (x === item.id) {
           res.push(Object.assign(item));
         }
       });
@@ -65,18 +72,17 @@ class Dataview extends React.Component {
   }
 
   handleYaxisChange = (fields) => {
-    const tmp = this.matchFields(this.props.allFields, fields);
-    const yaxis = [];
-    tmp.forEach((item) => {
-      yaxis.push({ ...item, type: this.state.chartType });
+    const yaxis = this.matchFields(this.props.allFields, fields);
+    const lineTypes = [];
+    yaxis.forEach(() => {
+      lineTypes.push(this.state.chartType);
     });
-    this.setState({ yaxis });
+    this.setState({ yaxis, lineTypes });
   }
 
   handleFiltersChange = (fields) => {
     const tmp = this.matchFields(this.props.allFields, fields);
     const filters = [];
-
     tmp.forEach((item) => {
       filters.push({ ...item, optionDatas: new Set() });
     });
@@ -91,8 +97,7 @@ class Dataview extends React.Component {
 
   handleChartTypeChange = (e) => {
     console.log(`selected ${e}`);
-    const yaxis = this.state.yaxis.map((item) => { return { ...item, type: e }; });
-    this.setState({ chartType: e, yaxis });
+    this.setState({ chartType: e });
   }
 
   handleFlipChart = () => {
@@ -136,8 +141,8 @@ class Dataview extends React.Component {
     }
     return fields.map((item) => {
       return (<Option
-        key={item.name}
-        value={item.name}
+        key={item.id}
+        value={item.id}
       >
         {item.alias || item.name}</Option>);
     });
@@ -158,9 +163,9 @@ class Dataview extends React.Component {
 
     return (<Row gutter={24}>
       { this.state.filters.map((item) => {
-        return (<Col key={item.name} span={6}>
-          {item.name}
-          <Select key={item.name} style={{ width: '100%' }}>
+        return (<Col key={item.id} span={6}>
+          {item.alias}
+          <Select key={item.id} style={{ width: '100%' }}>
             {
               genOptions(item)
             }
@@ -180,7 +185,6 @@ class Dataview extends React.Component {
     const { datas, form } = this.props;
     const { getFieldDecorator } = form;
     const { xaxis, yaxis, xx, yy } = this.state;
-
     return (
       <div>
         <div id="saveModal" />
@@ -196,7 +200,7 @@ class Dataview extends React.Component {
                   </p>
                   <FormItem >
                     {getFieldDecorator('x_axis', {
-                      initialValue: xaxis.map((item) => { return item.name; }),
+                      initialValue: xaxis.map((item) => { return item.id; }),
                     })(
                       <Select
                         multiple
@@ -218,7 +222,7 @@ class Dataview extends React.Component {
                   </p>
                   <FormItem >
                     {getFieldDecorator('y_axis', {
-                      initialValue: yaxis.map((item) => { return item.name; }),
+                      initialValue: yaxis.map((item) => { return item.id; }),
                     })(
                       <Select
                         multiple
@@ -290,7 +294,8 @@ class Dataview extends React.Component {
               {this.props.datas.length === 0 && this.props.loading === false ? <div>请在左边👈查询数据</div> :
                 (this.props.loading ? <Spin /> :
                 <ChartComponect
-                  data={datas} xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" isFlip={this.state.flipChart}
+                  data={datas}
+                  xaxis={this.state.xaxis} yaxis={this.state.yaxis} title="" lineTypes={this.state.lineTypes} isFlip={this.state.flipChart}
                 />)
               }
             </Col>

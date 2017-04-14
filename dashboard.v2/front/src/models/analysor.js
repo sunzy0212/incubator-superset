@@ -1,9 +1,9 @@
 import { parse } from 'qs';
 import _ from 'lodash';
-import { getDataSet } from '../services/datasets';
+import { message } from 'antd';
+import { getDataSet } from '../services/datasetApi';
 import { postQuerys, saveCode, saveChart, updateCode, updateChart } from '../services/analysor';
 import { getDirs, addDir } from '../services/dashboard';
-
 
 const ANALYSOR_PATH = '/analysor';
 
@@ -59,7 +59,6 @@ export default {
             },
           });
         }
-
       });
     },
   },
@@ -94,6 +93,7 @@ export default {
     *execute({
       payload,
     }, { call, put }) {
+      console.log('==============payload=', payload);
       yield put({ type: 'updateState', payload: { ...payload } });
       const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
       if (data.success) {
@@ -103,6 +103,8 @@ export default {
             datas: data.result,
           },
         });
+      } else {
+        message.error('查询失败');
       }
     },
 
