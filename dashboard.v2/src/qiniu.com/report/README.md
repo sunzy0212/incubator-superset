@@ -315,7 +315,8 @@ DELETE /v1/datasets/<Id>
 	selectFields []Field
 	metricFields []Field
 	groupFields  []Field
-	timeFields   []Field
+	timeField    Field
+	RangeTimes   []Condition
 	wheres       []Evaluation
 	havings      []Evaluation
 	createTime 	timestamp
@@ -330,7 +331,8 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeFields": <TimeFields>,
+	"timeField": <TimeField>,
+	"rangeTimes": <RangeTimes>,
 	"wheres": <Wheres>,
 	"havings": <Havings>
 }
@@ -346,7 +348,8 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeFields": <TimeFields>,
+	"timeField": <TimeField>,
+	"rangeTimes": <RangeTimes>,
 	"wheres": <Wheres>,
 	"havings": <Havings>,
 	"createTime": <CreateTime>
@@ -362,7 +365,8 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeFields": <TimeFields>,
+	"timeField": <TimeField>,
+	"rangeTimes": <RangeTimes>,
 	"wheres": <Wheres>,
 	"havings": <Havings>
 }
@@ -392,8 +396,9 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeFields": <TimeFields>,
+	"timeField": <TimeField>,
 	"wheres": <Wheres>,
+	"rangeTimes": <RangeTimes>,
 	"havings": <Havings>,
 	"createTime": <CreateTime>
 	},
@@ -413,7 +418,8 @@ Content-Type: application/json
 	"SelectFields": <SelectFields>,
 	"metricFields": <MetricFields>,
 	"groupFields": <GroupFields>,
-	"timeFields": <TimeFields>,
+	"timeField": <TimeField>,
+	"rangeTimes": <RangeTimes>,
 	"wheres": <Wheres>,
 	"havings": <Havings>,
 	"createTime": <CreateTime>
@@ -460,12 +466,16 @@ chart
 ```
 {
 	id		string
+	type	string 	//图表类型
 	title	string
 	subTitle	string
-	type		string //图表类型
-	stack		bool
+	xaxis     	[]Field
+	yaxis     	[]Field
+	lineTypes 	[]string
+	filters   	[]Field
 	codeId		string <ref code.id>
 	dirId		string <ref dir.id>
+	datasetId	string
 }
 ```
 #### 创建目录
@@ -657,13 +667,13 @@ Content-Type: application/json
 	"title" : <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
-	"lines" : <Lines>,
+	"lineTypes" : <LineTypes>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
 	"filters": <Filters>,
-	"stack" : <True|False>,
 	"codeId" : <CodeId>,
-	"dirId" : <DirId>
+	"dirId" : <DirId>,
+	"datasetId" : <DatasetId>,
 }
 ```
 注：Filters, Xaxis和Yaxis为[]Field类型，其值比如：[{name:'字段1',alais:'字段1别名'}]
@@ -672,17 +682,17 @@ Content-Type: application/json
 ```
 200 OK
 {
-	"id": <Id>,
-	"title": <Title>,
+	"id": <Id>,	
+	"title" : <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
-	"lines" : <Lines>,
+	"lineTypes" : <LineTypes>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
 	"filters": <Filters>,
-	"stack" : <True|False>,
 	"codeId" : <CodeId>,
-	"dirId" : <DirId>
+	"dirId" : <DirId>,
+	"datasetId" : <DatasetId>,
 }
 ```
 
@@ -694,13 +704,13 @@ Content-Type: application/json
 	"title" : <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
-	"lines" : <Lines>,
+	"lineTypes" : <LineTypes>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
 	"filters": <Filters>,
-	"stack" : <True|False>,
 	"codeId" : <CodeId>,
-	"dirId" : <DirId>
+	"dirId" : <DirId>,
+	"datasetId" : <DatasetId>,
 }
 ```
 返回包：
@@ -708,17 +718,17 @@ Content-Type: application/json
 ```
 200 OK
 {
-	"id": <Id>,
-	"title": <Title>,
+	"id": <Id>,	
+	"title" : <Title>,
 	"subTitle" : <SubTitle>,
 	"type" : <Type>,
-	"lines" : <Lines>,
+	"lineTypes" : <LineTypes>,
 	"xaxis" : <Xaxis>,
 	"yaxis" : <Yaxis>,
 	"filters": <Filters>,
-	"stack" : <True|False>,
 	"codeId" : <CodeId>,
-	"dirId" : <DirId>
+	"dirId" : <DirId>,
+	"datasetId" : <DatasetId>,
 }
 ```
 #### 获取chart list
@@ -733,17 +743,17 @@ Content-Type: application/json
 {
 	"charts": [
     {
-	    "id" : <Id>,
-	    "title" <Title>,
-	    "subTitle" : <SubTitle>,
-	    "type" : <Type>,
-        "lines" : <Lines>,
-	    "xaxis" : <Xaxis>,
-	    "yaxis" : <Yaxis>,
+		"id" : <Id>,
+		"title" : <Title>,
+		"subTitle" : <SubTitle>,
+		"type" : <Type>,
+		"lineTypes" : <LineTypes>,
+		"xaxis" : <Xaxis>,
+		"yaxis" : <Yaxis>,
 		"filters": <Filters>,
-	    "stack" : <True|False>,
-	    "codeId" : <CodeId>,
-	    "dirId" : <DirId>
+		"codeId" : <CodeId>,
+		"dirId" : <DirId>,
+		"datasetId" : <DatasetId>,
     },
     ...
     ]
@@ -760,16 +770,17 @@ GET /v1/charts/<ChartId>
 200 OK
 Content-Type: application/json
 {
-    "title" : <Title>,
-    "subTitle" : <SubTitle>,
-    "type" : <Type>,
-    "lines" : <Lines>,
-    "xaxis" : <Xaxis>,
-    "yaxis" : <Yaxis>,
+	"id" : <Id>,
+	"title" : <Title>,
+	"subTitle" : <SubTitle>,
+	"type" : <Type>,
+	"lineTypes" : <LineTypes>,
+	"xaxis" : <Xaxis>,
+	"yaxis" : <Yaxis>,
 	"filters": <Filters>,
-    "stack" : <True|False>,
-    "codeId" : <CodeId>,
-    "dirId" : <DirId>
+	"codeId" : <CodeId>,
+	"dirId" : <DirId>,
+	"datasetId" : <DatasetId>,
 }
 ```
 

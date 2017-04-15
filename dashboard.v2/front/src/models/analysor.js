@@ -93,7 +93,6 @@ export default {
     *execute({
       payload,
     }, { call, put }) {
-      console.log('==============payload=', payload);
       yield put({ type: 'updateState', payload: { ...payload } });
       const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
       if (data.success) {
@@ -132,8 +131,10 @@ export default {
           type: payload.type,
           codeId: data.result.id,
           dirId: payload.dirId,
+          datasetId: dataset.id,
           xaxis: payload.xaxis,
           yaxis: payload.yaxis,
+          lineTypes: payload.lineTypes,
           filters: payload.filters,
         }));
 
@@ -171,9 +172,11 @@ export default {
           title: payload.title,
           type: payload.type,
           codeId: code.id,
+          datasetId: dataset.id,
           dirId: payload.dirId,
           xaxis: payload.xaxis,
           yaxis: payload.yaxis,
+          lineTypes: payload.lineTypes,
           filters: payload.filters,
         }));
         if (data2.success) {
@@ -195,6 +198,7 @@ export default {
         xaxis: payload.xaxis,
         yaxis: payload.yaxis,
         filters: payload.filters,
+        lineTypes: payload.lineTypes,
         type: payload.type,
       };
 

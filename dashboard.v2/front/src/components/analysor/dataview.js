@@ -97,7 +97,8 @@ class Dataview extends React.Component {
 
   handleChartTypeChange = (e) => {
     console.log(`selected ${e}`);
-    this.setState({ chartType: e });
+    const lineTypes = this.state.lineTypes.map(() => { return e; });
+    this.setState({ chartType: e, lineTypes });
   }
 
   handleFlipChart = () => {
@@ -121,6 +122,7 @@ class Dataview extends React.Component {
             title: this.props.chart.title || `图表${new Date().toJSON()}`,
             xaxis: this.state.xaxis,
             yaxis: this.state.yaxis,
+            lineTypes: this.state.lineTypes,
             filters: this.state.filters,
             type: this.state.flipChart ? 'flipchart' : 'chart',
           },
