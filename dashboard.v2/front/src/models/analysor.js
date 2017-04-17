@@ -1,9 +1,9 @@
 import { parse } from 'qs';
 import _ from 'lodash';
-import { getDataSet } from '../services/datasets';
+import { message } from 'antd';
+import { getDataSet } from '../services/datasetApi';
 import { postQuerys, saveCode, saveChart, updateCode, updateChart } from '../services/analysor';
 import { getDirs, addDir } from '../services/dashboard';
-
 
 const ANALYSOR_PATH = '/analysor';
 
@@ -59,7 +59,6 @@ export default {
             },
           });
         }
-
       });
     },
   },
@@ -103,6 +102,8 @@ export default {
             datas: data.result,
           },
         });
+      } else {
+        message.error('查询失败');
       }
     },
 
@@ -130,8 +131,10 @@ export default {
           type: payload.type,
           codeId: data.result.id,
           dirId: payload.dirId,
+          datasetId: dataset.id,
           xaxis: payload.xaxis,
           yaxis: payload.yaxis,
+          lineTypes: payload.lineTypes,
           filters: payload.filters,
         }));
 
@@ -169,9 +172,11 @@ export default {
           title: payload.title,
           type: payload.type,
           codeId: code.id,
+          datasetId: dataset.id,
           dirId: payload.dirId,
           xaxis: payload.xaxis,
           yaxis: payload.yaxis,
+          lineTypes: payload.lineTypes,
           filters: payload.filters,
         }));
         if (data2.success) {
@@ -193,6 +198,7 @@ export default {
         xaxis: payload.xaxis,
         yaxis: payload.yaxis,
         filters: payload.filters,
+        lineTypes: payload.lineTypes,
         type: payload.type,
       };
 

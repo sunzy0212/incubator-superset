@@ -290,6 +290,7 @@ func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret in
 GET /v1/datasources/<Id>/tables/<TableName>
 */
 type TableSchema struct {
+	TableId      string              `json:"tableId"`
 	DatasourceId string              `json:"datasourceId"`
 	Table        string              `json:"table"`
 	Fields       []map[string]string `json:"fields"`
@@ -313,7 +314,11 @@ func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret T
 		err = ErrorShowTables(err1)
 		return
 	}
-	ret = TableSchema{DatasourceId: id, Table: name, Fields: res}
+	for _, v := range res {
+		id, _ := common.GenId()
+		v["id"] = fmt.Sprintf("f_%s", id)
+	}
+	ret = TableSchema{TableId: fmt.Sprintf("%s:%s", id, name), DatasourceId: id, Table: name, Fields: res}
 	return
 }
 

@@ -8,30 +8,29 @@ const formItemLayout = {
   wrapperCol: { span: 18 },
 };
 
-const MeasureUnit = ({ MeasureUnitVisible, addMeasureUnit, onCancelUnit, currentRecord,
+const MeasureUnit = ({ modalVisible, onOk, onCancel, currRecord, title,
   form: {
-    getFieldDecorator, validateFields,
+    getFieldDecorator, validateFields, resetFields,
   } }) => {
   function handleOk() {
     validateFields((err, values) => {
       if (!err) {
-        const data = {
-          unit: values.name,
-          currentRecord,
-        };
-        addMeasureUnit(data);
+        const record = Object.assign(currRecord);
+        record.unit = values.unit;
+        onOk({ record, title });
+        onCancel();
+        resetFields();
       }
     });
   }
-
   return (
     <Modal
-      visible={MeasureUnitVisible}
-      title={`自定义单位 (${(currentRecord.item === undefined) ? '' : currentRecord.item.name})`}
+      visible={modalVisible}
+      title={`自定义单位 (${currRecord.unit || ''})`}
       onOk={handleOk}
-      onCancel={onCancelUnit}
+      onCancel={onCancel}
       footer={[
-        <Button key="back" type="ghost" size="large" onClick={onCancelUnit}>取消</Button>,
+        <Button key="back" type="ghost" size="large" onClick={onCancel}>取消</Button>,
         <Button key="submit" type="primary" size="large" onClick={handleOk}>
           保存
         </Button>,
@@ -39,8 +38,8 @@ const MeasureUnit = ({ MeasureUnitVisible, addMeasureUnit, onCancelUnit, current
     >
       <Form onSubmit={handleOk}>
         <FormItem label="格式" {...formItemLayout}>
-          {getFieldDecorator('name', {
-            initialValue: '',
+          {getFieldDecorator('unit', {
+            initialValue: currRecord.unit || '',
             rules: [
               {
                 required: true,
@@ -55,8 +54,11 @@ const MeasureUnit = ({ MeasureUnitVisible, addMeasureUnit, onCancelUnit, current
 };
 
 MeasureUnit.propTypes = {
-  addMeasureUnit: PropTypes.func,
-  onCancelUnit: PropTypes.func,
+  modalVisible: PropTypes.bool,
+  title: PropTypes.string,
+  currRecord: PropTypes.object,
+  onOk: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 export default Form.create()(MeasureUnit);

@@ -2,9 +2,75 @@ import React, { PropTypes } from 'react';
 import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
-const ChartComponent = ({ data, xaxis, yaxis, title, isFlip, unit }) => {
-  let chartData = {};
-  transformToChartData(data, xaxis, yaxis, title, isFlip, unit);
+const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) => {
+  function transformToChartData() {
+    const lineTags = [];
+    const lineAlias = [];
+    const nameTags = [];
+    const series = [];
+
+    xaxis.forEach((elem) => {
+      nameTags.push(elem.name);
+    });
+
+    yaxis.forEach((elem) => {
+      lineTags.push(elem.name);
+    });
+
+    yaxis.forEach((elem) => {
+      lineAlias.push(elem.alias);
+    });
+
+    const xaxisData = [];
+    lineTags.forEach((lineElem, i) => {
+      const yaxisData = [];
+      data.forEach((elem) => {
+        if (i === 0) {
+          const tmp = nameTags.map((x) => { return elem[x]; });
+          xaxisData.push(tmp.join('-'));
+        }
+        yaxisData.push(elem[lineElem]);
+      });
+      series.push({
+        name: lineAlias[i],
+        data: yaxisData,
+        type: lineTypes[i],
+        areaStyle: { normal: {} },
+      });
+    });
+    let xType = [{
+      type: 'category',
+      data: xaxisData,
+    }];
+    let yType = [{
+      type: 'value',
+      axisLabel: {
+        formatter: `{value} ${unit || ''}`,
+      },
+    }];
+    if (isFlip === true) {
+      yType = [{
+        type: 'category',
+        data: xaxisData,
+        axisLabel: {
+          formatter: `{value} ${unit || ''}`,
+        },
+      }];
+      xType = [{
+        type: 'value',
+      }];
+    }
+    return {
+      name: xaxisData,
+      data: series,
+      legend: lineAlias,
+      title,
+      xType,
+      yType,
+    };
+  }
+
+  const chartData = transformToChartData();
 
   const option = {
     tooltip: {
@@ -26,73 +92,6 @@ const ChartComponent = ({ data, xaxis, yaxis, title, isFlip, unit }) => {
     yAxis: chartData.yType,
     series: chartData.data,
   };
-
-  function transformToChartData(cData, cXaxis, cYaxis, cChartTitle, cIsFlip, cUnit) {
-    const lineTag = [];
-    const lineAlias = [];
-    const lineType = [];
-    const nameTag = [];
-    const currentName = [];
-    const currentData = [];
-    const series = [];
-    cYaxis.forEach((ele) => {
-      lineTag.push(ele.name);
-      lineAlias.push(ele.alias !== '' ? ele.alias : ele.name);
-      lineType.push(ele.type);
-    });
-
-    cXaxis.forEach((nameEle) => {
-      nameTag.push(nameEle.name);
-    });
-
-    lineTag.forEach((lineEle, i) => {
-      const cTemp = [];
-      cData.forEach((ele) => {
-        if (i === 0) {
-          currentName.push(ele[nameTag[0]]);
-        }
-        cTemp.push(ele[lineEle]);
-      });
-      currentData.push(cTemp);
-      series.push({
-        name: (lineAlias[i] !== '') ? lineAlias[i] : lineEle,
-        data: currentData[i],
-        type: lineType[i],
-        areaStyle: { normal: {} },
-      });
-    });
-    let xType = [{
-      type: 'category',
-      data: currentName,
-    }];
-    let yType = [{
-      type: 'value',
-      axisLabel: {
-        formatter: `{value} ${(cUnit !== undefined) ? cUnit : ''}`,
-      },
-    }];
-    if (cIsFlip === true) {
-      yType = [{
-        type: 'category',
-        data: currentName,
-        axisLabel: {
-          formatter: `{value} ${(cUnit !== undefined) ? cUnit : ''}`,
-        },
-      }];
-      xType = [{
-        type: 'value',
-      }];
-    }
-    const temp = {
-      name: currentName,
-      data: series,
-      legend: lineAlias,
-      title: cChartTitle,
-      xType,
-      yType,
-    };
-    chartData = temp;
-  }
 
   function registerTheme() {
     const colorPalette = [

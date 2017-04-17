@@ -89,8 +89,8 @@ function genOptionsOfSelect(fields) {
   }
   return fields.map((item) => {
     return (<Option
-      key={item.name}
-      value={item.name}
+      key={item.id || item.name}  // 为了适应上述fieldOptions和operatorOptions
+      value={item.id || item.name}
     >
       {item.alias || item.name}</Option>);
   });

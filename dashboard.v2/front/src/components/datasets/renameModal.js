@@ -8,31 +8,30 @@ const formItemLayout = {
   wrapperCol: { span: 18 },
 };
 
-const RenameModal = ({ renameModalVisibles, onCreateOk, onCancelSave, currentRecord, records,
+const RenameModal = ({ modalVisible, onOk, onCancel, currRecord, title,
   form: {
-    getFieldDecorator, validateFields,
+    getFieldDecorator, validateFields, resetFields,
   } }) => {
   function handleOk() {
     validateFields((err, values) => {
       if (!err) {
-        for (let i = 0; i < records.length; i++) {
-          if (records[i].name === currentRecord.item.name) {
-            records[i].alias = values.name;
-          }
-        }
-        onCreateOk(records);
+        const record = Object.assign(currRecord);
+        record.alias = values.name;
+        onOk({ record, title });
+        onCancel();
+        resetFields();
       }
     });
   }
 
   return (
     <Modal
-      visible={renameModalVisibles}
-      title={`原名: ${currentRecord.name}`}
+      visible={modalVisible}
+      title={`原名: ${currRecord.alias}`}
       onOk={handleOk}
-      onCancel={onCancelSave}
+      onCancel={onCancel}
       footer={[
-        <Button key="back" type="ghost" size="large" onClick={onCancelSave}>取消</Button>,
+        <Button key="back" type="ghost" size="large" onClick={onCancel}>取消</Button>,
         <Button key="submit" type="primary" size="large" onClick={handleOk}>
           保存
         </Button>,
@@ -42,7 +41,7 @@ const RenameModal = ({ renameModalVisibles, onCreateOk, onCancelSave, currentRec
 
         <FormItem label="重命名：" {...formItemLayout}>
           {getFieldDecorator('name', {
-            initialValue: '',
+            initialValue: currRecord.alias || '',
             rules: [
               {
                 required: true,
@@ -57,8 +56,11 @@ const RenameModal = ({ renameModalVisibles, onCreateOk, onCancelSave, currentRec
 };
 
 RenameModal.propTypes = {
-  onCreateOk: PropTypes.func,
-  onCancelSave: PropTypes.func,
+  modalVisible: PropTypes.bool,
+  currRecord: PropTypes.object,
+  title: PropTypes.string,
+  onOk: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 export default Form.create()(RenameModal);

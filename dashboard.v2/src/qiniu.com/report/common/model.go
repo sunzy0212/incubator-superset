@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/qiniu/db/mgoutil.v3"
+	//	"gopkg.in/mgo.v2/bson"
 )
 
 type SourceType int32
@@ -132,7 +133,7 @@ type DataSource struct {
 }
 
 ///////////////////////////////////dataset
-
+type TableId string
 type DataSourceTable struct {
 	DatasourceId string `json:"datasourceId" bson:"datasourceId"`
 	Table        string `json:"table" bson:"table"`
@@ -143,38 +144,28 @@ type Relationship struct {
 	Right    DataSourceTable `json:"right" bson:"right"`
 	Relation RelationType    `json:"relation" bson:"relation"`
 }
-
+type FieldId string
 type Field struct {
-	Datasource DataSourceTable `json:"datasource" bson:"datasource"`
-	Name       string          `json:"name" bson:"name"`
-	Type       string          `json:"type" bson:"type"`
-	Alias      string          `json:"alias" bson:"alias"`
-	Action     string          `json:"action" bson:"action"`
-	Transform  string          `json:"transform" bson:"transform"`
-	Unit       string          `json:"unit" bson:"unit"`
-}
-
-type Dimension struct {
-	Field
-}
-
-type Measure struct {
-	Field
-}
-type TimeField struct {
-	Field
+	Id        FieldId `json:"id" bson:"id"`
+	TableId   TableId `json:"tableId" bson:"tableId"`
+	Name      string  `json:"name" bson:"name"`
+	Type      string  `json:"type" bson:"type"`
+	Alias     string  `json:"alias" bson:"alias"`
+	Action    string  `json:"action" bson:"action"`
+	Transform string  `json:"transform" bson:"transform"`
+	Unit      string  `json:"unit" bson:"unit"`
 }
 
 type DataSet struct {
-	Id            string                     `json:"id" bson:"id"`
-	Name          string                     `json:"name" bson:"name"`
-	DataSources   map[string]DataSourceTable `json:"datasources" bson:"datasources"`
-	Relationships []Relationship             `json:"relationships" bson:"relationships"`
-	Dimensions    []Dimension                `json:"dimensions" bson:"dimensions"`
-	Measures      []Measure                  `json:"measures" bson:"measures"`
-	Times         []TimeField                `json:"times" bson:"times"`
-	CreateTime    string                     `json:"createTime" bson:"createTime"`
-	UpdateTime    string                     `json:"updateTime" bson:"updateTime"`
+	Id            string                      `json:"id" bson:"id"`
+	Name          string                      `json:"name" bson:"name"`
+	DataSources   map[TableId]DataSourceTable `json:"datasources" bson:"datasources"`
+	Relationships []Relationship              `json:"relationships" bson:"relationships"`
+	Dimensions    []Field                     `json:"dimensions" bson:"dimensions"`
+	Measures      []Field                     `json:"measures" bson:"measures"`
+	Times         []Field                     `json:"times" bson:"times"`
+	CreateTime    string                      `json:"createTime" bson:"createTime"`
+	UpdateTime    string                      `json:"updateTime" bson:"updateTime"`
 }
 
 /*
@@ -231,6 +222,20 @@ type Code struct {
 	CreateTime   string       `json:"createTime" bson:"createTime"`
 }
 
+type Chart struct {
+	Id        string   `json:"id" bson:"id"`
+	Type      string   `json:"type" bson:"type"`
+	Title     string   `json:"title" bson:"title"`
+	SubTitle  string   `json:"subTitle" bson:"subTitle"`
+	Xaxis     []Field  `json:"xaxis" bson:"xaxis"`
+	Yaxis     []Field  `json:"yaxis" bson:"yaxis"`
+	LineTypes []string `json:"lineTypes" bson:"lineTypes"`
+	Filters   []Field  `json:"filters" bson:"filters"`
+	CodeId    string   `json:"codeId" bson:"codeId"`
+	DirId     string   `json:"dirId" bson:"dirId"`
+	DatasetId string   `json:"datasetId" bson:"datasetId"`
+}
+
 /**report
 {
     id string
@@ -245,6 +250,29 @@ type Report struct {
 	IsTemplate bool              `json:"isTemplate" bson:"isTemplate"`
 	Args       map[string]string `json:"args" bson:"args"`
 	CreateTime string            `json:"createTime" bson:"createTime"`
+}
+
+/*
+{
+    reportId  string ,
+    layouts   []map[string]interface
+}
+*/
+type Layout struct {
+	ReportId string                   `json:"reportId" bson:"reportId"`
+	Layouts  []map[string]interface{} `json:"layouts" bson:"layouts"`
+}
+
+type Crontab struct {
+	Id         string      `json:"id" bson:"id"`
+	Name       string      `json:"name" bson:"name"`
+	Type       string      `json:"type" bson:"type"`
+	Cron       string      `json:"cron" bson:"cron"`
+	JobId      int         `json:"jobId" bson:"jobId"`
+	Rules      []string    `json:"rules" bson:"rules"`
+	Spec       interface{} `json:"spec" bson:"spec"`
+	CreateTime string      `json:"createTime" bson:"createTime"`
+	UpdateTime string      `json:"updateTime" bson:"updateTime"`
 }
 
 type Email struct {
@@ -271,53 +299,6 @@ type Template struct {
 	ReportId   string             `json:"reportId" bson:"reportId"`
 	CreateTime string             `json:"createTime" bson:"createTime"`
 	UpdateTime string             `json:"updateTime" bson:"updateTime"`
-}
-
-/*
-{
-    id string,
-    title string,
-    subTitle string,
-    type string, //图表类型
-    stack bool,
-    codeId string <ref code.id>
-	reportId string <ref report.id>
-}
-*/
-type Chart struct {
-	Id       string  `json:"id" bson:"id"`
-	Type     string  `json:"type" bson:"type"`
-	Title    string  `json:"title" bson:"title"`
-	SubTitle string  `json:"subTitle" bson:"subTitle"`
-	Stack    bool    `json:"stack" bson:"stack"`
-	Xaxis    []Field `json:"xaxis" bson:"xaxis"`
-	Yaxis    []Field `json:"yaxis" bson:"yaxis"`
-	Filters  []Field `json:"filters" bson:"filters"`
-	CodeId   string  `json:"codeId" bson:"codeId"`
-	DirId    string  `json:"dirId" bson:"dirId"`
-}
-
-/*
-{
-    reportId  string ,
-    layouts   []map[string]interface
-}
-*/
-type Layout struct {
-	ReportId string                   `json:"reportId" bson:"reportId"`
-	Layouts  []map[string]interface{} `json:"layouts" bson:"layouts"`
-}
-
-type Crontab struct {
-	Id         string      `json:"id" bson:"id"`
-	Name       string      `json:"name" bson:"name"`
-	Type       string      `json:"type" bson:"type"`
-	Cron       string      `json:"cron" bson:"cron"`
-	JobId      int         `json:"jobId" bson:"jobId"`
-	Rules      []string    `json:"rules" bson:"rules"`
-	Spec       interface{} `json:"spec" bson:"spec"`
-	CreateTime string      `json:"createTime" bson:"createTime"`
-	UpdateTime string      `json:"updateTime" bson:"updateTime"`
 }
 
 func (db *Collections) EnsureIndex() {
