@@ -1,6 +1,7 @@
 package data
 
 import (
+	"encoding/base64"
 	"fmt"
 	"regexp"
 	"sort"
@@ -51,6 +52,10 @@ func (m *MySQL) ShowTables() (map[string]string, error) {
 }
 
 func (m *MySQL) GenStorage() rest.Storage {
+	data, err := base64.StdEncoding.DecodeString(m.Password)
+	if err != nil {
+		log.Error(err)
+	}
 	return rest.Storage{
 		Name: fmt.Sprintf("%s_%s", m.AppUri, m.Name),
 		Config: rest.StorageConfig{
@@ -58,7 +63,7 @@ func (m *MySQL) GenStorage() rest.Storage {
 			Enabled: true,
 			Driver:  "com.mysql.jdbc.Driver",
 			Url: fmt.Sprintf("jdbc:mysql://%s:%d/%s?user=%s&password=%s&useUnicode=true&characterEncoding=utf8&autoReconnect=true",
-				m.Host, m.Port, m.DbName, m.Username, m.Password),
+				m.Host, m.Port, m.DbName, m.Username, string(data)),
 		},
 	}
 }
@@ -245,7 +250,11 @@ func (m *MySQL) QueryImpl(chartType string, code string) (interface{}, error) {
 }
 
 func (m *MySQL) GetConn() (*client.Conn, error) {
-	return client.Connect(fmt.Sprintf("%s:%d", m.Host, m.Port), m.Username, m.Password, m.DbName)
+	data, err := base64.StdEncoding.DecodeString(m.Password)
+	if err != nil {
+		log.Error(err)
+	}
+	return client.Connect(fmt.Sprintf("%s:%d", m.Host, m.Port), m.Username, string(data), m.DbName)
 }
 
 var (

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
-import { Button, Form, Input, InputNumber } from 'antd';
+import { Base64 } from 'js-base64';
+import { Button, Form, Input, InputNumber, Icon } from 'antd';
 import styles from '../modal.less';
 
 const FormItem = Form.Item;
@@ -28,8 +29,9 @@ const MySQL = ({
           type: 'MYSQL',
           dbName: values.dbName,
           username: values.username,
-          password: values.password,
+          password: Base64.encode(values.password),
         };
+
         callBack(true);
         onOk(data);
       }
@@ -98,7 +100,7 @@ const MySQL = ({
               message: '用户名未填写',
             },
           ],
-        })(<Input />)}
+        })(<Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="Username" />)}
       </FormItem>
 
       <FormItem label="密码：" {...formItemLayout}>
@@ -110,7 +112,7 @@ const MySQL = ({
               message: '密码未填写',
             },
           ],
-        })(<Input />)}
+        })(<Input prefix={<Icon type="lock" style={{ fontSize: 13 }} />} type="password" placeholder="Password" />)}
       </FormItem>
 
       <FormItem label="数据库名：" {...formItemLayout}>
