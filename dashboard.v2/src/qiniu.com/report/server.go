@@ -257,6 +257,7 @@ type RetTables struct {
 type Table struct {
 	DatasourceId string `json:"datasourceId"`
 	Name         string `json:"name"`
+	Type         string `json:"type"`
 	Desc         string `json:"desc"`
 }
 
@@ -271,16 +272,16 @@ func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret in
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
-	res, err1 := s.dataSourceManager.Get(ds).ShowTables()
+	res, err1 := s.executor.ShowTables(ds)
 	if err1 != nil {
+		log.Error(err)
 		err = ErrorShowTables(err1)
 		return
 	}
 
 	tables := make([]Table, 0)
-
-	for k, v := range res {
-		tables = append(tables, Table{id, k, v})
+	for _, v := range res.Tables {
+		tables = append(tables, Table{id, v["name"], v["type"], ""})
 	}
 	ret = RetTables{tables}
 	return
@@ -309,8 +310,9 @@ func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret T
 		err = errors.Info(ErrInternalError, err)
 		return
 	}
-	res, err1 := s.dataSourceManager.Get(ds).Schema(name)
+	res, err1 := s.executor.GetTableShema(ds, name)
 	if err1 != nil {
+		log.Error(err)
 		err = ErrorShowTables(err1)
 		return
 	}

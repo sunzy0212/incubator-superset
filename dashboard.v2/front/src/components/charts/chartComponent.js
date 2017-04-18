@@ -24,17 +24,22 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
     const xaxisData = [];
     lineTags.forEach((lineElem, i) => {
       const yaxisData = [];
-      data.forEach((elem) => {
+      data.forEach((elem, j) => {
         if (i === 0) {
           const tmp = nameTags.map((x) => { return elem[x]; });
           xaxisData.push(tmp.join('-'));
         }
-        yaxisData.push(elem[lineElem]);
+        if (lineTypes[i] === 'pie') {
+          yaxisData.push({ value: elem[lineElem], name: xaxisData[j] });
+        } else {
+          yaxisData.push(elem[lineElem]);
+        }
       });
       series.push({
         name: lineAlias[i],
         data: yaxisData,
         type: lineTypes[i],
+        radius: '65%',
         areaStyle: { normal: {} },
       });
     });
@@ -60,14 +65,26 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
         type: 'value',
       }];
     }
-    return {
-      name: xaxisData,
-      data: series,
-      legend: lineAlias,
-      title,
-      xType,
-      yType,
-    };
+
+    if (lineTypes[0] === 'pie') { // TODO lineTypes[0]
+      return {
+        name: xaxisData,
+        data: series,
+        legend: xaxisData,
+        title,
+        xType: {},
+        yType: {},
+      };
+    } else {
+      return {
+        name: xaxisData,
+        data: series,
+        legend: lineAlias,
+        title,
+        xType,
+        yType,
+      };
+    }
   }
 
   const chartData = transformToChartData();
@@ -75,6 +92,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
   const option = {
     tooltip: {
       trigger: 'axis',
+      formatter: '{b} <br/>{a} : {c}',
       axisPointer: {
         type: 'shadow',
       },
@@ -83,7 +101,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
       data: chartData.legend,
     },
     grid: {
-      left: '3%',
+      left: '2%',
       right: '4%',
       bottom: '3%',
       containLabel: true,
@@ -278,7 +296,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
         <ReactEcharts
           option={option}
           theme="macarons"
-          style={{ height: '100%', minHeight: '370px', width: '100%' }}
+          style={{ height: '100%', minHeight: '400px', width: '100%' }}
           className="react_for_echarts"
         />
       </div>

@@ -38,7 +38,7 @@ class Dataview extends React.Component {
     const xx = [].concat(selectFields).concat(metricFields);
     if (this.state.xaxis.length === 0 && this.state.yaxis.length === 0) {
       this.setState({
-        xaxis: [timeField],
+        xaxis: Object.keys(timeField).length === 0 ? selectFields : [timeField],
         yaxis: metricFields,
         lineTypes: metricFields.map(() => {
           return 'line';
