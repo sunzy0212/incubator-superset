@@ -2,7 +2,7 @@ import { ResponsiveContainer } from 'recharts';
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
 import { Row, Col, Icon, Spin } from 'antd';
-import SelectComponent from './selectComponent';
+import SelectComponent from '../charts/selectComponent';
 import ChartComponent from '../charts/chartComponent';
 import { getChart } from '../../services/chartApi';
 import { queryByCodeId } from '../../services/queryApi';
@@ -64,28 +64,25 @@ class View extends React.Component {
     }
   }
 
-  getNewData = (fieldObj, value) => {
+  getNewData = (selects) => {
     this.setState({ data: [], loading: true });
-    const item = {
-      field: fieldObj,
-      operator: 'EQ',
-      data: value,
-    };
-
-    const fieldCompare = (a, b) => { // 对比字段是否相等需要对比他的数据源信息
-      return a.datasource.datasourceId === b.datasource.datasourceId
-        && a.datasource.table === b.datasource.table && a.name === b.name;
-    };
-
     let currentWheres = this.state.wheres;
-    if (value === '全部') {
-      currentWheres = currentWheres.filter(x => !fieldCompare(x.field, fieldObj));
-    } else {
-      currentWheres = currentWheres.filter(x => !fieldCompare(x.field, fieldObj));
-      currentWheres.push(item);
-    }
+    selects.forEach((elem) => {
+      if (elem.value === '全部') {
+        currentWheres = currentWheres.filter(x => x.field.id !== elem.item.id);
+      } else {
+        currentWheres = currentWheres.filter(x => x.field.id !== elem.item.id);
+        const item = {
+          field: elem.item,
+          operator: 'EQ',
+          data: elem.value,
+        };
+        currentWheres.push(item);
+      }
+    });
+
     this.fetchData(this.state.chartData.codeId,
-      this.state.chartData.type, currentWheres, null);
+      this.state.chartData.type, currentWheres, this.state.rangeTimes);
     this.setState({
       wheres: currentWheres,
     });
@@ -155,7 +152,7 @@ class View extends React.Component {
           </Col>
           <Col lg={8} md={16}>
             <div className={styles.boxTool}>
-              <Link ><Icon type="edit" /></Link>
+              <Link to={`/analysor/${this.props.chartId}`}><Icon type="edit" /></Link>
               <span className="ant-divider" />
               <a><Icon type="download" /></a>
               <span className="ant-divider" />

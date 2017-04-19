@@ -7,16 +7,17 @@ class SelectComponent extends React.Component {
   constructor() {
     super();
     this.state = {
-      currentField: '',
+      selects: [],
     };
   }
 
-  handleChange = (currentValue) => {
-    this.props.getNewChartData(this.state.currentField, currentValue);
-  }
-
-  handleSelect = (currentField) => {
-    this.state.currentField = currentField;
+  handleSelect=(value, item) => {
+    const selects = this.state.selects.filter((x) => { return x.item.id !== item.id; });
+    selects.push({ item, value });
+    this.props.getNewChartData(selects);
+    this.setState({
+      selects,
+    });
   }
 
   genFilterSelections = () => {
@@ -34,11 +35,11 @@ class SelectComponent extends React.Component {
 
     return (<Row gutter={24}>
       { this.props.filters.map((item) => {
-        return (<Col style={{ marginLeft: '12px' }} key={item.name} span={5}>
-          {item.name}
+        return (<Col style={{ marginLeft: '12px' }} key={item.id} span={5}>
+          {item.alias}
           <Select
-            defaultValue={'全部'} key={item.name} style={{ width: '70%' }}
-            onChange={this.handleChange.bind(this)} onFocus={() => this.handleSelect(item)}
+            defaultValue={'全部'} key={item.id} style={{ width: '70%' }}
+            onSelect={value => this.handleSelect(value, item)}
           >
             {
               genOptions(item)

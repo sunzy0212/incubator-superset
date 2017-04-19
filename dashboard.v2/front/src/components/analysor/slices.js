@@ -16,28 +16,27 @@ const customPanelStyle = {
 };
 
 class Slices extends React.Component {
-  constructor(props) {
+  constructor() {
     super();
-    const allFields = props.allFields;
-    const timeKey = props.timeField.id || '';
-    const selectKeys = props.selectFields.map((item) => { return item.id; });
-    const metricKeys = props.metricFields.map((item) => { return item.id; });
-    const groupKeys = props.groupFields.map((item) => { return item.id; });
-
     this.state = {
-      allFields,
-      timeKey,
-      selectKeys,
-      metricKeys,
-      groupKeys,
       addOns_where: [],
       addOns_having: [],
     };
   }
 
   componentWillReceiveProps(nextProps) {
+    const allFields = nextProps.allFields;
+    const timeKey = nextProps.timeField.id || '';
+    const selectKeys = nextProps.selectFields.map((item) => { return item.id; });
+    const metricKeys = nextProps.metricFields.map((item) => { return item.id; });
+    const groupKeys = nextProps.groupFields.map((item) => { return item.id; });
+
     this.setState({
-      allFields: nextProps.allFields,
+      allFields,
+      timeKey,
+      selectKeys,
+      metricKeys,
+      groupKeys,
       addOns_where: nextProps.wheres,
       addOns_having: nextProps.havings,
     });
@@ -74,13 +73,17 @@ class Slices extends React.Component {
 
         // 当Select 和 metric 都选择后，group字段如果是空，在提交时补充
         if (metricFields.length > 0 && selectFields.length > 0) {
-          selectFields.forEach((item) => {
-            for (const r in groupFields) {
-              if (item === r) {
-                break;
-              }
+          const allReadyExist = (id) => {
+            for (let i = 0; i < groupFields.length; i++) {
+              if (id === groupFields[i]) return true;
             }
-            groupFields.push(item);
+
+            return false;
+          };
+          selectFields.forEach((id) => {
+            if (!allReadyExist(id)) {
+              groupFields.push(id);
+            }
           });
         }
 
@@ -121,8 +124,6 @@ class Slices extends React.Component {
 
         const _timeField = this.matchFields(this.state.allFields, [timeField])[0];
         if (_timeField !== undefined) {
-          querys.selectFields = [_timeField].concat(querys.selectFields);
-          querys.groupFields = [_timeField].concat(querys.groupFields);
           querys.timeField = _timeField;
         }
 
@@ -264,7 +265,7 @@ class Slices extends React.Component {
                   showSearch
                   placeholder="维度"
                 >
-                  {genOptionsOfSelect(dimensions)}
+                  {genOptionsOfSelect([].concat(times).concat(dimensions))}
                 </Select>,
               )}
             </FormItem>
@@ -294,7 +295,7 @@ class Slices extends React.Component {
               <Tooltip title="WHERE 语句"><Icon type="info-circle" />
               </Tooltip>
             </p>
-            {this.genFilter('where', addOns_where, dimensions, operatorOptions)}
+            {this.genFilter('where', addOns_where, [].concat(times).concat(dimensions), operatorOptions)}
 
             <Button
               type="dashed" size="large" icon="plus" style={{ width: '100%' }}
@@ -319,7 +320,7 @@ class Slices extends React.Component {
                   placeholder="分组"
                   onChange={this.handleGroupSelectChange}
                 >
-                  {genOptionsOfSelect(dimensions)}
+                  {genOptionsOfSelect([].concat(times).concat(dimensions))}
                 </Select>,
               )}
             </FormItem>
@@ -342,7 +343,7 @@ class Slices extends React.Component {
 }
 
 function genOptionsOfSelect(fields) {
-  if (fields === undefined || fields === null) {
+  if (fields === undefined || fields === null || fields[0] === undefined) {
     return;
   }
   return fields.map((item) => {
