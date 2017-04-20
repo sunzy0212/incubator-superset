@@ -37,18 +37,16 @@ class Dataview extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { lineTypes, xaxis, yaxis, filters, type } = nextProps.chart;
     ReactDOM.unmountComponentAtNode(document.getElementById('saveModal'));
-    const { timeField, selectFields, metricFields } = nextProps;
+    const { selectFields, metricFields } = nextProps;
     const xx = [].concat(selectFields).concat(metricFields);
-    if (this.state.xaxis.length === 0 && this.state.yaxis.length === 0 && xaxis !== undefined) { // 初始化
+    if (this.state.xaxis.length === 0 && this.state.yaxis.length === 0) { // 初始化
       this.setState({
-        xaxis: xaxis.length !== 0 ? xaxis :
-          Object.keys(timeField).length === 0 ? selectFields : [timeField],
-        yaxis: yaxis.length !== 0 ? yaxis : metricFields,
-        filters: filters.length !== 0 ? filters : [],
-        lineTypes: lineTypes.length !== 0 ? lineTypes : metricFields.map(() => { return 'line'; }),
-        chartType: lineTypes[0], // ToDo
-        flipchart: type === 'FLIPCHART',
-        datas: nextProps.datas,
+        xaxis: xaxis || selectFields,
+        yaxis: yaxis || metricFields,
+        filters: filters || [],
+        lineTypes: lineTypes || metricFields.map(() => { return 'line'; }),
+        chartType: type || 'line',
+        flipchart: type === 'FLIPCHART' || false,
       });
     }
     this.setState({
@@ -207,7 +205,6 @@ class Dataview extends React.Component {
         <Form onSubmit={this.handleSubmit}>
           <Collapse activeKey={this.props.datas.length !== 0 ? '1' : '0'}>
             <Panel header={<Icon type="area-chart" />} key="1">
-
               <Row gutter={6}>
                 <Col lg={9} md={9}>
                   <p icon="info">行&nbsp;
