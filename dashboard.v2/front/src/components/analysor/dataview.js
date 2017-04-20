@@ -45,7 +45,7 @@ class Dataview extends React.Component {
         yaxis: yaxis || metricFields,
         filters: filters || [],
         lineTypes: lineTypes || metricFields.map(() => { return 'line'; }),
-        chartType: type || 'line',
+        chartType: lineTypes !== undefined ? lineTypes[0] : 'line',
         flipchart: type === 'FLIPCHART' || false,
       });
     }
