@@ -22,7 +22,6 @@ function ReportBoard({ history, dispatch, loading, reportboard }) {
       payload: { layouts: clayouts },
     });
   }
-
   const viewProps = {
     status,
     report,

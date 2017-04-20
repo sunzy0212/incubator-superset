@@ -106,6 +106,8 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 				evaluation = fmt.Sprintf(" `%s` %s %v ", field, opera, data)
 			case "string":
 				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, v.Data)
+			case "timestamp":
+				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, v.Data)
 			default:
 				fmt.Println("where---没匹配到") //TODO String is ok
 			}
@@ -122,16 +124,10 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 		for _, v := range tmpRangeTimes {
 			field := timeField.Name
 			opera := OP[v.Operator]
-			evaluation := ""
-			switch strings.ToLower(timeField.Type) {
-			case "timestamp":
-				tsNumber, _ := strconv.ParseInt(v.Data, 10, 64)
-				tsDate := time.Unix(tsNumber/1000, tsNumber%1000*1e+09)
-				ts := tsDate.Format(timeField.Transform)
-				evaluation = fmt.Sprintf(" `%s` %s '%v' ", field, opera, ts)
-			default:
-				fmt.Println("rangetime--没匹配到") //TODO String is ok
-			}
+			tsNumber, _ := strconv.ParseInt(v.Data, 10, 64)
+			tsDate := time.Unix(tsNumber/1000, tsNumber%1000*1e+09)
+			ts := tsDate.Format(timeField.Transform)
+			evaluation := fmt.Sprintf(" `%s` %s '%v' ", field, opera, ts)
 			timeFields = append(timeFields, evaluation)
 		}
 		if tmpWhereFields == nil || len(tmpWhereFields) == 0 {

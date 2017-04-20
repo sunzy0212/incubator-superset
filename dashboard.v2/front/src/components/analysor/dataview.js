@@ -2,7 +2,8 @@ import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Form, Collapse, Select, Row, Col, Icon, Button, Spin, Tooltip, Switch, message } from 'antd';
 import SaveModal from './saveModal';
-import ChartComponect from '../../components/charts/chartComponent';
+import SelectComponent from '../charts/selectComponent';
+import ChartComponect from '../charts/chartComponent';
 import styles from './dataview.less';
 
 const Panel = Collapse.Panel;
@@ -29,25 +30,29 @@ class Dataview extends React.Component {
       xx: [],
       yy: [],
       flipChart: false,
+      datas: [],
     };
   }
 
   componentWillReceiveProps(nextProps) {
+    const { lineTypes, xaxis, yaxis, filters, type } = nextProps.chart;
     ReactDOM.unmountComponentAtNode(document.getElementById('saveModal'));
-    const { timeField, selectFields, metricFields } = nextProps;
+    const { selectFields, metricFields } = nextProps;
     const xx = [].concat(selectFields).concat(metricFields);
-    if (this.state.xaxis.length === 0 && this.state.yaxis.length === 0) {
+    if (this.state.xaxis.length === 0 && this.state.yaxis.length === 0) { // 初始化
       this.setState({
-        xaxis: Object.keys(timeField).length === 0 ? selectFields : [timeField],
-        yaxis: metricFields,
-        lineTypes: metricFields.map(() => {
-          return 'line';
-        }),
+        xaxis: xaxis || selectFields,
+        yaxis: yaxis || metricFields,
+        filters: filters || [],
+        lineTypes: lineTypes || metricFields.map(() => { return 'line'; }),
+        chartType: lineTypes !== undefined ? lineTypes[0] : 'line',
+        flipchart: type === 'FLIPCHART' || false,
       });
     }
     this.setState({
       xx,
-      yy: xx, //TODO
+      yy: xx, // TODO
+      datas: nextProps.datas,
     });
   }
 
@@ -124,7 +129,7 @@ class Dataview extends React.Component {
             yaxis: this.state.yaxis,
             lineTypes: this.state.lineTypes,
             filters: this.state.filters,
-            type: this.state.flipChart ? 'flipchart' : 'chart',
+            type: this.state.flipChart ? 'FLIPCHART' : 'CHART',
           },
           onSaveOrUpdate,
         };
@@ -136,6 +141,37 @@ class Dataview extends React.Component {
       }
     });
   }
+
+  getNewData = (selects) => {
+    let datas = this.props.datas;
+    selects.forEach((elem) => {
+      if (elem.value !== '全部') {
+        datas = datas.filter(x => x[elem.item.name] === elem.value);
+      }
+    });
+    this.setState({
+      datas,
+    });
+  }
+
+  genFilters = (filters) => {
+    const cFilters = [];
+    if (filters === undefined || filters.length === 0) {
+      return cFilters;
+    }
+
+    filters.forEach((item) => {
+      cFilters.push({ ...item, optionDatas: new Set() });
+    });
+
+    this.props.datas.forEach((item) => {
+      cFilters.forEach((r) => {
+        r.optionDatas.add(item[r.name]);
+      });
+    });
+    return cFilters;
+  }
+
 
   genOptionsOfSelect=(fields) => {
     if (fields === undefined || fields === null) {
@@ -154,46 +190,21 @@ class Dataview extends React.Component {
     return this.state.xaxis.length !== 0 || this.state.yaxis.length !== 0;
   }
 
-  genFilterSelections = () => {
-    const genOptions = (item) => {
-      const res = [];
-      item.optionDatas.forEach((val) => {
-        res.push(<Option key={val.toString()} value={val.toString()}>{val.toString()}</Option>);
-      });
-      return res;
-    };
-
-    return (<Row gutter={24}>
-      { this.state.filters.map((item) => {
-        return (<Col key={item.id} span={6}>
-          {item.alias}
-          <Select key={item.id} style={{ width: '100%' }}>
-            {
-              genOptions(item)
-            }
-          </Select>
-        </Col>);
-      })
-      }
-    </Row>);
-  }
-
   render() {
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
     };
 
-    const { datas, form } = this.props;
+    const { form } = this.props;
     const { getFieldDecorator } = form;
-    const { xaxis, yaxis, xx, yy } = this.state;
+    const { datas, xaxis, yaxis, filters, xx, yy } = this.state;
     return (
       <div>
         <div id="saveModal" />
         <Form onSubmit={this.handleSubmit}>
           <Collapse activeKey={this.props.datas.length !== 0 ? '1' : '0'}>
             <Panel header={<Icon type="area-chart" />} key="1">
-
               <Row gutter={6}>
                 <Col lg={9} md={9}>
                   <p icon="info">行&nbsp;
@@ -246,7 +257,7 @@ class Dataview extends React.Component {
                   </p>
                   <FormItem >
                     {getFieldDecorator('filters', {
-                      initialValue: [],
+                      initialValue: filters.map((item) => { return item.id; }),
                     })(
                       <Select
                         multiple
@@ -269,7 +280,7 @@ class Dataview extends React.Component {
                     label="图表类型"
                   >
                     {getFieldDecorator('chartType',
-                    { initialValue: 'line' })(
+                    { initialValue: this.state.chartType })(
                       <Select style={{ width: '100%' }} onChange={this.handleChartTypeChange}>
                         {this.genOptionsOfSelect(ChartTypes)}
                       </Select>,
@@ -277,7 +288,7 @@ class Dataview extends React.Component {
                   </FormItem>
                 </Col>
                 <Col lg={4} md={4}>
-                  <Switch checkedChildren={'横向'} unCheckedChildren={'竖直'} onChange={this.handleFlipChart} />
+                  <Switch checkedChildren={'竖直'} unCheckedChildren={'横向'} checked={this.state.flipChart} onChange={this.handleFlipChart} />
                 </Col>
                 <Col lg={3} md={3}>
                   <Button style={{ width: '100%' }} size="large" icon="reload" type="ghost">刷新</Button>
@@ -290,7 +301,7 @@ class Dataview extends React.Component {
           </Collapse>
         </Form>
         <div className={styles.chart}>
-          {this.genFilterSelections()}
+          <SelectComponent getNewChartData={this.getNewData} filters={this.genFilters(filters)} />
           <Row>
             <Col>
               {this.props.datas.length === 0 && this.props.loading === false ? <div>请在左边👈查询数据</div> :

@@ -29,7 +29,7 @@ const MySQL = ({
           type: 'MYSQL',
           dbName: values.dbName,
           username: values.username,
-          password: Base64.encode(values.password),
+          password: item.password === values.password ? values.password : Base64.encode(values.password),
         };
 
         callBack(true);

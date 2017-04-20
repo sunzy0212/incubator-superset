@@ -24,4 +24,3 @@ export async function updateChart(params) {
     body: JSON.stringify(params),
   });
 }
-

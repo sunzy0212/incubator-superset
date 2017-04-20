@@ -140,11 +140,4 @@ export async function getCharts(params) {
   });
 }
 
-// GET /v1/datas?q=<CodeId>&type=<ChartType>
-export async function queryCode(params) {
-  return request('/v1/datas', {
-    method: 'get',
-    params,
-  });
-}
 

@@ -1,8 +1,9 @@
 import { parse } from 'qs';
 import _ from 'lodash';
 import { message } from 'antd';
-import { getDataSet } from '../services/datasetApi';
-import { postQuerys, saveCode, saveChart, updateCode, updateChart } from '../services/analysor';
+import { getDataSet, getCode, saveCode, updateCode } from '../services/datasetApi';
+import { getChart, saveChart, updateChart } from '../services/chartApi';
+import { postQuerys, queryByCodeId } from '../services/queryApi';
 import { getDirs, addDir } from '../services/dashboard';
 
 const ANALYSOR_PATH = '/analysor';
@@ -10,7 +11,6 @@ const ANALYSOR_PATH = '/analysor';
 export default {
   namespace: 'analysor',
   state: {
-    loading: false,
     code: {},
     chart: {},
     dataset: {},
@@ -36,14 +36,17 @@ export default {
         if (_.startsWith(pathname, ANALYSOR_PATH)) {
           if (_.startsWith(pathname, `${ANALYSOR_PATH}/dataset_`)) {
             const id = _.trimStart(pathname, `${ANALYSOR_PATH}/`);
-            dispatch({ type: 'initAnalysor', payload: { id } });
+            dispatch({ type: 'initAnalysorByDatasetId', payload: { id } });
+          }
+          if (_.startsWith(pathname, `${ANALYSOR_PATH}/chart_`)) {
+            const id = _.trimStart(pathname, `${ANALYSOR_PATH}/`);
+            dispatch({ type: 'initAnalysorByChartId', payload: { id } });
           }
           dispatch({ type: 'queryDirs', payload: { type: 'chart' } });
         } else {
           dispatch({
             type: 'updateState',
             payload: {
-              loading: false,
               code: {},
               chart: {},
               dataset: {},
@@ -52,7 +55,7 @@ export default {
               selectFields: [],
               metricFields: [],
               groupFields: [],
-              timeFields: [],
+              timeField: {},
               rangeTimes: [],
               datas: [],
               dirs: [],
@@ -76,7 +79,7 @@ export default {
       }
     },
 
-    *initAnalysor({
+    *initAnalysorByDatasetId({
       payload,
     }, { call, put }) {
       const data = yield call(getDataSet, parse({ id: payload.id }));
@@ -87,6 +90,43 @@ export default {
             dataset: data.result,
           },
         });
+      } else {
+        message.error('初始化分析器时错误');
+      }
+    },
+
+    *initAnalysorByChartId({
+      payload,
+    }, { call, put }) {
+      const data = yield call(getChart, parse({ id: payload.id }));
+      if (data.success) {
+        const chart = data.result;
+        const data2 = yield call(getDataSet, parse({ id: chart.datasetId }));
+        const data3 = yield call(getCode,
+          parse({ datasetId: chart.datasetId, codeId: chart.codeId }));
+        const data4 = yield call(queryByCodeId,
+          parse({ codeId: chart.codeId, formatType: 'json' }));
+        if (data2.success && data3.success) {
+          const code = data3.result;
+          yield put({
+            type: 'updateState',
+            payload: {
+              chart,
+              code,
+              dataset: data2.result,
+              wheres: code.wheres,
+              havings: code.havings,
+              selectFields: code.selectFields.filter((x) => { return x.id !== code.timeField.id; }),
+              metricFields: code.metricFields,
+              groupFields: code.groupFields.filter((x) => { return x.id !== code.timeField.id; }),
+              timeField: code.timeField,
+              rangeTimes: code.rangeTimes,
+              datas: data4.result,
+            },
+          });
+        }
+      } else {
+        message.error('初始化分析器时错误');
       }
     },
 

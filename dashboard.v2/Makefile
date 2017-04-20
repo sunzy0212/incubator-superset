@@ -7,6 +7,7 @@ report:
 	cp src/qiniu.com/report/report.conf dist/
 	cd front; npm install && npm run build
 	cp front/dist/* dist/
+	cp -r front/src/favicon.ico dist/
 	cp -r front/src/assets dist/
 	
 apps:
