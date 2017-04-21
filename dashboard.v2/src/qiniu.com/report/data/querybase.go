@@ -11,6 +11,7 @@ import (
 )
 
 type QueryConfig struct {
+	Limit      int64
 	DataFormat common.DataFormatType
 	Code       common.Code
 }
@@ -103,7 +104,7 @@ func (e *Executor) GetTableShema(ds common.DataSource, tableName string) (ret []
 	return
 }
 
-func (e *Executor) GetDataByDataSource(ds common.DataSource, tableName string, limit uint64) (ret rest.Results, err error) {
+func (e *Executor) GetDataByDataSource(ds common.DataSource, tableName string, limit int64) (ret rest.Results, err error) {
 	tableSpec := fmt.Sprintf("%s_%s.%s.%s", ds.AppUri, ds.Name, ds.DbName, tableName)
 	sql := fmt.Sprintf("SELECT * FROM %s LIMIT %d", tableSpec, limit)
 	log.Debugf("query SQL[%s]", sql)
@@ -115,6 +116,10 @@ func (e *Executor) GetDataByDataSource(ds common.DataSource, tableName string, l
 	}
 	log.Infof("success to get result, length=%d from table %s", len(ret.Rows), tableSpec)
 	return
+}
+
+func (e *Executor) GetDataByDataSet(ds common.DataSet, limit int64) (ret interface{}, err error) {
+	return e.Execute(QueryConfig{Code: common.Code{DatasetId: ds.Id}, DataFormat: common.JSON, Limit: limit})
 }
 
 func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {

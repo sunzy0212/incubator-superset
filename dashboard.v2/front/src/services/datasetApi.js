@@ -36,13 +36,13 @@ export async function updateDataSet(params) {
 }
 
 export async function getDatasetData(params) {
-  return request(`/v1/datas?type=${params.type}`, {
-    method: 'post',
-    body: JSON.stringify({ datasetId: params.id }),
+  return request(`/v1/datasets/${params.id}/data?limit=${params.limit}`, {
+    method: 'get',
+    data: params,
   });
 }
 
-// GET /v1/datas?q=<CodeId>&type=<ChartType>
+// GET /v1/datasets/<DatasetId>/codes/<CodeId>
 export async function getCode(params) {
   return request(`/v1/datasets/${params.datasetId}/codes/${params.codeId}`, {
     method: 'get',

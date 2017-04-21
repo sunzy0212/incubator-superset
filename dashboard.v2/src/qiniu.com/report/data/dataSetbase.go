@@ -173,5 +173,10 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 		}
 		sql += fmt.Sprintf(" HAVING %s ", strings.Join(havingFields, " AND ")) //OR转化为AND?暂定
 	}
+
+	if cfg.Limit > 0 {
+		sql += fmt.Sprintf(" LIMIT %d ", cfg.Limit)
+	}
+
 	return
 }

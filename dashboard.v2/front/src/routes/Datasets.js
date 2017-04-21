@@ -109,7 +109,7 @@ function Datasets({ dispatch, loading, datasets }) {
     loadTableData() {
       dispatch({
         type: 'datasets/queryDatasetData',
-        payload: { id: dataset.id, type: 'json' },
+        payload: { id: dataset.id, type: 'json', limit:'1000' },
       });
     },
   };

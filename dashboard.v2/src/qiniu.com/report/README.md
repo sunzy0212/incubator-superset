@@ -264,7 +264,7 @@ Content-Type: application/json
 200 OK
 ```
 
-#### 获取数据集
+#### 获取数据集列表
 ```
 GET /v1/datasets
 ```
@@ -291,6 +291,48 @@ Content-Type: application/json
 }
 ```
 
+#### 获取数据集
+
+```
+GET /v1/datasets/<Id>
+```
+返回包：
+
+```
+200 OK
+Content-Type: application/json
+{
+	"id" : <Id>,
+	"name": <Name>,
+	"dataSources": <DataSources>,
+	"relationships": <Relationships>,
+	"dimensions": <Dimensions>,
+	"measures": <Measures>,
+	"times":<Times>,
+	"createTime": <createTime>,
+	"updateTime": <updateTime>,
+}
+```
+
+#### 获取数据集数据
+
+```
+GET /v1/dataset/<DatasetId>/data?type=<DataType>&limit=<Number>
+```
+返回包:
+
+```
+200 OK
+Content-Type: application/json
+{
+	"type": <DataType>,
+	"datas": [
+	{key1:<val1>,key2:<val2>,key3:<val3>...}
+	{key1:<val1>,key2:<val2>,key3:<val3>...}
+	...
+	]
+}
+```
 #### 删除数据集
 请求包:
 
@@ -844,13 +886,13 @@ Content-Type: application/json
 ```
 ### 数据查询接口
 ```
-POST /v1/datas?codeId=<CodeId>&type=<DataType>
+POST /v1/datas?codeId=<CodeId>&type=<DataType>&limit=<Number>
 {
 	"wheres": <Wheres>,
 }
 
 或者
-POST /v1/datas?type=<DataType>
+POST /v1/datas?type=<DataType>&limit=<Number>
 {
 	"datasetId": <DatasetId>,
 	"selectFields": <SelectFields>,
