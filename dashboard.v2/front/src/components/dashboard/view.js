@@ -24,7 +24,7 @@ class View extends React.Component {
       }];
     }
     this.state = {
-      chartData: {},
+      chartData: {xaxis:[], yaxis:[]},
       data: [],
       wheres: [],
       rangeTimes,
@@ -165,22 +165,18 @@ class View extends React.Component {
         <Row gutter={24}>
           <SelectComponent getNewChartData={this.getNewData} filters={this.genFilters()} />
         </Row>
-        {
-          this.state.loading ?
-            <Spin size="large" />
-            :
-            <ResponsiveContainer>
-              <ChartComponent
-                data={this.state.data}
-                xaxis={chartData.xaxis}
-                yaxis={chartData.yaxis}
-                lineTypes={chartData.lineTypes}
-                title={chartData.title}
-                isFlip={this.isFlip(chartData.type)}
-                unit={chartData.yaxis[0].unit}
-              />
-            </ResponsiveContainer>
-        }
+        <ResponsiveContainer>
+          <ChartComponent
+            loading={this.state.loading}
+            data={this.state.data}
+            xaxis={chartData.xaxis}
+            yaxis={chartData.yaxis}
+            lineTypes={chartData.lineTypes}
+            title={chartData.title}
+            isFlip={this.isFlip(chartData.type)}
+          />
+        </ResponsiveContainer>
+
       </div>
     );
   }

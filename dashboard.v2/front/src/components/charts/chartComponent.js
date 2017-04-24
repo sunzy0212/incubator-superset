@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
-const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) => {
+const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip }) => {
   function transformToChartData() {
     const lineTags = [];
     const lineAlias = [];
@@ -43,6 +43,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
         areaStyle: { normal: {} },
       });
     });
+    const unit = yaxis[0] !== unit ? yaxis[0].unit : '';
     let xType = [{
       type: 'category',
       data: xaxisData,
@@ -50,7 +51,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
     let yType = [{
       type: 'value',
       axisLabel: {
-        formatter: `{value} ${unit || ''}`,
+        formatter: `{value} ${unit}`,
       },
     }];
     if (isFlip === true) {
@@ -58,7 +59,7 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
         type: 'category',
         data: xaxisData,
         axisLabel: {
-          formatter: `{value} ${unit || ''}`,
+          formatter: `{value} ${unit}`,
         },
       }];
       xType = [{
@@ -87,30 +88,46 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
     }
   }
 
-  const chartData = transformToChartData();
-
-  const option = {
-    tooltip: {
-      trigger: 'axis',
-      formatter: '{b} <br/>{a} : {c}',
-      axisPointer: {
-        type: 'shadow',
+  let option = {
+    xAxis: { data: [] },
+    yAxis: {},
+    series: [{ name: '销量', type: 'bar', data: [] }],
+    itemStyle: {
+      normal: {
+        shadowBlur: 60,
+        shadowColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      emphasis: {
+        shadowBlur: 200,
+        shadowColor: 'rgba(0, 0, 0, 0.5)',
       },
     },
-    legend: {
-      data: chartData.legend,
-    },
-    grid: {
-      left: '2%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true,
-    },
-    xAxis: chartData.xType,
-    yAxis: chartData.yType,
-    series: chartData.data,
   };
 
+  if (!loading) {
+    const chartData = transformToChartData();
+    option = {
+      tooltip: {
+        trigger: 'axis',
+        formatter: '{b} <br/>{a} : {c}',
+        axisPointer: {
+          type: 'shadow',
+        },
+      },
+      legend: {
+        data: chartData.legend,
+      },
+      grid: {
+        left: '2%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+      },
+      xAxis: chartData.xType,
+      yAxis: chartData.yType,
+      series: chartData.data,
+    };
+  }
   function registerTheme() {
     const colorPalette = [
       '#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80',
@@ -290,11 +307,11 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
   registerTheme();
 
   return (
-
     <div className="examples">
       <div className="parent">
         <ReactEcharts
           option={option}
+          showLoading={loading}
           theme="macarons"
           style={{ height: '100%', minHeight: '400px', width: '100%' }}
           className="react_for_echarts"
@@ -305,12 +322,13 @@ const ChartComponent = ({ data, xaxis, yaxis, title, lineTypes, isFlip, unit }) 
 };
 
 ChartComponent.propTypes = {
+  loading: PropTypes.bool,
   data: PropTypes.array,
   xaxis: PropTypes.array,
   yaxis: PropTypes.array,
+  lineTypes: PropTypes.array,
   title: PropTypes.string,
   isFlip: PropTypes.bool,
-  unit: PropTypes.string,
 };
 
 export default ChartComponent;
