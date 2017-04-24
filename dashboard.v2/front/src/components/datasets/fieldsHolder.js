@@ -3,6 +3,7 @@ import { Table, Menu, Dropdown, Icon } from 'antd';
 import RenameModal from './renameModal';
 import TransformDate from './transformDate';
 import MeasureUnit from './measureUnit';
+import AddField from './addField';
 
 const SubMenu = Menu.SubMenu;
 
@@ -13,6 +14,7 @@ class FieldHolder extends React.Component {
       renameModalVisible: false,
       measureUnitVisible: false,
       transformDateVisible: false,
+      addFieldVisible: false,
       currRecord: {},
     };
   }
@@ -38,35 +40,46 @@ class FieldHolder extends React.Component {
     });
   }
 
+  showAddFieldModal = (record) => {
+    this.setState({
+      addFieldVisible: true,
+      currRecord: { tableId: record.tableId, type: 'string' },
+    });
+  }
+
   genDropMenu = (record) => {
     const dimensionMenu = (
       <Menu style={{ width: 130 }} mode="vertical">
         <Menu.Item >
-          <a onClick={() => this.showRenameModal(record)}> 重命名</a>
+          <a onClick={() => this.showRenameModal(record)}>重命名</a>
         </Menu.Item >
         <Menu.Item >
-          <a onClick={() => this.showMeasureUnitModal(record)}> 添加计量单位</a>
+          <a onClick={() => this.showMeasureUnitModal(record)}>添加计量单位</a>
         </Menu.Item >
         <SubMenu key="sub1" title={<span>转换数据类型</span>}>
           <Menu.Item >
-            <a onClick={() => this.showTransformModal(record)}> 转换为日期</a>
+            <a onClick={() => this.showTransformModal(record)}>转换为日期</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => this.props.transformToString(record)}> 转换为字符</a>
+            <a onClick={() => this.props.transformToString(record)}>转换为字符</a>
           </Menu.Item >
           <Menu.Item >
-            <a onClick={() => this.props.transformToNumber(record)}> 转换为数字</a>
+            <a onClick={() => this.props.transformToNumber(record)}>转换为数字</a>
           </Menu.Item >
         </SubMenu>
         <Menu.Item >
-          <a onClick={() => this.props.transToMeasure(record)}> 转换为度量</a>
+          <a onClick={() => this.props.transToMeasure(record)}>转换为度量</a>
         </Menu.Item >
+        <Menu.Item />
+        <Menu.Divider />
+        <Menu.Item><a onClick={() => this.props.removeField(record)}>删除</a></Menu.Item>
+        <Menu.Item><a onClick={() => this.showAddFieldModal(record)}>增加</a></Menu.Item>
       </Menu >);
 
     const measureMenu = (
       <Menu style={{ width: 130 }} mode="vertical">
         <Menu.Item >
-          <a onClick={() => this.showRenameModal(record)}> 重命名</a>
+          <a onClick={() => this.showRenameModal(record)}>重命名</a>
         </Menu.Item >
         <SubMenu key="sub1" title={<span>聚合方法</span>}>
           <Menu.Item >
@@ -130,7 +143,7 @@ class FieldHolder extends React.Component {
 
   render() {
     const that = this;
-    const { title, onRenameOk, transformToDate, addMeasureUnit, records } = this.props;
+    const { title, onRenameOk, transformToDate, addMeasureUnit, addField, records } = this.props;
 
     const renameModalprops = {
       modalVisible: this.state.renameModalVisible,
@@ -167,6 +180,18 @@ class FieldHolder extends React.Component {
       },
     };
 
+    const addFieldProps = {
+      title,
+      modalVisible: this.state.addFieldVisible,
+      currRecord: this.state.currRecord,
+      onOk: addField,
+      onCancel() {
+        that.setState({
+          addFieldVisible: false,
+        });
+      },
+    };
+
     const columns = [
       {
         title,
@@ -199,6 +224,7 @@ class FieldHolder extends React.Component {
           <RenameModal {...renameModalprops} />
           <TransformDate {...transformDateProps} />
           <MeasureUnit {...measureUnitProps} />
+          <AddField {...addFieldProps} />
         </div>
         <Table
           columns={columns} dataSource={data} size="small" pagination={false} scroll={{ y: 350 }}
@@ -213,6 +239,8 @@ FieldHolder.propTypes = {
   transToDimension: PropTypes.func,
   transToMeasure: PropTypes.func,
   transformToString: PropTypes.func,
+  removeField: PropTypes.func,
+  addField: PropTypes.func,
   addMeasureUnit: PropTypes.func,
   checkAggregation: PropTypes.func,
   records: PropTypes.array,

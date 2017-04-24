@@ -21,8 +21,8 @@ type QueryBase interface {
 }
 
 type DataSourceInterface interface {
-	TestConn() (bool, error)
-	ShowTables() (map[string]string, error)
-	Schema(string) ([]map[string]string, error)
+	//	TestConn() (bool, error)
+	//	ShowTables() (map[string]string, error)
+	//	Schema(string) ([]map[string]string, error)
 	GenStorage() rest.Storage
 }

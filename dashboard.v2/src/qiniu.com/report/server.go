@@ -121,47 +121,6 @@ func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err 
 }
 
 /*
-POST /v1/datasources/test
-*/
-type RetTest struct {
-	Result bool `json:"result"`
-}
-
-func (s *Service) PostDatasourcesTest(env *rpcutil.Env) (ret RetTest, err error) {
-	ret = RetTest{
-		Result: false,
-	}
-	var dataBody []byte
-	if dataBody, err = ioutil.ReadAll(env.Req.Body); err != nil {
-		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
-		return
-	}
-	var req common.DataSource
-	if err = json.Unmarshal(dataBody, &req); err != nil {
-		err = ErrorPostDataSource(err)
-		return
-	}
-
-	valid, err := regexp.MatchString(DATASOURCE_NAME_PATTERN, req.Name)
-	if err != nil {
-		err = errors.Info(ErrInternalError, MATCH_PATTERN_FAILED_MESSAGE).Detail(err)
-		return
-	}
-	if !valid {
-		err = ErrorPostDataSource(errors.New(ErrInvalidDataSourceName))
-		return
-	}
-
-	if b, err1 := s.dataSourceManager.TestConn(req); err != nil {
-		err = ErrorTestDataSource(err1)
-		return
-	} else {
-		ret.Result = b
-		return
-	}
-}
-
-/*
 PUT /v1/datasources/<Id>
 */
 func (s *Service) PutDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {

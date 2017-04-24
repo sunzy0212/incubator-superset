@@ -12,6 +12,7 @@ type SourceType int32
 const (
 	MYSQL SourceType = iota
 	INFLUXDB
+	MONGODB
 	UNKNOWN
 )
 
@@ -19,6 +20,7 @@ var (
 	sourceNames = map[SourceType]string{
 		MYSQL:    "mysql",
 		INFLUXDB: "influxdb",
+		MONGODB:  "mongodb",
 	}
 )
 

@@ -11,6 +11,7 @@ export default {
     item: {},
     datasources: [],
     tables: [],
+    currDatasourceType: '',
     datasets: [],
   },
   subscriptions: {
@@ -75,11 +76,12 @@ export default {
         yield put({
           type: 'updateState',
           payload: {
+            currDatasourceType: payload.type,
             tables: data.result.tables,
           },
         });
       } else {
-        console.log('show error');
+        message.error('获取数据表失败');
       }
     },
   },

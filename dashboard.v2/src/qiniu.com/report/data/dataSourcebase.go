@@ -30,13 +30,11 @@ func genDataSource(ds common.DataSource) DataSourceInterface {
 		return NewMySQL(&ds)
 	case common.INFLUXDB:
 		return NewInfluxDB(&ds)
+	case common.MONGODB:
+		return NewMongoDB(&ds)
 	default:
 		return nil
 	}
-}
-
-func (m *DataSourceManager) TestConn(ds common.DataSource) (bool, error) {
-	return genDataSource(ds).TestConn()
 }
 
 func (m *DataSourceManager) Get(ds common.DataSource) DataSourceInterface {

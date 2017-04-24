@@ -5,7 +5,7 @@ import { getTableData } from '../../services/datasource';
 
 const SubMenu = Menu.SubMenu;
 
-const TablesList = ({ loading, tables, newDataSet }) => {
+const TablesList = ({ loading, tables, datasourceType, newDataSet }) => {
   const menu = (
     <Menu disabled>
       <Menu.Item disabled>1st</Menu.Item>
@@ -59,6 +59,7 @@ const TablesList = ({ loading, tables, newDataSet }) => {
       datasourceId: e.datasourceId,
       key: e.name,
       name: e.name,
+      datasourceType,
       desc: e.desc,
     });
   });
@@ -73,6 +74,7 @@ const TablesList = ({ loading, tables, newDataSet }) => {
 TablesList.propTypes = {
   loading: PropTypes.bool,
   tables: PropTypes.array,
+  datasourceType: PropTypes.string,
 };
 
 export default TablesList;
