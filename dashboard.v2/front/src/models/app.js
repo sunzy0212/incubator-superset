@@ -5,7 +5,7 @@ import { login, userInfo, logout } from '../services/app';
 export default {
   namespace: 'app',
   state: {
-    login: true,
+    login: false,
     loading: false,
     user: {
       name: 'guest',
@@ -91,7 +91,6 @@ export default {
       return {
         ...state,
         ...action.payload,
-        login: true,
         loginButtonLoading: false,
       };
     },
