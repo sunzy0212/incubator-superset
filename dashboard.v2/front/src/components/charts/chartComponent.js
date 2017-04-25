@@ -70,6 +70,7 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
     if (lineTypes[0] === 'pie') { // TODO lineTypes[0]
       return {
         name: xaxisData,
+        toolTip: { trigger: 'item', formatter: '{b} <br/>{a} : {c} {d}%' },
         data: series,
         legend: xaxisData,
         title,
@@ -79,6 +80,7 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
     } else {
       return {
         name: xaxisData,
+        toolTip: { trigger: 'axis', formatter: '{b} <br/>{a} : {c}', axisPointer: { type: 'shadow' } },
         data: series,
         legend: lineAlias,
         title,
@@ -102,26 +104,32 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
         shadowColor: 'rgba(0, 0, 0, 0.5)',
       },
     },
+    grid: {
+      left: '2%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true,
+    },
+    toolbox: {
+      show: true,
+      orient: 'vertical',
+      left: 'right',
+      top: 'center',
+      feature: {
+        mark: { show: true },
+        dataView: { show: true, readOnly: false },
+        restore: { show: true },
+        saveAsImage: { show: true },
+      },
+    },
   };
 
   if (!loading) {
     const chartData = transformToChartData();
     option = {
-      tooltip: {
-        trigger: 'axis',
-        formatter: '{b} <br/>{a} : {c}',
-        axisPointer: {
-          type: 'shadow',
-        },
-      },
+      tooltip: chartData.toolTip,
       legend: {
         data: chartData.legend,
-      },
-      grid: {
-        left: '2%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true,
       },
       xAxis: chartData.xType,
       yAxis: chartData.yType,
