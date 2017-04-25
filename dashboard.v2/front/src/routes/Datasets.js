@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'dva';
 import { Layout, Row, Col, Tabs } from 'antd';
+import uuid from 'uuid';
 import FieldHolder from '../components/datasets/fieldsHolder';
 import TableEditor from '../components/datasets/tableEditor';
 
@@ -45,6 +46,20 @@ function Datasets({ dispatch, loading, datasets }) {
     transformToString(record) {
       dispatch({
         type: 'datasets/saveTransformToString',
+        payload: { record },
+      });
+    },
+
+    removeField(record) {
+      dispatch({
+        type: 'datasets/deleteField',
+        payload: { record },
+      });
+    },
+
+    addField(record) {
+      dispatch({
+        type: 'datasets/addField',
         payload: { record },
       });
     },
@@ -98,7 +113,7 @@ function Datasets({ dispatch, loading, datasets }) {
 
   const tableEditorProps = {
     loading,
-    datasetName: dataset.name,
+    dataset,
     tableData,
     save(data) {
       dispatch({
@@ -106,10 +121,17 @@ function Datasets({ dispatch, loading, datasets }) {
         payload: { ...data },
       });
     },
+    addField(record) {
+      record.id = `f_${uuid().slice(0, 16)}`;
+      dispatch({
+        type: 'datasets/addField',
+        payload: { record },
+      });
+    },
     loadTableData() {
       dispatch({
         type: 'datasets/queryDatasetData',
-        payload: { id: dataset.id, type: 'json' },
+        payload: { id: dataset.id, type: 'json', limit: 1000 },
       });
     },
   };

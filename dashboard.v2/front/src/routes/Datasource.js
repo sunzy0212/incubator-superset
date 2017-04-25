@@ -11,7 +11,7 @@ import styles from './Datasource.less';
 const TabPane = Tabs.TabPane;
 
 function Datasource({ dispatch, loading, datasource }) {
-  const { item, modalVisible, datasources, tables,
+  const { item, modalVisible, datasources, tables, currDatasourceType,
     datasets } = datasource;
 
   const datasourceListProps = {
@@ -34,16 +34,17 @@ function Datasource({ dispatch, loading, datasource }) {
         type: 'datasource/hideModal',
       });
     },
-    onLoadTables(id) {
+    onLoadTables(id, type) {
       dispatch({
         type: 'datasource/loadTables',
-        payload: { id },
+        payload: { id, type },
       });
     },
   };
 
   const tablesListProps = {
     loading,
+    datasourceType: currDatasourceType,
     tables,
     newDataSet(data) {
       dispatch({

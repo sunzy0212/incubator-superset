@@ -1,7 +1,7 @@
 import { ResponsiveContainer } from 'recharts';
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import { Row, Col, Icon, Spin } from 'antd';
+import { Row, Col, Icon } from 'antd';
 import SelectComponent from '../charts/selectComponent';
 import ChartComponent from '../charts/chartComponent';
 import { getChart } from '../../services/chartApi';
@@ -24,7 +24,7 @@ class View extends React.Component {
       }];
     }
     this.state = {
-      chartData: {},
+      chartData: { xaxis: [], yaxis: [] },
       data: [],
       wheres: [],
       rangeTimes,
@@ -153,10 +153,10 @@ class View extends React.Component {
           <Col lg={8} md={16}>
             <div className={styles.boxTool}>
               <Link to={`/analysor/${this.props.chartId}`}><Icon type="edit" /></Link>
-              <span className="ant-divider" />
-              <a><Icon type="download" /></a>
-              <span className="ant-divider" />
-              <a><Icon type="reload" /></a>
+              {/*<span className="ant-divider" />*/}
+              {/*<a><Icon type="download" /></a>*/}
+              {/*<span className="ant-divider" />*/}
+              {/*<a><Icon type="reload" /></a>*/}
               {this.props.status === MODE_READ ? ''
                 : <span><span className="ant-divider" /><a onClick={() => this.removeChart()}><Icon type="delete" /></a></span>}
             </div>
@@ -165,22 +165,18 @@ class View extends React.Component {
         <Row gutter={24}>
           <SelectComponent getNewChartData={this.getNewData} filters={this.genFilters()} />
         </Row>
-        {
-          this.state.loading ?
-            <Spin size="large" />
-            :
-            <ResponsiveContainer>
-              <ChartComponent
-                data={this.state.data}
-                xaxis={chartData.xaxis}
-                yaxis={chartData.yaxis}
-                lineTypes={chartData.lineTypes}
-                title={chartData.title}
-                isFlip={this.isFlip(chartData.type)}
-                unit={chartData.yaxis[0].unit}
-              />
-            </ResponsiveContainer>
-        }
+        <ResponsiveContainer>
+          <ChartComponent
+            loading={this.state.loading}
+            data={this.state.data}
+            xaxis={chartData.xaxis}
+            yaxis={chartData.yaxis}
+            lineTypes={chartData.lineTypes}
+            title={chartData.title}
+            isFlip={this.isFlip(chartData.type)}
+          />
+        </ResponsiveContainer>
+
       </div>
     );
   }

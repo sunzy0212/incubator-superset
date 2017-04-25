@@ -121,47 +121,6 @@ func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err 
 }
 
 /*
-POST /v1/datasources/test
-*/
-type RetTest struct {
-	Result bool `json:"result"`
-}
-
-func (s *Service) PostDatasourcesTest(env *rpcutil.Env) (ret RetTest, err error) {
-	ret = RetTest{
-		Result: false,
-	}
-	var dataBody []byte
-	if dataBody, err = ioutil.ReadAll(env.Req.Body); err != nil {
-		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
-		return
-	}
-	var req common.DataSource
-	if err = json.Unmarshal(dataBody, &req); err != nil {
-		err = ErrorPostDataSource(err)
-		return
-	}
-
-	valid, err := regexp.MatchString(DATASOURCE_NAME_PATTERN, req.Name)
-	if err != nil {
-		err = errors.Info(ErrInternalError, MATCH_PATTERN_FAILED_MESSAGE).Detail(err)
-		return
-	}
-	if !valid {
-		err = ErrorPostDataSource(errors.New(ErrInvalidDataSourceName))
-		return
-	}
-
-	if b, err1 := s.dataSourceManager.TestConn(req); err != nil {
-		err = ErrorTestDataSource(err1)
-		return
-	} else {
-		ret.Result = b
-		return
-	}
-}
-
-/*
 PUT /v1/datasources/<Id>
 */
 func (s *Service) PutDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
@@ -331,10 +290,10 @@ func (s *Service) GetDatasources_Tables_Data(args *cmdArgs, env *rpcutil.Env) (r
 	id := args.CmdArgs[0]
 	tableName := args.CmdArgs[1]
 
-	limit := uint64(50)
+	limit := int64(50)
 	_limit := strings.TrimSpace(env.Req.FormValue("limit"))
 	if _limit != "" {
-		if limit, err = strconv.ParseUint(_limit, 10, 64); err != nil {
+		if limit, err = strconv.ParseInt(_limit, 10, 64); err != nil {
 			err = errors.Info(ErrInternalError, err)
 			return
 		}
@@ -456,6 +415,36 @@ func (s *Service) GetDatasets_(args *cmdArgs, env *rpcutil.Env) (ret common.Data
 		err = errors.Info(ErrInternalError, err)
 	}
 	log.Infof("success to get dataset: %v", ret)
+	return
+}
+
+func (s *Service) GetDatasets_Data(args *cmdArgs, env *rpcutil.Env) (ret interface{}, err error) {
+	id := args.CmdArgs[0]
+	_limit := strings.ToUpper(env.Req.FormValue("limit"))
+	limit := int64(0)
+	if _limit != "" {
+		limit, err = strconv.ParseInt(_limit, 10, 64)
+		if err != nil {
+			err = ErrQueryDatas(err, "Parameter `Limit` should be integer or long ")
+			return
+		}
+	}
+
+	ds := common.DataSet{}
+	if err = s.DataSetColl.Find(M{"id": id}).One(&ds); err != nil {
+		if err == mgo.ErrNotFound {
+			err = ErrNONEXISTENT_MESSAGE(err, "the dataset is not exsit !")
+			return
+		}
+		err = errors.Info(ErrInternalError, err)
+	}
+	ret, err = s.executor.GetDataByDataSet(ds, limit)
+	if err != nil {
+		log.Error(err)
+		err = ErrQueryDatas(err, "Failed to load data of dataset")
+		return
+	}
+	log.Infof("success to load data of dataset %s", id)
 	return
 }
 
@@ -1346,15 +1335,24 @@ func (s *Service) GetLayouts_(args *cmdArgs, env *rpcutil.Env) (ret common.Layou
 }
 
 /*
-POST /v1/datas?q=<CodeId>&type=<DataType>
+POST /v1/datas?q=<CodeId>&type=<DataType>&limit=<Number>
 */
 
 func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
 	_codeId := env.Req.FormValue("codeId")
 	_dataType := strings.ToUpper(env.Req.FormValue("type"))
+	_limit := strings.ToUpper(env.Req.FormValue("limit"))
 	dataType := common.JSON
 	if _dataType != "" {
 		dataType = common.ToDataFormatType(_dataType)
+	}
+	limit := int64(0)
+	if _limit != "" {
+		limit, err = strconv.ParseInt(_limit, 10, 64)
+		if err != nil {
+			err = ErrQueryDatas(err, "Parameter `Limit` should be integer or long ")
+			return
+		}
 	}
 
 	var _data []byte
@@ -1386,7 +1384,7 @@ func (s *Service) PostDatas(env *rpcutil.Env) (ret interface{}, err error) {
 		code = req
 	}
 
-	return s.executor.Execute(data.QueryConfig{dataType, code})
+	return s.executor.Execute(data.QueryConfig{limit, dataType, code})
 }
 
 func (s *Service) PostTemplates(env *rpcutil.Env) (ret common.Template, err error) {

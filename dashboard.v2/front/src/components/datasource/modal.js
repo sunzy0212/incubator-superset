@@ -26,7 +26,10 @@ const DataSetModal = ({
       <Row gutter={24}>
         <Col span={6} >
           <Seat >
-            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >MYSQL</Button></Link>
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >MySQL</Button></Link>
+          </Seat>
+          <Seat >
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MONGODB', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >MongoDB</Button></Link>
           </Seat>
         </Col>
       </Row>

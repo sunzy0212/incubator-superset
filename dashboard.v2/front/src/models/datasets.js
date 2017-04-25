@@ -1,7 +1,7 @@
 import { parse } from 'qs';
 import _ from 'lodash';
 import { routerRedux } from 'dva/router';
-import { message } from 'antd';
+import { message, notification } from 'antd';
 import { saveDataSet, updateDataSet, getDataSet, getDatasetData, deleteDataSet } from '../services/datasetApi';
 import { getSchema } from '../services/datasource';
 
@@ -69,7 +69,6 @@ export default {
     *newDataSet({
       payload,
     }, { call, put }) {
-      yield put({ type: 'showLoading' });
       const data = yield call(getSchema, parse({ id: payload.datasourceId,
         tableName: payload.name }));
       if (data.success) {
@@ -77,21 +76,20 @@ export default {
           type: 'generateFileds',
           payload: {
             schema: data.result,
-            inited: true,
             datasource: { ...payload },
           },
         });
-        if (payload.datasetName !== undefined) {
-          yield put({
-            type: 'saveOrUpdate',
-            payload: {
-              name: payload.datasetName,
-            },
+
+        if (payload.datasourceType === 'MONGODB') {
+          notification.info({
+            message: '添加Schema-free数据源说明',
+            duration: 20,
+            description: '您添加的数据表是自描述或者Schema-free的，' +
+            '默认不会在左侧生成字段列表。您可以保存数据集后再加载表数据，' +
+            '在字段栏工具上添加字段到左侧字段列表中。',
           });
         }
       }
-      yield put({ type: 'hideTableTree' });
-      yield put({ type: 'hideLoading' });
     },
 
     *initDataSet({
@@ -265,6 +263,30 @@ export default {
       };
     },
 
+    deleteField(state, action) {
+      const { record } = action.payload;
+      const dimensions = state.dimensions.filter(elem => elem.id !== record.id);
+      const times = state.times.filter(elem => elem.id !== record.id);
+      return {
+        ...state,
+        dimensions,
+        times,
+      };
+    },
+
+    addField(state, action) {
+      const { record } = action.payload;
+      if (record.alias === undefined || record.alias === '') {
+        record.alias = record.name;
+      }
+      const dimensions = state.dimensions;
+      dimensions.push(record);
+      return {
+        ...state,
+        dimensions,
+      };
+    },
+
     saveMeasureUnit(state, action) {
       const { record, title } = action.payload;
       const dimensions = state.dimensions;
@@ -301,6 +323,9 @@ export default {
       const res = action.payload.schema;
       const datasources = state.datasources;
       const dimensions = state.dimensions;
+      const dataset = state.dataset;
+
+      dataset.name = action.payload.datasource.name;
 
       datasources[res.tableId] = {
         tableId: res.tableId,
@@ -309,12 +334,14 @@ export default {
       };
 
       res.fields.forEach((e) => {
-        dimensions.push({
-          id: e.id,
-          tableId: res.tableId,
-          name: e.field,
-          alias: e.field,
-          type: e.type });
+        if (e.field !== '*') {
+          dimensions.push({
+            id: e.id,
+            tableId: res.tableId,
+            name: e.field,
+            alias: e.field,
+            type: e.type });
+        }
       });
 
       return {

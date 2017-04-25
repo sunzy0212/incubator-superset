@@ -3,6 +3,7 @@ import { Link } from 'dva/router';
 import { Card, Icon } from 'antd';
 import MySQL from './modals/mysql';
 import InfluxDB from './modals/influxdb';
+import MongoDB from './modals/mongodb';
 
 class DataSourceEditor extends React.Component {
 
@@ -34,6 +35,8 @@ class DataSourceEditor extends React.Component {
     switch (type.toUpperCase()) {
       case 'MYSQL':
         return (<MySQL {...props} />);
+      case 'MONGODB':
+        return <MongoDB {...props} />;
       case 'INFLUXDB':
         return <InfluxDB {...props} />;
       default:
