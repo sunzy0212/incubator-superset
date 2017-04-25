@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'dva';
-import { Spin } from 'antd';
 import Login from './Login';
 import Aside from '../components/layout/aside';
 import Footer from '../components/layout/footer';
@@ -9,9 +8,8 @@ import { classnames } from '../utils';
 
 
 function App({ children, location, dispatch, app }) {
-  const { login, loading, loginButtonLoading, siderFold, darkTheme } = app;
+  const { login, loginButtonLoading, siderFold, darkTheme } = app;
   const loginProps = {
-    loading,
     loginButtonLoading,
     onOk(data) {
       dispatch({ type: 'app/login', payload: data });
@@ -37,7 +35,6 @@ function App({ children, location, dispatch, app }) {
       dispatch({ type: 'app/changeTheme' });
     },
   };
-
   return (
     <div>{login
       ? <div className={classnames(styles.layout, { [styles.fold]: siderFold })}>
@@ -54,8 +51,8 @@ function App({ children, location, dispatch, app }) {
         </div>
       </div>
       :
-      <div className={styles.spin}><Spin tip="加载用户信息..." spinning={loading} size="large"><Login {...loginProps} /></Spin>
-      </div>}</div>
+      <Login {...loginProps} />
+      }</div>
   );
 }
 

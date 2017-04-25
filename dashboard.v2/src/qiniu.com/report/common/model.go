@@ -98,6 +98,7 @@ func (t RelationType) String() string {
 }
 
 type Collections struct {
+	UserColl       mgoutil.Collection `coll:"user"`
 	DataSourceColl mgoutil.Collection `coll:"datasource"`
 	DataSetColl    mgoutil.Collection `coll:"dataset"`
 	CodeColl       mgoutil.Collection `coll:"code"`
@@ -304,6 +305,7 @@ type Template struct {
 }
 
 func (db *Collections) EnsureIndex() {
+	db.UserColl.EnsureIndexes("id,username :unique")
 	db.DataSourceColl.EnsureIndexes("id,type :unique")
 	db.DataSetColl.EnsureIndexes("id:unique")
 	db.CodeColl.EnsureIndexes("type")

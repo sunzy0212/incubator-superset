@@ -1,18 +1,12 @@
 import React, { PropTypes } from 'react';
-import {
-  Button,
-  Row,
-  Form,
-  Input,
-} from 'antd';
+import { Base64 } from 'js-base64';
+import { Button, Row, Form, Input } from 'antd';
 import { config } from '../utils';
 import styles from './Login.less';
 
 const FormItem = Form.Item;
 
-const Login = ({
-  loginButtonLoading,
-  onOk,
+const Login = ({ loginButtonLoading, onOk,
   form: {
     getFieldDecorator,
     validateFieldsAndScroll,
@@ -23,7 +17,7 @@ const Login = ({
       if (errors) {
         return;
       }
-      onOk(values);
+      onOk({ username: values.username, password: Base64.encode(values.password) });
     });
   }
 
@@ -62,8 +56,7 @@ const Login = ({
           </Button>
         </Row>
         <p>
-          <span>账号：guest</span>
-          <span>密码：guest</span>
+          <span>忘记密码？请询问系统管理员！</span>
         </p>
       </form>
     </div>

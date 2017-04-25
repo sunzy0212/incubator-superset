@@ -1,64 +1,64 @@
 import { parse } from 'qs';
-import { login, userInfo, logout } from '../services/app';
+import { message } from 'antd';
+import { routerRedux } from 'dva/router';
+import { login, checkLogin, logout } from '../services/app';
 
 
 export default {
   namespace: 'app',
   state: {
     login: false,
-    loading: false,
-    user: {
-      name: 'guest',
-    },
     loginButtonLoading: false,
     siderFold: localStorage.getItem('antdAdminSiderFold') === 'true',
     darkTheme: localStorage.getItem('antdAdminDarkTheme') === 'false',
   },
   subscriptions: {
     setup({ dispatch }) {
-      dispatch({ type: 'queryUser' });
+      const sessionId = localStorage.getItem('qiniu-report-sessionId') || '';
+      dispatch({ type: 'check', payload: { sessionId } });
     },
   },
   effects: {
+
+    *check({
+      payload,
+    }, { call, put }) {
+      const data = yield call(checkLogin, parse(payload));
+      if (data.success) {
+        if (data.result.login) {
+          yield put({ type: 'updateState', payload: { login: data.result.login } });
+        } else {
+          yield put(routerRedux.push('/login'));
+        }
+      }
+    },
+
     *login({
       payload,
     }, { call, put }) {
       yield put({ type: 'showLoginButtonLoading' });
       const data = yield call(login, parse(payload));
       if (data.success) {
-        yield put({
-          type: 'loginSuccess',
-          payload: {
-            data,
-          },
-        });
-      } else {
-        yield put({
-          type: 'loginFail',
-          payload: {
-            data,
-          },
-        });
-      }
-    },
-    *queryUser({
-      payload,
-    }, { call, put }) {
-      yield put({ type: 'showLoading' });
-      const data = yield call(userInfo, parse(payload));
-      if (data.success) {
-        yield put({
-          type: 'loginSuccess',
-          payload: {
-            user: {
-              name: data.username,
+        const res = data.result;
+        if (res.status === 'ok') {
+          message.success('登陆成功');
+          localStorage.setItem('qiniu-report-sessionId', res.sessionId);
+          yield put(routerRedux.push('/'));
+          yield put({
+            type: 'loginSuccess',
+            payload: {
+              sessionId: res.sessionId,
             },
-          },
-        });
-      } else {
-        yield put({ type: 'hideLoading' });
+          });
+        } else {
+          yield put({
+            type: 'loginFail',
+          });
+          message.error('登陆失败,请检测账户密码是否正确！');
+        }
       }
     },
+
     *logout({
       payload,
     }, { call, put }) {
@@ -87,10 +87,20 @@ export default {
     },
   },
   reducers: {
+
+    updateState(state, action) {
+      console.log('=dddd=', action.payload, action.payload.login)
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
+
     loginSuccess(state, action) {
       return {
         ...state,
         ...action.payload,
+        login: true,
         loginButtonLoading: false,
       };
     },
@@ -111,18 +121,6 @@ export default {
       return {
         ...state,
         loginButtonLoading: true,
-      };
-    },
-    showLoading(state) {
-      return {
-        ...state,
-        loading: true,
-      };
-    },
-    hideLoading(state) {
-      return {
-        ...state,
-        loading: false,
       };
     },
     handleSwitchSider(state) {

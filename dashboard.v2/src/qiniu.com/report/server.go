@@ -22,6 +22,7 @@ import (
 	"qiniu.com/report/data"
 	"qiniu.com/report/rest"
 	"qiniu.com/report/sched"
+	"qiniu.com/report/session"
 )
 
 type M map[string]interface{}
@@ -41,6 +42,7 @@ type cmdArgs struct {
 
 type Service struct {
 	common.Collections
+	session           session.Session
 	RWMux             *sync.RWMutex
 	client            rest.Client
 	dataSourceManager *data.DataSourceManager
@@ -52,6 +54,7 @@ func NewService(coll common.Collections, restUrls []string) (s *Service, err err
 	client := rest.NewDrillClient(restUrls)
 	s = &Service{
 		Collections:       coll,
+		session:           session.New(),
 		RWMux:             &sync.RWMutex{},
 		client:            client,
 		dataSourceManager: data.NewDataSourceManager(),
@@ -196,7 +199,7 @@ func (s *Service) GetDatasources(env *rpcutil.Env) (ret RetDataSource, err error
 //DELETE /v1/datasources/<Id>
 func (s *Service) DeleteDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	id := args.CmdArgs[0]
-	if err = db.DoDelete(s.DataSourceColl, map[string]string{"id": id}); err != nil {
+	if err = db.DoDelete(s.DataSourceColl, M{"id": id}); err != nil {
 		if err == mgo.ErrNotFound {
 			err = ErrNONEXISTENT_MESSAGE(err, fmt.Sprintf("%s is not exist", id))
 			return
