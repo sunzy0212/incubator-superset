@@ -64,7 +64,7 @@ func (s *Service) PostUsers(env *rpcutil.Env) (ret User, err error) {
 
 /*
 修改用户密码
-PUT /v1/users/<User>/<Username>
+PUT /v1/users/<Username>
 */
 
 func (s *Service) PutUsers_(args *cmdArgs, env *rpcutil.Env) (err error) {
@@ -94,7 +94,8 @@ func (s *Service) PutUsers_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	req.Password = base64.StdEncoding.EncodeToString([]byte(req.Password))
 	req.CreateTime = common.GetCurrTime()
 
-	err = db.DoUpdate(s.UserColl, M{"username": username}, req)
+	err = db.DoUpdate(s.UserColl, M{"username": username},
+		M{"$set": M{"createTime": common.GetCurrTime(), "password": req.Password}})
 	if err != nil {
 		err = errors.Info(ErrInternalError, err)
 		return
@@ -118,7 +119,7 @@ func (s *Service) GetUsers(env *rpcutil.Env) (ret UserList, err error) {
 		err = errors.Info(ErrInternalError, err)
 	}
 	ret = UserList{ds}
-	log.Infof("success to get all users: %v", ret)
+	log.Infof("success to get all users, total %d", len(ret.Users))
 	return
 }
 
@@ -164,6 +165,11 @@ func (s *Service) PostUsersLogin(env *rpcutil.Env) (ret LoginResult, err error) 
 	}
 
 	if b {
+		err = db.DoUpdate(s.UserColl, M{"username": user.Username},
+			M{"$set": M{"loginTime": common.GetCurrTime()}})
+		if err != nil {
+			log.Warn("error when update login time")
+		}
 		sessionId := GenSessionId(user)
 		s.session.Set(sessionId, user)
 		ret = LoginResult{

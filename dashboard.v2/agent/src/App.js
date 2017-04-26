@@ -3,7 +3,6 @@ import { Button, Layout, Row, Col } from 'antd';
 import Config from './config';
 import Monitor from './monitor';
 import common from './utils/common';
-import logo from './logo.svg';
 import request from './utils/request';
 import './App.css';
 
@@ -34,6 +33,7 @@ class App extends Component {
         this.getReport();
       }
     }, 20000);
+    this.getReportHost();
   }
 
   getReport = () => {
@@ -48,6 +48,16 @@ class App extends Component {
       });
   }
 
+  getReportHost = () => {
+    request(`${common.URL}/api/reportHost`,
+      {
+        method: 'GET',
+      }).then((data) => {
+        this.setState({
+          webroot: `https://${data.host}`,
+        });
+      });
+  }
 
   isDeploy = () => {
     request(`${common.URL}/api/deployed`,
@@ -59,7 +69,6 @@ class App extends Component {
         });
       });
   }
-
 
   isDeleted=() => {
     request(`${common.URL}/api/isDeleted`,
@@ -73,12 +82,7 @@ class App extends Component {
   }
 
   openUrl =() => {
-    request(`${common.URL}/api/reportHost`,
-      {
-        method: 'GET',
-      }).then((data) => {
-        window.open(`https://${data.host}`, 'newwindow');
-      });
+    window.open(this.state.webroot, 'newwindow');
   }
   callBack=() => {
     this.isDeploy();
@@ -96,7 +100,7 @@ class App extends Component {
         <Sider>
           <div className="App">
             <div className="App-header">
-              <img src="http://onb23dct0.bkt.clouddn.com/report.png" className="App-logo" alt="logo" />
+              <img src="https://pandora-kibana.qiniu.com/reportLogo.png" className="App-logo" alt="logo" />
               <h2>七牛报表系统</h2>
               <br />
               <br />
@@ -116,18 +120,23 @@ class App extends Component {
         <Layout>
           <Header>
             <Row gutter={24}>
-              <Col span={2}>
-                <h3>配置管理</h3>
+              <Col span={4}>
+                <h3>管理面板</h3>
               </Col>
               <Col span={4} offset={16}>
                 <Button
-                  type="primary" size="large" disabled={this.state.report.apPorts === undefined || this.state.report.apPorts === null}
+                  type="primary" size="large" disabled={this.state.report === undefined || this.state.report.apPorts === null}
                   onClick={() => this.openUrl()}
                 >打开报表Portal</Button>
               </Col>
             </Row>
           </Header>
-          <Content>{this.state.isDeploy && !this.state.isDeleted ? <Monitor services={this.state.services} /> : <Config {...configProps} />}
+          <Content>
+            {
+                this.state.isDeploy && !this.state.isDeleted ?
+                  <Monitor services={this.state.services} reportHost={this.state.webroot} />
+                    : <Config {...configProps} />
+            }
           </Content>
           <Footer>@七牛云</Footer>
         </Layout>

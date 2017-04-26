@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, Icon, Popconfirm, Row, Col } from 'antd';
 import request from './utils/request';
 import common from './utils/common';
+import UserModal from './utils/userModal';
 import './App.css';
 
 class Monitor extends Component {
@@ -9,15 +10,20 @@ class Monitor extends Component {
   constructor(props) {
     super();
     this.state = {
+      visible: false,
+      currUser: {},
       tables: props.services,
+      users: [],
       upgrading_report: false,
     };
+
   }
 
   componentWillReceiveProps(nextprops) {
     this.setState({
       tables: nextprops.services,
     });
+    this.getUsers();
   }
 
 
@@ -29,23 +35,50 @@ class Monitor extends Component {
       {
         method: 'POST',
       }).then((data) => {
-        console.log(data);
         this.setState({
           upgrading_report: false,
         });
       });
   }
 
-  getStatus = () => {
-    request(`${common.URL}/api/inspects`,
+  getUsers = () => {
+    request(`${this.props.reportHost}/v1/users`,
       {
         method: 'GET',
+        credentials: 'cors',
+        rejectUnauthorized: false,
+        'Access-Control-Allow-Origin': '*',
       }).then((data) => {
-        console.log(data);
         this.setState({
-          tables: data,
+          users: data.users || [],
         });
       });
+  }
+
+
+  deleteUser = (username) => {
+    request(`${this.props.reportHost}/v1/users/${username}`,
+      {
+        method: 'DELETE',
+        credentials: 'cors',
+        rejectUnauthorized: false,
+        'Access-Control-Allow-Origin': '*',
+      }).then((data) => {
+        this.getUsers();
+      });
+  }
+
+  showModal = (user) => {
+    this.setState({
+      visible: true,
+      currUser: user,
+    });
+  }
+
+  hideModal = () => {
+    this.setState({
+      visible: false,
+    });
   }
 
 
@@ -90,10 +123,63 @@ class Monitor extends Component {
       });
     });
 
+    const userColumns = [
+      {
+        title: '序号',
+        dataIndex: 'id',
+        key: 'id',
+      }, {
+        title: '用户名',
+        dataIndex: 'username',
+        key: 'username',
+      },
+      {
+        title: '最近登录',
+        dataIndex: 'loginTime',
+        key: 'loginTime',
+      }, {
+        title: '操作',
+        key: 'action',
+        render: record => (
+          <span>
+            <a onClick={() => this.showModal(record.user)}>修改密码</a>
+            <span className="ant-divider" />
+            <Popconfirm title="确定删除该数据源吗？" onConfirm={() => this.deleteUser(record.username)}>
+              <a icon="delete">删除</a>
+            </Popconfirm>
+          </span>),
+
+      },
+    ];
+    const users = [];
+
+    this.state.users.forEach((e, i) => {
+      users.push({
+        key: i,
+        id: i + 1,
+        username: e.username,
+        loginTime: e.loginTime,
+        user: e,
+      });
+    });
+
     return (
-      <Table
-        columns={columns} dataSource={data} pagination={false}
-      />
+      <div>
+        <Table
+          title={() => <Row><Col><h3><Icon type="medicine-box" /><strong> 服务监控 </strong></h3></Col></Row>}
+          columns={columns} dataSource={data} pagination={false} size="middle"
+        />
+
+        <UserModal
+          user={this.state.currUser} visible={this.state.visible} onCancel={this.hideModal}
+          reportHost={this.props.reportHost}
+        />
+        <Table
+          title={() => <Row><Col><h3><Icon type="contacts" /><strong> 用户管理 </strong></h3></Col>
+            <Col><Button type="primary" onClick={() => this.showModal({})}>新增用户</Button></Col></Row>}
+          columns={userColumns} dataSource={users} size="middle"
+        />
+      </div>
     );
   }
 }
