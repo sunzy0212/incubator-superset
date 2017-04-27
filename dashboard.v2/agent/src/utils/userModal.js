@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Form, message, Input, Modal } from 'antd';
 import request from './request';
+import common from './common';
 
 const FormItem = Form.Item;
 class UserModal extends Component {
@@ -11,12 +12,9 @@ class UserModal extends Component {
         return;
       }
       if (this.props.user.username !== undefined) {
-        request(`${this.props.reportHost}/v1/users/${this.props.user.username}`,
+        request(`${common.URL}/api/users/${this.props.user.username}`,
           {
             method: 'PUT',
-            credentials: 'CORS',
-            rejectUnauthorized: false,
-            'Access-Control-Allow-Origin': '*',
             body: JSON.stringify(values),
           }).then((data) => {
             if (data.err !== undefined) {
@@ -28,12 +26,9 @@ class UserModal extends Component {
             }
           });
       } else {
-        request(`${this.props.reportHost}/v1/users`,
+        request(`${common.URL}/api/users`,
           {
             method: 'POST',
-            credentials: 'cors',
-            rejectUnauthorized: false,
-            'Access-Control-Allow-Origin': '*',
             body: JSON.stringify(values),
           }).then((data) => {
             if (data.err !== undefined) {

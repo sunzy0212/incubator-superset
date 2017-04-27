@@ -134,7 +134,7 @@ class App extends Component {
           <Content>
             {
                 this.state.isDeploy && !this.state.isDeleted ?
-                  <Monitor services={this.state.services} reportHost={this.state.webroot} />
+                  <Monitor services={this.state.services} />
                     : <Config {...configProps} />
             }
           </Content>

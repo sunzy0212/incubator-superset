@@ -1,10 +1,14 @@
 package api
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/martini-contrib/render"
+
+	"github.com/qiniu/rpc.v1"
 	"qiniupkg.com/kirk/kirksdk"
 	"qiniupkg.com/x/log.v7"
 )
@@ -20,6 +24,7 @@ type Context struct {
 	Delpoyed      bool
 	accountClient kirksdk.AccountClient
 	qcosClient    kirksdk.QcosClient
+	UserClient    *rpc.Client
 	Status        map[string]kirksdk.ServiceInfo
 }
 type Result struct {
@@ -74,6 +79,7 @@ func New(cfg Conf) (*Context, error) {
 		Conf:       cfg,
 		Delpoyed:   deployed,
 		qcosClient: client,
+		UserClient: getRpcClient(),
 		Status: map[string]kirksdk.ServiceInfo{
 			"mongo":  kirksdk.ServiceInfo{},
 			"report": kirksdk.ServiceInfo{},
@@ -292,4 +298,11 @@ func (c *Context) inpsects() {
 	}
 	c.Status["report"] = ret
 
+}
+
+func getRpcClient() *rpc.Client {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	return &rpc.Client{&http.Client{Transport: tr}}
 }

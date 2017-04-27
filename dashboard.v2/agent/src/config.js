@@ -35,7 +35,6 @@ class Config extends Component {
         }
 
         setTimeout(() => {
-          // this.props.callBack();
           window.location.reload();
         }, 30000);
       });
@@ -53,7 +52,7 @@ class Config extends Component {
     return (<div className="steps-content">
       {this.state.status !== 'init' ? <Progress
         type="circle" percent={this.state.percent}
-        format={() => this.state.status === 'finish' ? '稍后\n跳转\n' : `${this.state.percent}%`}
+        format={() => this.state.status === 'finish' ? '稍后\n跳转\n...' : `${this.state.percent}%`}
       /> : ''
         }
       {this.state.status === 'init' ? <Button size="large" type="primary" ghost onClick={() => this.startInit()}><h1>初始化</h1></Button> : ''}

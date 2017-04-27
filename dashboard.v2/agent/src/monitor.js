@@ -16,7 +16,6 @@ class Monitor extends Component {
       users: [],
       upgrading_report: false,
     };
-
   }
 
   componentWillReceiveProps(nextprops) {
@@ -42,12 +41,9 @@ class Monitor extends Component {
   }
 
   getUsers = () => {
-    request(`${this.props.reportHost}/v1/users`,
+    request(`${common.URL}/api/users`,
       {
         method: 'GET',
-        credentials: 'cors',
-        rejectUnauthorized: false,
-        'Access-Control-Allow-Origin': '*',
       }).then((data) => {
         this.setState({
           users: data.users || [],
@@ -57,12 +53,9 @@ class Monitor extends Component {
 
 
   deleteUser = (username) => {
-    request(`${this.props.reportHost}/v1/users/${username}`,
+    request(`${common.URL}/api/users/${username}`,
       {
         method: 'DELETE',
-        credentials: 'cors',
-        rejectUnauthorized: false,
-        'Access-Control-Allow-Origin': '*',
       }).then((data) => {
         this.getUsers();
       });
@@ -142,7 +135,7 @@ class Monitor extends Component {
         key: 'action',
         render: record => (
           <span>
-            <a onClick={() => this.showModal(record.user)}>修改密码</a>
+            <a onClick={() => this.showModal(record.user)}>重置密码</a>
             <span className="ant-divider" />
             <Popconfirm title="确定删除该数据源吗？" onConfirm={() => this.deleteUser(record.username)}>
               <a icon="delete">删除</a>
