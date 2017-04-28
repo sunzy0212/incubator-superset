@@ -89,7 +89,6 @@ export default {
   reducers: {
 
     updateState(state, action) {
-      console.log('=dddd=', action.payload, action.payload.login)
       return {
         ...state,
         ...action.payload,
