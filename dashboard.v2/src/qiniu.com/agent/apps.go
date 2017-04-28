@@ -7,6 +7,7 @@ import (
 	"qiniupkg.com/x/log.v7"
 
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/cors"
 	"github.com/martini-contrib/render"
 
@@ -57,7 +58,7 @@ func main() {
 		}{"running", "正在运行"}
 		r.JSON(200, config)
 	})
-	api, err := api.New(api.Conf{
+	c, err := api.New(api.Conf{
 		USER_ACCOUNT_AK: ak,
 		USER_ACCOUNT_SK: sk,
 		USER_APP_URI:    appUri,
@@ -66,12 +67,17 @@ func main() {
 		log.Fatal(err)
 	}
 	webApp.Group("/api", func(r martini.Router) {
-		r.Get("/deployed", api.IsDeployed)
-		r.Get("/isDeleted", api.IsDeleted)
-		r.Post("/allocate", api.Allocate)
-		r.Get("/reportHost", api.GetReportHost)
-		r.Post("/update", api.UpdateReport)
-		r.Get("/inspects", api.GetInspects)
+		r.Get("/deployed", c.IsDeployed)
+		r.Get("/isDeleted", c.IsDeleted)
+		r.Post("/allocate", c.Allocate)
+		r.Get("/reportHost", c.GetReportHost)
+		r.Post("/update", c.UpdateReport)
+		r.Get("/inspects", c.GetInspects)
+
+		r.Get("/users", c.GetUsersList)
+		r.Post("/users", binding.Bind(api.User{}), c.AddUser)
+		r.Put("/users/:username", binding.Bind(api.User{}), c.UpdateUser)
+		r.Delete("/users/:username", c.DeleteUser)
 	})
 
 	webApp.RunOnAddr(":8080")

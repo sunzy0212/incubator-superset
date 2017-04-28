@@ -26,6 +26,10 @@ var (
 	// General errors
 	ErrInternalError = httputil.NewError(500, "E5100: Internal server error")
 
+	ErrorPostUser = func(err error) *httputil.ErrorInfo {
+		return httputil.NewError(400, fmt.Sprintf("E4110: Post User Failed : %s", err.Error()))
+	}
+
 	ErrorPostDataSource = func(err error) *httputil.ErrorInfo {
 		return httputil.NewError(400, fmt.Sprintf("E4211: Post DataSource Failed : %s", err.Error()))
 	}

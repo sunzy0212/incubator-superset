@@ -19,9 +19,11 @@ const Switcher = ({
     children: [{
       value: 'hour',
       label: '每时',
+      disabled: true,
       children: [{
         value: 'minute',
         label: '每分',
+        disabled: true,
         children: rangeArray(0, 59).map((i) => { return { value: `s${i}`, label: `${i}秒` }; }),
       }].concat(rangeArray(0, 59).map((i) => { return { value: `m${i}`, label: `${i}分` }; })),
     }].concat(rangeArray(0, 23).map((i) => { return { value: `h${i}`, label: `${i}点` }; })),

@@ -35,8 +35,8 @@ class Config extends Component {
         }
 
         setTimeout(() => {
-          this.props.callBack();
-        }, 60000);
+          window.location.reload();
+        }, 30000);
       });
   }
 
