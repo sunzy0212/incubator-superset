@@ -76,7 +76,7 @@ func main() {
 
 		r.Get("/users", c.GetUsersList)
 		r.Post("/users", binding.Bind(api.User{}), c.AddUser)
-		r.Post("/users/:username", binding.Bind(api.User{}), c.UpdateUser)
+		r.Put("/users/:username", binding.Bind(api.User{}), c.UpdateUser)
 		r.Delete("/users/:username", c.DeleteUser)
 	})
 

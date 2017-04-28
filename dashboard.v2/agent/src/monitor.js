@@ -16,13 +16,13 @@ class Monitor extends Component {
       users: [],
       upgrading_report: false,
     };
+    this.getUsers();
   }
 
   componentWillReceiveProps(nextprops) {
     this.setState({
       tables: nextprops.services,
     });
-    this.getUsers();
   }
 
 
@@ -72,6 +72,7 @@ class Monitor extends Component {
     this.setState({
       visible: false,
     });
+    this.getUsers();
   }
 
 

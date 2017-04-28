@@ -15,6 +15,7 @@ class UserModal extends Component {
         request(`${common.URL}/api/users/${this.props.user.username}`,
           {
             method: 'PUT',
+            headers: { 'content-type': 'application/json' },
             body: JSON.stringify(values),
           }).then((data) => {
             if (data.err !== undefined) {
@@ -29,6 +30,7 @@ class UserModal extends Component {
         request(`${common.URL}/api/users`,
           {
             method: 'POST',
+            headers: { 'content-type': 'application/json' },
             body: JSON.stringify(values),
           }).then((data) => {
             if (data.err !== undefined) {
