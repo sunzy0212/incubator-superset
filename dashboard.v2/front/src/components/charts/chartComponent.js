@@ -58,29 +58,25 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
         areaStyle: { normal: {} },
       });
     });
-    const unit = yaxis[0] !== unit ? yaxis[0].unit : '';
+
     let xType = [{
       type: 'category',
       data: xaxisData,
     }];
-    let yType = [{
-      type: 'value',
-      axisLabel: {
-        formatter: unit === '' ? formatter : `{value} ${unit}`,
-      },
-    }];
+    let yType = yaxis.map((item) => {
+      const unit = item.unit || '';
+      return { type: 'value', axisLabel: { formatter: unit === '' ? formatter : `{value} ${unit}` } };
+    });
     if (isFlip === true) {
       yType = [{
         type: 'category',
         data: xaxisData,
 
       }];
-      xType = [{
-        type: 'value',
-        axisLabel: {
-          formatter: unit === '' ? formatter : `{value} ${unit}`,
-        },
-      }];
+      xType = yaxis.map((item) => {
+        const unit = item.unit || '';
+        return { type: 'value', axisLabel: { formatter: unit === '' ? formatter : `{value} ${unit}` } };
+      });
     }
 
     if (lineTypes[0] === 'pie') { // TODO lineTypes[0]
@@ -96,7 +92,7 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
     } else {
       return {
         name: xaxisData,
-        toolTip: { trigger: 'axis', formatter: '{b} <br/>{a} : {c}', axisPointer: { type: 'shadow' } },
+        toolTip: { trigger: 'axis', axisPointer: { type: 'cross' } },
         data: series,
         legend: lineAlias,
         title,
