@@ -136,7 +136,7 @@ function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
         <Col lg={19} md={21}>
           <Row gutter={12}>
             <Col lg={24} md={24}>
-              <Header {...headerProps} />
+              {report.id !== undefined ? <Header {...headerProps} /> : <div />}
             </Col>
           </Row>
           <Row gutter={12}>

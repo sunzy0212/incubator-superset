@@ -3,6 +3,21 @@ import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
 const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip }) => {
+  function formatter(value, index) {
+    const fixedNumer = (v, d = 2) => {
+      const u = ['', 'K', 'M', 'G', 'T', 'P', 'E'];
+      const t = 1000;
+      let e = 0;
+      while (e < u.length - 1 && v >= t) {
+        v /= t;
+        e++;
+      }
+      v = v.toFixed(d);
+      return `${v}${u[e]}`;
+    };
+    return fixedNumer(value);
+  }
+
   function transformToChartData() {
     const lineTags = [];
     const lineAlias = [];
@@ -51,19 +66,20 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
     let yType = [{
       type: 'value',
       axisLabel: {
-        formatter: `{value} ${unit}`,
+        formatter: unit === '' ? formatter : `{value} ${unit}`,
       },
     }];
     if (isFlip === true) {
       yType = [{
         type: 'category',
         data: xaxisData,
-        axisLabel: {
-          formatter: `{value} ${unit}`,
-        },
+
       }];
       xType = [{
         type: 'value',
+        axisLabel: {
+          formatter: unit === '' ? formatter : `{value} ${unit}`,
+        },
       }];
     }
 
@@ -319,6 +335,8 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
       <div className="parent">
         <ReactEcharts
           option={option}
+          notMerge
+          lazyUpdate
           showLoading={loading}
           theme="macarons"
           style={{ height: '100%', minHeight: '400px', width: '100%' }}
