@@ -309,7 +309,7 @@ func (db *Collections) EnsureIndex() {
 	db.DataSourceColl.EnsureIndexes("id,type :unique")
 	db.DataSetColl.EnsureIndexes("id:unique")
 	db.CodeColl.EnsureIndexes("type")
-	db.DirColl.EnsureIndexes("id,name:unique")
+	db.DirColl.EnsureIndexes("id,name,type:unique")
 	//db.ReportColl.EnsureIndexes("id,dirId,name :unique")
 	db.ChartColl.EnsureIndexes("reportId")
 	//db.Code.EnsureIndexes("")

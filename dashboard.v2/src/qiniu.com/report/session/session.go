@@ -26,7 +26,7 @@ func (m Provider) Set(key string, value interface{}) {
 }
 
 func (m Provider) Get(key string) (value interface{}, found bool) {
-	if value, found := m.cache.Get(key); found {
+	if value, found = m.cache.Get(key); found {
 		m.Set(key, value) // reflash expiration time
 	}
 	return

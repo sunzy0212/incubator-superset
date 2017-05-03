@@ -176,11 +176,13 @@ func (s *Service) PostUsersLogin(env *rpcutil.Env) (ret LoginResult, err error) 
 			Status:    "ok",
 			SessionId: sessionId,
 		}
+		log.Infof("user `%s` success to  login", user.Username)
 	} else {
 		ret = LoginResult{
 			Status:    "error",
 			SessionId: "",
 		}
+		log.Warnf("user `%s` failed to  login", user.Username)
 	}
 	return
 }

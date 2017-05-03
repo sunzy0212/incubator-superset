@@ -21,7 +21,7 @@ const Login = ({ loginButtonLoading, onOk,
     });
   }
 
-  document.onkeyup = e => e.keyCode === 13 && handleOk();
+  // document.onkeyup = e => e.keyCode === 13 && handleOk();
 
   return (
     <div className={styles.form}>
@@ -29,7 +29,7 @@ const Login = ({ loginButtonLoading, onOk,
         <img src={config.logoSrc} />
         <span>{config.logoText}</span>
       </div>
-      <form>
+      <form onSubmit={handleOk}>
         <FormItem hasFeedback>
           {getFieldDecorator('username', {
             rules: [
@@ -51,7 +51,7 @@ const Login = ({ loginButtonLoading, onOk,
           })(<Input size="large" type="password" placeholder="密码" />)}
         </FormItem>
         <Row>
-          <Button type="primary" size="large" onClick={handleOk} loading={loginButtonLoading}>
+          <Button type="primary" htmlType="submit" size="large" loading={loginButtonLoading}>
             登录
           </Button>
         </Row>

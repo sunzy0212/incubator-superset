@@ -1,4 +1,5 @@
 import { parse } from 'qs';
+import { message } from 'antd';
 import { getDirs, openDir, addReport, getAllReports, addDir, deleteDir, deleteReport } from '../../services/dashboard';
 
 export default {
@@ -84,6 +85,8 @@ export default {
             type: 'report',
           },
         });
+      } else {
+        message.error('目录已经存在');
       }
     },
     *deleteReport({

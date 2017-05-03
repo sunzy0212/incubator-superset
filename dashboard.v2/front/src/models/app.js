@@ -13,9 +13,13 @@ export default {
     darkTheme: localStorage.getItem('antdAdminDarkTheme') === 'false',
   },
   subscriptions: {
-    setup({ dispatch }) {
-      const sessionId = localStorage.getItem('qiniu-report-sessionId') || '';
-      dispatch({ type: 'check', payload: { sessionId } });
+    setup({ dispatch, history }) {
+      return history.listen(({ pathname }) => {
+        if (pathname !== '/login') {
+          const sessionId = localStorage.getItem('qiniu-report-sessionId') || '';
+          dispatch({ type: 'check', payload: { sessionId } });
+        }
+      });
     },
   },
   effects: {
@@ -51,10 +55,10 @@ export default {
             },
           });
         } else {
+          message.error('登陆失败,账户密码不正确！');
           yield put({
             type: 'loginFail',
           });
-          message.error('登陆失败,请检测账户密码是否正确！');
         }
       }
     },
@@ -89,7 +93,6 @@ export default {
   reducers: {
 
     updateState(state, action) {
-      console.log('=dddd=', action.payload, action.payload.login)
       return {
         ...state,
         ...action.payload,

@@ -3,6 +3,21 @@ import ReactEcharts from 'echarts-for-react';
 import echarts from 'echarts';
 
 const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip }) => {
+  function formatter(value, index) {
+    const fixedNumer = (v, d = 2) => {
+      const u = ['', 'K', 'M', 'G', 'T', 'P', 'E'];
+      const t = 1000;
+      let e = 0;
+      while (e < u.length - 1 && v >= t) {
+        v /= t;
+        e++;
+      }
+      v = v.toFixed(d);
+      return `${v}${u[e]}`;
+    };
+    return fixedNumer(value);
+  }
+
   function transformToChartData() {
     const lineTags = [];
     const lineAlias = [];
@@ -43,28 +58,25 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
         areaStyle: { normal: {} },
       });
     });
-    const unit = yaxis[0] !== unit ? yaxis[0].unit : '';
+
     let xType = [{
       type: 'category',
       data: xaxisData,
     }];
-    let yType = [{
-      type: 'value',
-      axisLabel: {
-        formatter: `{value} ${unit}`,
-      },
-    }];
+    let yType = yaxis.map((item) => {
+      const unit = item.unit || '';
+      return { type: 'value', axisLabel: { formatter: unit === '' ? formatter : `{value} ${unit}` } };
+    });
     if (isFlip === true) {
       yType = [{
         type: 'category',
         data: xaxisData,
-        axisLabel: {
-          formatter: `{value} ${unit}`,
-        },
+
       }];
-      xType = [{
-        type: 'value',
-      }];
+      xType = yaxis.map((item) => {
+        const unit = item.unit || '';
+        return { type: 'value', axisLabel: { formatter: unit === '' ? formatter : `{value} ${unit}` } };
+      });
     }
 
     if (lineTypes[0] === 'pie') { // TODO lineTypes[0]
@@ -80,7 +92,7 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
     } else {
       return {
         name: xaxisData,
-        toolTip: { trigger: 'axis', formatter: '{b} <br/>{a} : {c}', axisPointer: { type: 'shadow' } },
+        toolTip: { trigger: 'axis', axisPointer: { type: 'cross' } },
         data: series,
         legend: lineAlias,
         title,
@@ -319,6 +331,8 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
       <div className="parent">
         <ReactEcharts
           option={option}
+          notMerge
+          lazyUpdate
           showLoading={loading}
           theme="macarons"
           style={{ height: '100%', minHeight: '400px', width: '100%' }}

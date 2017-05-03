@@ -51,7 +51,7 @@ export default {
       if (data.success) {
         // message.success('保存成功！');
       } else {
-        message.success('保存失败！！！');
+        message.error('保存失败！！！');
       }
     },
   },
