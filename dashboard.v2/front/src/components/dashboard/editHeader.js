@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
-import { Button, Form, Input, Row, Col, Popconfirm, DatePicker } from 'antd';
+import moment from 'moment';
+import { Button, Form, Input, Row, Col, Popconfirm, DatePicker, Alert } from 'antd';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
@@ -10,6 +11,7 @@ const EditHeader = ({
   updateTitle,
   saveChartsToReport,
   refreshChart,
+  showTimePick,
   currentTimeRange,
   form: {
     getFieldDecorator,
@@ -56,14 +58,31 @@ const EditHeader = ({
       <Col lg={1} md={1} >
         <span className="ant-divider" />
       </Col>
-      <Col lg={6} md={6} offset={2}>
+      <Col lg={6} md={6} >
         <Button type="ghost" icon="save" size="small" onClick={onSave}>保存</Button>
         <Popconfirm title="确定取消保存吗？" onConfirm={() => onCancel()}>
           <Button type="ghost" icon="close-square-o" size="small" >取消</Button>
         </Popconfirm>
       </Col>
-      { currentTimeRange === '' ? <Col lg={4} md={4}>
-        <RangePicker showTime onOk={onChangeDateRange} format="YYYY-MM-DD" />
+      { showTimePick ? <Col lg={8} md={8}>
+        <Row>
+          <Col lg={24} md={24}>
+            <RangePicker
+              defaultValue={currentTimeRange}
+              ranges={{ 今天: [moment().startOf('day'), moment().endOf('day')],
+                昨天: [moment().add(-1, 'day').startOf('day'), moment().add(-1, 'day').endOf('day')],
+                上周: [moment().startOf('week'), moment().endOf('week')],
+                本月: [moment().startOf('month'), moment().endOf('month')],
+                上月: [moment().add(-1, 'month').startOf('month'), moment().add(-1, 'month').endOf('month')] }}
+              showTime onOk={onChangeDateRange} format="YYYY-MM-DD HH:mm:ss"
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col lg={24} md={24}>
+            <Alert type="info" message="默认查询您今天的数据" showIcon closable />
+          </Col>
+        </Row>
       </Col> : '' }
     </Row>
   );
@@ -72,6 +91,8 @@ const EditHeader = ({
 EditHeader.propTypes = {
   saveChartsToReport: PropTypes.func,
   refreshChart: PropTypes.func,
+  showTimePick: PropTypes.bool,
+  currentTimeRange: PropTypes.array,
 };
 
 export default Form.create()(EditHeader);

@@ -12,7 +12,7 @@ export async function queryByCodeId(params) {
 
 // POST
 export async function postQuerys(params) {
-  return request(`/v1/datas?type=${params.formatType}`, {
+  return request(`/v1/datas?type=${params.formatType}&limit=${params.limit}`, {
     method: 'post',
     body: JSON.stringify(params.code),
   });

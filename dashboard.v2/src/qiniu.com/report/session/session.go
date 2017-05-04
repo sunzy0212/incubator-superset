@@ -17,12 +17,12 @@ type Provider struct {
 }
 
 func New() Session {
-	c := cache.New(30*time.Minute, 1*time.Minute)
+	c := cache.New(60*time.Minute, 1*time.Minute)
 	return Provider{c}
 }
 
 func (m Provider) Set(key string, value interface{}) {
-	m.cache.Set(key, value, 30*time.Minute)
+	m.cache.Set(key, value, 60*time.Minute)
 }
 
 func (m Provider) Get(key string) (value interface{}, found bool) {

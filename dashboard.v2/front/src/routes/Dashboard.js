@@ -9,7 +9,7 @@ import Header from '../components/dashboard/header';
 function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
   const { modalVisible, modalCreateVisible,
     deleteModalVisible, currentDir, dirs, reports } = dashboard;
-  const { report, currentTimeRange } = reportboard;
+  const { report, showTimePick, currentTimeRange } = reportboard;
   const adideProps = {
     modalVisible,
     modalCreateVisible,
@@ -85,6 +85,7 @@ function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
   const headerProps = {
     report,
     deleteModalVisible,
+    showTimePick,
     currentTimeRange,
     deleteReport(reportId) {
       dispatch({
@@ -139,6 +140,7 @@ function Dashboard({ children, dispatch, loading, dashboard, reportboard }) {
               {report.id !== undefined ? <Header {...headerProps} /> : <div />}
             </Col>
           </Row>
+          <br />
           <Row gutter={12}>
             <Col lg={24} md={24}>
               {children}
