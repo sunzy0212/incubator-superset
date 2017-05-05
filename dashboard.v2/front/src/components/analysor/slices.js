@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import moment from 'moment';
 import { Form, Collapse, Select, Tooltip, Row, Col, Icon, DatePicker, Button } from 'antd';
 import AddOn from './addOn';
 import styles from './slices.less';
@@ -19,6 +20,7 @@ class Slices extends React.Component {
   constructor() {
     super();
     this.state = {
+      timePickerDisabled: true,
       addOns_where: [],
       addOns_having: [],
     };
@@ -202,6 +204,12 @@ class Slices extends React.Component {
     this.setState({ selectKeys: keys });
   }
 
+  handleTimesFieldSelect = () => {
+    this.setState({
+      timePickerDisabled: false,
+    });
+  }
+
   render() {
     const { addOns_where, addOns_having } = this.state;
     const { dimensions, measures, times, operatorOptions, form } = this.props;
@@ -215,38 +223,52 @@ class Slices extends React.Component {
           {/* 保存</Button>*/}
           {/* </Col >*/}
           <Col lg={8} md={8}>
-            <Button style={{ width: '100%' }} size="large" icon="close-square-o" onClick={() => this.handleReset}>
+            <Button style={{ width: '100%' }} size="large" icon="close-square-o" onClick={this.handleReset}>
               清空</Button>
           </Col>
           <Col lg={8} md={8}>
-            <Button style={{ width: '100%' }} icon="play-circle-o" size="large" type="primary" htmlType="submit">
-              查询</Button>
+            <Button
+              style={{ width: '100%' }}
+              icon="play-circle-o" size="large" type="primary" htmlType="submit"
+              loading={this.props.loading}
+            >查询</Button>
           </Col>
         </Row>
         <br />
         <Collapse defaultActiveKey={['1', '2', '3', '4', '5']}>
           <Panel header="时间(Time)" key="1" style={customPanelStyle}>
 
-            <p icon="info">时间列&nbsp;
-              <Tooltip title="请选择你所要使用的字段作为时间轴"><Icon type="info-circle" />
+            <p icon="info">日期列&nbsp;
+              <Tooltip title="请选择你的日期字段"><Icon type="info-circle" />
               </Tooltip>
             </p>
-
-            <FormItem >
+            <FormItem wrapperCol={{ span: 20 }}>
               {getFieldDecorator('timeField', {
                 initialValue: this.state.timeKey,
               })(
-                <Select placeholder="Please select a time field if need">
+                <Select placeholder="如果制图需要，请选择日期字段" onSelect={this.handleTimesFieldSelect}>
                   {genOptionsOfSelect(times)}
                 </Select>,
               )}
             </FormItem>
-            <FormItem
-              {...{ labelCol: { span: 4 }, wrapperCol: { span: 19 } }}
-              label="选择"
-            >
+
+            <p icon="info">时间选择&nbsp;
+              <Tooltip title="请选择你的时间范围，默认不选则不限时间"><Icon type="info-circle" />
+              </Tooltip>
+            </p>
+            <FormItem>
               {getFieldDecorator('rangeDatatime')(
-                <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />,
+                <RangePicker
+                  ranges={{ 今天: [moment().startOf('day'), moment().endOf('day')],
+                    昨天: [moment().add(-1, 'day').startOf('day'), moment().add(-1, 'day').endOf('day')],
+                    本周: [moment().startOf('week'), moment().endOf('week')],
+                    上周: [moment().add(-1, 'week').startOf('week'), moment().add(-1, 'week').endOf('week')],
+                    本月: [moment().startOf('month'), moment().endOf('month')],
+                    上月: [moment().add(-1, 'month').startOf('month'), moment().add(-1, 'month').endOf('month')],
+                    前三月: [moment().add(-3, 'month'), moment()],
+                  }}
+                  showTime format="YYYY-MM-DD HH:mm:ss" disabled={this.state.timePickerDisabled}
+                />,
                 )}
             </FormItem>
 
@@ -356,6 +378,7 @@ function genOptionsOfSelect(fields) {
 }
 
 Slices.propTypes = {
+  loading: PropTypes.bool,
   dimensions: PropTypes.array,
   measures: PropTypes.array,
   times: PropTypes.array,

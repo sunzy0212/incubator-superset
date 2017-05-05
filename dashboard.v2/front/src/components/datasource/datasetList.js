@@ -2,7 +2,15 @@ import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
 import { Table, Popconfirm } from 'antd';
 
-const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
+const DatasetList = ({ loading, onDelete, datasources, datasets, onInitDataSet }) => {
+  const genFilers = (function () {
+    const ret = new Set();
+    datasources.forEach((elem) => {
+      ret.add(elem.nickName || elem.name);
+    });
+    return ret;
+  }());
+
   const columns = [
     {
       title: '序号',
@@ -12,30 +20,15 @@ const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a, b) => a.name > b.name,
       render: text => <a href="#l">{text}</a>,
     }, {
-      title: '类型',
-      dataIndex: 'type',
-      key: 'type',
+      title: '来源',
+      dataIndex: 'sources',
+      key: 'sources',
+      filters: Array.from(genFilers).map((elem) => { return { text: elem, value: elem }; }),
+      onFilter: (value, record) => record.sources.includes(value),
     },
-    // {
-    //   title: '地址',
-    //   dataIndex: 'host',
-    //   key: 'host',
-    // }, {
-    //   title: '端口',
-    //   dataIndex: 'port',
-    //   key: 'port',
-    //   render: record => <div>{record === 0 ? 'NULL' : record}</div>,
-    // }, {
-    //   title: '数据库',
-    //   dataIndex: 'dbName',
-    //   key: 'dbName',
-    // }, {
-    //   title: '修改时间',
-    //   dataIndex: 'createTime',
-    //   key: 'createTime',
-    // },
     {
       title: '操作',
       key: 'action',
@@ -53,20 +46,35 @@ const DatasetList = ({ loading, onDelete, datasets, onInitDataSet }) => {
           </Link>
         </span>
       ),
+    }, {
+      title: '修改时间',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
+      sorter: (a, b) => a.updateTime > b.updateTime,
+      width: '15%',
     }];
 
   const data = [];
+
+  const getDatasourceName = (sourceId, sources) => {
+    const tmp = sourceId.split(':');
+    if (tmp.length === 2) {
+      for (let i = 0; i < datasources.length; i++) {
+        if (sources[i].id === tmp[0]) {
+          return sources[i].nickName || sources[i].name;
+        }
+      }
+    }
+    return '无';
+  };
 
   datasets.forEach((e, i) => {
     data.push({
       index: i + 1,
       key: e.id,
       name: e.name,
-      type: e.type,
-      host: e.host,
-      port: e.port,
-      dbName: e.dbName,
-      createTime: e.createTime,
+      sources: Object.keys(e.datasources).map((elem) => { return getDatasourceName(elem, datasources); }).join('|'),
+      updateTime: e.updateTime,
     });
   });
 

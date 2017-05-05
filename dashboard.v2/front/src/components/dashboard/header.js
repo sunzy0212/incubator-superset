@@ -1,10 +1,9 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import moment from 'moment';
-import { Button, Form, Input, Row, Col, Icon, DatePicker, Alert } from 'antd';
+import { Button, Form, Input, Row, Col, Icon, Alert } from 'antd';
 import ReportDeleteModal from './deleteReport';
+import MagincRangePicker from '../common/magicRangePicker';
 
-const { RangePicker } = DatePicker;
 const Header = ({
   report,
   deleteModalVisible,
@@ -56,15 +55,7 @@ const Header = ({
       { showTimePick ? <Col lg={8} md={8}>
         <Row>
           <Col lg={24} md={24}>
-            <RangePicker
-              defaultValue={currentTimeRange}
-              ranges={{ 今天: [moment().startOf('day'), moment().endOf('day')],
-                昨天: [moment().add(-1, 'day').startOf('day'), moment().add(-1, 'day').endOf('day')],
-                上周: [moment().startOf('week'), moment().endOf('week')],
-                本月: [moment().startOf('month'), moment().endOf('month')],
-                上月: [moment().add(-1, 'month').startOf('month'), moment().add(-1, 'month').endOf('month')] }}
-              showTime onOk={onChangeDateRange} format="YYYY-MM-DD HH:mm:ss"
-            />
+            <MagincRangePicker defaultValue={currentTimeRange} onOk={onChangeDateRange} />
           </Col>
         </Row>
         <Row>

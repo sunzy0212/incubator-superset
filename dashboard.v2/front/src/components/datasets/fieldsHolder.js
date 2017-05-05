@@ -81,6 +81,9 @@ class FieldHolder extends React.Component {
         <Menu.Item >
           <a onClick={() => this.showRenameModal(record)}>重命名</a>
         </Menu.Item >
+        <Menu.Item >
+          <a onClick={() => this.showMeasureUnitModal(record)}>添加计量单位</a>
+        </Menu.Item >
         <SubMenu key="sub1" title={<span>聚合方法</span>}>
           <Menu.Item >
             <a onClick={() => this.props.checkAggregation(record, 'sum')}>

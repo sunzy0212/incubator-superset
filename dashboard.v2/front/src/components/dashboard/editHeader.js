@@ -1,9 +1,8 @@
 import React, { PropTypes } from 'react';
-import moment from 'moment';
-import { Button, Form, Input, Row, Col, Popconfirm, DatePicker, Alert } from 'antd';
+import { Button, Form, Input, Row, Col, Popconfirm, Alert } from 'antd';
+import MagincRangePicker from '../common/magicRangePicker';
 
 const FormItem = Form.Item;
-const { RangePicker } = DatePicker;
 
 const EditHeader = ({
   history,
@@ -67,15 +66,7 @@ const EditHeader = ({
       { showTimePick ? <Col lg={8} md={8}>
         <Row>
           <Col lg={24} md={24}>
-            <RangePicker
-              defaultValue={currentTimeRange}
-              ranges={{ 今天: [moment().startOf('day'), moment().endOf('day')],
-                昨天: [moment().add(-1, 'day').startOf('day'), moment().add(-1, 'day').endOf('day')],
-                上周: [moment().startOf('week'), moment().endOf('week')],
-                本月: [moment().startOf('month'), moment().endOf('month')],
-                上月: [moment().add(-1, 'month').startOf('month'), moment().add(-1, 'month').endOf('month')] }}
-              showTime onOk={onChangeDateRange} format="YYYY-MM-DD HH:mm:ss"
-            />
+            <MagincRangePicker defaultValue={currentTimeRange} onOk={onChangeDateRange} />
           </Col>
         </Row>
         <Row>

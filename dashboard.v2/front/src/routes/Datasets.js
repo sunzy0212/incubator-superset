@@ -8,7 +8,7 @@ import TableEditor from '../components/datasets/tableEditor';
 const { Sider, Content } = Layout;
 const TabPane = Tabs.TabPane;
 
-function Datasets({ dispatch, loading, datasets }) {
+function Datasets({ history, dispatch, loading, datasets }) {
   const { dimensions, measures, times, dataset, tableData } = datasets;
 
   const dimensionsProps = {
@@ -112,6 +112,7 @@ function Datasets({ dispatch, loading, datasets }) {
   };
 
   const tableEditorProps = {
+    history,
     loading,
     dataset,
     tableData,

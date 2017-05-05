@@ -73,6 +73,7 @@ function Datasource({ dispatch, loading, datasource }) {
 
   const datasetListProps = {
     loading,
+    datasources,
     datasets,
     onInitDataSet(id) {
       dispatch({
