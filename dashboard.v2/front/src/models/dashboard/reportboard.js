@@ -40,8 +40,8 @@ export default {
           const end = new Date(_.replace('DATE 23:59:59+0800', 'DATE', date)).getTime();
           timeRange = { start, end };
         } else {
-          const start = moment().startOf('day');
-          const end = moment().endOf('day');
+          const start = moment().add(-1, 'day').startOf('day');
+          const end = moment().add(-1, 'day').endOf('day');
           currentTimeRange = [start, end];
           timeRange = { start: start.valueOf(), end: end.valueOf() };
         }

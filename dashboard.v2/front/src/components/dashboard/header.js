@@ -60,7 +60,7 @@ const Header = ({
         </Row>
         <Row>
           <Col lg={24} md={24}>
-            <Alert type="info" message="默认查询您今天的数据!" showIcon closable />
+            <Alert type="info" message="默认查询您昨天的数据!" showIcon closable />
           </Col>
         </Row>
       </Col> : '' }
