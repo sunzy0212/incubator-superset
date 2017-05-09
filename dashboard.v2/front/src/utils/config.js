@@ -3,6 +3,6 @@ module.exports = {
   prefix: 'Qiniu',
   footerText: '© 2017 七牛云',
   logoSrc: 'https://qiniu.staticfile.org/static/images/qiniulogo.36f45871.svg',
-  logoText: '牛比爱(Qiniu Report)',
+  logoText: 'Qiniu Report',
   needLogin: true,
 };
