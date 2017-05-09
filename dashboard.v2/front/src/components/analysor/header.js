@@ -27,6 +27,7 @@ const Header = ({ id, name, onEditor }) => {
             onChange={handleChange}
             filterOption={(input, option) =>
             option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+            disabled
           >
             <Option value="jack">Jack</Option>
             <Option value="lucy">Lucy</Option>

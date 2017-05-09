@@ -47,13 +47,13 @@ export default {
         if (res.status === 'ok') {
           message.success('登陆成功');
           localStorage.setItem('qiniu-report-sessionId', res.sessionId);
-          yield put(routerRedux.push('/'));
           yield put({
             type: 'loginSuccess',
             payload: {
               sessionId: res.sessionId,
             },
           });
+          yield put(routerRedux.push('/'));
         } else {
           message.error('登陆失败,账户密码不正确！');
           yield put({

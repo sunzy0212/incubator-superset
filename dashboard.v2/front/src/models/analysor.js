@@ -134,7 +134,7 @@ export default {
       payload,
     }, { call, put }) {
       yield put({ type: 'updateState', payload: { ...payload } });
-      const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload } }));
+      const data = yield call(postQuerys, parse({ formatType: 'json', code: { ...payload }, limit: 1000 }));
       if (data.success) {
         yield put({
           type: 'updateState',

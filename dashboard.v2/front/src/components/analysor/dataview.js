@@ -42,7 +42,7 @@ class Dataview extends React.Component {
     if (this.state.xaxis.length === 0 && this.state.yaxis.length === 0) { // 初始化
       this.setState({
         xaxis: xaxis || selectFields,
-        yaxis: yaxis || metricFields,
+        yaxis: yaxis || (metricFields.length === 0 ? selectFields : metricFields),
         filters: filters || [],
         lineTypes: lineTypes || metricFields.map(() => { return 'line'; }),
         chartType: lineTypes !== undefined ? lineTypes[0] : 'line',
@@ -291,7 +291,7 @@ class Dataview extends React.Component {
                   <Switch checkedChildren={'竖直'} unCheckedChildren={'横向'} checked={this.state.flipChart} onChange={this.handleFlipChart} />
                 </Col>
                 <Col lg={3} md={3}>
-                  <Button style={{ width: '100%' }} size="large" icon="reload" type="ghost">刷新</Button>
+                  <Button style={{ width: '100%' }} size="large" icon="reload" type="ghost" disabled>刷新</Button>
                 </Col>
                 <Col lg={3} md={3}>
                   <Button style={{ width: '100%' }} size="large" icon="save" htmlType="submit" type="ghost">保存</Button>

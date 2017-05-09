@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
-import { Button, Form, Input, Row, Col, Icon, DatePicker } from 'antd';
+import { Button, Form, Input, Row, Col, Icon, Alert } from 'antd';
 import ReportDeleteModal from './deleteReport';
+import MagincRangePicker from '../common/magicRangePicker';
 
-const { RangePicker } = DatePicker;
 const Header = ({
   report,
   deleteModalVisible,
@@ -11,6 +11,7 @@ const Header = ({
   onCancel,
   deleteReport,
   refreshChart,
+  showTimePick,
   changeRangeTime,
   currentTimeRange,
 }) => {
@@ -44,15 +45,24 @@ const Header = ({
       <Col lg={1} md={1} >
         <span className="ant-divider" />
       </Col>
-      <Col lg={6} md={6} offset={2}>
+      <Col lg={6} md={6}>
         <Button type="ghost" icon="reload" size="small" onClick={() => refreshChart()}>刷新</Button>
         <Button type="danger" onClick={openModal} icon="delete" size="small">删除</Button>
         <Button type="ghost" icon="rocket" size="small">导出</Button>
         <a href="javascript:location.href='mailto:?SUBJECT='+document.title+'&BODY='+escape(location.href);"><Icon type="mail" /></a>
 
       </Col>
-      { currentTimeRange === '' ? <Col lg={4} md={4}>
-        <RangePicker showTime onOk={onChangeDateRange} format="YYYY-MM-DD" />
+      { showTimePick ? <Col lg={8} md={8}>
+        <Row>
+          <Col lg={24} md={24}>
+            <MagincRangePicker defaultValue={currentTimeRange} onOk={onChangeDateRange} />
+          </Col>
+        </Row>
+        <Row>
+          <Col lg={24} md={24}>
+            <Alert type="info" message="默认查询您昨天的数据!" showIcon closable />
+          </Col>
+        </Row>
       </Col> : '' }
       < ReportDeleteModal {...props} />
     </Row>
@@ -63,6 +73,8 @@ Header.propTypes = {
   deleteReport: PropTypes.func,
   openModal: PropTypes.func,
   refreshChart: PropTypes.func,
+  showTimePick: PropTypes.bool,
+  currentTimeRange: PropTypes.array,
 };
 
 export default Form.create()(Header);

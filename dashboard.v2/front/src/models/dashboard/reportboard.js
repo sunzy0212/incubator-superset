@@ -1,6 +1,7 @@
 import { parse } from 'qs';
 import _ from 'lodash';
 import { message } from 'antd';
+import moment from 'moment';
 import { routerRedux } from 'dva/router';
 import { getReport, getLayouts, setLayouts } from '../../services/dashboard';
 
@@ -17,7 +18,8 @@ export default {
     reflush: false,
     report: {},
     layouts: {},
-    currentTimeRange: '',
+    showTimePick: true,
+    currentTimeRange: [],
     timeRange: { start: '', end: '' },
     ponitsContainer: { breakpoints: { lg: 996, md: 768, sm: 500, xs: 200, xxs: 0 },
       cols: { lg: 12, md: 12, sm: 12, xs: 12, xxs: 12 } },
@@ -28,13 +30,20 @@ export default {
         let reportId = '';
         let status = MODE_READ;
         const date = query.date;
-        let currentTimeRange = '';
+        let showTimePick = true;
+        let currentTimeRange = [];
         let timeRange = { start: '', end: '' };
         if (date !== undefined && date !== '') {
+          showTimePick = false;
           currentTimeRange = date;
           const start = new Date(_.replace('DATE 00:00:00+0800', 'DATE', date)).getTime();
           const end = new Date(_.replace('DATE 23:59:59+0800', 'DATE', date)).getTime();
           timeRange = { start, end };
+        } else {
+          const start = moment().add(-1, 'day').startOf('day');
+          const end = moment().add(-1, 'day').endOf('day');
+          currentTimeRange = [start, end];
+          timeRange = { start: start.valueOf(), end: end.valueOf() };
         }
         if (_.startsWith(pathname, DASHBOARD_EDIT_PATH)) {
           reportId = pathname.substr(DASHBOARD_EDIT_PATH.length, REPORTID_LENGTH);
@@ -46,7 +55,7 @@ export default {
         }
         if (reportId !== '') {
           dispatch({ type: 'queryReport', payload: { reportId } });
-          dispatch({ type: 'updateState', payload: { currentTimeRange, status, timeRange } });
+          dispatch({ type: 'updateState', payload: { currentTimeRange, status, timeRange, showTimePick } });
         }
       });
     },

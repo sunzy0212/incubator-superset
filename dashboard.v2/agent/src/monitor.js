@@ -79,7 +79,7 @@ class Monitor extends Component {
   render() {
     const columns = [
       {
-        title: '服务名',
+        title: '组件名',
         dataIndex: 'name',
         key: 'name',
       }, {

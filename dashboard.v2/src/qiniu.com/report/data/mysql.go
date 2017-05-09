@@ -62,7 +62,7 @@ func (m *MySQL) GenStorage() rest.Storage {
 			Type:    "jdbc",
 			Enabled: true,
 			Driver:  "com.mysql.jdbc.Driver",
-			Url: fmt.Sprintf("jdbc:mysql://%s:%d/%s?user=%s&password=%s&useUnicode=true&characterEncoding=utf8&autoReconnect=true",
+			Url: fmt.Sprintf("jdbc:mysql://%s:%d/%s?user=%s&password=%s&useUnicode=true&characterEncoding=utf8&autoReconnect=true&autoReconnectForPools=true",
 				m.Host, m.Port, m.DbName, m.Username, string(data)),
 		},
 	}

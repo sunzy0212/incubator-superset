@@ -8,7 +8,7 @@ import TableEditor from '../components/datasets/tableEditor';
 const { Sider, Content } = Layout;
 const TabPane = Tabs.TabPane;
 
-function Datasets({ dispatch, loading, datasets }) {
+function Datasets({ history, dispatch, loading, datasets }) {
   const { dimensions, measures, times, dataset, tableData } = datasets;
 
   const dimensionsProps = {
@@ -84,7 +84,7 @@ function Datasets({ dispatch, loading, datasets }) {
     transToDimension(record) {
       const cMeasures = measures.filter(x => x.id !== record.id);
       const cDimensions = dimensions;
-      cDimensions.push(Object.assign(record));
+      cDimensions.push({ ...record, action: '' });
       dispatch({
         type: 'datasets/updateState',
         payload: { measures: cMeasures, dimensions: cDimensions },
@@ -112,6 +112,7 @@ function Datasets({ dispatch, loading, datasets }) {
   };
 
   const tableEditorProps = {
+    history,
     loading,
     dataset,
     tableData,
@@ -167,8 +168,8 @@ function Datasets({ dispatch, loading, datasets }) {
             <TabPane tab="开始" key="1">
               <TableEditor {...tableEditorProps} />
             </TabPane>
-            <TabPane tab="连接" key="2">多数据源(多表)，关联关系的工作区</TabPane>
-            <TabPane tab="图表" key="3">图形的区域，暂时略</TabPane>
+            {/* <TabPane tab="连接" key="2">多数据源(多表)，关联关系的工作区</TabPane>*/}
+            {/* <TabPane tab="图表" key="3">图形的区域，暂时略</TabPane>*/}
           </Tabs>
         </Content>
       </Layout>

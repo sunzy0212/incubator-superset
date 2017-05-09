@@ -24,13 +24,29 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
   };
 
   function genDropMenu(text, record) {
+
+    const DeleteDir = React.createClass({
+      render() {
+        return <div>确认删除目录 <strong style={{ color: 'red' }}>{this.props.title}</strong> 吗?</div>;
+      },
+    });
+
+    const DeleteReport = React.createClass({
+      render() {
+        return <div>确认删除报表 <strong style={{ color: 'red' }}>{this.props.title}</strong> 吗?</div>;
+      },
+    });
+
     const menu = (
       <Menu>
         <Menu.Item >
           <a onClick={() => addDirModal(record)}> 添加目录</a>
         </Menu.Item >
         <Menu.Item >
-          <Popconfirm title="确定删除该报表目录吗？" onConfirm={() => onDelete(record.key)} >
+          <Popconfirm
+            title={<DeleteDir title={record.name} />}
+            onConfirm={() => onDelete(record.key)}
+          >
             <a>删除目录</a>
           </Popconfirm >
         </Menu.Item>
@@ -38,7 +54,10 @@ const Aside = ({ modalVisible, modalCreateVisible, dirs, reports,
     const reportMenu = (
       <Menu>
         <Menu.Item >
-          <Popconfirm title="确定删除该报表吗？" onConfirm={() => onDeleteReport(record.key)} >
+          <Popconfirm
+            title={<DeleteReport title={record.name} />}
+            onConfirm={() => onDeleteReport(record.key)}
+          >
             <a>删除报表</a>
           </Popconfirm >
         </Menu.Item>

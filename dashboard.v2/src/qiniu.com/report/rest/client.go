@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	defaultDialTimeout           = time.Second * 10
-	defaultResponseHeaderTimeout = time.Second * 20
+	defaultDialTimeout           = time.Second * 30
+	defaultResponseHeaderTimeout = time.Second * 60
 )
 
 type StorageConfig struct {

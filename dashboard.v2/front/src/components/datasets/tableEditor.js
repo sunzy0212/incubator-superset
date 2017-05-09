@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Form, Button, Input, Table, Icon, message } from 'antd';
 
 const FormItem = Form.Item;
+const ButtonGroup = Button.Group;
 
 const formItemLayout = {
   labelCol: { span: 6 },
@@ -47,6 +48,14 @@ class TableEditor extends React.Component {
     this.props.loadTableData();
   }
 
+  redirectToAnalysor = () => {
+    if (this.props.dataset.id === undefined || this.props.dataset.id === '') {
+      message.warning('请先保存该数据集');
+      return;
+    }
+    this.props.history.push(`/analysor/${this.props.dataset.id}`);
+  }
+
   render() {
     const { loading, dataset, form: { getFieldDecorator } } = this.props;
     const { tableData } = this.state;
@@ -78,12 +87,13 @@ class TableEditor extends React.Component {
               ],
             })(<Input />)}
           </FormItem>
-          <FormItem wrapperCol={{ span: 12, offset: 6 }}>
-            <Button type="primary" htmlType="submit" size="large">保存</Button>
-          </FormItem>
-          <FormItem wrapperCol={{ span: 12, offset: 6 }}>
-            <Button type="primary" size="large" onClick={this.beforeLoadTableData}>加载表数据</Button>
-          </FormItem>
+
+          <ButtonGroup>
+            <Button icon="save" htmlType="submit" >保存</Button>
+            <Button icon="scan" onClick={this.beforeLoadTableData}>加载数据</Button>
+            <Button icon="area-chart" onClick={this.redirectToAnalysor}>分析</Button>
+          </ButtonGroup>
+
         </Form>
         <Table
           loading={loading} columns={columns} dataSource={tableData} size="middle" bordered

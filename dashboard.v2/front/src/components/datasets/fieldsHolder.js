@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Table, Menu, Dropdown, Icon } from 'antd';
+import { Table, Menu, Dropdown, Icon, Tag } from 'antd';
 import RenameModal from './renameModal';
 import TransformDate from './transformDate';
 import MeasureUnit from './measureUnit';
@@ -81,6 +81,9 @@ class FieldHolder extends React.Component {
         <Menu.Item >
           <a onClick={() => this.showRenameModal(record)}>重命名</a>
         </Menu.Item >
+        <Menu.Item >
+          <a onClick={() => this.showMeasureUnitModal(record)}>添加计量单位</a>
+        </Menu.Item >
         <SubMenu key="sub1" title={<span>聚合方法</span>}>
           <Menu.Item >
             <a onClick={() => this.props.checkAggregation(record, 'sum')}>
@@ -115,20 +118,37 @@ class FieldHolder extends React.Component {
       </Dropdown >);
   }
 
+  getType = (type) => {
+    switch (type) {
+      case 'sum': return '求和';
+      case 'avg':return '均值';
+      case 'max':return '最大';
+      case 'min':return '最小';
+      case 'count':return '计数';
+      default:
+        return '';
+    }
+  }
+
+  genTag = (type) => {
+    if (type === '') { return ''; }
+    return <span style={{ color: 'orange' }}>[{this.getType(type)}]</span>;
+  }
+
   genItem = (text, record) => {
     const time = (
       <span>
-        <Icon type="calendar" /> {text}
+        <Icon type="calendar" />{this.genTag(record.action)}{text}
       </span>
     );
     const str = (
       <span>
-        <Icon type="file-text" /> {text}
+        <Icon type="file-text" />{this.genTag(record.action)}{text}
       </span>
     );
     const number = (
       <span>
-        <Icon type="calculator" /> {text}
+        <Icon type="calculator" />{this.genTag(record.action)}{text}
       </span>
     );
     if (record.type === 'timestamp') {

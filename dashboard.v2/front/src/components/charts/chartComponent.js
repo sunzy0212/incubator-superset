@@ -97,7 +97,7 @@ const ChartComponent = ({ loading, data, xaxis, yaxis, title, lineTypes, isFlip 
         legend: lineAlias,
         title,
         xType,
-        yType,
+        yType: yType.length === 0 ? [{ type: 'value' }] : yType,
       };
     }
   }

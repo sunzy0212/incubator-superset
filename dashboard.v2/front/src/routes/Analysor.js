@@ -24,6 +24,7 @@ function Analysor({ dispatch, loading, analysor }) {
     },
   };
   const slicesProps = {
+    loading,
     datasetId: id,
     wheres,
     havings,
