@@ -73,7 +73,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 			}
 		}
 
-		selectSection = strings.Join(append(_selectFields, _metricFields...), ",")
+		selectSection = strings.Join(append(_metricFields, _selectFields...), ",")
 	}
 
 	//FROM SECTION
