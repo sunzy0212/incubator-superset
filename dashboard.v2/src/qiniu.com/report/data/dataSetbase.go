@@ -77,16 +77,20 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 	}
 
 	//FROM SECTION
-	formFields := make([]string, 0)
+	fromFields := make([]string, 0)
 	for _, ds := range dataset.DataSources {
 		var datasource common.DataSource
 		if err = m.DataSourceColl.Find(M{"id": ds.DatasourceId}).One(&datasource); err != nil {
 			log.Errorf("failed to get datasource by id[%s] ~ %v", ds.DatasourceId, err)
 			return
 		}
-		formFields = append(formFields, fmt.Sprintf("%s_%s.%s.%s", datasource.AppUri, datasource.Name, datasource.DbName, ds.Table))
+		if datasource.Type == common.DEMO.String() {
+			fromFields = append(fromFields, "cp.`employee.json`")
+		} else {
+			fromFields = append(fromFields, fmt.Sprintf("%s_%s.%s.%s", datasource.AppUri, datasource.Name, datasource.DbName, ds.Table))
+		}
 	}
-	fromSection := strings.Join(formFields, ",")
+	fromSection := strings.Join(fromFields, ",")
 	sql = fmt.Sprintf("SELECT %s FROM %s", selectSection, fromSection)
 
 	//WHERE SECTION
@@ -126,7 +130,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 			opera := OP[v.Operator]
 			tsNumber, _ := strconv.ParseInt(v.Data, 10, 64)
 			tsDate := time.Unix(tsNumber/1000, tsNumber%1000*1e+09)
-			ts := tsDate.Format(timeField.Transform)
+			ts := tsDate.Format(common.DateStringFormats[timeField.Transform])
 			evaluation := fmt.Sprintf(" `%s` %s '%v' ", field, opera, ts)
 			timeFields = append(timeFields, evaluation)
 		}

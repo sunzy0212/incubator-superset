@@ -10,7 +10,8 @@ import (
 type SourceType int32
 
 const (
-	MYSQL SourceType = iota
+	DEMO SourceType = iota
+	MYSQL
 	INFLUXDB
 	MONGODB
 	UNKNOWN
@@ -18,6 +19,7 @@ const (
 
 var (
 	sourceNames = map[SourceType]string{
+		DEMO:     "demo",
 		MYSQL:    "mysql",
 		INFLUXDB: "influxdb",
 		MONGODB:  "mongodb",

@@ -1,7 +1,8 @@
 import React, { PropTypes } from 'react';
-import { Modal, Button, Input, Form } from 'antd';
+import { Modal, Button, Form , Select} from 'antd';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 const formItemLayout = {
   labelCol: { span: 3 },
@@ -26,7 +27,7 @@ const TransformDate = ({ modalVisible, onOk, onCancel, currRecord,
   return (
     <Modal
       visible={modalVisible}
-      title={`自定义日期格式 (${currRecord.transform || ''})`}
+      title={`自定义日期格式 (${currRecord.transform || 'yyyy-MM-dd'})`}
       onOk={handleOk}
       onCancel={onCancel}
       footer={[
@@ -38,15 +39,29 @@ const TransformDate = ({ modalVisible, onOk, onCancel, currRecord,
     >
       <Form onSubmit={handleOk}>
         <FormItem label="格式" {...formItemLayout}>
-          {getFieldDecorator('name', {
-            initialValue: 'YYYY-MM-DD',
+          {getFieldDecorator('transform', {
+            initialValue: currRecord.transform || 'yyyy-MM-dd',
             rules: [
               {
                 required: true,
                 message: '未填写',
               },
             ],
-          })(<Input placeholder="例: YYYY-MM-DD" />)}
+          })(<Select>
+            <Option key="yyyy-MM-dd" value="yyyy-MM-dd">yyyy-MM-dd</Option>
+            <Option key="yyyy-MM-dd HH:mm:ss" value="yyyy-MM-dd HH:mm:ss">yyyy-MM-dd HH:mm:ss</Option>
+            <Option key="yyyy-M-d" value="yyyy-M-d">yyyy-M-d</Option>
+            <Option key="yy-MM-dd" value="yy-MM-dd">yy-MM-dd</Option>
+            <Option key="yyyy-MM" value="yyyy-MM">yyyy-MM</Option>
+            <Option key="yy-MM" value="yy-MM">yy-MM</Option>
+
+            <Option key="yyyyMMdd" value="yyyyMMdd">yyyyMMdd</Option>
+            <Option key="yyyyMMdd HHmmss" value="yyyyMMdd HHmmss">yyyyMMdd HHmmss</Option>
+
+            <Option key="yyyy/MM/dd" value="yyyy/MM/dd">yyyy/MM/dd</Option>
+            <Option key="yyyy/MM/dd HH:mm:ss" value="yyyy/MM/dd HH:mm:ss">yyyy/MM/dd HH:mm:ss</Option>
+
+          </Select>)}
         </FormItem>
       </Form>
     </Modal>
