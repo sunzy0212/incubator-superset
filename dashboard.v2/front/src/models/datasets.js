@@ -227,7 +227,7 @@ export default {
       const { record } = action.payload;
       const dimensions = state.dimensions.filter(x => x.id !== record.id);
       const times = state.times.filter(x => x.id !== record.id);
-      times.push({ ...Object.assign(record), type: 'timestamp', transform: '2006-01-02' });
+      times.push({ ...Object.assign(record), type: 'timestamp' });
       return {
         ...state,
         dimensions,
