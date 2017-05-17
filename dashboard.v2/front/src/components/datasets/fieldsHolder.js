@@ -131,7 +131,7 @@ class FieldHolder extends React.Component {
   }
 
   genTag = (type) => {
-    if (type === '') { return ''; }
+    if (type === undefined || type === '') { return ''; }
     return <span style={{ color: 'orange' }}>[{this.getType(type)}]</span>;
   }
 

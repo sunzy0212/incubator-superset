@@ -62,6 +62,23 @@ func NewService(coll common.Collections, restUrls []string) (s *Service, err err
 		scheduler:         sched.NewScheduler(&coll),
 		//Config:      cfg,
 	}
+	demoSource := common.DataSource{
+		Id:       fmt.Sprintf("datasource_demo"),
+		Name:     "cp",
+		NickName: "员工信息[DEMO]",
+		Type:     "demo",
+	}
+	var flag bool
+	if flag, err = db.IsExist(s.DataSourceColl, M{"id": demoSource.Id}); err != nil {
+		log.Error(err)
+		return
+	}
+	if !flag {
+		if err = db.DoInsert(s.DataSourceColl, demoSource); err != nil {
+			log.Error(err)
+		}
+	}
+
 	return s, nil
 }
 
@@ -282,7 +299,7 @@ func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret T
 		id, _ := common.GenId()
 		v["id"] = fmt.Sprintf("f_%s", id)
 	}
-	ret = TableSchema{TableId: fmt.Sprintf("%s:%s", id, name), DatasourceId: id, Table: name, Fields: res}
+	ret = TableSchema{TableId: fmt.Sprintf("%s:%s", id, strings.Replace(name, ".", "$", -1)), DatasourceId: id, Table: name, Fields: res}
 	return
 }
 

@@ -26,6 +26,8 @@ func (m *DataSourceManager) gcDataSource() {
 
 func genDataSource(ds common.DataSource) DataSourceInterface {
 	switch common.ToSourceType(ds.Type) {
+	case common.DEMO:
+		return NewDemo(&ds)
 	case common.MYSQL:
 		return NewMySQL(&ds)
 	case common.INFLUXDB:

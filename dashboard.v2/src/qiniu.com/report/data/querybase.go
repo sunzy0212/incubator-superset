@@ -36,6 +36,16 @@ type RetTables struct {
 
 func (e *Executor) ShowTables(ds common.DataSource) (ret RetTables, err error) {
 	// "SELECT TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.`TABLES` where TABLE_SCHEMA='192_168_0_102_wo.test';"
+
+	if ds.Type == common.DEMO.String() {
+		ret.Tables = append(ret.Tables,
+			map[string]string{
+				"name": "employee.json",
+				"type": "demo"},
+		)
+		return
+	}
+
 	dbSpec := fmt.Sprintf("%s_%s.%s", ds.AppUri, ds.Name, ds.DbName)
 	sql := fmt.Sprintf("SELECT TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.`TABLES` where TABLE_SCHEMA='%s'", dbSpec)
 	log.Debugf("query SQL[%s]", sql)
@@ -46,6 +56,7 @@ func (e *Executor) ShowTables(ds common.DataSource) (ret RetTables, err error) {
 		log.Error(err)
 		return
 	}
+
 	for _, v := range res.Rows {
 		ret.Tables = append(ret.Tables,
 			map[string]string{
@@ -88,6 +99,10 @@ func (e *Executor) GetTableShema(ds common.DataSource, tableName string) (ret []
 	log.Debugf("query SQL[%s]", sql)
 
 	ret = make([]map[string]string, 0)
+	if ds.Type == common.DEMO.String() {
+		return
+	}
+
 	res, err := e.client.Query(sql)
 	if err != nil {
 		log.Error(err)
@@ -105,8 +120,14 @@ func (e *Executor) GetTableShema(ds common.DataSource, tableName string) (ret []
 }
 
 func (e *Executor) GetDataByDataSource(ds common.DataSource, tableName string, limit int64) (ret rest.Results, err error) {
+
 	tableSpec := fmt.Sprintf("%s_%s.%s.%s", ds.AppUri, ds.Name, ds.DbName, tableName)
 	sql := fmt.Sprintf("SELECT * FROM %s LIMIT %d", tableSpec, limit)
+
+	if ds.Type == common.DEMO.String() {
+		sql = "SELECT * FROM cp.`employee.json` limit 20"
+	}
+
 	log.Debugf("query SQL[%s]", sql)
 
 	ret, err = e.client.Query(sql)
