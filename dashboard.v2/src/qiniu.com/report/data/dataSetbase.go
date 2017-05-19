@@ -40,7 +40,7 @@ func (m *DataSetManager) GenExpression(key, action string) string {
 	case "COUNT":
 		return fmt.Sprintf("COUNT(`%s`) AS `%s`", key, key)
 	default:
-		return fmt.Sprintf("SUM(`%s`) AS `%s`", key, key)
+		return fmt.Sprintf("`%s`", key)
 	}
 	return ""
 }
@@ -84,10 +84,13 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 			log.Errorf("failed to get datasource by id[%s] ~ %v", ds.DatasourceId, err)
 			return
 		}
-		if datasource.Type == common.DEMO.String() {
-			fromFields = append(fromFields, "cp.`employee.json`")
-		} else {
+		switch common.ToSourceType(datasource.Type) {
+		case common.TSDB, common.INFLUXDB:
+			fromFields = append(fromFields, ds.Table)
+		case common.MYSQL, common.MONGODB:
 			fromFields = append(fromFields, fmt.Sprintf("%s_%s.%s.%s", datasource.AppUri, datasource.Name, datasource.DbName, ds.Table))
+		case common.DEMO:
+			fromFields = append(fromFields, "cp.`employee.json`")
 		}
 	}
 	fromSection := strings.Join(fromFields, ",")
@@ -99,7 +102,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 		whereFields := make([]string, 0)
 		for _, v := range tmpWhereFields {
 			field := v.Field.Name
-			opera := OP[v.Operator]
+			opera := common.OP[v.Operator]
 			evaluation := ""
 			switch strings.ToLower(v.Field.Type) {
 			case "number":
@@ -127,7 +130,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 		timeField := code.TimeField
 		for _, v := range tmpRangeTimes {
 			field := timeField.Name
-			opera := OP[v.Operator]
+			opera := common.OP[v.Operator]
 			tsNumber, _ := strconv.ParseInt(v.Data, 10, 64)
 			tsDate := time.Unix(tsNumber/1000, tsNumber%1000*1e+09)
 			ts := tsDate.Format(common.DateStringFormats[timeField.Transform])
@@ -159,7 +162,7 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 		havingFields := make([]string, 0)
 		for _, v := range tmpHavingFields {
 			field := v.Field.Name
-			opera := OP[v.Operator]
+			opera := common.OP[v.Operator]
 			evaluation := ""
 			switch strings.ToLower(v.Field.Type) {
 			case "number":

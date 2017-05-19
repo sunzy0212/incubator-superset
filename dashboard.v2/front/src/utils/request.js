@@ -22,10 +22,14 @@ function checkStatus(response) {
  * @return {object}           An object containing either "data" or "err"
  */
 export default function request(url, options) {
-  return fetch(url, options)
-    .then(checkStatus)
+  const sessionId = localStorage.getItem('qiniu-report-sessionId') || '';
+  return fetch(`${url}${url.indexOf('?') > 0 ? '&' : '?'}sign=${sessionId}`, options)
+    // .then(checkStatus)
     .then(parseJSON)
     .then((data) => {
+      if (data.error !== undefined) {
+        return { success: false, error: data.error };
+      }
       return { success: true, result: data };
     })
     .catch(err => ({ err }));

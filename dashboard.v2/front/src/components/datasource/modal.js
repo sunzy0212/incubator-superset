@@ -23,13 +23,23 @@ const DataSetModal = ({
       style={{ top: 20 }}
       footer={[]}
     >
-      <Row gutter={24}>
-        <Col span={6} >
+      <Row gutter={24} className={styles.modalRow}>
+        <Col span={12}>
           <Seat >
             <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MYSQL', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >MySQL</Button></Link>
           </Seat>
+
+        </Col>
+        <Col>
           <Seat >
             <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'MONGODB', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >MongoDB</Button></Link>
+          </Seat>
+        </Col>
+      </Row>
+      <Row gutter={24} className={styles.modalRow}>
+        <Col>
+          <Seat >
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'TSDB', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >TSDB</Button></Link>
           </Seat>
         </Col>
       </Row>

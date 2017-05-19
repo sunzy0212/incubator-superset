@@ -13,16 +13,17 @@ const (
 
 var (
 	DateStringFormats = map[string]string{
-		"yyyy-MM-dd":          "2006-01-02",
-		"yyyy-MM-dd HH:mm:ss": "2006-01-02 15:04:05",
-		"yyyy-M-d":            "2006-1-2",
-		"yy-MM-dd":            "06-01-02",
-		"yyyy-MM":             "2006-01",
-		"yy-MM":               "06-01",
-		"yyyyMMdd":            "20060102",
-		"yyyyMMdd HHmmss":     "20060102 150405",
-		"yyyy/MM/dd":          "2006/01/02",
-		"yyyy/MM/dd HH:mm:ss": "2006/01/02 15:04:05",
+		"yyyy-MM-dd":               "2006-01-02",
+		"yyyy-MM-dd HH:mm:ss":      "2006-01-02 15:04:05",
+		"yyyy-M-d":                 "2006-1-2",
+		"yy-MM-dd":                 "06-01-02",
+		"yyyy-MM":                  "2006-01",
+		"yy-MM":                    "06-01",
+		"yyyyMMdd":                 "20060102",
+		"yyyyMMdd HHmmss":          "20060102 150405",
+		"yyyy/MM/dd":               "2006/01/02",
+		"yyyy/MM/dd HH:mm:ss":      "2006/01/02 15:04:05",
+		"2006-01-02T15:04:05.999Z": "2006-01-02T15:04:05.999Z",
 	}
 )
 

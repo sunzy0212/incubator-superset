@@ -1,4 +1,4 @@
-package data
+package influxdb
 
 import (
 	"encoding/json"
@@ -11,37 +11,55 @@ import (
 	"github.com/qiniu/log.v1"
 
 	"qiniu.com/report/common"
+	. "qiniu.com/report/common/chart"
+	. "qiniu.com/report/datasource"
 	"qiniu.com/report/rest"
 )
+
+type TagData struct {
+	Type  string          `json:"type"`
+	Tags  []string        `json:"tags"`
+	Datas [][]interface{} `json:"datas"`
+}
+
+type TagTimeData struct {
+	Type  string      `json:"type"`
+	Tags  []string    `json:"tags"`
+	Times []string    `json:"times"`
+	Datas [][]float64 `json:"datas"`
+}
 
 type InfluxDB struct {
 	*common.DataSource
 	client *http.Client
 }
 
-func NewInfluxDB(cfg *common.DataSource) *InfluxDB {
+func NewInfluxDB(cfg *common.DataSource) (*InfluxDB, error) {
 	_client := http.DefaultClient
 	return &InfluxDB{
 		cfg,
 		_client,
-	}
+	}, nil
 }
 
 func (m *InfluxDB) TestConn() (bool, error) {
 	return true, nil
 }
 
-func (m *InfluxDB) ShowTables() (map[string]string, error) {
-	return nil, nil
+func (m *InfluxDB) ListDatabases() (RetDatabases, error) {
+	return RetDatabases{}, nil
+}
+
+func (m *InfluxDB) ListTables() (RetTables, error) {
+	return RetTables{}, nil
 }
 
 func (m *InfluxDB) GenStorage() rest.Storage {
 	return rest.Storage{}
 }
 
-func (m *InfluxDB) Schema(tableName string) ([]map[string]string, error) {
-	ret := make([]map[string]string, 0)
-	return ret, nil
+func (m *InfluxDB) Schema(tableName string) (RetSchema, error) {
+	return RetSchema{}, nil
 }
 
 func (m *InfluxDB) QueryImpl(chartType string, code string) (interface{}, error) {
@@ -157,4 +175,8 @@ type Serie struct {
 	Tags    map[string]string `json:"tags"`
 	Columns []string          `json:"columns"`
 	Values  [][]interface{}   `json:"values"`
+}
+
+func (m *InfluxDB) Query(sql string) (rest.Results, error) {
+	return rest.Results{}, fmt.Errorf("This type [%s] does not need to be supported temporary", m.Type)
 }

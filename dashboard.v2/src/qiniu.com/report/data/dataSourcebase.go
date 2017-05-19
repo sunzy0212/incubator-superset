@@ -1,20 +1,27 @@
 package data
 
 import (
+	"fmt"
 	"sync"
 
 	"qiniu.com/report/common"
+	"qiniu.com/report/datasource"
+	"qiniu.com/report/datasource/demo"
+	"qiniu.com/report/datasource/influxdb"
+	"qiniu.com/report/datasource/mongodb"
+	"qiniu.com/report/datasource/mysql"
+	"qiniu.com/report/datasource/tsdb"
 )
 
 type DataSourceManager struct {
 	mux     *sync.RWMutex
-	sources map[common.DataSource]DataSourceInterface //缓存起连接来，定期清理
+	sources map[common.DataSource]datasource.DataSourceInterface //缓存起连接来，定期清理
 }
 
 func NewDataSourceManager() *DataSourceManager {
 	return &DataSourceManager{
 		mux:     &sync.RWMutex{},
-		sources: make(map[common.DataSource]DataSourceInterface),
+		sources: make(map[common.DataSource]datasource.DataSourceInterface),
 	}
 }
 
@@ -24,30 +31,37 @@ func (m *DataSourceManager) gcDataSource() {
 	//TODO MayBe LRU
 }
 
-func genDataSource(ds common.DataSource) DataSourceInterface {
+func genDataSource(ds common.DataSource) (datasource.DataSourceInterface, error) {
 	switch common.ToSourceType(ds.Type) {
 	case common.DEMO:
-		return NewDemo(&ds)
+		return demo.NewDemo(&ds)
 	case common.MYSQL:
-		return NewMySQL(&ds)
+		return mysql.NewMySQL(&ds)
 	case common.INFLUXDB:
-		return NewInfluxDB(&ds)
+		return influxdb.NewInfluxDB(&ds)
 	case common.MONGODB:
-		return NewMongoDB(&ds)
+		return mongodb.NewMongoDB(&ds)
+	case common.TSDB:
+		return tsdb.NewTSDB(&ds)
 	default:
-		return nil
+		return nil, fmt.Errorf("type %s not support yet", ds.Type)
 	}
 }
 
-func (m *DataSourceManager) Get(ds common.DataSource) DataSourceInterface {
+func (m *DataSourceManager) Get(ds common.DataSource, cached bool) (datasource.DataSourceInterface, error) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	if v, ok := m.sources[ds]; !ok {
-		dsi := genDataSource(ds).(DataSourceInterface)
-		m.sources[ds] = dsi
-		return dsi
+		dsi, err := genDataSource(ds)
+		if err != nil {
+			return nil, err
+		}
+		if cached {
+			m.sources[ds] = dsi
+		}
+		return dsi, nil
 	} else {
-		return v
+		return v, nil
 	}
-	return nil
+
 }

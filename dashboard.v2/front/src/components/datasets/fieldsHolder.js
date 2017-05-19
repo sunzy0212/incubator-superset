@@ -105,6 +105,10 @@ class FieldHolder extends React.Component {
             <a onClick={() => this.props.checkAggregation(record, 'count')}>
               {(record.action === 'count') ? (<Icon type="check-circle" />) : null}计数</a>
           </Menu.Item >
+          <Menu.Divider />
+          <Menu.Item >
+            <a onClick={() => this.props.checkAggregation(record, '')}>取消</a>
+          </Menu.Item >
         </SubMenu>
         <Menu.Item >
           <a onClick={() => this.props.transToDimension(record)}> 转换为维度</a>
