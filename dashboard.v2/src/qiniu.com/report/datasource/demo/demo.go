@@ -38,6 +38,6 @@ func (m *Demo) GenStorage() rest.Storage {
 	}
 }
 
-func (m *Demo) Query(sql string) (rest.Results, error) {
+func (m *Demo) Query(args interface{}) (rest.Results, error) {
 	return rest.Results{}, fmt.Errorf("This type [%s] does not need to be supported temporary", m.Type)
 }

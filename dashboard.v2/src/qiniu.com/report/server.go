@@ -121,7 +121,7 @@ func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err 
 	req.AppUri = os.Getenv("APP_URI")
 
 	switch common.ToSourceType(req.Type) {
-	case common.TSDB, common.INFLUXDB:
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
 	case common.MYSQL, common.MONGODB:
 		handler, err1 := s.dataSourceManager.Get(req, true)
 		if err1 != nil {
@@ -184,7 +184,7 @@ func (s *Service) PutDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	req.AppUri = os.Getenv("APP_URI")
 
 	switch common.ToSourceType(req.Type) {
-	case common.TSDB, common.INFLUXDB:
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
 	case common.MYSQL, common.MONGODB:
 		handler, err1 := s.dataSourceManager.Get(req, true)
 		if err1 != nil {
@@ -305,6 +305,7 @@ func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret in
 		tables = append(tables, Table{id, v.Name, "", ""})
 	}
 	ret = RetTables{tables}
+	log.Info("success to get tables for datasource %s %s", ds.Host, ds.DbName)
 	return
 }
 

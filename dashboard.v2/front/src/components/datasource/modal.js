@@ -37,9 +37,14 @@ const DataSetModal = ({
         </Col>
       </Row>
       <Row gutter={24} className={styles.modalRow}>
-        <Col>
+        <Col span={12}>
           <Seat >
             <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'TSDB', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >TSDB</Button></Link>
+          </Seat>
+        </Col>
+        <Col>
+          <Seat >
+            <Link onClick={onCancel} to={'/datasource/config'} state={{ type: 'LOGDB', action: 'ADD', onOk, item }}><Button style={{ width: '100px' }} type="primary" >LogDB</Button></Link>
           </Seat>
         </Col>
       </Row>

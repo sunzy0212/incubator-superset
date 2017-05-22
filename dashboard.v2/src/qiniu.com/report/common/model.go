@@ -15,6 +15,7 @@ const (
 	INFLUXDB
 	MONGODB
 	TSDB
+	LOGDB
 	UNKNOWN
 )
 
@@ -25,6 +26,7 @@ var (
 		INFLUXDB: "influxdb",
 		MONGODB:  "mongodb",
 		TSDB:     "tsdb",
+		LOGDB:    "logdb",
 	}
 )
 

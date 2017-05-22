@@ -56,7 +56,7 @@ func (e *Executor) ShowTables(ds common.DataSource) (ret datasource.RetTables, e
 	// "SELECT TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.`TABLES` where TABLE_SCHEMA='192_168_0_102_wo.test';"
 	ret = datasource.RetTables{}
 	switch common.ToSourceType(ds.Type) {
-	case common.TSDB, common.INFLUXDB:
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
 		handler, err1 := e.dataSourceManager.Get(ds, true)
 		if err != nil {
 			log.Error(err1)
@@ -115,7 +115,7 @@ func (m *Executor) getFieldTypeFromSourceType(src string) string {
 func (e *Executor) GetTableShema(ds common.DataSource, tableName string) (ret datasource.RetSchema, err error) {
 	// "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA='192_168_0_102_wo.test' and TABLE_NAME='sales'"
 	switch common.ToSourceType(ds.Type) {
-	case common.TSDB, common.INFLUXDB:
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
 		handler, err1 := e.dataSourceManager.Get(ds, true)
 		if err != nil {
 			log.Error(err1)
@@ -152,7 +152,7 @@ func (e *Executor) GetTableShema(ds common.DataSource, tableName string) (ret da
 
 func (e *Executor) GetDataByDataSource(ds common.DataSource, tableName string, limit int64) (ret rest.Results, err error) {
 	switch common.ToSourceType(ds.Type) {
-	case common.TSDB, common.INFLUXDB:
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
 		handler, err1 := e.dataSourceManager.Get(ds, true)
 		if err != nil {
 			log.Error(err1)
@@ -212,7 +212,7 @@ func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {
 		return
 	}
 	switch common.ToSourceType(ds.Type) {
-	case common.TSDB, common.INFLUXDB:
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
 		var handler datasource.DataSourceInterface
 		if handler, err = e.dataSourceManager.Get(ds, true); err != nil {
 			log.Error(err)

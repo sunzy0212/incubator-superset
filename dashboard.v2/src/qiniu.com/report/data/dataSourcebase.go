@@ -8,6 +8,7 @@ import (
 	"qiniu.com/report/datasource"
 	"qiniu.com/report/datasource/demo"
 	"qiniu.com/report/datasource/influxdb"
+	"qiniu.com/report/datasource/logdb"
 	"qiniu.com/report/datasource/mongodb"
 	"qiniu.com/report/datasource/mysql"
 	"qiniu.com/report/datasource/tsdb"
@@ -43,6 +44,8 @@ func genDataSource(ds common.DataSource) (datasource.DataSourceInterface, error)
 		return mongodb.NewMongoDB(&ds)
 	case common.TSDB:
 		return tsdb.NewTSDB(&ds)
+	case common.LOGDB:
+		return logdb.NewLogDB(&ds)
 	default:
 		return nil, fmt.Errorf("type %s not support yet", ds.Type)
 	}

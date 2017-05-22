@@ -108,6 +108,6 @@ func (m *MySQL) GetConn() (*client.Conn, error) {
 	return client.Connect(fmt.Sprintf("%s:%d", m.Host, m.Port), m.Username, string(data), m.DbName)
 }
 
-func (m *MySQL) Query(sql string) (rest.Results, error) {
+func (m *MySQL) Query(args interface{}) (rest.Results, error) {
 	return rest.Results{}, fmt.Errorf("This type [%s] does not need to be supported temporary", m.Type)
 }

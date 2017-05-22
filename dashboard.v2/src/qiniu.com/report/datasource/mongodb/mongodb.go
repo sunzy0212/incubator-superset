@@ -39,6 +39,6 @@ func (m *MongoDB) GenStorage() rest.Storage {
 	}
 }
 
-func (m *MongoDB) Query(sql string) (rest.Results, error) {
+func (m *MongoDB) Query(args interface{}) (rest.Results, error) {
 	return rest.Results{}, fmt.Errorf("This type [%s] does not need to be supported temporary", m.Type)
 }

@@ -177,6 +177,6 @@ type Serie struct {
 	Values  [][]interface{}   `json:"values"`
 }
 
-func (m *InfluxDB) Query(sql string) (rest.Results, error) {
+func (m *InfluxDB) Query(args interface{}) (rest.Results, error) {
 	return rest.Results{}, fmt.Errorf("This type [%s] does not need to be supported temporary", m.Type)
 }

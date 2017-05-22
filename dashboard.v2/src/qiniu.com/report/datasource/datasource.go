@@ -1,7 +1,13 @@
 package datasource
 
 import (
+	"fmt"
+
 	"qiniu.com/report/rest"
+)
+
+var (
+	Err_NOT_IMPLEMENTD = fmt.Errorf("Methods that do not need to be implemented")
 )
 
 type Table struct {
@@ -34,6 +40,6 @@ type DataSourceInterface interface {
 	ListDatabases() (RetDatabases, error)
 	ListTables() (RetTables, error)
 	Schema(tableName string) (RetSchema, error)
-	Query(sql string) (rest.Results, error)
+	Query(args interface{}) (rest.Results, error)
 	GenStorage() rest.Storage
 }

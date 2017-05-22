@@ -130,15 +130,13 @@ func (m *TSDB) getFieldTypeFromSourceType(src string) string {
 	return tmp
 }
 
-func (m *TSDB) Query(sql string) (rest.Results, error) {
+func (m *TSDB) Query(args interface{}) (rest.Results, error) {
 	ret := rest.Results{}
-	res, err := m.client.QueryPoints(&tsdb.QueryInput{RepoName: m.DbName, Sql: sql})
+	res, err := m.client.QueryPoints(&tsdb.QueryInput{RepoName: m.DbName, Sql: args.(string)})
 	if err != nil {
 		log.Error(err)
 		return ret, err
 	}
-
-	log.Infof("=%#v=========%#v", err, res.Results, sql)
 
 	if len(res.Results[0].Series) > 0 {
 		serie := res.Results[0].Series[0]

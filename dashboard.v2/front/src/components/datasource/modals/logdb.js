@@ -1,11 +1,10 @@
 import React, { PropTypes } from 'react';
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input } from 'antd';
 import styles from '../modal.less';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
-const TSDB = ({
+const LogDB = ({
   saveLoading, type, item, databases, onOk, callBack, listDatabases, form: {
   getFieldDecorator,
   validateFields,
@@ -45,7 +44,7 @@ const TSDB = ({
           name: values.name,
           host: values.host,
           port: values.port,
-          type: 'TSDB',
+          type,
           dbName: values.dbName,
           username: values.username || '',
           password: values.password || '',
@@ -53,10 +52,6 @@ const TSDB = ({
         listDatabases(data);
       }
     });
-  }
-
-  function reflashDatabases() {
-    listDatabases(item);
   }
 
   function checkName(rule, value, callback) {
@@ -88,7 +83,7 @@ const TSDB = ({
 
       <FormItem label="地址：" {...formItemLayout}>
         {getFieldDecorator('host', {
-          initialValue: item.host || 'https://tsdb.qiniu.com',
+          initialValue: item.host || 'https://logdb.qiniu.com',
           rules: [
             {
               required: true,
@@ -120,33 +115,12 @@ const TSDB = ({
           ],
         })(<Input />)}
       </FormItem>
-      {
-        databases.dbs.length === 0 ?
-          <FormItem wrapperCol={{ span: 12, offset: 6 }}>
-            <Button
-              size="large" loading={saveLoading} onClick={getDatabases}
-            >连接</Button>
-          </FormItem>
-          :
-          <FormItem label="仓库名：" {...formItemLayout}>
-            {getFieldDecorator('dbName', {
-              initialValue: item.dbName,
-              rules: [
-                {
-                  required: true,
-                  message: '仓库名未填写',
-                },
-              ],
-            })(<Select onFocus={reflashDatabases}>
-              {
-                databases.dbs.map((elem) => {
-                  return <Option key={elem.name} value={elem.name}>{elem.name}</Option>;
-                })
-              }
-            </Select>)}
-          </FormItem>
-      }
-
+      <FormItem wrapperCol={{ span: 12, offset: 6 }}>
+        <Button
+          size="large" loading={saveLoading} onClick={getDatabases}
+        >测试连接</Button>
+        {databases.flag ? <Button type="primary" shape="circle" icon={databases.flag ? 'check' : 'close'} /> : ''}
+      </FormItem>
 
       <br />
       <FormItem wrapperCol={{ span: 12, offset: 6 }}>
@@ -159,7 +133,7 @@ const TSDB = ({
   );
 };
 
-TSDB.propTypes = {
+LogDB.propTypes = {
   saveLoading: PropTypes.bool,
   item: PropTypes.object,
   databases: PropTypes.object,
@@ -167,4 +141,4 @@ TSDB.propTypes = {
   callBack: PropTypes.func,
   listDatabases: PropTypes.func,
 };
-export default Form.create()(TSDB);
+export default Form.create()(LogDB);
