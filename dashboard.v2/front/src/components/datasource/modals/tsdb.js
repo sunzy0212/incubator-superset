@@ -21,7 +21,7 @@ const TSDB = ({
     validateFields((err, values) => {
       if (!err) {
         const data = {
-          id: item.id, // For editor
+          id: item.id,
           name: values.name,
           host: values.host,
           port: values.port,

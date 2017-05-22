@@ -14,8 +14,8 @@ var (
 	client            LogdbAPI
 	region            = "nb"
 	endpoint          = "https://logdb.qiniu.com"
-	ak                = "ukY1XJ3I6KqdcAhRDtKLsA-JBeZJ8jF3WAvHh61O"
-	sk                = "HHGg_uCHzQUYOGAI3gStFwKiIJnCCPJ86tm6Ky5P"
+	ak                = ""
+	sk                = ""
 	logger            Logger
 	defaultRepoSchema []RepoSchemaEntry
 )
