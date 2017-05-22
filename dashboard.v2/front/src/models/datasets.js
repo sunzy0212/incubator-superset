@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { routerRedux } from 'dva/router';
 import { message, notification } from 'antd';
 import { saveDataSet, updateDataSet, getDataSet, getDatasetData, deleteDataSet } from '../services/datasetApi';
-import { getSchema } from '../services/datasource';
+import { getSchema } from '../services/datasourceApi';
 
 const DATASET_PATH = '/datasets';
 const DATASET_INDEX = 10;
@@ -321,8 +321,10 @@ export default {
     },
     generateFileds(state, action) {
       const res = action.payload.schema;
+      const times = state.times;
       const datasources = state.datasources;
       const dimensions = state.dimensions;
+      const measures = state.measures;
       const dataset = state.dataset;
 
       dataset.name = action.payload.datasource.name;
@@ -334,13 +336,14 @@ export default {
       };
 
       res.fields.forEach((e) => {
-        if (e.field !== '*') {
-          dimensions.push({
-            id: e.id,
-            tableId: res.tableId,
-            name: e.field,
-            alias: e.field,
-            type: e.type });
+        if (e.name !== '*') {
+          if (e.isMeasure) {
+            measures.push({ ...Object.assign(e), alias: e.name, tableId: res.tableId });
+          } else if (e.type === 'timestamp') {
+            times.push({ ...Object.assign(e), alias: e.name, tableId: res.tableId });
+          } else {
+            dimensions.push({ ...Object.assign(e), alias: e.name, tableId: res.tableId });
+          }
         }
       });
 

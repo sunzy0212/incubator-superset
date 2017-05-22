@@ -20,6 +20,7 @@ import (
 	"qiniu.com/report/common/db"
 	. "qiniu.com/report/common/errors"
 	"qiniu.com/report/data"
+	"qiniu.com/report/datasource"
 	"qiniu.com/report/rest"
 	"qiniu.com/report/sched"
 	"qiniu.com/report/session"
@@ -119,15 +120,25 @@ func (s *Service) PostDatasources(env *rpcutil.Env) (ret common.DataSource, err 
 
 	req.AppUri = os.Getenv("APP_URI")
 
-	storage := s.dataSourceManager.Get(req).GenStorage()
-	res, err1 := s.client.PostStorage(storage)
-	if err1 != nil {
-		err = errors.Info(ErrInternalError).Detail(err1)
-		return
-	}
-	if res.Result != "success" {
-		err = ErrorPostDataSource(fmt.Errorf("failed to register datasource , err ~ %v", res.Result))
-		return
+	switch common.ToSourceType(req.Type) {
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
+	case common.MYSQL, common.MONGODB:
+		handler, err1 := s.dataSourceManager.Get(req, true)
+		if err1 != nil {
+			err = ErrorPostDataSource(err1)
+			return
+		}
+
+		storage := handler.GenStorage()
+		res, err1 := s.client.PostStorage(storage)
+		if err1 != nil {
+			err = errors.Info(ErrInternalError).Detail(err1)
+			return
+		}
+		if res.Result != "success" {
+			err = ErrorPostDataSource(fmt.Errorf("failed to register datasource , err ~ %v", res.Result))
+			return
+		}
 	}
 
 	if err = db.DoInsert(s.DataSourceColl, req); err != nil {
@@ -172,15 +183,25 @@ func (s *Service) PutDatasources_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	req.CreateTime = common.GetCurrTime()
 	req.AppUri = os.Getenv("APP_URI")
 
-	storage := s.dataSourceManager.Get(req).GenStorage()
-	res, err1 := s.client.PostStorage(storage)
-	if err1 != nil {
-		err = errors.Info(ErrInternalError).Detail(err1)
-		return
-	}
-	if res.Result != "success" {
-		err = ErrorPostDataSource(fmt.Errorf("failed to register datasource , err ~ %v", res.Result))
-		return
+	switch common.ToSourceType(req.Type) {
+	case common.TSDB, common.INFLUXDB, common.LOGDB:
+	case common.MYSQL, common.MONGODB:
+		handler, err1 := s.dataSourceManager.Get(req, true)
+		if err1 != nil {
+			err = ErrorPostDataSource(err1)
+			return
+		}
+
+		storage := handler.GenStorage()
+		res, err1 := s.client.PostStorage(storage)
+		if err1 != nil {
+			err = errors.Info(ErrInternalError).Detail(err1)
+			return
+		}
+		if res.Result != "success" {
+			err = ErrorPostDataSource(fmt.Errorf("failed to register datasource , err ~ %v", res.Result))
+			return
+		}
 	}
 
 	err = db.DoUpdate(s.DataSourceColl, M{"id": id}, req)
@@ -227,6 +248,27 @@ func (s *Service) DeleteDatasources_(args *cmdArgs, env *rpcutil.Env) (err error
 	return
 }
 
+func (s *Service) PostDatabases(args *cmdArgs, env *rpcutil.Env) (ret interface{}, err error) {
+	var data []byte
+	if data, err = ioutil.ReadAll(env.Req.Body); err != nil {
+		err = errors.Info(ErrInternalError, FETCH_REQUEST_ENTITY_FAILED_MESSAGE).Detail(err)
+		return
+	}
+
+	var req common.DataSource
+	if err = json.Unmarshal(data, &req); err != nil {
+		err = ErrorPostDataSource(err)
+		return
+	}
+	ret, err1 := s.executor.ListDatabases(req)
+	if err1 != nil {
+		log.Error(err)
+		err = ErrorPostDataSource(err1)
+		return
+	}
+	return
+}
+
 /*
 GET /v1/datasources/<Id>/tables
 */
@@ -260,9 +302,10 @@ func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret in
 
 	tables := make([]Table, 0)
 	for _, v := range res.Tables {
-		tables = append(tables, Table{id, v["name"], v["type"], ""})
+		tables = append(tables, Table{id, v.Name, "", ""})
 	}
 	ret = RetTables{tables}
+	log.Info("success to get tables for datasource %s %s", ds.Host, ds.DbName)
 	return
 }
 
@@ -270,11 +313,11 @@ func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret in
 GET /v1/datasources/<Id>/tables/<TableName>
 */
 type TableSchema struct {
-	TableId      string              `json:"tableId"`
-	DatasourceId string              `json:"datasourceId"`
-	Table        string              `json:"table"`
-	Fields       []map[string]string `json:"fields"`
-	Desc         string              `json:"desc"`
+	TableId      string             `json:"tableId"`
+	DatasourceId string             `json:"datasourceId"`
+	Table        string             `json:"table"`
+	Fields       []datasource.Field `json:"fields"`
+	Desc         string             `json:"desc"`
 }
 
 func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret TableSchema, err error) {
@@ -295,11 +338,14 @@ func (s *Service) GetDatasources_Tables_(args *cmdArgs, env *rpcutil.Env) (ret T
 		err = ErrorShowTables(err1)
 		return
 	}
-	for _, v := range res {
+	fields := make([]datasource.Field, len(res.Fields))
+	for i, v := range res.Fields {
 		id, _ := common.GenId()
-		v["id"] = fmt.Sprintf("f_%s", id)
+		fields[i] = v
+		fields[i].Id = fmt.Sprintf("f_%s", id)
 	}
-	ret = TableSchema{TableId: fmt.Sprintf("%s:%s", id, strings.Replace(name, ".", "$", -1)), DatasourceId: id, Table: name, Fields: res}
+
+	ret = TableSchema{TableId: fmt.Sprintf("%s:%s", id, strings.Replace(name, ".", "$", -1)), DatasourceId: id, Table: name, Fields: fields}
 	return
 }
 

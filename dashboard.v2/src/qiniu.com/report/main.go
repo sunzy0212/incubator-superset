@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -24,6 +25,7 @@ const (
 )
 
 type MyServerMux struct {
+	srv *Service
 	restrpc.ServeMux
 }
 
@@ -64,11 +66,24 @@ func (self *MyServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	switch r.URL.Path {
+	case "/v1/users/login":
+
+	default:
+		sign := r.FormValue("sign")
+		if _, found := self.srv.session.Get(sign); !found {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			res, _ := json.Marshal(map[string]string{"error": "unauthorized"})
+			w.Write(res)
+			return
+		}
+	}
 	self.ServeMux.ServeHTTP(w, r)
 }
 
-func NewServeMux() *MyServerMux {
-	return new(MyServerMux)
+func NewServeMux(srv *Service) *MyServerMux {
+	return &MyServerMux{srv: srv}
 }
 
 func main() {
@@ -158,7 +173,7 @@ func main() {
 	router := restrpc.Router{
 		Factory:       restrpc.Factory,
 		PatternPrefix: "/v1",
-		Mux:           NewServeMux(),
+		Mux:           NewServeMux(srv),
 	}
 
 	mux := http.NewServeMux()

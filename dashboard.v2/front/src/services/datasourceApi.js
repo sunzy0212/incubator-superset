@@ -23,6 +23,14 @@ export async function deleteDataSource(params) {
   });
 }
 
+export async function showDatabases(params) {
+  return request('/v1/databases', {
+    method: 'post',
+    body: JSON.stringify(params),
+  });
+}
+
+
 export async function showTables(params) {
   return request(`/v1/datasources/${params.id}/tables`, {
     method: 'get',

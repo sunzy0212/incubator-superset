@@ -60,6 +60,7 @@ const TransformDate = ({ modalVisible, onOk, onCancel, currRecord,
 
             <Option key="yyyy/MM/dd" value="yyyy/MM/dd">yyyy/MM/dd</Option>
             <Option key="yyyy/MM/dd HH:mm:ss" value="yyyy/MM/dd HH:mm:ss">yyyy/MM/dd HH:mm:ss</Option>
+            <Option key="2006-01-02T15:04:05.999Z" value="2006-01-02T15:04:05.999Z">2006-01-02T15:04:05.999Z</Option>
 
           </Select>)}
         </FormItem>

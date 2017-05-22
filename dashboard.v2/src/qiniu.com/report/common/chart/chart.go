@@ -1,4 +1,4 @@
-package data
+package chart
 
 const (
 	CHART_LINE = "LINE"

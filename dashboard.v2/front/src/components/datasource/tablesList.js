@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'dva/router';
 import { Table, Icon, Menu, Dropdown, Button, Popover } from 'antd';
-import { getTableData } from '../../services/datasource';
+import { getTableData } from '../../services/datasourceApi';
 
 const SubMenu = Menu.SubMenu;
 

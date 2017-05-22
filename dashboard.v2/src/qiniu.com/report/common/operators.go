@@ -1,4 +1,4 @@
-package data
+package common
 
 var OP = map[string]string{
 	"NIN":  "NOT IN",
