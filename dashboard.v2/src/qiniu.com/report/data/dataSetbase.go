@@ -61,8 +61,10 @@ func (m *DataSetManager) GenSqlFromCode(cfg QueryConfig) (sql string, err error)
 		selectSection = "*"
 	} else {
 		_selectFields := make([]string, 0)
-		for _, v := range selectFields {
-			_selectFields = append(_selectFields, fmt.Sprintf("`%s`", v.Name))
+		if common.ToSourceType(dataset.Type) != common.TSDB {
+			for _, v := range selectFields {
+				_selectFields = append(_selectFields, fmt.Sprintf("`%s`", v.Name))
+			}
 		}
 
 		////  Metrics

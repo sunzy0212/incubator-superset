@@ -51,15 +51,15 @@ type Service struct {
 	scheduler         *sched.Scheduler
 }
 
-func NewService(coll common.Collections, restUrls []string) (s *Service, err error) {
-	client := rest.NewDrillClient(restUrls)
+func NewService(coll common.Collections, drillCfg *rest.DrillConfig) (s *Service, err error) {
+	client := rest.NewDrillClient(drillCfg)
 	s = &Service{
 		Collections:       coll,
 		session:           session.New(),
 		RWMux:             &sync.RWMutex{},
 		client:            client,
 		dataSourceManager: data.NewDataSourceManager(),
-		executor:          data.NewExecutor(&coll, restUrls),
+		executor:          data.NewExecutor(&coll, drillCfg),
 		scheduler:         sched.NewScheduler(&coll),
 		//Config:      cfg,
 	}
@@ -302,7 +302,7 @@ func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret in
 
 	tables := make([]Table, 0)
 	for _, v := range res.Tables {
-		tables = append(tables, Table{id, v.Name, "", ""})
+		tables = append(tables, Table{id, v.Name, ds.Type, ""})
 	}
 	ret = RetTables{tables}
 	log.Info("success to get tables for datasource %s %s", ds.Host, ds.DbName)

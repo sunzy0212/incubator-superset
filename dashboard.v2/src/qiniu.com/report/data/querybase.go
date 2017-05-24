@@ -9,6 +9,8 @@ import (
 	"qiniu.com/report/common"
 	"qiniu.com/report/datasource"
 	"qiniu.com/report/rest"
+
+	"qiniu.com/pandora/logdb"
 )
 
 type QueryConfig struct {
@@ -24,10 +26,10 @@ type Executor struct {
 	dataSourceManager *DataSourceManager
 }
 
-func NewExecutor(colls *common.Collections, restUrls []string) *Executor {
+func NewExecutor(colls *common.Collections, drillCfg *rest.DrillConfig) *Executor {
 	return &Executor{
 		colls:             colls,
-		client:            rest.NewDrillClient(restUrls),
+		client:            rest.NewDrillClient(drillCfg),
 		dataSetManager:    NewDataSetManager(colls),
 		dataSourceManager: NewDataSourceManager(),
 	}
@@ -202,8 +204,10 @@ func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {
 		return
 	}
 	var datasourceId string
+	var tableName string
 	for _, v := range dataset.DataSources {
 		datasourceId = v.DatasourceId
+		tableName = v.Table
 	}
 
 	var ds common.DataSource
@@ -211,8 +215,8 @@ func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {
 		log.Error(err)
 		return
 	}
-	switch common.ToSourceType(ds.Type) {
-	case common.TSDB, common.INFLUXDB, common.LOGDB:
+	switch common.ToSourceType(dataset.Type) {
+	case common.TSDB, common.INFLUXDB:
 		var handler datasource.DataSourceInterface
 		if handler, err = e.dataSourceManager.Get(ds, true); err != nil {
 			log.Error(err)
@@ -220,6 +224,23 @@ func (e *Executor) Execute(cfg QueryConfig) (ret interface{}, err error) {
 		}
 		var res rest.Results
 		if res, err = handler.Query(strings.Replace(sql, "`", "", -1)); err != nil {
+			log.Error(err)
+			return
+		}
+		ret = res.Rows
+		return
+	case common.LOGDB:
+		var handler datasource.DataSourceInterface
+		if handler, err = e.dataSourceManager.Get(ds, true); err != nil {
+			log.Error(err)
+			return
+		}
+		var res rest.Results
+		if res, err = handler.Query(&logdb.QueryLogInput{
+			RepoName: tableName,
+			From:     0,
+			Size:     1000,
+		}); err != nil {
 			log.Error(err)
 			return
 		}
