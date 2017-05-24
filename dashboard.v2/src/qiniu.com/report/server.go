@@ -1115,7 +1115,7 @@ func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
 		err = errors.Info(ErrInternalError, err)
 	}
 	ret = RetReports{ds}
-	log.Infof("success to get all reports: %v", ret)
+	log.Infof("success to get all reports, total %v", len(ds))
 	return
 }
 
@@ -1129,7 +1129,7 @@ func (s *Service) GetReports_(args *cmdArgs, env *rpcutil.Env) (ret common.Repor
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
-	log.Infof("success to get all reports: %v", ret)
+	log.Infof("success to get report: %v", ret.Id)
 	return
 }
 
@@ -1601,7 +1601,7 @@ func (s *Service) DeleteTemplates_(args *cmdArgs, env *rpcutil.Env) (err error) 
 	return
 }
 
-func (s *Service) PostTemplates_Crons(args *cmdArgs, env *rpcutil.Env) (ret interface{}, err error) {
+func (s *Service) PostTemplates_Crons(args *cmdArgs, env *rpcutil.Env) (err error) {
 	tempId := args.CmdArgs[0]
 	var _data []byte
 	if _data, err = ioutil.ReadAll(env.Req.Body); err != nil {

@@ -165,7 +165,7 @@ func (c *DrillClient) doRequest(method string, uri string, body io.ReaderAt, res
 	}
 	req.Header.Set("Connection", "close")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", c.baseAuth)
+	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", c.baseAuth))
 	resp, err := c.client.Do(nil, req)
 	if err != nil {
 		log.Error(err)

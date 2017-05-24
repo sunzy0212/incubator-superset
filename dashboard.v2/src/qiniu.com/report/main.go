@@ -64,17 +64,19 @@ func (self *MyServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch r.URL.Path {
-	case "/v1/users/login":
+	if strings.HasPrefix(r.URL.Path, "/v1") {
+		switch r.URL.Path {
+		case "/v1/users/login":
 
-	default:
-		sign := r.FormValue("sign")
-		if _, found := self.srv.session.Get(sign); !found && strings.HasPrefix(r.Host, "localhost") {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			res, _ := json.Marshal(map[string]string{"error": "unauthorized"})
-			w.Write(res)
-			return
+		default:
+			sign := r.FormValue("sign")
+			if _, found := self.srv.session.Get(sign); !found && !strings.HasPrefix(r.Host, "localhost") && !strings.HasPrefix(r.Host, "report-server.report") {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				res, _ := json.Marshal(map[string]string{"error": "unauthorized"})
+				w.Write(res)
+				return
+			}
 		}
 	}
 	self.ServeMux.ServeHTTP(w, r)
@@ -121,10 +123,9 @@ func main() {
 
 	if os.Getenv("DRILL_HOST") != "" {
 		cfg.Drill.Urls = []string{os.Getenv("DRILL_HOST")}
-	}
-
-	if os.Getenv("TOKEN") != "" {
-		cfg.Drill.AuthString = os.Getenv("TOKEN")
+		if os.Getenv("TOKEN") != "" {
+			cfg.Drill.AuthString = os.Getenv("TOKEN")
+		}
 	}
 
 	log.SetOutputLevel(cfg.S.DebugLevel)

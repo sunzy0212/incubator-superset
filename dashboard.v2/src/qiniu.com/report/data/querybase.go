@@ -70,7 +70,7 @@ func (e *Executor) ShowTables(ds common.DataSource) (ret datasource.RetTables, e
 	case common.MYSQL, common.MONGODB:
 		dbSpec := fmt.Sprintf("%s_%s.%s", ds.AppUri, ds.Name, ds.DbName)
 		sql := fmt.Sprintf("SELECT TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.`TABLES` where TABLE_SCHEMA='%s'", dbSpec)
-		log.Debugf("query SQL[%s]", sql)
+		log.Infof("query SQL[%s]", sql)
 
 		res, err1 := e.client.Query(sql)
 		if err1 != nil {
@@ -80,7 +80,9 @@ func (e *Executor) ShowTables(ds common.DataSource) (ret datasource.RetTables, e
 		}
 
 		for _, v := range res.Rows {
-			ret.Tables = append(ret.Tables, datasource.Table{Name: v["TABLE_NAME"].(string)})
+			if len(v) != 0 {
+				ret.Tables = append(ret.Tables, datasource.Table{Name: v["TABLE_NAME"].(string)})
+			}
 		}
 	case common.DEMO:
 		ret.Tables = append(ret.Tables, datasource.Table{Name: "employee.json"})
