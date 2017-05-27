@@ -6,5 +6,6 @@ RUN mkdir -p /data/logs && \
 	apt-get install -y curl
 
 ADD nginx.conf /etc/nginx/nginx.conf
+ADD .htpasswd /etc/nginx/.htpasswd
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

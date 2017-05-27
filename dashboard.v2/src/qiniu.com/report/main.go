@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"regexp"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/qiniu/log.v1"
 	"qbox.us/cc/config"
 	"qiniu.com/report/common"
+	"qiniu.com/report/rest"
 )
 
 const (
@@ -36,20 +38,16 @@ type EndPoint struct {
 	StaticPath string `json:"static_file_path"`
 }
 
-type Drill struct {
-	Urls []string `json:"urls"`
-}
-
 type Env struct {
 	Dev    bool   `json:"dev"`
 	AppUri string `json:"user_app_uri"`
 }
 
 type Config struct {
-	E     Env            `json:"env"`
-	M     mgoutil.Config `json:"mgo"`
-	S     EndPoint       `json:"service"`
-	Drill Drill          `json:"drill"`
+	E     Env               `json:"env"`
+	M     mgoutil.Config    `json:"mgo"`
+	S     EndPoint          `json:"service"`
+	Drill *rest.DrillConfig `json:"drill"`
 }
 
 func (self *MyServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -66,17 +64,19 @@ func (self *MyServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch r.URL.Path {
-	case "/v1/users/login":
+	if strings.HasPrefix(r.URL.Path, "/v1") {
+		switch r.URL.Path {
+		case "/v1/users/login":
 
-	default:
-		sign := r.FormValue("sign")
-		if _, found := self.srv.session.Get(sign); !found {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			res, _ := json.Marshal(map[string]string{"error": "unauthorized"})
-			w.Write(res)
-			return
+		default:
+			sign := r.FormValue("sign")
+			if _, found := self.srv.session.Get(sign); !found && !strings.HasPrefix(r.Host, "localhost") && !strings.HasPrefix(r.Host, "report-server.report") {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				res, _ := json.Marshal(map[string]string{"error": "unauthorized"})
+				w.Write(res)
+				return
+			}
 		}
 	}
 	self.ServeMux.ServeHTTP(w, r)
@@ -96,8 +96,9 @@ func main() {
 			Env{Dev: false, AppUri: ""},
 			mgoutil.Config{Host: "127.0.0.1", DB: "report"},
 			EndPoint{"8000", runtime.NumCPU()/2 + 1, 1, "./"},
-			Drill{
-				Urls: []string{"http://h168t2ni.nq.cloudappl.com"},
+			&rest.DrillConfig{
+				Urls:       []string{"http://h168t2ni.nq.cloudappl.com"},
+				AuthString: "c3ZlbjpzdmVuMTIz",
 			},
 		}
 		log.Infof("%+v", cfg)
@@ -122,6 +123,9 @@ func main() {
 
 	if os.Getenv("DRILL_HOST") != "" {
 		cfg.Drill.Urls = []string{os.Getenv("DRILL_HOST")}
+		if os.Getenv("TOKEN") != "" {
+			cfg.Drill.AuthString = os.Getenv("TOKEN")
+		}
 	}
 
 	log.SetOutputLevel(cfg.S.DebugLevel)
@@ -156,7 +160,7 @@ func main() {
 		}
 	}()
 
-	srv, err := NewService(colls, cfg.Drill.Urls)
+	srv, err := NewService(colls, cfg.Drill)
 	if err != nil {
 		defer session.Close()
 		log.Fatal("Initialize portal service failed:", err)

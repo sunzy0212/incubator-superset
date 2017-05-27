@@ -337,7 +337,8 @@ class Slices extends React.Component {
                 initialValue: this.state.groupKeys,
               })(
                 <Select
-                  multiple
+                  mode="tags"
+                  tags="true"
                   showSearch
                   placeholder="分组"
                   onChange={this.handleGroupSelectChange}

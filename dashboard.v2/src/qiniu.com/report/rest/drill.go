@@ -12,6 +12,11 @@ import (
 	"github.com/qiniu/rpc.v3/lb.v2"
 )
 
+type DrillConfig struct {
+	Urls       []string `json:"urls"`
+	AuthString string   `json:"authString"`
+}
+
 type RestServerError struct {
 	Message string `json:"errorMessage"`
 }
@@ -21,11 +26,13 @@ func (e *RestServerError) Error() string {
 }
 
 type DrillClient struct {
-	client *lb.Client
+	baseAuth string
+	client   *lb.Client
 }
 
-func NewDrillClient(urls []string) *DrillClient {
-	return &DrillClient{genClient(urls)}
+func NewDrillClient(cfg *DrillConfig) *DrillClient {
+	return &DrillClient{baseAuth: cfg.AuthString,
+		client: genClient(cfg.Urls)}
 }
 
 /*
@@ -158,6 +165,7 @@ func (c *DrillClient) doRequest(method string, uri string, body io.ReaderAt, res
 	}
 	req.Header.Set("Connection", "close")
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", c.baseAuth))
 	resp, err := c.client.Do(nil, req)
 	if err != nil {
 		log.Error(err)

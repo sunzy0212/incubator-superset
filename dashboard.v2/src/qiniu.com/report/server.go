@@ -51,15 +51,15 @@ type Service struct {
 	scheduler         *sched.Scheduler
 }
 
-func NewService(coll common.Collections, restUrls []string) (s *Service, err error) {
-	client := rest.NewDrillClient(restUrls)
+func NewService(coll common.Collections, drillCfg *rest.DrillConfig) (s *Service, err error) {
+	client := rest.NewDrillClient(drillCfg)
 	s = &Service{
 		Collections:       coll,
 		session:           session.New(),
 		RWMux:             &sync.RWMutex{},
 		client:            client,
 		dataSourceManager: data.NewDataSourceManager(),
-		executor:          data.NewExecutor(&coll, restUrls),
+		executor:          data.NewExecutor(&coll, drillCfg),
 		scheduler:         sched.NewScheduler(&coll),
 		//Config:      cfg,
 	}
@@ -302,7 +302,7 @@ func (s *Service) GetDatasources_Tables(args *cmdArgs, env *rpcutil.Env) (ret in
 
 	tables := make([]Table, 0)
 	for _, v := range res.Tables {
-		tables = append(tables, Table{id, v.Name, "", ""})
+		tables = append(tables, Table{id, v.Name, ds.Type, ""})
 	}
 	ret = RetTables{tables}
 	log.Info("success to get tables for datasource %s %s", ds.Host, ds.DbName)
@@ -1115,7 +1115,7 @@ func (s *Service) GetReports(env *rpcutil.Env) (ret RetReports, err error) {
 		err = errors.Info(ErrInternalError, err)
 	}
 	ret = RetReports{ds}
-	log.Infof("success to get all reports: %v", ret)
+	log.Infof("success to get all reports, total %v", len(ds))
 	return
 }
 
@@ -1129,7 +1129,7 @@ func (s *Service) GetReports_(args *cmdArgs, env *rpcutil.Env) (ret common.Repor
 		}
 		err = errors.Info(ErrInternalError, err)
 	}
-	log.Infof("success to get all reports: %v", ret)
+	log.Infof("success to get report: %v", ret.Id)
 	return
 }
 
@@ -1601,7 +1601,7 @@ func (s *Service) DeleteTemplates_(args *cmdArgs, env *rpcutil.Env) (err error) 
 	return
 }
 
-func (s *Service) PostTemplates_Crons(args *cmdArgs, env *rpcutil.Env) (ret interface{}, err error) {
+func (s *Service) PostTemplates_Crons(args *cmdArgs, env *rpcutil.Env) (err error) {
 	tempId := args.CmdArgs[0]
 	var _data []byte
 	if _data, err = ioutil.ReadAll(env.Req.Body); err != nil {

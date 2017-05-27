@@ -168,6 +168,7 @@ type Field struct {
 type DataSet struct {
 	Id            string                      `json:"id" bson:"id"`
 	Name          string                      `json:"name" bson:"name"`
+	Type          string                      `json:"type" bson:"type"`
 	DataSources   map[TableId]DataSourceTable `json:"datasources" bson:"datasources"`
 	Relationships []Relationship              `json:"relationships" bson:"relationships"`
 	Dimensions    []Field                     `json:"dimensions" bson:"dimensions"`

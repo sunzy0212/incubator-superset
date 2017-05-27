@@ -113,6 +113,7 @@ export default {
       if (datasets.dataset.id === undefined || datasets.dataset.name === '') {
         const data = yield call(saveDataSet, parse({
           name: payload.name,
+          type: datasets.dataset.type,
           datasources: datasets.datasources,
           relationships: datasets.relationships,
           dimensions: datasets.dimensions,
@@ -129,6 +130,7 @@ export default {
           id: datasets.dataset.id,
           dataset: {
             name: payload.name,
+            type: datasets.dataset.type,
             datasources: datasets.datasources,
             relationships: datasets.relationships,
             dimensions: datasets.dimensions,
@@ -328,6 +330,7 @@ export default {
       const dataset = state.dataset;
 
       dataset.name = action.payload.datasource.name;
+      dataset.type = action.payload.datasource.datasourceType
 
       datasources[res.tableId] = {
         tableId: res.tableId,
@@ -350,7 +353,10 @@ export default {
       return {
         ...state,
         datasources,
+        times,
+        measures,
         dimensions,
+        dataset,
       };
     },
   },
