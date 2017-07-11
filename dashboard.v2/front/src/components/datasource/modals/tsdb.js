@@ -137,7 +137,7 @@ const TSDB = ({
                   message: '仓库名未填写',
                 },
               ],
-            })(<Select onFocus={reflashDatabases}>
+            })(<Select>
               {
                 databases.dbs.map((elem) => {
                   return <Option key={elem.name} value={elem.name}>{elem.name}</Option>;
