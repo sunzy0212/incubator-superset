@@ -30,6 +30,7 @@ _testmain.go
 *.prof
 
 .idea
+target
 node_modules/
 *.pyc
 .DS_Store

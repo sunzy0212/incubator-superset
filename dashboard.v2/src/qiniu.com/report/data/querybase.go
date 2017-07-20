@@ -49,7 +49,7 @@ func (e *Executor) ListDatabases(ds common.DataSource) (ret datasource.RetDataba
 		return ret, err
 	}
 
-	log.Infof("success to get databases")
+	log.Infof("success to get databases, total: %d", len(ret.Databases))
 
 	return
 }
