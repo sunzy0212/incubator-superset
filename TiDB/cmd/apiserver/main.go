@@ -49,7 +49,7 @@ func ensureRequiredConfig(cfg *Config) (err error) {
 
 func main() {
 
-	config.Init("f", "report", "report-default.conf")
+	config.Init("config", "report", "report-default.conf")
 
 	var conf Config
 	if err := config.Load(&conf); err != nil {

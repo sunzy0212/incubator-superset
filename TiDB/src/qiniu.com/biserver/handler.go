@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/XeLabs/go-mysqlstack/driver"
 	"github.com/XeLabs/go-mysqlstack/sqldb"
 	"github.com/XeLabs/go-mysqlstack/sqlparser/depends/sqltypes"
 	"github.com/XeLabs/go-mysqlstack/xlog"
@@ -59,10 +60,10 @@ type Cond struct {
 }
 
 // Test Handler
-type TestHandler struct {
+type TiDBHandler struct {
 	log   *xlog.Log
 	mu    sync.RWMutex
-	ss    map[uint32]*Session
+	ss    map[uint32]*driver.Session
 	conds map[string]*Cond
 
 	// patterns is a list of regexp to results.
@@ -73,16 +74,16 @@ type TestHandler struct {
 	queryCalled map[string]int
 }
 
-func NewTestHandler(log *xlog.Log) *TestHandler {
-	return &TestHandler{
+func NewTiDBHandler(log *xlog.Log) *TiDBHandler {
+	return &TiDBHandler{
 		log:         log,
-		ss:          make(map[uint32]*Session),
+		ss:          make(map[uint32]*driver.Session),
 		conds:       make(map[string]*Cond),
 		queryCalled: make(map[string]int),
 	}
 }
 
-func (th *TestHandler) setCond(cond *Cond) {
+func (th *TiDBHandler) setCond(cond *Cond) {
 	th.mu.Lock()
 	defer th.mu.Unlock()
 	th.conds[strings.ToLower(cond.Query)] = cond
@@ -90,7 +91,7 @@ func (th *TestHandler) setCond(cond *Cond) {
 }
 
 // ResetAll resets all querys.
-func (th *TestHandler) ResetAll() {
+func (th *TiDBHandler) ResetAll() {
 	th.mu.Lock()
 	defer th.mu.Unlock()
 	for k, _ := range th.conds {
@@ -100,11 +101,11 @@ func (th *TestHandler) ResetAll() {
 	th.patternErrors = make([]exprResult, 0, 4)
 }
 
-func (th *TestHandler) ResetPatternErrors() {
+func (th *TiDBHandler) ResetPatternErrors() {
 	th.patternErrors = make([]exprResult, 0, 4)
 }
 
-func (th *TestHandler) ResetErrors() {
+func (th *TiDBHandler) ResetErrors() {
 	for k, v := range th.conds {
 		if v.Type == COND_ERROR {
 			delete(th.conds, k)
@@ -113,13 +114,13 @@ func (th *TestHandler) ResetErrors() {
 }
 
 // ConnectionCheck impl.
-func (th *TestHandler) SessionCheck(s *Session) error {
+func (th *TiDBHandler) SessionCheck(s *driver.Session) error {
 	th.log.Debug("[%s].coming.db[%s].salt[%v].scramble[%v]", s.Addr(), s.Schema(), s.Salt(), s.Scramble())
 	return nil
 }
 
 // AuthCheck impl.
-func (th *TestHandler) AuthCheck(s *Session) error {
+func (th *TiDBHandler) AuthCheck(s *driver.Session) error {
 	user := s.User()
 	if user != "mock" {
 		return sqldb.NewSQLError(sqldb.ER_ACCESS_DENIED_ERROR, "Access denied for user '%v'", user)
@@ -128,21 +129,21 @@ func (th *TestHandler) AuthCheck(s *Session) error {
 }
 
 // Register impl.
-func (th *TestHandler) NewSession(s *Session) {
+func (th *TiDBHandler) NewSession(s *driver.Session) {
 	th.mu.Lock()
 	defer th.mu.Unlock()
 	th.ss[s.ID()] = s
 }
 
 // UnRegister impl.
-func (th *TestHandler) SessionClosed(s *Session) {
+func (th *TiDBHandler) SessionClosed(s *driver.Session) {
 	th.mu.Lock()
 	defer th.mu.Unlock()
 	delete(th.ss, s.ID())
 }
 
 // ComInitDB impl.
-func (th *TestHandler) ComInitDB(s *Session, db string) error {
+func (th *TiDBHandler) ComInitDB(s *driver.Session, db string) error {
 	if strings.HasPrefix(db, "xx") {
 		return fmt.Errorf("mock.cominit.db.error: unkonw database[%s]", db)
 	}
@@ -150,7 +151,7 @@ func (th *TestHandler) ComInitDB(s *Session, db string) error {
 }
 
 // ComQuery impl.
-func (th *TestHandler) ComQuery(s *Session, query string) (*sqltypes.Result, error) {
+func (th *TiDBHandler) ComQuery(s *driver.Session, query string) (*sqltypes.Result, error) {
 	th.log.Debug("test.handler.ComQuery:%v", query)
 	query = strings.ToLower(query)
 
@@ -159,6 +160,7 @@ func (th *TestHandler) ComQuery(s *Session, query string) (*sqltypes.Result, err
 	cond := th.conds[query]
 	th.mu.Unlock()
 
+	//相当于一个缓存
 	if cond != nil {
 		switch cond.Type {
 		case COND_DELAY:
@@ -202,27 +204,40 @@ func (th *TestHandler) ComQuery(s *Session, query string) (*sqltypes.Result, err
 			return pat.result, nil
 		}
 	}
+	//在缓存中没有找到，需要从TiDB中取
+	conn, err := driver.NewConn("root", "mypandorapassword2017", "101.71.85.34:3306", "tsdb_auditlog", "")
+	if err != nil {
+		th.log.Error(err.Error())
+		return nil, err
+	}
 
-	return nil, fmt.Errorf("testhandler.query[%v].error[can.not.found.the.cond.please.set.first]", query)
+	result, err := conn.FetchAll(query, 1000)
+	if err != nil {
+		th.log.Error(err.Error())
+		return nil, err
+	}
+	return result, nil
+
+	//return nil, fmt.Errorf("TiDBHandler.query[%v].error[can.not.found.the.cond.please.set.first]", query)
 }
 
 // AddQuery used to add a query and its expected result.
-func (th *TestHandler) AddQuery(query string, result *sqltypes.Result) {
+func (th *TiDBHandler) AddQuery(query string, result *sqltypes.Result) {
 	th.setCond(&Cond{Type: COND_NORMAL, Query: query, Result: result})
 }
 
 // AddQueryDelay used to add a query and returns the expected result after delay_ms.
-func (th *TestHandler) AddQueryDelay(query string, result *sqltypes.Result, delay_ms int) {
+func (th *TiDBHandler) AddQueryDelay(query string, result *sqltypes.Result, delay_ms int) {
 	th.setCond(&Cond{Type: COND_DELAY, Query: query, Result: result, Delay: delay_ms})
 }
 
 // AddQueryError used to add a query which will be rejected by a error.
-func (th *TestHandler) AddQueryError(query string, err error) {
+func (th *TiDBHandler) AddQueryError(query string, err error) {
 	th.setCond(&Cond{Type: COND_ERROR, Query: query, Error: err})
 }
 
 // AddQueryPanic used to add query but underflying blackhearted.
-func (th *TestHandler) AddQueryPanic(query string) {
+func (th *TiDBHandler) AddQueryPanic(query string) {
 	th.setCond(&Cond{Type: COND_PANIC, Query: query})
 }
 
@@ -231,7 +246,7 @@ func (th *TestHandler) AddQueryPanic(query string) {
 // These patterns are checked if no exact matches from AddQuery() are found.
 // This function forces the addition of begin/end anchors (^$) and turns on
 // case-insensitive matching mode.
-func (th *TestHandler) AddQueryPattern(queryPattern string, expectedResult *sqltypes.Result) {
+func (th *TiDBHandler) AddQueryPattern(queryPattern string, expectedResult *sqltypes.Result) {
 	if len(expectedResult.Rows) > 0 && len(expectedResult.Fields) == 0 {
 		panic(fmt.Errorf("Please add Fields to this Result so it's valid: %v", queryPattern))
 	}
@@ -242,7 +257,7 @@ func (th *TestHandler) AddQueryPattern(queryPattern string, expectedResult *sqlt
 	th.patterns = append(th.patterns, exprResult{expr, &result, nil})
 }
 
-func (th *TestHandler) AddQueryErrorPattern(queryPattern string, err error) {
+func (th *TiDBHandler) AddQueryErrorPattern(queryPattern string, err error) {
 	expr := regexp.MustCompile("(?is)^" + queryPattern + "$")
 	th.mu.Lock()
 	defer th.mu.Unlock()
@@ -251,7 +266,7 @@ func (th *TestHandler) AddQueryErrorPattern(queryPattern string, err error) {
 
 // This code was derived from https://github.com/youtube/vitess.
 // GetQueryCalledNum returns how many times db executes a certain query.
-func (th *TestHandler) GetQueryCalledNum(query string) int {
+func (th *TiDBHandler) GetQueryCalledNum(query string) int {
 	th.mu.Lock()
 	defer th.mu.Unlock()
 	num, ok := th.queryCalled[strings.ToLower(query)]
@@ -259,27 +274,4 @@ func (th *TestHandler) GetQueryCalledNum(query string) int {
 		return 0
 	}
 	return num
-}
-
-func MockMysqlServer(log *xlog.Log, h Handler) (svr *Listener, err error) {
-	port := randomPort(10000, 20000)
-	addr := fmt.Sprintf(":%d", port)
-	for i := 0; i < 5; i++ {
-		if svr, err = NewListener(log, addr, h); err != nil {
-			port = randomPort(5000, 20000)
-			addr = fmt.Sprintf("127.0.0.1:%d", port)
-		} else {
-			break
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	go func() {
-		svr.Accept()
-	}()
-	time.Sleep(100 * time.Millisecond)
-	log.Debug("mock.server[%v].start...", addr)
-	return
 }
