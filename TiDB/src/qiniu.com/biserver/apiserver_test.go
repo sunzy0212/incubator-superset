@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/XeLabs/go-mysqlstack/sqlparser"
 	"github.com/qiniu/mockhttp.v2"
 	"qiniu.com/http/httptest.v1"
 
@@ -69,6 +70,7 @@ func Test_apiserver(t *testing.T) {
 	ctx.SetTransport(transport)
 
 	ctx.Exec(`
+        # test create db
         post http://bi.com/v1/dbs/dbone
 		header X-Appid 123
         ret 200
@@ -90,6 +92,29 @@ func Test_apiserver(t *testing.T) {
         delete http://bi.com/v1/dbs/dbone
         header X-Appid 123
         ret 599
+
+        # test create table
+        post http://bi.com/v1/dbs/dbone
+		header X-Appid 123
+        ret 200
+
+        post http://bi.com/v1/dbs/dbone/tables/tableone
+		header X-Appid 123
+        ret 200
+
+        get http://bi.com/v1/dbs/dbone/tables
+		header X-Appid 123
+        ret 200
+        json '["tableone"]'
+
+        delete http://bi.com/v1/dbs/dbone/tables/tableone
+		header X-Appid 123
+        ret 200
+
+        get http://bi.com/v1/dbs/dbone/tables
+		header X-Appid 123
+        ret 200
+        json '[]'
     `)
 }
 
@@ -116,4 +141,20 @@ func clean() error {
 	db.Exec("drop database 123_dbone")
 
 	return nil
+}
+
+func Test_Parse(t *testing.T) {
+
+	stmt, err := sqlparser.Parse("create table tableone(a TEXT,b TEXT);")
+	if err != nil {
+		return
+	}
+	st, ok := stmt.(*sqlparser.DDL)
+	if !ok {
+		t.Log("not CREATE")
+	}
+	st.Database = sqlparser.NewTableIdent("test")
+	buf := sqlparser.NewTrackedBuffer(nil)
+	st.Format(buf)
+	t.Log(string(buf.Bytes()))
 }

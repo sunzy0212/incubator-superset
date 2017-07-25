@@ -8,6 +8,8 @@ import (
 	"qbox.us/errors"
 
 	"github.com/XeLabs/go-mysqlstack/driver"
+	"github.com/XeLabs/go-mysqlstack/sqlparser"
+
 	"github.com/XeLabs/go-mysqlstack/xlog"
 
 	"database/sql"
@@ -179,7 +181,7 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 	return
 }
 
-// POST /v1/dbs/<DB_Name>/tables
+// POST /v1/dbs/<DB_Name>/tables/<TableName>
 // Content-Type: application/json
 // X-Appid: <AppId>
 func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error) {
@@ -199,6 +201,15 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	if err != nil {
 		return
 	}
+	stmt, err := sqlparser.Parse(req.CMD)
+	if err != nil {
+		return
+	}
+	st, ok := stmt.(*sqlparser.Insert)
+	if !ok {
+
+	}
+	fmt.Println(st)
 
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(req.CMD)
@@ -209,6 +220,95 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO report_dev_test.tables (appid,dbname,tablename) VALUES ('%s','%s','%s')", appId, dbName, args.CmdArgs[1]))
 	if err != nil {
 		return
+	}
+
+	return
+}
+
+// DELETE /v1/dbs/<DB_Name>/tables/<TableName>
+// Content-Type: application/json
+// X-Appid: <AppId>
+func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error) {
+
+	appId, dbName, err := getAppidAndDBName(args, env)
+	if err != nil {
+		return
+	}
+	fmt.Println(appId, dbName)
+
+	//cmd need verify
+	_, err = s.MySQLClient.Exec("drop table %s.%s", constructUserDBName(appId, dbName), args.CmdArgs[1])
+	if err != nil {
+		return
+	}
+
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE FROM report_dev_test.tables WHERE appid='%s' and dbname='%s' and tablename='%s'", appId, dbName, args.CmdArgs[1]))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// GET /v1/dbs/<DBName>/tables
+// Content-Type: application/json
+// X-Appid: <AppId>
+func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []string, err error) {
+
+	tables = make([]string, 0)
+	appId, dbName, err := getAppidAndDBName(args, env)
+	if err != nil {
+		return
+	}
+	//ensure appid is valid
+
+	//create database
+	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from report_dev_test.tables where appid= '%s' and dbname='%s'", appId, dbName))
+	if err != nil {
+		return
+	}
+
+	result, err := tableNames.Query()
+	if err != nil {
+		return
+	}
+
+	var tableName string
+	for result.Next() {
+		result.Scan(&tableName)
+		tables = append(tables, tableName)
+	}
+
+	return
+}
+
+// GET /v1/dbs/<DBName>/tables/<TableName>
+// Content-Type: application/json
+// X-Appid: <AppId>
+func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (tables []string, err error) {
+
+	tables = make([]string, 0)
+	appId, dbName, err := getAppidAndDBName(args, env)
+	if err != nil {
+		return
+	}
+	//ensure appid is valid
+
+	//create database
+	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from report_dev_test.tables where appid= '%s' and dbname='%s'", appId, dbName))
+	if err != nil {
+		return
+	}
+
+	result, err := tableNames.Query()
+	if err != nil {
+		return
+	}
+
+	var tableName string
+	for result.Next() {
+		result.Scan(&tableName)
+		tables = append(tables, tableName)
 	}
 
 	return
