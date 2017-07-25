@@ -57,7 +57,7 @@ Content-Type: application/json
 # 创建数据表
 
 ```
-POST /v1/dbs/<DB_Name>/tables/<Table_Name>
+POST /v1/dbs/<DB_Name>/tables
 Content-Type: application/json
 {
     "cmd":<Mysql_Command>
