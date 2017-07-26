@@ -6,9 +6,14 @@ import (
 	"testing"
 
 	"github.com/XeLabs/go-mysqlstack/sqlparser"
+	"github.com/pingcap/tidb/ast"
+	"github.com/pingcap/tidb/model"
+
+	"github.com/pingcap/tidb/parser"
 	"github.com/qiniu/mockhttp.v2"
 	"qiniu.com/http/httptest.v1"
 
+	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/qiniu/http/restrpc.v1"
 )
@@ -92,7 +97,9 @@ func Test_apiserver(t *testing.T) {
         delete http://bi.com/v1/dbs/dbone
         header X-Appid 123
         ret 599
+        `)
 
+	ctx.Exec(`
         # test create table
         post http://bi.com/v1/dbs/dbone
 		header X-Appid 123
@@ -100,6 +107,9 @@ func Test_apiserver(t *testing.T) {
 
         post http://bi.com/v1/dbs/dbone/tables/tableone
 		header X-Appid 123
+        json '{
+            "cmd":"create table tableone(a TEXT, b TEXT)"
+        }'
         ret 200
 
         get http://bi.com/v1/dbs/dbone/tables
@@ -115,6 +125,52 @@ func Test_apiserver(t *testing.T) {
 		header X-Appid 123
         ret 200
         json '[]'
+         `)
+
+	ctx.Exec(`
+        post http://bi.com/v1/dbs/dbone/tables/tableone
+		header X-Appid 123
+        json '{
+            "cmd":"create table tableone(id TEXT, name TEXT, age INT)"
+        }'
+        ret 200
+
+        post http://bi.com/v1/dbs/dbone/tables/tableone/data
+		header X-Appid 123
+        body text 'id,name,age
+"id1","name1",18
+"id2","name2",28'
+        ret 200
+        
+        post http://bi.com/v1/dbs/dbone/query
+		header X-Appid 123
+        json '{
+            "cmd":"select * from tableone"
+        }'
+        ret 200
+        json '{
+                "results":[
+                    {
+                        "columns":[
+                            "id",
+                            "name",
+                            "age"
+                        ],
+                        "Rows":[
+                            [
+                                "id1",
+                                "name1",
+                                18
+                            ],
+                            [
+                                "id2",
+                                "name2",
+                                28
+                            ]
+                        ]
+                    }
+                ]
+            }'
     `)
 }
 
@@ -149,12 +205,38 @@ func Test_Parse(t *testing.T) {
 	if err != nil {
 		return
 	}
+	t.Log(spew.Sdump(stmt))
 	st, ok := stmt.(*sqlparser.DDL)
+	sqlparser.String(st)
 	if !ok {
 		t.Log("not CREATE")
 	}
-	st.Database = sqlparser.NewTableIdent("test")
+	st.NewName.Qualifier = sqlparser.NewTableIdent("test")
 	buf := sqlparser.NewTrackedBuffer(nil)
 	st.Format(buf)
-	t.Log(string(buf.Bytes()))
+	t.Log(buf.ParsedQuery().Query)
+	t.Log(sqlparser.String(stmt))
+}
+
+func Test_TParser(t *testing.T) {
+	p := parser.New()
+	stmt, err := p.ParseOneStmt("create table tableone(a TEXT,b TEXT);", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	st, ok := stmt.(*ast.CreateTableStmt)
+	if !ok {
+		t.Fatal("not create table stmt")
+	}
+	//st.Table.Schema = model.CIStr{O: "DBOne", L: "dbone"}
+	st.Table.DBInfo = &model.DBInfo{Name: model.CIStr{O: "DBOne", L: "dbone"}}
+	t.Log(spew.Sdump(st))
+	st.SetText("test")
+	t.Log(st.Text())
+	for _, col := range st.Cols {
+		t.Log(col)
+	}
+	//t.Log(spew.Sdump(st.Cols.Text()))
+
 }

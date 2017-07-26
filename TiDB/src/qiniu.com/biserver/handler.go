@@ -204,6 +204,7 @@ func (th *TiDBHandler) ComQuery(s *driver.Session, query string) (*sqltypes.Resu
 			return pat.result, nil
 		}
 	}
+
 	//在缓存中没有找到，需要从TiDB中取
 	conn, err := driver.NewConn("root", "mypandorapassword2017", "101.71.85.34:3306", "tsdb_auditlog", "")
 	if err != nil {

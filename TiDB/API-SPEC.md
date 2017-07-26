@@ -156,14 +156,19 @@ Content-Type: application/json
 # 写入数据点
 
 ```
-POST /v1/dbs/<DB_Name>/tables/<Table_Name>/data
+POST /v1/dbs/<DB_Name>/tables/<Table_Name>/data?spliter=<Spliter>&ommitInvalid=<True|False>
 Content-Type: application/json
 {
-    <Key1>:<Value1>,
-    <key2>:<Value2>,
+    <ColumnKey1>,<ColumnKey2>,<ColumnKey3>,...
+    <Value1>,<Value2>,<Value3>,...
     ...
 }
 ```
+
+* 数据格式本质上是CSV格式
+* 请求体的第一行永远是column key，默认用逗号分割,如果要更改分隔符，请在url中指定<Spliter>
+* 从第二行开始是数据，数据的列数必须和column key的数量一致
+* ommitInvalid: 是否忽略错误的点
 
 返回包:
 
@@ -185,8 +190,16 @@ Content-Type: application/json
 
 ```
 200 OK
-[
-    [<Value1>,<Value2>,...],
-    ...
-]
+{
+    "results":[
+        {
+            "columns":[<ColumnKey1>,<ColumnKey2>,<ColumnKey3>,...],
+            "rows":[
+                [<Value1>,<Value2>,<Value3>,...],
+                ...
+            ]
+        },
+        ...
+    ]
+}
 ```

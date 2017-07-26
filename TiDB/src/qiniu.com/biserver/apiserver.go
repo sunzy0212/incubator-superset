@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"qbox.us/errors"
 
@@ -201,15 +202,25 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	if err != nil {
 		return
 	}
+
+	fmt.Println(">>>>", req.CMD)
+
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
 		return
 	}
-	st, ok := stmt.(*sqlparser.Insert)
+	st, ok := stmt.(*sqlparser.DDL)
 	if !ok {
-
+		err = fmt.Errorf("expect create table syntax")
+		return
 	}
-	fmt.Println(st)
+
+	st.NewName.Qualifier = sqlparser.NewTableIdent(constructUserDBName(appId, dbName))
+	buf := sqlparser.NewTrackedBuffer(nil)
+	st.Format(buf)
+	rest := req.CMD[strings.Index(req.CMD, "("):]
+	req.CMD = buf.ParsedQuery().Query + rest
+	fmt.Println(">>>>", req.CMD)
 
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(req.CMD)
@@ -237,7 +248,7 @@ func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err erro
 	fmt.Println(appId, dbName)
 
 	//cmd need verify
-	_, err = s.MySQLClient.Exec("drop table %s.%s", constructUserDBName(appId, dbName), args.CmdArgs[1])
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("drop table %s.%s", constructUserDBName(appId, dbName), args.CmdArgs[1]))
 	if err != nil {
 		return
 	}
@@ -311,5 +322,115 @@ func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (tables []st
 		tables = append(tables, tableName)
 	}
 
+	return
+}
+
+// POST /v1/dbs/<DBName>/tables/<TableName>/data
+// Content-Type: application/json
+// X-Appid: <AppId>
+func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err error) {
+
+	appId, dbName, err := getAppidAndDBName(args, env)
+	if err != nil {
+		return
+	}
+	tableName := args.CmdArgs[1]
+
+	data, err := ioutil.ReadAll(env.Req.Body)
+	if err != nil {
+		return
+	}
+	schema, values, err := getSchemaAndValues(data)
+	if err != nil {
+		return
+	}
+	conn, err := driver.NewConn("root", "mypandorapassword2017", "101.71.85.34:3306", constructUserDBName(appId, dbName), "")
+	if err != nil {
+	}
+	sql := fmt.Sprintf("INSERT INTO %s.%s (%s) VALUES %s",
+		constructUserDBName(appId, dbName),
+		tableName,
+		schema,
+		values,
+	)
+	err = conn.Exec(sql)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// POST /v1/dbs/<DBName>/query
+// Content-Type: application/json
+// X-Appid: <AppId>
+func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet, err error) {
+
+	appId, dbName, err := getAppidAndDBName(args, env)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(appId, dbName)
+	data, err := ioutil.ReadAll(env.Req.Body)
+	if err != nil {
+		return
+	}
+
+	req := Command{}
+	err = json.Unmarshal(data, &req)
+	if err != nil {
+		return
+	}
+	if req.CMD == "" {
+		err = fmt.Errorf("empty command")
+		return
+	}
+
+	//appid must own this db
+	dbs, err := getDBByAppID(s.MySQLClient, appId)
+	if err != nil {
+		return
+	}
+
+	found := false
+	for _, db := range dbs {
+		if db == dbName {
+			found = true
+		}
+	}
+	if !found {
+		err = fmt.Errorf("database %s not found", dbName)
+		return
+	}
+	stmt, err := sqlparser.Parse(req.CMD)
+	if err != nil {
+		return
+	}
+	_, ok := stmt.(*sqlparser.Select)
+	if !ok {
+		err = fmt.Errorf("invalid sql, only select sql supported")
+		return
+	}
+	//table must exits in db
+	fmt.Println(">>>>", req.CMD)
+
+	//execute the sql
+	conn, err := driver.NewConn("root", "mypandorapassword2017", "101.71.85.34:3306", constructUserDBName(appId, dbName), "")
+	if err != nil {
+	}
+	sql := fmt.Sprintf(req.CMD)
+	result, err := conn.FetchAll(sql, 10000)
+	if err != nil {
+		return
+	}
+	bs, err := json.Marshal(result)
+	if err != nil {
+		return
+	}
+	fmt.Println(string(bs))
+
+	ret = convertResult(result)
+	fmt.Println(">>>>", ret)
 	return
 }
