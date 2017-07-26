@@ -20,7 +20,7 @@ GOVERALLS := goveralls
 ARCH      := "`uname -s`"
 LINUX     := "Linux"
 MAC       := "Darwin"
-PACKAGES  := $$(go list ./...| grep -vE 'vendor')
+PACKAGES  := $(CURDIR)/TiDB/src/qiniu.com/biserver
 FILES     := $$(find . -name '*.go' | grep -vE 'vendor')
 
 LDFLAGS += -X "github.com/pingcap/tidb/util/printer.TiDBBuildTS=$(shell date -u '+%Y-%m-%d %I:%M:%S')"
@@ -48,6 +48,10 @@ clean:
 	rm -rf *.out
 
 test: gotest
+
+gotest:
+	@echo "Running in native mode."
+	cd $(PACKAGES);$(GOTEST) ./...
 
 server:
 ifeq ($(TARGET), "")
