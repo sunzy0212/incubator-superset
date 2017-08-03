@@ -1,0 +1,15 @@
+{
+  "addSlice.js": "addSlice.c82ea4b0269a1b86e107.entry.js",
+  "common.js": "common.9fb4b95662379d031cfb.entry.js",
+  "css-theme.js": "css-theme.9bab23a75b7da77b0ccd.entry.js",
+  "dashboard.js": "dashboard.e444b819184014cf5be3.entry.js",
+  "explore.js": "explore.f6a614ef75857893cf0e.entry.js",
+  "glyphicons-halflings-regular.eot": "f4769f9bdb7466be65088239c12046d1.eot",
+  "glyphicons-halflings-regular.svg": "89889688147bd7575d6327160d64e760.svg",
+  "glyphicons-halflings-regular.ttf": "e18bbf611f2a2e43afc071aa2f4e1512.ttf",
+  "glyphicons-halflings-regular.woff": "fa2772327f55d8198301fdb8bcfc8158.woff",
+  "glyphicons-halflings-regular.woff2": "448c34a56d699c29117adc64c43affeb.woff2",
+  "profile.js": "profile.1a0bf92b6cc08d23f1e0.entry.js",
+  "sqllab.js": "sqllab.f6dbd0d9d0ff5a165256.entry.js",
+  "welcome.js": "welcome.73747435fb366e967ed5.entry.js"
+}

@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for javascripts/SqlLab/components/AceEditorWrapper.jsx</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">All files</a> / <a href="index.html">javascripts/SqlLab/components</a> AceEditorWrapper.jsx
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/56</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/12</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/13</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/54</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137</td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React from 'react';</span>
+<span class="cstat-no" title="statement not covered" >import PropTypes from 'prop-types';</span>
+<span class="cstat-no" title="statement not covered" >import AceEditor from 'react-ace';</span>
+<span class="cstat-no" title="statement not covered" >import 'brace/mode/sql';</span>
+<span class="cstat-no" title="statement not covered" >import 'brace/theme/github';</span>
+<span class="cstat-no" title="statement not covered" >import 'brace/ext/language_tools';</span>
+<span class="cstat-no" title="statement not covered" >import ace from 'brace';</span>
+<span class="cstat-no" title="statement not covered" >import { areArraysShallowEqual } from '../../reduxUtils';</span>
+&nbsp;
+c</span>onst langTools = <span class="cstat-no" title="statement not covered" >ace.acequire('ace/ext/language_tools');
+&nbsp;
+const keywords = (
+<span class="cstat-no" title="statement not covered" >  'SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|AND|OR|GROUP|BY|ORDER|LIMIT|OFFSET|HAVING|AS|CASE|' +</span>
+  'WHEN|ELSE|END|TYPE|LEFT|RIGHT|JOIN|ON|OUTER|DESC|ASC|UNION|CREATE|TABLE|PRIMARY|KEY|IF|' +
+  'FOREIGN|NOT|REFERENCES|DEFAULT|NULL|INNER|CROSS|NATURAL|DATABASE|DROP|GRANT'
+);
+&nbsp;
+const dataTypes = (
+<span class="cstat-no" title="statement not covered" >  'INT|NUMERIC|DECIMAL|DATE|VARCHAR|CHAR|BIGINT|FLOAT|DOUBLE|BIT|BINARY|TEXT|SET|TIMESTAMP|' +</span>
+  'MONEY|REAL|NUMBER|INTEGER'
+);
+&nbsp;
+c</span>onst sqlKeywords = <span class="cstat-no" title="statement not covered" >[].concat(keywords.split('|'), dataTypes.split('|'));
+c</span>onst sqlWords = <span class="cstat-no" title="statement not covered" >sqlKeywords.map(<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >s =&gt; ({</span></span>
+  name: s, value: s, score: 60, meta: 'sql',
+}));
+&nbsp;
+c</span>onst propTypes = <span class="cstat-no" title="statement not covered" >{
+  actions: PropTypes.object.isRequired,
+  onBlur: PropTypes.func,
+  onAltEnter: PropTypes.func,
+  sql: PropTypes.string.isRequired,
+  tables: PropTypes.array,
+  queryEditor: PropTypes.object.isRequired,
+};
+&nbsp;
+c</span>onst defaultProps = <span class="cstat-no" title="statement not covered" >{
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  onBlur: <span class="fstat-no" title="function not covered" >() =&gt; </span>{},</span></span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  onAltEnter: <span class="fstat-no" title="function not covered" >() =&gt; </span>{},</span></span>
+  tables: [],
+};
+&nbsp;
+class AceEditorWrapper extends React.PureComponent {
+<span class="fstat-no" title="function not covered" >  constructor(</span>props) <span class="cstat-no" title="statement not covered" >{</span>
+    super(props);
+<span class="cstat-no" title="statement not covered" >    this.state = {</span>
+      sql: props.sql,
+    };
+  }
+  componentDidMount() {
+    // Making sure no text is selected from previous mount
+<span class="cstat-no" title="statement not covered" >    this.props.actions.queryEditorSetSelectedText(this.props.queryEditor, null);</span>
+<span class="cstat-no" title="statement not covered" >    this.setAutoCompleter(this.props);</span>
+  }
+  componentWillReceiveProps(nextProps) {
+<span class="cstat-no" title="statement not covered" >    if (!areArraysShallowEqual(this.props.tables, nextProps.tables)) {</span>
+<span class="cstat-no" title="statement not covered" >      this.setAutoCompleter(nextProps);</span>
+    }
+<span class="cstat-no" title="statement not covered" >    if (nextProps.sql !== this.props.sql) {</span>
+<span class="cstat-no" title="statement not covered" >      this.setState({ sql: nextProps.sql });</span>
+    }
+  }
+  onBlur() {
+<span class="cstat-no" title="statement not covered" >    this.props.onBlur(this.state.sql);</span>
+  }
+  onAltEnter() {
+<span class="cstat-no" title="statement not covered" >    this.props.onBlur(this.state.sql);</span>
+<span class="cstat-no" title="statement not covered" >    this.props.onAltEnter();</span>
+  }
+  onEditorLoad(editor) <span class="cstat-no" title="statement not covered" >{</span>
+<span class="cstat-no" title="statement not covered" >    editor.commands.addCommand({</span>
+      name: 'runQuery',
+      bindKey: { win: 'Alt-enter', mac: 'Alt-enter' },
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >      exec: <span class="fstat-no" title="function not covered" >() =&gt; </span>{</span></span>
+<span class="cstat-no" title="statement not covered" >        this.onAltEnter();</span>
+      },
+    });
+<span class="cstat-no" title="statement not covered" >    editor.$blockScrolling = Infinity; // eslint-disable-line no-param-reassign</span>
+<span class="cstat-no" title="statement not covered" >    editor.selection.on('changeSelection', <span class="fstat-no" title="function not covered" >() =&gt; </span>{</span>
+<span class="cstat-no" title="statement not covered" >      this.props.actions.queryEditorSetSelectedText(</span>
+        this.props.queryEditor, editor.getSelectedText());
+    });
+  }
+  getCompletions(aceEditor, session, pos, prefix, callback) {
+<span class="cstat-no" title="statement not covered" >    callback(null, this.state.words);</span>
+  }
+  setAutoCompleter(props) <span class="cstat-no" title="statement not covered" >{</span>
+    // Loading table and column names as auto-completable words
+    l</span>et words = <span class="cstat-no" title="statement not covered" >[];
+    c</span>onst columns = <span class="cstat-no" title="statement not covered" >{};
+    c</span>onst tables = <span class="cstat-no" title="statement not covered" >props.tables || [];
+<span class="cstat-no" title="statement not covered" >    tables.forEach(<span class="fstat-no" title="function not covered" >(</span>t) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      words.push({ name: t.name, value: t.name, score: 55, meta: 'table' });</span>
+      c</span>onst cols = <span class="cstat-no" title="statement not covered" >t.columns || [];
+<span class="cstat-no" title="statement not covered" >      cols.forEach(<span class="fstat-no" title="function not covered" >(</span>col) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        columns[col.name] = null;  // using an object as a unique set</span>
+      });
+    });
+<span class="cstat-no" title="statement not covered" >    words = words.concat(Object.keys(columns).map(<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >col =&gt; (</span></span></span>
+      { name: col, value: col, score: 50, meta: 'column' }
+    )), sqlWords);
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    this.setState({ words }, <span class="fstat-no" title="function not covered" >() =&gt; </span>{</span>
+      c</span>onst completer = <span class="cstat-no" title="statement not covered" >{
+        getCompletions: this.getCompletions.bind(this),
+      };
+<span class="cstat-no" title="statement not covered" >      if (langTools) {</span>
+<span class="cstat-no" title="statement not covered" >        langTools.setCompleters([completer]);</span>
+      }
+    });
+  }
+  textChange(text) {
+<span class="cstat-no" title="statement not covered" >    this.setState({ sql: text });</span>
+  }
+  render() {
+<span class="cstat-no" title="statement not covered" >    return (</span>
+      &lt;AceEditor
+        mode="sql"
+        theme="github"
+        onLoad={this.onEditorLoad.bind(this)}
+        onBlur={this.onBlur.bind(this)}
+        minLines={12}
+        maxLines={12}
+        onChange={this.textChange.bind(this)}
+        width="100%"
+        editorProps={{ $blockScrolling: true }}
+        enableLiveAutocompletion
+        value={this.state.sql}
+      /&gt;
+    );
+  }
+}
+<span class="cstat-no" title="statement not covered" >AceEditorWrapper.defaultProps = defaultProps;</span>
+<span class="cstat-no" title="statement not covered" >AceEditorWrapper.propTypes = propTypes;</span>
+&nbsp;
+export default AceEditorWrapper;
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri May 19 2017 23:41:00 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>
