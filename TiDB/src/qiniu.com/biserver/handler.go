@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/XeLabs/go-mysqlstack/driver"
-	"github.com/XeLabs/go-mysqlstack/sqldb"
 	"github.com/XeLabs/go-mysqlstack/sqlparser/depends/sqltypes"
 	"github.com/XeLabs/go-mysqlstack/xlog"
 )
@@ -121,10 +120,10 @@ func (th *TiDBHandler) SessionCheck(s *driver.Session) error {
 
 // AuthCheck impl.
 func (th *TiDBHandler) AuthCheck(s *driver.Session) error {
-	user := s.User()
-	if user != "mock" {
-		return sqldb.NewSQLError(sqldb.ER_ACCESS_DENIED_ERROR, "Access denied for user '%v'", user)
-	}
+	// user := s.User()
+	// if user != "mock" {
+	// 	return sqldb.NewSQLError(sqldb.ER_ACCESS_DENIED_ERROR, "Access denied for user '%v'", user)
+	// }
 	return nil
 }
 
@@ -152,7 +151,7 @@ func (th *TiDBHandler) ComInitDB(s *driver.Session, db string) error {
 
 // ComQuery impl.
 func (th *TiDBHandler) ComQuery(s *driver.Session, query string) (*sqltypes.Result, error) {
-	th.log.Debug("test.handler.ComQuery:%v", query)
+	th.log.Debug("test.handler.ComQuery: %v", query)
 	query = strings.ToLower(query)
 
 	th.mu.Lock()
@@ -206,12 +205,11 @@ func (th *TiDBHandler) ComQuery(s *driver.Session, query string) (*sqltypes.Resu
 	}
 
 	//在缓存中没有找到，需要从TiDB中取
-	conn, err := driver.NewConn("root", "mypandorapassword2017", "101.71.85.34:3306", "tsdb_auditlog", "")
+	conn, err := driver.NewConn("", "", "100.100.32.234:3306", "superset", "")
 	if err != nil {
 		th.log.Error(err.Error())
 		return nil, err
 	}
-
 	result, err := conn.FetchAll(query, 1000)
 	if err != nil {
 		th.log.Error(err.Error())
