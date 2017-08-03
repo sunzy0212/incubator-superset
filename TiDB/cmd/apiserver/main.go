@@ -72,7 +72,16 @@ func main() {
 
 	}()
 
-	svr, err := biserver.New(&biserver.ApiServerConfig{TcpAddress: conf.S.TcpPort})
+	svr, err := biserver.New(&biserver.ApiServerConfig{
+		TcpAddress: conf.S.TcpPort,
+		MysqlConfig: biserver.MysqlConfig{
+			User:     conf.M.User,
+			Password: conf.M.Password,
+			MetaDB:   conf.M.MetaDB,
+			Protocol: conf.M.Protocol,
+			Address:  conf.M.Address,
+		},
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

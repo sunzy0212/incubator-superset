@@ -37,16 +37,17 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 	handler := NewTiDBHandler(log)
 	listener, err := driver.NewListener(log, cfg.TcpAddress, handler)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	server.Listener = *listener
-
 	server.MySQLClient, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", cfg.MysqlConfig.User,
 		cfg.MysqlConfig.Password,
 		cfg.MysqlConfig.Protocol,
 		cfg.MysqlConfig.Address,
 		cfg.MysqlConfig.MetaDB))
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -58,8 +59,9 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 	}
 
 	//checkout table(users, tables) exists
-	result := server.MySQLClient.QueryRow("select * from information_schema.tables where table_schema='report_dev_test' and table_name='users' limit 1")
-	err = result.Scan()
+	result := server.MySQLClient.QueryRow("select TABLE_NAME from information_schema.tables where table_schema='report_dev_test' and table_name='users' limit 1")
+	ret := ""
+	err = result.Scan(&ret)
 	if err != nil && err.Error() == "sql: no rows in result set" {
 		_, err = server.MySQLClient.Exec("create table report_dev_test.users (appid TEXT, dbname TEXT)")
 		if err != nil {
@@ -71,8 +73,8 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 		return nil, err
 	}
 
-	result = server.MySQLClient.QueryRow("select * from information_schema.tables where table_schema='report_dev_test' and table_name='tables' limit 1")
-	err = result.Scan()
+	result = server.MySQLClient.QueryRow("select TABLE_NAME from information_schema.tables where table_schema='report_dev_test' and table_name='tables' limit 1")
+	err = result.Scan(&ret)
 	if err != nil && err.Error() == "sql: no rows in result set" {
 		_, err = server.MySQLClient.Exec("create table report_dev_test.tables (appid TEXT, dbname TEXT, tablename TEXT)")
 		if err != nil {
