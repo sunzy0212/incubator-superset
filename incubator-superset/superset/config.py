@@ -16,7 +16,7 @@ import sys
 from collections import OrderedDict
 
 from dateutil import tz
-from flask_appbuilder.security.manager import AUTH_DB
+from flask_appbuilder.security.manager import AUTH_DB,AUTH_OAUTH
 
 from superset.stats_logger import DummyStatsLogger
 
@@ -42,7 +42,7 @@ SUPERSET_WORKERS = 2
 SUPERSET_CELERY_WORKERS = 32
 
 SUPERSET_WEBSERVER_ADDRESS = '0.0.0.0'
-SUPERSET_WEBSERVER_PORT = 8088
+SUPERSET_WEBSERVER_PORT = 8080
 SUPERSET_WEBSERVER_TIMEOUT = 60
 EMAIL_NOTIFICATIONS = False
 CUSTOM_SECURITY_MANAGER = None
@@ -52,8 +52,8 @@ CUSTOM_SECURITY_MANAGER = None
 SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'  # noqa
 
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(DATA_DIR, 'superset.db')
-# SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
+# SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(DATA_DIR, 'superset.db')
+SQLALCHEMY_DATABASE_URI = 'mysql://127.0.0.1:9093/superset'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
 
 # The limit of queries fetched for query search
@@ -63,7 +63,7 @@ QUERY_SEARCH_LIMIT = 1000
 WTF_CSRF_ENABLED = True
 
 # Whether to run the web server in debug mode or not
-DEBUG = False
+DEBUG = True
 FLASK_USE_RELOAD = True
 
 # Whether to show the stacktrace on 500 error
@@ -88,7 +88,7 @@ APP_ICON = "/static/assets/images/superset-logo@2x.png"
 # [TimeZone List]
 # See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 # other tz can be overridden by providing a local_config
-DRUID_IS_ACTIVE = True
+DRUID_IS_ACTIVE = False
 DRUID_TZ = tz.tzutc()
 DRUID_ANALYSIS_TYPES = ['cardinality']
 
@@ -100,19 +100,32 @@ DRUID_ANALYSIS_TYPES = ['cardinality']
 # AUTH_DB : Is for database (username/password()
 # AUTH_LDAP : Is for LDAP
 # AUTH_REMOTE_USER : Is for using REMOTE_USER from web server
-AUTH_TYPE = AUTH_DB
+AUTH_TYPE = AUTH_OAUTH
+
+OAUTH_PROVIDERS = [
+    {'name': 'github', 'icon': 'fa-github', 'token_key': 'access_token',
+        'remote_app': {
+            'consumer_key': "",
+            'consumer_secret': "",
+            'base_url': 'https://portal.qiniu.com/oauth/v2/api/account/info',
+            'request_token_params': {
+            },
+            'request_token_url': None,
+            'access_token_url': 'https://portal.qiniu.com/oauth/v2/token',
+            'authorize_url': 'https://portal.qiniu.com/oauth/v2/authorize'}
+    }]
 
 # Uncomment to setup Full admin role name
-# AUTH_ROLE_ADMIN = 'Admin'
+AUTH_ROLE_ADMIN = 'Admin'
 
 # Uncomment to setup Public role name, no authentication needed
 # AUTH_ROLE_PUBLIC = 'Public'
 
 # Will allow user self registration
-# AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION = True
 
 # The default user self registration role
-# AUTH_USER_REGISTRATION_ROLE = "Public"
+AUTH_USER_REGISTRATION_ROLE = "Admin"
 
 # When using LDAP Auth, setup the ldap server
 # AUTH_LDAP_SERVER = "ldap://ldapserver.new"
@@ -136,15 +149,15 @@ PUBLIC_ROLE_LIKE_GAMMA = False
 # Babel config for translations
 # ---------------------------------------------------
 # Setup default language
-BABEL_DEFAULT_LOCALE = 'en'
+BABEL_DEFAULT_LOCALE = 'zh'
 # Your application default translation path
 BABEL_DEFAULT_FOLDER = 'babel/translations'
 # The allowed translation for you app
 LANGUAGES = {
     'en': {'flag': 'us', 'name': 'English'},
-    'it': {'flag': 'it', 'name': 'Italian'},
-    # 'fr': {'flag': 'fr', 'name': 'French'},
-    # 'zh': {'flag': 'cn', 'name': 'Chinese'},
+    #'it': {'flag': 'it', 'name': 'Italian'},
+    #'fr': {'flag': 'fr', 'name': 'French'},
+    'zh': {'flag': 'cn', 'name': 'Chinese'},
 }
 # ---------------------------------------------------
 # Image and file configuration

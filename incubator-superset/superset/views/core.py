@@ -61,6 +61,47 @@ ACCESS_REQUEST_MISSING_ERR = __(
 USER_MISSING_ERR = __("The user seems to have been deleted")
 DATASOURCE_ACCESS_ERR = __("You don't have access to this datasource")
 
+@appbuilder.sm.oauth_user_info_getter
+def get_oauth_user_info(sm, provider, response=None):
+# for GITHUB
+    if provider == 'github' or provider == 'githublocal':
+        me = sm.oauth_remotes[provider].get('info')
+        print(">>>>>",me.data)
+        ret = {'email':  me.data.get('data').get('email'),
+                'username': me.data.get('data').get('email'),
+                'first_name':'',
+                'last_name':''}
+        print("?????",ret)
+        return ret
+    if provider == 'qiniu':
+        me = sm.oauth_remotes[provider].get('info')
+        print(">>>>>",me.data)
+        ret = {'email':  me.data.get('data').get('email'),
+                'username': me.data.get('data').get('email'),
+                'first_name':'',
+                'last_name':''}
+        print("?????",ret)
+        return ret
+    # for twitter
+    if provider == 'twitter':
+        me = sm.oauth_remotes[provider].get('account/settings.json')
+        return {'username': "twitter_" + me.data.get('screen_name', '')}
+    # for linkedin
+    if provider == 'linkedin':
+        me = sm.oauth_remotes[provider].get('people/~:(id,email-address,first-name,last-name)?format=json')
+        return {'username': "linkedin_" + me.data.get('id', ''),
+                'email': me.data.get('email-address', ''),
+                'first_name': me.data.get('firstName', ''),
+                'last_name': me.data.get('lastName', '')}
+    # for Google
+    if provider == 'google':
+        me = sm.oauth_remotes[provider].get('userinfo')
+        return {'username': me.data.get('id', ''),
+                'first_name': me.data.get('given_name', ''),
+                'last_name': me.data.get('family_name', ''),
+                'email': me.data.get('email', '')}
+
+
 
 def get_database_access_error_msg(database_name):
     return __("This view requires the database %(name)s or "
