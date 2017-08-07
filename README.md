@@ -58,6 +58,13 @@ session = DB_Session()
 每当用户登录之后，创建一个session，在登录期间进行的所有操作都用这个session来进行；
 每当用户登出之后，销毁这个session；
 
+整个get session的入口在 flask-appbuiler/base.py
+这个文件的get session返回了初始化 appbuilder的时候传入的session
+之后这个函数被sm里面的flask-appbuilder/security/sqla/manager.py引用，用来正在的对数据库进行各种数据的操作
+
+为此，在base.py增加根据uid获取session的接口
+在sqla/manager.py里面对base的get session接口进行引用就可以达到根据uid修改各种数据的目的。
+
 2. 自动添加用户相关的数据源，在打开添加数据源页面的时候，自动请求后端，拿到对应的数据源，不允许用户自定义添加
 
 
