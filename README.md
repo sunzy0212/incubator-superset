@@ -24,7 +24,39 @@ superset通过OAuth2的方式连接到七牛系统。
 1. 每个注册用户都有一个自己的MYSQL数据库
 
 这个数据库用来存放各种元数据，比如权限信息，dashboard信息，数据源信息等
-在用户登录进去superset之后，连接的数据库需要自动连接对应用户的数据库，比如以用户uid命名的数据库
+在用户登录进去superset之后，连接的数据库需要自动连接对应用户的数据库，比如以用户uid命名的数据库.
+
+具体实现方式
+
+flask-appbuilder的构造函数是这样的
+
+```
+  def __init__(self, app=None,
+                 session=None,
+                 menu=None,
+                 indexview=None,
+                 base_template='appbuilder/baselayout.html',
+                 static_folder='static/appbuilder',
+                 static_url_path='/appbuilder',
+                 security_manager_class=None):
+
+```
+
+app: 是一个Flask app
+session： 是一个sqlalchemy的DB_Session对象
+
+```
+DB_CONNECT_STRING = 'mysql+mysqldb://100.100.32.234:3306/sqlalchemy1?charset=utf8'
+engine = create_engine(DB_CONNECT_STRING, echo=True)
+DB_Session = sessionmaker(bind=engine)
+session = DB_Session()
+```
+
+这个session是和database绑定的，一旦创建就不能修改database
+
+为了实现多租户，需要在superset内部维护一个uid到session的映射关系
+每当用户登录之后，创建一个session，在登录期间进行的所有操作都用这个session来进行；
+每当用户登出之后，销毁这个session；
 
 2. 自动添加用户相关的数据源，在打开添加数据源页面的时候，自动请求后端，拿到对应的数据源，不允许用户自定义添加
 
