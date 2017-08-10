@@ -1055,7 +1055,7 @@ class BaseSecurityManager(AbstractSecurityManager):
         raise NotImplementedError
 
     def load_user(self, pk):
-        return self.get_user_by_id(int(pk))
+        return self.get_user_by_id(pk)
 
     @staticmethod
     def before_request():
