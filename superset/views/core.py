@@ -66,18 +66,16 @@ def get_oauth_user_info(sm, provider, response=None):
 # for GITHUB
     if provider == 'github' or provider == 'githublocal':
         me = sm.oauth_remotes[provider].get('info')
-        print(">>>>>",me.data)
         ret = {'email':  me.data.get('data').get('email'),
                 'username': me.data.get('data').get('email'),
                 'first_name':'',
                 'last_name':''}
-        print("?????",ret)
         return ret
     if provider == 'qiniu':
         me = sm.oauth_remotes[provider].get('info')
         print(">>>>>",me.data)
         ret = {'email':  me.data.get('data').get('email'),
-                'username': me.data.get('data').get('email'),
+                'username': me.data.get('data').get('uid'),
                 'first_name':'',
                 'last_name':''}
         print("?????",ret)
@@ -347,13 +345,13 @@ class AccessRequestsModelView(SupersetModelView, DeleteMixin):
         'created_on': _("Created On"),
     }
 
-appbuilder.add_view(
-    AccessRequestsModelView,
-    "Access requests",
-    label=__("Access requests"),
-    category="Security",
-    category_label=__("Security"),
-    icon='fa-table',)
+# appbuilder.add_view(
+#     AccessRequestsModelView,
+#     "Access requests",
+#     label=__("Access requests"),
+#     category="Security",
+#     category_label=__("Security"),
+#     icon='fa-table',)
 
 
 class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
@@ -2320,16 +2318,16 @@ class CssTemplateAsyncModelView(CssTemplateModelView):
     list_columns = ['template_name', 'css']
 
 appbuilder.add_separator("Sources")
-appbuilder.add_view(
-    CssTemplateModelView,
-    "CSS Templates",
-    label=__("CSS Templates"),
-    icon="fa-css3",
-    category="Manage",
-    category_label=__("Manage"),
-    category_icon='')
-
-appbuilder.add_view_no_menu(CssTemplateAsyncModelView)
+# appbuilder.add_view(
+#     CssTemplateModelView,
+#     "CSS Templates",
+#     label=__("CSS Templates"),
+#     icon="fa-css3",
+#     category="Manage",
+#     category_label=__("Manage"),
+#     category_icon='')
+#
+# appbuilder.add_view_no_menu(CssTemplateAsyncModelView)
 
 appbuilder.add_link(
     'SQL Editor',

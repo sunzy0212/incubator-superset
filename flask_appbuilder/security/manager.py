@@ -447,27 +447,27 @@ class BaseSecurityManager(AbstractSecurityManager):
                                              category="Security", category_icon="fa-cogs")
         role_view.related_views = [self.user_view.__class__]
 
-        self.appbuilder.add_view(self.userstatschartview,
-                                 "User's Statistics", icon="fa-bar-chart-o",
-                                 label=_("User's Statistics"),
-                                 category="Security")
+        # self.appbuilder.add_view(self.userstatschartview,
+        #                          "User's Statistics", icon="fa-bar-chart-o",
+        #                          label=_("User's Statistics"),
+        #                          category="Security")
 
-        if self.auth_user_registration:
-            self.appbuilder.add_view(self.registerusermodelview,
-                                 "User's Statistics", icon="fa-user-plus",
-                                 label=_("User Registrations"),
-                                 category="Security")
+        # if self.auth_user_registration:
+        #     self.appbuilder.add_view(self.registerusermodelview,
+        #                          "User's Statistics", icon="fa-user-plus",
+        #                          label=_("User Registrations"),
+        #                          category="Security")
 
         self.appbuilder.menu.add_separator("Security")
-        self.appbuilder.add_view(self.permissionmodelview,
-                                 "Base Permissions", icon="fa-lock",
-                                 label=_("Base Permissions"), category="Security")
-        self.appbuilder.add_view(self.viewmenumodelview,
-                                 "Views/Menus", icon="fa-list-alt",
-                                 label=_('Views/Menus'), category="Security")
-        self.appbuilder.add_view(self.permissionviewmodelview,
-                                 "Permission on Views/Menus", icon="fa-link",
-                                 label=_('Permission on Views/Menus'), category="Security")
+        # self.appbuilder.add_view(self.permissionmodelview,
+        #                          "Base Permissions", icon="fa-lock",
+        #                          label=_("Base Permissions"), category="Security")
+        # self.appbuilder.add_view(self.viewmenumodelview,
+        #                          "Views/Menus", icon="fa-list-alt",
+        #                          label=_('Views/Menus'), category="Security")
+        # self.appbuilder.add_view(self.permissionviewmodelview,
+        #                          "Permission on Views/Menus", icon="fa-link",
+        #                          label=_('Permission on Views/Menus'), category="Security")
 
     def create_db(self):
         """

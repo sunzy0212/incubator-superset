@@ -73,6 +73,7 @@ assoc_user_role = Table('ab_user_role', Model.metadata,
 class User(Model):
     __tablename__ = 'ab_user'
     id = Column(Integer, Sequence('ab_user_id_seq'), primary_key=True)
+    #qiniu_id = Column(Integer, primary_key=True)
     first_name = Column(String(64), nullable=False)
     last_name = Column(String(64), nullable=False)
     username = Column(String(64), unique=True, nullable=False)
@@ -119,6 +120,9 @@ class User(Model):
 
     def get_id(self):
         return as_unicode(self.id)
+
+    def get_qiniu_id(self):
+        return as_unicode(self.qiniu_id)
 
     def get_full_name(self):
         return u'{0} {1}'.format(self.first_name, self.last_name)
