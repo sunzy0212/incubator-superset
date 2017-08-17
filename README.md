@@ -4,6 +4,33 @@ superset -> TiDB
 
 其中superset作为展示层，TiDB作为数据存储层，需要注意的是TiDB并不是作为RDS的存在，仅仅是superset的后端。
 
+## 架构&原理图
+
+![bi studio工作原理图](https://pandora-kibana.qiniu.com/report-arch.png)
+
+1. 数据的入口是workflow，数据通过导出任务导入到bi studio
+2. 数据的出口是superset，用来对数据进行可视化
+3. Bi-Studio apiserver主要进行元数据的管理和权限控制
+4. TiDB实际存储数据
+
+## 使用方式
+
+1. 在portal创建bi sudtio的数据库和数据表（也可以在创建导出任务的时候自动创建） 
+2. 在workflow创建导出任务，将数据导出到bi studio节点
+3. 在superset中增加数据源、数据表
+4. 根据业务生成superset的slice（slice是单张图表）
+5. 创建dashboard,将前一步生成的slice添加进dashboard
+
+## 部署地址
+
+1. TiDB: cs19:5000(10.200.20.39:5000)
+2. Bi-Studio apiserver: cs19:2308(workflow --http--> Bi-Studio),cs19:2306(superset --tcp--> Bi-Studio)
+3. superset: cs19:8080
+
+## API文档
+
+[API文档地址](https://github.com/qbox/report/blob/develop/TiDB/API-SPEC.md)
+
 ## superset的多租户
 
 ### 如何登录
@@ -90,7 +117,7 @@ superset通过http协议连接Pandora TiDB进行查询
 
 ## 主要的任务
 
-* TiDB的多租户
-* supserset接入七牛的用户账户体系
-* supserset增加Pandora TiDB数据源(走http协议，而不是mysql协议)
+* TiDB的多租户(complete)
+* supserset接入七牛的用户账户体系(complete)
+* supserset增加Pandora TiDB数据源(走http协议，而不是mysql协议)(complete)
 * Pandora TiDB需要一个简易Portal，用来创建资源
