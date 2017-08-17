@@ -4,6 +4,14 @@ superset -> TiDB
 
 其中superset作为展示层，TiDB作为数据存储层，需要注意的是TiDB并不是作为RDS的存在，仅仅是superset的后端。
 
+## 架构&原理图
+
+![bi studio工作原理图](https://pandora-kibana.qiniu.com/report-arch.png)
+
+## 使用方式
+
+
+
 ## superset的多租户
 
 ### 如何登录
@@ -90,7 +98,7 @@ superset通过http协议连接Pandora TiDB进行查询
 
 ## 主要的任务
 
-* TiDB的多租户
-* supserset接入七牛的用户账户体系
-* supserset增加Pandora TiDB数据源(走http协议，而不是mysql协议)
+* TiDB的多租户(complete)
+* supserset接入七牛的用户账户体系(complete)
+* supserset增加Pandora TiDB数据源(走http协议，而不是mysql协议)(complete)
 * Pandora TiDB需要一个简易Portal，用来创建资源
