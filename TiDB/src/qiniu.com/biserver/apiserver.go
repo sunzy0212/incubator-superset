@@ -97,8 +97,6 @@ func (s *ApiServer) Accept() {
 	fmt.Println("accept closed")
 }
 
-type M map[string]interface{}
-
 type cmdArgs struct {
 	CmdArgs []string
 }
