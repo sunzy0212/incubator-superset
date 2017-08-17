@@ -28,6 +28,7 @@ type ApiServerConfig struct {
 type ApiServer struct {
 	Listener    driver.Listener
 	MySQLClient *sql.DB
+	MetaDB      string
 }
 
 func New(cfg *ApiServerConfig) (*ApiServer, error) {
@@ -50,6 +51,7 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 		fmt.Println(err)
 		return nil, err
 	}
+	server.MetaDB = cfg.MysqlConfig.MetaDB
 
 	//checkout mysql is alive
 	err = server.MySQLClient.Ping()
@@ -59,11 +61,11 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 	}
 
 	//checkout table(users, tables) exists
-	result := server.MySQLClient.QueryRow("select TABLE_NAME from information_schema.tables where table_schema='report_dev_test' and table_name='users' limit 1")
+	result := server.MySQLClient.QueryRow(fmt.Sprintf("select TABLE_NAME from information_schema.tables where table_schema='%s' and table_name='users' limit 1", cfg.MysqlConfig.MetaDB))
 	ret := ""
 	err = result.Scan(&ret)
 	if err != nil && err.Error() == "sql: no rows in result set" {
-		_, err = server.MySQLClient.Exec("create table report_dev_test.users (appid TEXT, dbname TEXT)")
+		_, err = server.MySQLClient.Exec(fmt.Sprintf("create table %s.users (appid TEXT, dbname TEXT)", cfg.MysqlConfig.MetaDB))
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -73,10 +75,10 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 		return nil, err
 	}
 
-	result = server.MySQLClient.QueryRow("select TABLE_NAME from information_schema.tables where table_schema='report_dev_test' and table_name='tables' limit 1")
+	result = server.MySQLClient.QueryRow(fmt.Sprintf("select TABLE_NAME from information_schema.tables where table_schema='%s' and table_name='tables' limit 1", cfg.MysqlConfig.MetaDB))
 	err = result.Scan(&ret)
 	if err != nil && err.Error() == "sql: no rows in result set" {
-		_, err = server.MySQLClient.Exec("create table report_dev_test.tables (appid TEXT, dbname TEXT, tablename TEXT)")
+		_, err = server.MySQLClient.Exec(fmt.Sprintf("create table %s.tables (appid TEXT, dbname TEXT, tablename TEXT)", cfg.MysqlConfig.MetaDB))
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -118,7 +120,7 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	if err != nil {
 		return
 	}
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO report_dev_test.users (appid,dbname) VALUES ('%s','%s')", appId, dbName))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.users (appid,dbname) VALUES ('%s','%s')", s.MetaDB, appId, dbName))
 	if err != nil {
 		return
 	}
@@ -139,7 +141,7 @@ func (s *ApiServer) GetDbs(env *rpcutil.Env) (dbs []string, err error) {
 	//ensure appid is valid
 
 	//create database
-	selectDBName, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT dbname from report_dev_test.users where appid= '%s'", appId))
+	selectDBName, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT dbname from %s.users where appid= '%s'", s.MetaDB, appId))
 	if err != nil {
 		return
 	}
@@ -171,7 +173,7 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 	//ensure appid is valid
 
 	//delete metadata database
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE from report_dev_test.users where appid=%s", appId))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE from %s.users where appid=%s", s.MetaDB, appId))
 	if err != nil {
 		return
 	}
@@ -230,7 +232,7 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 		return
 	}
 
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO report_dev_test.tables (appid,dbname,tablename) VALUES ('%s','%s','%s')", appId, dbName, args.CmdArgs[1]))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.tables (appid,dbname,tablename) VALUES ('%s','%s','%s')", s.MetaDB, appId, dbName, args.CmdArgs[1]))
 	if err != nil {
 		return
 	}
@@ -255,7 +257,7 @@ func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err erro
 		return
 	}
 
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE FROM report_dev_test.tables WHERE appid='%s' and dbname='%s' and tablename='%s'", appId, dbName, args.CmdArgs[1]))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE FROM %s.tables WHERE appid='%s' and dbname='%s' and tablename='%s'", s.MetaDB, appId, dbName, args.CmdArgs[1]))
 	if err != nil {
 		return
 	}
@@ -276,7 +278,7 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 	//ensure appid is valid
 
 	//create database
-	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from report_dev_test.tables where appid= '%s' and dbname='%s'", appId, dbName))
+	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
 	if err != nil {
 		return
 	}
@@ -308,7 +310,7 @@ func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (tables []st
 	//ensure appid is valid
 
 	//create database
-	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from report_dev_test.tables where appid= '%s' and dbname='%s'", appId, dbName))
+	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
 	if err != nil {
 		return
 	}
@@ -390,7 +392,7 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 	}
 
 	//appid must own this db
-	dbs, err := getDBByAppID(s.MySQLClient, appId)
+	dbs, err := getDBByAppID(s.MySQLClient, s.MetaDB, appId)
 	if err != nil {
 		return
 	}
