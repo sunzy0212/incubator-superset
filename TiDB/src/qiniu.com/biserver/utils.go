@@ -62,9 +62,9 @@ func getSchemaAndValues(data []byte) (schema, values string, err error) {
 	return
 }
 
-func getDBByAppID(client *sql.DB, appid string) (dbs []string, err error) {
+func getDBByAppID(client *sql.DB, metadb, appid string) (dbs []string, err error) {
 
-	selectDBName, err := client.Prepare(fmt.Sprintf("SELECT dbname from report_dev_test.users where appid= '%s'", appid))
+	selectDBName, err := client.Prepare(fmt.Sprintf("SELECT dbname from %s.users where appid= '%s'", metadb, appid))
 	if err != nil {
 		return
 	}

@@ -205,7 +205,7 @@ func (th *TiDBHandler) ComQuery(s *driver.Session, query string) (*sqltypes.Resu
 	}
 
 	//在缓存中没有找到，需要从TiDB中取
-	conn, err := driver.NewConn("", "", "100.100.32.234:3306", "superset", "")
+	conn, err := driver.NewConn("", "", "100.100.32.234:3306", "superset1", "")
 	if err != nil {
 		th.log.Error(err.Error())
 		return nil, err

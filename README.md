@@ -6,19 +6,67 @@ superset -> TiDB
 
 ## superset的多租户
 
-superset本身由账户系统，需要和七牛的账户系统对接上。
+### 如何登录
 
-如何对接？两种方法
+superset本身有账户系统，需要和七牛的账户系统对接上。
 
-1. portal上点进来，不需要输入密码，类似workflow的方法
-2. superset登录页面，输入七牛的用户名密码，单独登录，不和portal进行连接
+superset通过OAuth2的方式连接到七牛系统。
 
-以上两种方法需要解决的问题
+### 怎么多租户
 
-1. 需要去掉superset的登录页面，并和七牛的对接上
-2. 需要将superset的登录方式和七牛的登录方式对接上
+首先superset的数据管理方式是这样的
 
-以上两种方法 哪种方法简单用哪种（鉴于目前的工期），感觉2简单。
+1. 在配置文件中指定一个MYSQL的uri和数据库，用来存放各种用户的元数据
+2. 在添加数据源的时候，可以指定不同的MYSQL地址和数据库
+
+解决多租户的方式为
+
+1. 每个注册用户都有一个自己的MYSQL数据库
+
+这个数据库用来存放各种元数据，比如权限信息，dashboard信息，数据源信息等
+在用户登录进去superset之后，连接的数据库需要自动连接对应用户的数据库，比如以用户uid命名的数据库.
+
+具体实现方式
+
+flask-appbuilder的构造函数是这样的
+
+```
+  def __init__(self, app=None,
+                 session=None,
+                 menu=None,
+                 indexview=None,
+                 base_template='appbuilder/baselayout.html',
+                 static_folder='static/appbuilder',
+                 static_url_path='/appbuilder',
+                 security_manager_class=None):
+
+```
+
+app: 是一个Flask app
+session： 是一个sqlalchemy的DB_Session对象
+
+```
+DB_CONNECT_STRING = 'mysql+mysqldb://100.100.32.234:3306/sqlalchemy1?charset=utf8'
+engine = create_engine(DB_CONNECT_STRING, echo=True)
+DB_Session = sessionmaker(bind=engine)
+session = DB_Session()
+```
+
+这个session是和database绑定的，一旦创建就不能修改database
+
+为了实现多租户，需要在superset内部维护一个uid到session的映射关系
+每当用户登录之后，创建一个session，在登录期间进行的所有操作都用这个session来进行；
+每当用户登出之后，销毁这个session；
+
+整个get session的入口在 flask-appbuiler/base.py
+这个文件的get session返回了初始化 appbuilder的时候传入的session
+之后这个函数被sm里面的flask-appbuilder/security/sqla/manager.py引用，用来正在的对数据库进行各种数据的操作
+
+为此，在base.py增加根据uid获取session的接口
+在sqla/manager.py里面对base的get session接口进行引用就可以达到根据uid修改各种数据的目的。
+
+2. 自动添加用户相关的数据源，在打开添加数据源页面的时候，自动请求后端，拿到对应的数据源，不允许用户自定义添加
+
 
 
 ## TiDB多租户
