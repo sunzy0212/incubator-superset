@@ -13,7 +13,6 @@ import (
 	"github.com/qiniu/xlog.v1"
 	"qbox.us/cc/config"
 	"qiniu.com/biserver"
-	"qiniu.com/pandora/pandora.v4/auditlog"
 	"qiniupkg.com/trace.v1"
 )
 
@@ -37,9 +36,9 @@ type EndPoint struct {
 }
 
 type Config struct {
-	M MysqlConfig     `json:"mysql"`
-	S EndPoint        `json:"service"`
-	L auditlog.Config `json:"auditlog"`
+	M MysqlConfig             `json:"mysql"`
+	S EndPoint                `json:"service"`
+	L biserver.AuditlogConfig `json:"auditlog"`
 }
 
 func ensureRequiredConfig(cfg *Config) (err error) {
@@ -88,7 +87,7 @@ func main() {
 
 	go svr.Accept()
 
-	al, logf, err := auditlog.Open("REPORT", &conf.L, auditlog.PointdDecoder{}, nil)
+	al, logf, err := biserver.Open("REPORT", &conf.L, biserver.PointdDecoder{}, nil)
 	if err != nil {
 		log.Fatal("jsonlog.Open failed:", errors.Detail(err))
 	}
