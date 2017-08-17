@@ -59,3 +59,10 @@ ifeq ($(TARGET), "")
 else
 	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' TiDB/tidb-server/main.go
 endif
+
+biserver:
+ifeq ($(TARGET), "")
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/biserver TiDB/cmd/apiserver/main.go
+else
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' TiDB/cmd/apiserver/main.go
+endif
