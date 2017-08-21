@@ -633,7 +633,7 @@ msgid ""
 "Allow users to run synchronous queries, this is the default and should "
 "work well for queries that can be executed within a web request scope "
 "(<~1 minute)"
-msgstr ""
+msgstr "允许用户执行同步的查询，适用于查询时间少于1分钟的查询"
 
 #: superset/views/core.py:210
 msgid ""
@@ -659,7 +659,7 @@ msgstr ""
 
 #: superset/views/core.py:233
 msgid "Expose in SQL Lab"
-msgstr ""
+msgstr "允许在SQL工具箱中使用"
 
 #: superset/views/core.py:234
 msgid "Allow CREATE TABLE AS"
@@ -680,7 +680,7 @@ msgstr "作者"
 
 #: superset/views/core.py:240
 msgid "SQLAlchemy URI"
-msgstr ""
+msgstr "数据库地址"
 
 #: superset/views/core.py:242
 msgid "Extra"
@@ -829,11 +829,11 @@ msgstr "底层表"
 
 #: superset/views/core.py:482
 msgid "Export"
-msgstr ""
+msgstr "导出"
 
 #: superset/views/core.py:482
 msgid "Export dashboards?"
-msgstr ""
+msgstr "导出看板"
 
 #: superset/views/core.py:532
 msgid "Action"

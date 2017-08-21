@@ -229,9 +229,8 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         'database_name', 'backend', 'allow_run_sync', 'allow_run_async',
         'allow_dml', 'creator', 'modified']
     add_columns = [
-        'database_name', 'sqlalchemy_uri', 'cache_timeout', 'extra',
-        'expose_in_sqllab', 'allow_run_sync', 'allow_run_async',
-        'allow_ctas', 'allow_dml', 'force_ctas_schema']
+        'database_name', 'sqlalchemy_uri', 'cache_timeout',
+        'expose_in_sqllab', 'allow_run_sync',]
     search_exclude_columns = (
         'password', 'tables', 'created_by', 'changed_by', 'queries',
         'saved_queries', )
