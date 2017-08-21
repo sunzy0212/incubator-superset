@@ -102,6 +102,7 @@ class Slice(Model, AuditMixinNullable, ImportMixin):
     datasource_name = Column(String(2000))
     viz_type = Column(String(250))
     params = Column(Text)
+    qiniu_uid = Column(Integer)
     description = Column(Text)
     cache_timeout = Column(Integer)
     perm = Column(String(1000))
@@ -304,6 +305,7 @@ class Dashboard(Model, AuditMixinNullable, ImportMixin):
     css = Column(Text)
     json_metadata = Column(Text)
     slug = Column(String(255), unique=True)
+    qiniu_uid = Column(Integer)
     slices = relationship(
         'Slice', secondary=dashboard_slices, backref='dashboards')
     owners = relationship(sm.user_model, secondary=dashboard_user)
@@ -518,6 +520,7 @@ class Database(Model, AuditMixinNullable):
     verbose_name = Column(String(250), unique=True)
     # short unique name, used in permissions
     database_name = Column(String(250), unique=True)
+    qiniu_uid = Column(Integer)
     sqlalchemy_uri = Column(String(1024))
     password = Column(EncryptedType(String(1024), config.get('SECRET_KEY')))
     cache_timeout = Column(Integer)

@@ -16,6 +16,7 @@ from ...filemanager import FileManager, ImageManager
 from ..._compat import as_unicode
 from ...const import LOGMSG_ERR_DBI_ADD_GENERIC, LOGMSG_ERR_DBI_EDIT_GENERIC, LOGMSG_ERR_DBI_DEL_GENERIC, \
     LOGMSG_WAR_DBI_ADD_INTEGRITY, LOGMSG_WAR_DBI_EDIT_INTEGRITY, LOGMSG_WAR_DBI_DEL_INTEGRITY
+from flask import g
 
 log = logging.getLogger(__name__)
 
@@ -86,6 +87,7 @@ class SQLAInterface(BaseInterface):
                 the current page size
 
         """
+        print(">>>>>>> query",self.obj,filters)
         query = self.session.query(self.obj)
         if len(order_column.split('.')) >= 2:
             tmp_order_column = ''
@@ -97,6 +99,7 @@ class SQLAInterface(BaseInterface):
                 tmp_order_column = tmp_order_column + model_relation.__tablename__ + '.'
             order_column = tmp_order_column + order_column.split('.')[-1]
         query_count = self.session.query(func.count('*')).select_from(self.obj)
+        query_count = query_count.filter_by(qiniu_uid=g.user.get_qiniu_id())
 
         query_count = self._get_base_query(query=query_count,
                                            filters=filters)
@@ -104,15 +107,15 @@ class SQLAInterface(BaseInterface):
                                      filters=filters,
                                      order_column=order_column,
                                      order_direction=order_direction)
-
+        query = query.filter_by(qiniu_uid=g.user.get_qiniu_id())
         count = query_count.scalar()
 
         if page:
             query = query.offset(page * page_size)
         if page_size:
             query = query.limit(page_size)
-
-        return count, query.all()
+        result = query.all()
+        return count, result
 
     def query_simple_group(self, group_by='', aggregate_func=None, aggregate_col=None, filters=None):
         query = self.session.query(self.obj)

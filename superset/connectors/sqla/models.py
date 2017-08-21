@@ -704,6 +704,7 @@ class SqlaTable(Model, BaseDatasource):
             session.query(cls)
             .filter_by(database_id=database.id)
             .filter_by(table_name=datasource_name)
+            .filter_by(qiniu_uid=g.user.get_qiniu_id())
         )
         if schema:
             query = query.filter_by(schema=schema)

@@ -38,6 +38,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
     cache_timeout = Column(Integer)
     params = Column(String(1000))
     perm = Column(String(1000))
+    qiniu_uid = Column(Integer)
 
     # placeholder for a relationship to a derivative of BaseColumn
     columns = []

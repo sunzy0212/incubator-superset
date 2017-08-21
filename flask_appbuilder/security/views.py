@@ -7,6 +7,8 @@ from wtforms import validators, PasswordField
 from wtforms.validators import EqualTo
 from flask_babel import lazy_gettext
 from flask_login import login_user, logout_user
+from flask_appbuilder.models.sqla.filters import FilterEqualFunction,FilterEqual
+
 
 from ..views import ModelView, SimpleFormView, expose
 from ..baseviews import BaseView
@@ -110,6 +112,8 @@ class UserInfoEditView(SimpleFormView):
         self.appbuilder.sm.update_user(item)
         flash(as_unicode(self.message), 'info')
 
+def get_curr_user():
+    return g.user.get_qiniu_id()
 
 class UserModelView(ModelView):
     route_base = '/users'
@@ -148,6 +152,8 @@ class UserModelView(ModelView):
                            'conf_password': lazy_gettext('Please rewrite the user\'s password to confirm')}
 
     list_columns = ['first_name', 'last_name', 'username', 'email', 'active', 'roles']
+
+    base_filters = [["username",FilterEqualFunction,get_curr_user]]
 
     show_fieldsets = [
         (lazy_gettext('User info'),

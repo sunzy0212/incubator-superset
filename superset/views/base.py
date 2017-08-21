@@ -15,6 +15,7 @@ from flask_appbuilder.models.sqla.filters import BaseFilter
 from superset import appbuilder, conf, db, utils, sm, sql_parse
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.connectors.sqla.models import SqlaTable
+from superset.models.core import Database
 
 
 def get_error_msg():
@@ -140,8 +141,18 @@ class BaseSupersetView(BaseView):
         return datasource_perms
 
     def schemas_accessible_by_user(self, database, schemas):
+        owned_database = (
+            db.session.query(Database)
+            .filter(
+                Database.qiniu_uid == g.user.get_qiniu_id()
+            ).all()
+        )
+        ret_schemas = []
+        for s in owned_database:
+            ret_schemas.append(str(s))
+
         if self.database_access(database) or self.all_datasource_access():
-            return schemas
+            return ret_schemas
 
         subset = set()
         for schema in schemas:
@@ -316,7 +327,6 @@ class SupersetFilter(BaseFilter):
         return (
             self.has_role(['Admin', 'Alpha']) or
             self.has_perm('all_datasource_access', 'all_datasource_access'))
-
 
 class DatasourceFilter(SupersetFilter):
     def apply(self, query, func):  # noqa

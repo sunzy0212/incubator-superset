@@ -46,6 +46,7 @@ class Query(Model):
     sql_editor_id = Column(String(256))
     schema = Column(String(256))
     sql = Column(Text)
+    qiniu_uid = Column(Integer)
     # Query to retrieve the results,
     # used only in case of select_as_cta_used is true.
     select_sql = Column(Text)
@@ -149,6 +150,7 @@ class SavedQuery(Model, AuditMixinNullable):
     label = Column(String(256))
     description = Column(Text)
     sql = Column(Text)
+    qiniu_uid = Column(Integer)
     user = relationship(
         sm.user_model,
         backref=backref('saved_queries', cascade='all, delete-orphan'),

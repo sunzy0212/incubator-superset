@@ -2,6 +2,7 @@ from flask import redirect, g
 
 from flask_appbuilder import expose
 from flask_appbuilder.models.sqla.interface import SQLAInterface
+from flask_appbuilder.models.sqla.filters import FilterEqualFunction,FilterEqual
 
 from flask_babel import gettext as __
 
@@ -10,31 +11,34 @@ from superset.models.sql_lab import Query, SavedQuery
 from .base import SupersetModelView, BaseSupersetView, DeleteMixin
 
 
-class QueryView(SupersetModelView):
-    datamodel = SQLAInterface(Query)
-    list_columns = ['user', 'database', 'status', 'start_time', 'end_time']
+# class QueryView(SupersetModelView):
+#     datamodel = SQLAInterface(Query)
+#     list_columns = ['user', 'database', 'status', 'start_time', 'end_time']
+#
+# appbuilder.add_view(
+#     QueryView,
+#     "Queries",
+#     label=__("Queries"),
+#     category="Manage",
+#     category_label=__("Manage"),
+#     icon="fa-search")
 
-appbuilder.add_view(
-    QueryView,
-    "Queries",
-    label=__("Queries"),
-    category="Manage",
-    category_label=__("Manage"),
-    icon="fa-search")
-
+def get_curr_user():
+    return g.user.get_qiniu_id()
 
 class SavedQueryView(SupersetModelView, DeleteMixin):
     datamodel = SQLAInterface(SavedQuery)
     list_columns = [
-        'label', 'user', 'database', 'schema', 'description',
+        'label', 'database', 'schema', 'description',
         'modified', 'pop_tab_link']
     show_columns = [
-        'id', 'label', 'user', 'database',
+        'id', 'label', 'database',
         'description', 'sql', 'pop_tab_link']
-    search_columns = ('label', 'user', 'database', 'schema', 'changed_on')
+    search_columns = ('label', 'database', 'schema', 'changed_on')
     add_columns = ['label', 'database', 'description', 'sql']
     edit_columns = add_columns
     base_order = ('changed_on', 'desc')
+    base_filters = [["qiniu_uid", FilterEqualFunction, get_curr_user]]
 
     def pre_add(self, obj):
         obj.user = g.user

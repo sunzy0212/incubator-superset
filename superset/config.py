@@ -53,7 +53,7 @@ SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'  # noqa
 
 # The SQLAlchemy connection string.
 # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(DATA_DIR, 'superset.db')
-SQLALCHEMY_DATABASE_URI = 'mysql://100.100.32.234:3306/superset'
+SQLALCHEMY_DATABASE_URI = 'mysql://root:@10.200.20.40:3306/super'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
 
 # The limit of queries fetched for query search
@@ -103,10 +103,10 @@ DRUID_ANALYSIS_TYPES = ['cardinality']
 AUTH_TYPE = AUTH_OAUTH
 
 OAUTH_PROVIDERS = [
-    {'name': 'github', 'icon': 'fa-github', 'token_key': 'access_token',
+    {'name': 'qiniu', 'icon': 'fa-github', 'token_key': 'access_token',
         'remote_app': {
-            'consumer_key': "GJ0UtUiQvDRDkIhYubajNlAa",
-            'consumer_secret': "7bFUxAzuEPYmPXnMESItWDOy4gTYBUPeAM1tNS8I",
+            'consumer_key': "XqcdCwjEoBdxnO1TTwrXcoCi",
+            'consumer_secret': "vI3GpXMZu6XB8aTCQpD5QEmr6X933YYB8jzYJWvk",
             'base_url': 'https://portal.qiniu.com/oauth/v2/api/account/info',
             'request_token_params': {
             },
@@ -154,7 +154,7 @@ BABEL_DEFAULT_LOCALE = 'zh'
 BABEL_DEFAULT_FOLDER = 'babel/translations'
 # The allowed translation for you app
 LANGUAGES = {
-    'en': {'flag': 'us', 'name': 'English'},
+    #'en': {'flag': 'us', 'name': 'English'},
     #'it': {'flag': 'it', 'name': 'Italian'},
     #'fr': {'flag': 'fr', 'name': 'French'},
     'zh': {'flag': 'cn', 'name': 'Chinese'},

@@ -3,9 +3,11 @@ import logging
 
 from past.builtins import basestring
 
-from flask import Markup, flash, redirect, abort
+from flask import Markup, flash, redirect, abort,g
 from flask_appbuilder import CompactCRUDMixin, expose
 from flask_appbuilder.models.sqla.interface import SQLAInterface
+from flask_appbuilder.models.sqla.filters import FilterEqualFunction,FilterStartsWith
+
 import sqlalchemy as sa
 
 from flask_babel import lazy_gettext as _
@@ -132,15 +134,17 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
 
 appbuilder.add_view_no_menu(SqlMetricInlineView)
 
+def get_curr_user():
+    print(">>>>>> get_curr_user: g.user.get_id",g.user.get_qiniu_id(),type(g.user.get_qiniu_id()))
+    return g.user.get_qiniu_id_asStr()
 
 class TableModelView(SupersetModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.SqlaTable)
     list_columns = [
-        'link', 'database',
-        'changed_by_', 'modified']
+        'link', 'database', 'modified']
     order_columns = [
         'link', 'database', 'changed_on_']
-    add_columns = ['database', 'schema', 'table_name']
+    add_columns = ['database', 'table_name']
     edit_columns = [
         'table_name', 'sql', 'filter_select_enabled', 'slices',
         'fetch_values_predicate', 'database', 'schema',
@@ -150,7 +154,7 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
     related_views = [TableColumnInlineView, SqlMetricInlineView]
     base_order = ('changed_on', 'desc')
     search_columns = (
-        'database', 'schema', 'table_name', 'owner',
+        'database', 'schema', 'table_name',
     )
     description_columns = {
         'slices': _(
@@ -188,7 +192,8 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
             "view's filter section with a list of distinct values fetched "
             "from the backend on the fly"),
     }
-    base_filters = [['id', DatasourceFilter, lambda: []]]
+    base_filters = [['id', DatasourceFilter, lambda: []],
+                    ['qiniu_uid', FilterEqualFunction,get_curr_user]]
     label_columns = {
         'slices': _("Associated Slices"),
         'link': _("Table"),
@@ -209,7 +214,8 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
             sa.func.count('*')).filter(
             models.SqlaTable.table_name == table.table_name,
             models.SqlaTable.schema == table.schema,
-            models.SqlaTable.database_id == table.database.id
+            models.SqlaTable.database_id == table.database.id,
+            models.SqlaTable.qiniu_uid == get_curr_user(),
         ).scalar()
         # table object is already added to the session
         if number_of_existing_tables > 1:
@@ -231,6 +237,7 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
         security.merge_perm(sm, 'datasource_access', table.get_perm())
         if table.schema:
             security.merge_perm(sm, 'schema_access', table.schema_perm)
+        table.qiniu_uid=g.user.get_qiniu_id()
 
         if flash_message:
             flash(_(
@@ -238,7 +245,10 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
                 "As part of this two phase configuration "
                 "process, you should now click the edit button by "
                 "the new table to configure it."), "info")
-
+        db.session.merge(table)
+        db.session.commit()
+        
+        
     def post_update(self, table):
         self.post_add(table, flash_message=False)
 

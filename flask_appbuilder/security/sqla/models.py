@@ -122,7 +122,10 @@ class User(Model):
         return as_unicode(self.id)
 
     def get_qiniu_id(self):
-        return as_unicode(self.qiniu_id)
+        return as_unicode(self.username)
+
+    def get_qiniu_id_asStr(self):
+        return self.username
 
     def get_full_name(self):
         return u'{0} {1}'.format(self.first_name, self.last_name)

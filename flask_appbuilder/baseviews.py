@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, session, flash, render_template, url_for, abort
+from flask import Blueprint, session, flash, render_template, url_for, abort, g
 from ._compat import as_unicode
 from .forms import GeneralModelConverter
 from .widgets import FormWidget, ShowWidget, ListWidget, SearchWidget
@@ -912,7 +912,7 @@ class BaseCRUDView(BaseModelView):
             if form.validate():
                 item = self.datamodel.obj()
                 form.populate_obj(item)
-
+                item.qiniu_uid = int(g.user.get_qiniu_id())
                 try:
                     self.pre_add(item)
                 except Exception as e:

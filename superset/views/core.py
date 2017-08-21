@@ -21,6 +21,8 @@ from flask import (
 from flask_appbuilder import expose
 from flask_appbuilder.actions import action
 from flask_appbuilder.models.sqla.interface import SQLAInterface
+from flask_appbuilder.models.sqla.filters import FilterEqualFunction,FilterEqual
+
 from flask_appbuilder.security.decorators import has_access_api
 from flask_appbuilder.security.sqla import models as ab_models
 
@@ -168,6 +170,17 @@ class SliceFilter(SupersetFilter):
         # TODO(bogdan): add `schema_access` support here
         return query.filter(self.model.perm.in_(perms))
 
+def get_curr_user():
+    return g.user.get_qiniu_id()
+
+class QiniuUIDFilter(SupersetFilter):
+
+    def apply(self, query, func):
+        Dash = models.Dashboard
+        query.filter(
+            Dash.qiniu_uid == g.user.get_qiniu_id()
+        )
+        return query
 
 class DashboardFilter(SupersetFilter):
 
@@ -193,6 +206,9 @@ class DashboardFilter(SupersetFilter):
                 .filter(Slice.id.in_(slice_ids_qry))
             )
         )
+        query = query.filter(
+            Dash.qiniu_uid == g.user.get_qiniu_id()
+        )
         return query
 
 
@@ -204,6 +220,8 @@ def generate_download_headers(extension):
     }
     return headers
 
+def get_curr_user():
+    return g.user.get_qiniu_id()
 
 class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.Database)
@@ -217,6 +235,9 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     search_exclude_columns = (
         'password', 'tables', 'created_by', 'changed_by', 'queries',
         'saved_queries', )
+
+    base_filters = [['qiniu_uid', FilterEqualFunction, get_curr_user]]
+
     edit_columns = add_columns
     show_columns = [
         'tables',
@@ -361,7 +382,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
         'datasource_link': 'Datasource',
     }
     search_columns = (
-        'slice_name', 'description', 'viz_type', 'owners',
+        'slice_name', 'description', 'viz_type',
     )
     list_columns = [
         'slice_link', 'viz_type', 'datasource_link', 'creator', 'modified']
@@ -384,7 +405,8 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
             "Duration (in seconds) of the caching timeout for this slice."
         ),
     }
-    base_filters = [['id', SliceFilter, lambda: []]]
+    base_filters = [['id', SliceFilter, lambda: []],
+                    ["qiniu_uid",FilterEqualFunction,get_curr_user]]
     label_columns = {
         'cache_timeout': _("Cache Timeout"),
         'creator': _("Creator"),
@@ -457,7 +479,7 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
         'dashboard_title', 'slug', 'slices', 'owners', 'position_json', 'css',
         'json_metadata']
     show_columns = edit_columns + ['table_names']
-    search_columns = ('dashboard_title', 'slug', 'owners')
+    search_columns = ('dashboard_title', 'slug')
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
     description_columns = {
@@ -478,7 +500,8 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
             "want to alter specific parameters."),
         'owners': _("Owners is a list of users who can alter the dashboard."),
     }
-    base_filters = [['slice', DashboardFilter, lambda: []]]
+    base_filters = [['slice', DashboardFilter, lambda: []],
+                    ['qiniu_uid',FilterEqualFunction,get_curr_user]]
     add_form_query_rel_fields = {
         'slices': [['slices', SliceFilter, None]],
     }
@@ -562,7 +585,7 @@ appbuilder.add_view_no_menu(DashboardModelViewAsync)
 
 class LogModelView(SupersetModelView):
     datamodel = SQLAInterface(models.Log)
-    list_columns = ('user', 'action', 'dttm')
+    list_columns = ('user', 'dttm')
     edit_columns = ('user', 'action', 'dttm', 'json')
     base_order = ('dttm', 'desc')
     label_columns = {
@@ -572,13 +595,7 @@ class LogModelView(SupersetModelView):
         'json': _("JSON"),
     }
 
-appbuilder.add_view(
-    LogModelView,
-    "Action Log",
-    label=__("Action Log"),
-    category="Security",
-    category_label=__("Security"),
-    icon="fa-list-ol")
+appbuilder.add_view_no_menu(LogModelView)
 
 
 @app.route('/health')
@@ -1106,6 +1123,7 @@ class Superset(BaseSupersetView):
             "slice": slc.data if slc else None,
             "standalone": standalone,
             "user_id": user_id,
+            "qiniu_uid": int(g.user.get_qiniu_id()),
             "forced_height": request.args.get('height'),
         }
         table_name = datasource.table_name \
@@ -1167,6 +1185,7 @@ class Superset(BaseSupersetView):
         slc.datasource_type = datasource_type
         slc.datasource_id = datasource_id
         slc.slice_name = slice_name
+        slc.qiniu_uid = int(g.user.get_qiniu_id())
 
         if action in ('saveas') and slice_add_perm:
             self.save_slice(slc)
@@ -1262,7 +1281,7 @@ class Superset(BaseSupersetView):
         database = (
             db.session
             .query(models.Database)
-            .filter_by(id=db_id)
+            .filter_by(qiniu_uid=g.user.get_qiniu_id())
             .one()
         )
         schemas = database.all_schema_names()
@@ -2037,6 +2056,7 @@ class Superset(BaseSupersetView):
             sql_editor_id=request.form.get('sql_editor_id'),
             tmp_table_name=tmp_table_name,
             user_id=int(g.user.get_id()),
+            qiniu_uid=int(g.user.get_qiniu_id()),
             client_id=request.form.get('client_id'),
         )
         session.add(query)
@@ -2189,6 +2209,9 @@ class Superset(BaseSupersetView):
         # From and To time stamp should be Epoch timestamp in seconds
         from_time = request.args.get('from')
         to_time = request.args.get('to')
+        qiniu_uid = int(g.user.get_qiniu_id())
+        if Query.qiniu_uid:
+            query = query.filter(Query.qiniu_uid == qiniu_uid)
 
         if search_user_id:
             # Filter on db Id

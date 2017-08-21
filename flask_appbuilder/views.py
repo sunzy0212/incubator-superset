@@ -1,7 +1,7 @@
 import logging
 import json
 from flask import (
-    flash, redirect, send_file, jsonify, make_response, url_for, session, abort)
+    flash, redirect, send_file, jsonify, make_response, url_for, session, abort,g)
 from ._compat import as_unicode, string_types
 from .filemanager import uuid_originalname
 from .widgets import GroupFormListWidget, ListMasterWidget
@@ -272,6 +272,7 @@ class RestCRUDView(BaseCRUDView):
             item = self.datamodel.obj()
             form.populate_obj(item)
             self.pre_add(item)
+            item.qiniu_uid = g.user.get_qiniu_id()
             if self.datamodel.add(item):
                 self.post_add(item)
                 http_return_code = 200
