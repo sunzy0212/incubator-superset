@@ -16,7 +16,7 @@ from sqlalchemy.sql.expression import ColumnClause, TextAsFrom
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.sql import table, literal_column, text, column
 
-from flask import escape, Markup
+from flask import escape, Markup,g
 from flask_appbuilder import Model
 from flask_babel import lazy_gettext as _
 

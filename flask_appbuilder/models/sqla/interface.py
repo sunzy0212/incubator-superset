@@ -108,14 +108,15 @@ class SQLAInterface(BaseInterface):
                                      order_column=order_column,
                                      order_direction=order_direction)
         query = query.filter_by(qiniu_uid=g.user.get_qiniu_id())
+
         count = query_count.scalar()
 
         if page:
             query = query.offset(page * page_size)
         if page_size:
             query = query.limit(page_size)
-        result = query.all()
-        return count, result
+
+        return count, query.all()
 
     def query_simple_group(self, group_by='', aggregate_func=None, aggregate_col=None, filters=None):
         query = self.session.query(self.obj)

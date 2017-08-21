@@ -1281,6 +1281,7 @@ class Superset(BaseSupersetView):
         database = (
             db.session
             .query(models.Database)
+            .filter_by(id=db_id)
             .filter_by(qiniu_uid=g.user.get_qiniu_id())
             .one()
         )
@@ -2210,8 +2211,7 @@ class Superset(BaseSupersetView):
         from_time = request.args.get('from')
         to_time = request.args.get('to')
         qiniu_uid = int(g.user.get_qiniu_id())
-        if Query.qiniu_uid:
-            query = query.filter(Query.qiniu_uid == qiniu_uid)
+        query = query.filter(Query.qiniu_uid == qiniu_uid)
 
         if search_user_id:
             # Filter on db Id
