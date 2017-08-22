@@ -104,7 +104,7 @@ msgstr "半小时"
 
 #: superset/db_engine_specs.py:889
 msgid "10 minute"
-msgstr ""
+msgstr "10 分钟"
 
 #: superset/utils.py:472
 #, python-format
@@ -405,7 +405,7 @@ msgstr "隐藏"
 
 #: superset/connectors/druid/views.py:207 superset/connectors/sqla/views.py:197
 msgid "Enable Filter Select"
-msgstr ""
+msgstr "打开filter筛选功能"
 
 #: superset/connectors/druid/views.py:208
 msgid "Default Endpoint"
@@ -478,7 +478,7 @@ msgstr "SQL表达式"
 
 #: superset/connectors/sqla/views.py:164
 msgid "Name of the table that exists in the source database"
-msgstr ""
+msgstr "源数据库中存在的表名"
 
 #: superset/connectors/sqla/views.py:166
 msgid "Schema, as used only in some databases like Postgres, Redshift and DB2"
@@ -525,7 +525,7 @@ msgstr "偏移"
 msgid ""
 "The table was created. As part of this two phase configuration process, "
 "you should now click the edit button by the new table to configure it."
-msgstr ""
+msgstr "数据表已经创建，现在可以点击编辑按钮来配置数据表"
 
 #: superset/connectors/sqla/views.py:259
 msgid "Tables"
@@ -545,20 +545,20 @@ msgstr "登录"
 
 #: superset/templates/superset/import_dashboards.html:11
 msgid "Import"
-msgstr "导入"
+msgstr "导入看板"
 
 #: superset/templates/superset/request_access.html:2
 msgid "No Access!"
-msgstr ""
+msgstr "没有访问权限"
 
 #: superset/templates/superset/request_access.html:7
 #, python-format
 msgid "You do not have permissions to access the datasource(s): %(name)s."
-msgstr ""
+msgstr "你没有访问datasource(s) %(name)s的权限"
 
 #: superset/templates/superset/request_access.html:13
 msgid "Request Permissions"
-msgstr ""
+msgstr "请求权限"
 
 #: superset/templates/superset/request_access.html:16
 msgid "Cancel"
@@ -584,11 +584,11 @@ msgstr "数据源%(name)s 已存在"
 
 #: superset/views/base.py:256
 msgid "Delete"
-msgstr ""
+msgstr "删除"
 
 #: superset/views/base.py:257
 msgid "Delete all Really?"
-msgstr ""
+msgstr "真的全部删除?"
 
 #: superset/views/core.py:55
 msgid "This endpoint requires the `all_datasource_access` permission"
@@ -596,26 +596,26 @@ msgstr ""
 
 #: superset/views/core.py:57
 msgid "The datasource seems to have been deleted"
-msgstr ""
+msgstr "数据源已被删除"
 
 #: superset/views/core.py:58
 msgid "The access requests seem to have been deleted"
-msgstr ""
+msgstr "数据访问请求已经被删除"
 
 #: superset/views/core.py:60
 msgid "The user seems to have been deleted"
-msgstr ""
+msgstr "用户已经被删除"
 
 #: superset/views/core.py:61
 msgid "You don't have access to this datasource"
-msgstr ""
+msgstr "你没有访问数据源的权限"
 
 #: superset/views/core.py:65
 #, python-format
 msgid ""
 "This view requires the database %(name)s or `all_datasource_access` "
 "permission"
-msgstr ""
+msgstr "这个视图需要`all_datasource_access`权限"
 
 #: superset/views/core.py:70
 #, python-format
@@ -626,7 +626,7 @@ msgstr ""
 
 #: superset/views/core.py:205
 msgid "Expose this DB in SQL Lab"
-msgstr ""
+msgstr "允许在SQL工具箱中使用这个数据库"
 
 #: superset/views/core.py:206
 msgid ""
@@ -643,13 +643,13 @@ msgstr ""
 
 #: superset/views/core.py:214
 msgid "Allow CREATE TABLE AS option in SQL Lab"
-msgstr ""
+msgstr "允许在SQL工具箱中创建数据表"
 
 #: superset/views/core.py:215
 msgid ""
 "Allow users to run non-SELECT statements (UPDATE, DELETE, CREATE, ...) in"
 " SQL Lab"
-msgstr ""
+msgstr "允许在SQL工具箱中允许非select语句(UPDATE, DELETE, CREATE, ...)"
 
 #: superset/views/core.py:219
 msgid ""
@@ -663,7 +663,7 @@ msgstr "允许在SQL工具箱中使用"
 
 #: superset/views/core.py:234
 msgid "Allow CREATE TABLE AS"
-msgstr ""
+msgstr "允许创建数据表"
 
 #: superset/views/core.py:235
 msgid "Allow DML"
@@ -849,7 +849,7 @@ msgstr "操作日志"
 
 #: superset/views/core.py:770
 msgid "Access was requested"
-msgstr ""
+msgstr "访问请求已经发出"
 
 #: superset/views/core.py:831
 #, python-format
@@ -865,7 +865,7 @@ msgstr ""
 
 #: superset/views/core.py:856
 msgid "You have no permission to approve this request"
-msgstr ""
+msgstr "你没有权限通过这个请求"
 
 #: superset/views/core.py:1589
 msgid ""
@@ -876,17 +876,17 @@ msgstr ""
 #: superset/views/core.py:1595
 #, python-format
 msgid "Slice %(id)s not found"
-msgstr ""
+msgstr "切片不存在"
 
 #: superset/views/core.py:1607
 #, python-format
 msgid "Table %(t)s wasn't found in the database %(d)s"
-msgstr ""
+msgstr "数据库中没有这个数据表"
 
 #: superset/views/core.py:1741
 #, python-format
 msgid "Can't find User '%(name)s', please ask your admin to create one."
-msgstr ""
+msgstr "用户不存在"
 
 #: superset/views/core.py:1748
 #, python-format
