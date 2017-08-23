@@ -189,10 +189,10 @@ class UserModelView(ModelView):
                                widgets=widgets,
                                appbuilder=self.appbuilder)
 
-    @action('userinfoedit', lazy_gettext("Edit User"), "", "fa-edit", multiple=False)
-    def userinfoedit(self, item):
-        return redirect(url_for(self.appbuilder.sm.userinfoeditview.__name__ + '.this_form_get'))
-
+    # @action('userinfoedit', lazy_gettext("Edit User"), "", "fa-edit", multiple=False)
+    # def userinfoedit(self, item):
+    #     return redirect(url_for(self.appbuilder.sm.userinfoeditview.__name__ + '.this_form_get'))
+    #
 
 class UserOIDModelView(UserModelView):
     """
