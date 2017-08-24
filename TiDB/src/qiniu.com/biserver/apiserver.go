@@ -65,13 +65,25 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 	ret := ""
 	err = result.Scan(&ret)
 	if err != nil && err.Error() == "sql: no rows in result set" {
-		_, err = server.MySQLClient.Exec(fmt.Sprintf("create table %s.users (appid TEXT, dbname TEXT)", cfg.MysqlConfig.MetaDB))
+		_, err = server.MySQLClient.Exec(fmt.Sprintf("create table %s.users (user TEXT, password TEXT)", cfg.MysqlConfig.MetaDB))
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
 	} else if err != nil {
 		fmt.Println(err)
+		return nil, err
+	}
+
+	result = server.MySQLClient.QueryRow(fmt.Sprintf("select TABLE_NAME from information_schema.tables where table_schema='%s' and table_name='dbs' limit 1", cfg.MysqlConfig.MetaDB))
+	err = result.Scan(&ret)
+	if err != nil && err.Error() == "sql: no rows in result set" {
+		_, err = server.MySQLClient.Exec(fmt.Sprintf("create table %s.dbs (appid TEXT, dbname TEXT)", cfg.MysqlConfig.MetaDB))
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -101,6 +113,67 @@ type cmdArgs struct {
 	CmdArgs []string
 }
 
+type UserInfo struct {
+	UserName string `json:"user"`
+	Password string `json:"password"`
+}
+
+// POST /v1/activate
+// X-Appid: <AppId>
+func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
+
+	appId := env.Req.Header.Get(X_APPID)
+	if appId == "" {
+		err = errors.Info(ErrHeaderAppIdError)
+		return
+	}
+
+	//check existence of appid
+	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
+	if err != nil {
+		return
+	}
+
+	result, err := userInfo.Query()
+	if err != nil {
+		return
+	}
+
+	password := make([]string, 0)
+	var dbName string
+	for result.Next() {
+		result.Scan(&dbName)
+		password = append(password, dbName)
+	}
+	//exits, return last password
+	if len(password) > 0 {
+		info.UserName = appId
+		info.Password = password[0]
+		return
+	}
+
+	//not exists, go on
+	pwd, err := generatePassword()
+	if err != nil {
+		return
+	}
+
+	//create mysql user
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("CREATE USER '%s' IDENTIFIED BY '%s'", appId, pwd))
+	if err != nil {
+		return
+	}
+
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.users (user,password) VALUES ('%s','%s')", s.MetaDB, appId, pwd))
+	if err != nil {
+		return
+	}
+	info.UserName = appId
+	info.Password = pwd
+
+	return
+}
+
 // POST /v1/dbs/<DBName>
 // Content-Type: application/json
 // X-Appid: <AppId>
@@ -111,6 +184,27 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 	//ensure appid is valid
+	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
+	if err != nil {
+		return
+	}
+
+	result, err := userInfo.Query()
+	if err != nil {
+		return
+	}
+
+	appids := make([]string, 0)
+	var appid string
+	for result.Next() {
+		result.Scan(&appid)
+		appids = append(appids, appid)
+	}
+	//exits, return last appids
+	if len(appids) < 1 {
+		err = fmt.Errorf("invalid appid, you should activate this appid first")
+		return
+	}
 
 	//create database
 	userDBName := constructUserDBName(appId, dbName)
@@ -118,7 +212,13 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	if err != nil {
 		return
 	}
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.users (appid,dbname) VALUES ('%s','%s')", s.MetaDB, appId, dbName))
+
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.dbs (appid,dbname) VALUES ('%s','%s')", s.MetaDB, appId, dbName))
+	if err != nil {
+		return
+	}
+	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
 	if err != nil {
 		return
 	}
@@ -136,10 +236,8 @@ func (s *ApiServer) GetDbs(env *rpcutil.Env) (dbs []string, err error) {
 		return
 	}
 
-	//ensure appid is valid
-
 	//create database
-	selectDBName, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT dbname from %s.users where appid= '%s'", s.MetaDB, appId))
+	selectDBName, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT dbname from %s.dbs where appid= '%s'", s.MetaDB, appId))
 	if err != nil {
 		return
 	}
@@ -171,7 +269,7 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 	//ensure appid is valid
 
 	//delete metadata database
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE from %s.users where appid=%s", s.MetaDB, appId))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE from %s.dbs where appid=%s", s.MetaDB, appId))
 	if err != nil {
 		return
 	}
@@ -346,7 +444,7 @@ func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err er
 	if err != nil {
 		return
 	}
-	conn, err := driver.NewConn("root", "mypandorapassword2017", "101.71.85.34:3306", constructUserDBName(appId, dbName), "")
+	conn, err := driver.NewConn("root", "", "10.200.20.39:5000", constructUserDBName(appId, dbName), "")
 	if err != nil {
 	}
 	sql := fmt.Sprintf("INSERT INTO %s.%s (%s) VALUES %s",
@@ -389,6 +487,8 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 		return
 	}
 
+	fmt.Println(">>>>>>>>>>>>>", req.CMD)
+
 	//appid must own this db
 	dbs, err := getDBByAppID(s.MySQLClient, s.MetaDB, appId)
 	if err != nil {
@@ -405,6 +505,7 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 		err = fmt.Errorf("database %s not found", dbName)
 		return
 	}
+
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
 		return
@@ -415,10 +516,9 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 		return
 	}
 	//table must exits in db
-	fmt.Println(">>>>", req.CMD)
 
 	//execute the sql
-	conn, err := driver.NewConn("root", "mypandorapassword2017", "101.71.85.34:3306", constructUserDBName(appId, dbName), "")
+	conn, err := driver.NewConn("root", "", "10.200.20.39:5000", constructUserDBName(appId, dbName), "")
 	if err != nil {
 	}
 	sql := fmt.Sprintf(req.CMD)

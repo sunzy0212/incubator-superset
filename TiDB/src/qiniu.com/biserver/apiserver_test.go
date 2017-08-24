@@ -23,9 +23,9 @@ func Test_NewServer(t *testing.T) {
 		TcpAddress: ":8880",
 		MysqlConfig: MysqlConfig{
 			User:     "root",
-			Password: "mypandorapassword2017",
+			Password: "",
 			Protocol: "tcp",
-			Address:  "101.71.85.34:3306",
+			Address:  "10.200.20.39:5000",
 			MetaDB:   "report_dev_test",
 		},
 	}
@@ -51,9 +51,9 @@ func Test_apiserver(t *testing.T) {
 		TcpAddress: ":8880",
 		MysqlConfig: MysqlConfig{
 			User:     "root",
-			Password: "mypandorapassword2017",
+			Password: "",
 			Protocol: "tcp",
-			Address:  "101.71.85.34:3306",
+			Address:  "10.200.20.39:5000",
 			MetaDB:   "report_dev_test",
 		},
 	}
@@ -73,6 +73,27 @@ func Test_apiserver(t *testing.T) {
 	transport.ListenAndServe("bi.com", router.Register(svr))
 	ctx := httptest.New(t)
 	ctx.SetTransport(transport)
+
+	//test /v1/activate
+	ctx.Exec(`
+        # test create db
+        post http://bi.com/v1/activate
+		header X-Appid 123
+        ret 200
+		json '{
+			"user":"123",
+			"password":$(pwd)
+		}'
+
+		post http://bi.com/v1/activate
+		header X-Appid 123
+        ret 200
+		json '{
+			"user":"123",
+			"password":$(pwd)
+		}'
+
+        `)
 
 	ctx.Exec(`
         # test create db
@@ -175,7 +196,7 @@ func Test_apiserver(t *testing.T) {
 }
 
 func prepare() error {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", "root", "mypandorapassword2017", "tcp", "101.71.85.34:3306", ""))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", "root", "", "tcp", "10.200.20.39:5000", ""))
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -189,12 +210,13 @@ func prepare() error {
 }
 
 func clean() error {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", "root", "mypandorapassword2017", "tcp", "101.71.85.34:3306", "report_dev_test"))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", "root", "", "tcp", "10.200.20.39:5000", "report_dev_test"))
 	if err != nil {
 		return err
 	}
 	db.Exec("drop database report_dev_test")
 	db.Exec("drop database 123_dbone")
+	db.Exec("drop user '123'")
 
 	return nil
 }
