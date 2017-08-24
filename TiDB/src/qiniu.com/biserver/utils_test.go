@@ -27,3 +27,11 @@ func Test_convertResult(t *testing.T) {
 	ret := convertResult(&result)
 	t.Log(ret)
 }
+
+func Test_passwordGenerator(t *testing.T) {
+	p, err := generatePassword()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(p)
+}

@@ -7,6 +7,7 @@ import (
 	"database/sql"
 
 	"github.com/XeLabs/go-mysqlstack/sqlparser/depends/sqltypes"
+	garbler "github.com/michaelbironneau/garbler/lib"
 	"github.com/qiniu/http/rpcutil.v1"
 	"qbox.us/errors"
 )
@@ -14,6 +15,19 @@ import (
 const (
 	X_APPID = "X-Appid"
 )
+
+func generatePassword() (password string, err error) {
+	reqs := garbler.PasswordStrengthRequirements{
+		MinimumTotalLength: 20,
+		Digits:             10,
+	}
+	p, err := garbler.NewPassword(&reqs)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	return p, nil
+}
 
 func getAppidAndDBName(args *cmdArgs, env *rpcutil.Env) (appId, dbName string, err error) {
 	appId = env.Req.Header.Get(X_APPID)
@@ -64,7 +78,7 @@ func getSchemaAndValues(data []byte) (schema, values string, err error) {
 
 func getDBByAppID(client *sql.DB, metadb, appid string) (dbs []string, err error) {
 
-	selectDBName, err := client.Prepare(fmt.Sprintf("SELECT dbname from %s.users where appid= '%s'", metadb, appid))
+	selectDBName, err := client.Prepare(fmt.Sprintf("SELECT dbname from %s.dbs where appid= '%s'", metadb, appid))
 	if err != nil {
 		return
 	}

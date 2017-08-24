@@ -1,9 +1,31 @@
+# 激活用户
+
+请求包: 
+
+```
+POST /v1/activate
+Content-Type: application/json
+
+```
+
+返回包:
+
+```
+200 OK
+json {
+    "user":<UserId>,
+    "password":<Password>
+}
+```
+
+* 此接口用来给特定的qiniu uid生成数据库的用户名和密码
+
 # 创建数据库
 
 请求包: 
 
 ```
-POST /v1/dbs/<DB_Name>
+POST /v1/dbs/<DB_Name>?ignoreExists=true
 Content-Type: application/json
 
 ```
@@ -14,6 +36,7 @@ Content-Type: application/json
 200 OK
 ```
 
+* `ignoreExists`: 用来指定是否忽略数据库已经被创建了的错误；`true`: 忽略，`false`: 不忽略；
 
 # 列举数据库
 
