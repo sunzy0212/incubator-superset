@@ -73,7 +73,7 @@ assoc_user_role = Table('ab_user_role', Model.metadata,
 class User(Model):
     __tablename__ = 'ab_user'
     id = Column(Integer, Sequence('ab_user_id_seq'), primary_key=True)
-    #qiniu_id = Column(Integer, primary_key=True)
+    qiniu_uid = Column(Integer)
     first_name = Column(String(64), nullable=False)
     last_name = Column(String(64), nullable=False)
     username = Column(String(64), unique=True, nullable=False)
