@@ -12,6 +12,7 @@ import pickle
 import re
 import time
 import traceback
+import requests
 
 import sqlalchemy as sqla
 
@@ -229,8 +230,8 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         'database_name', 'backend', 'allow_run_sync', 'allow_run_async',
         'allow_dml', 'creator', 'modified']
     add_columns = [
-        'database_name', 'sqlalchemy_uri', 'cache_timeout',
-        'expose_in_sqllab', 'allow_run_sync',]
+        'database_name',
+        'expose_in_sqllab', 'allow_run_sync']
     search_exclude_columns = (
         'password', 'tables', 'created_by', 'changed_by', 'queries',
         'saved_queries', )
@@ -299,8 +300,16 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         'cache_timeout': _("Cache Timeout"),
         'extra': _("Extra"),
     }
+    def get_db_sqlalchemy_uri(self,dbname):
+        qiniu_uid = str(g.user.get_qiniu_id())
+        r = requests.post("http://10.200.20.39:2308/v1/activate",headers={'X-Appid':qiniu_uid})
+        if r.status_code != 200:
+            return ""
+        result = r.json()
+        return u'mysql://%s:%s@10.200.20.39:5000/%s_%s'%(qiniu_uid,result["password"],qiniu_uid,dbname)
 
     def pre_add(self, db):
+        db.sqlalchemy_uri = self.get_db_sqlalchemy_uri(db.name)
         db.set_sqlalchemy_uri(db.sqlalchemy_uri)
         security.merge_perm(sm, 'database_access', db.perm)
         for schema in db.all_schema_names():
@@ -1296,6 +1305,7 @@ class Superset(BaseSupersetView):
     def tables(self, db_id, schema, substr):
         """Endpoint to fetch the list of tables for given database"""
         db_id = int(db_id)
+        schema = "%s_%s"%(g.user.get_qiniu_id(),schema)
         schema = utils.js_string_to_python(schema)
         substr = utils.js_string_to_python(substr)
         database = db.session.query(models.Database).filter_by(id=db_id).one()
@@ -1880,6 +1890,7 @@ class Superset(BaseSupersetView):
     @expose("/table/<database_id>/<table_name>/<schema>/")
     @log_this
     def table(self, database_id, table_name, schema):
+        schema = "%s_%s"%(g.user.get_qiniu_id(),schema)
         schema = utils.js_string_to_python(schema)
         mydb = db.session.query(models.Database).filter_by(id=database_id).one()
         cols = []
