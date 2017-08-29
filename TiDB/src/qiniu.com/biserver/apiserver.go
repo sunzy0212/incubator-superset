@@ -217,8 +217,8 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
+	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
 	if err != nil {
 		return
 	}
