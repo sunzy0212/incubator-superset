@@ -737,7 +737,7 @@ msgstr "当单击“保存”或“覆盖”按钮时，这些参数会在视图
 
 #: superset/views/core.py:345
 msgid "Duration (in seconds) of the caching timeout for this slice."
-msgstr "切片数据过期时间(秒)"
+msgstr "报表数据过期时间(秒)"
 
 #: superset/views/core.py:356
 msgid "Last Modified"
@@ -753,7 +753,7 @@ msgstr "参数"
 
 #: superset/views/core.py:359 superset/views/core.py:401
 msgid "Slice"
-msgstr "切片"
+msgstr "报表"
 
 #: superset/views/core.py:360
 msgid "Name"
@@ -765,7 +765,7 @@ msgstr "图表类型"
 
 #: superset/views/core.py:389 superset/views/core.py:452
 msgid "Slices"
-msgstr "切片"
+msgstr "报表"
 
 #: superset/views/core.py:426
 msgid ""
@@ -876,7 +876,7 @@ msgstr ""
 #: superset/views/core.py:1595
 #, python-format
 msgid "Slice %(id)s not found"
-msgstr "切片不存在"
+msgstr "报表不存在"
 
 #: superset/views/core.py:1607
 #, python-format
