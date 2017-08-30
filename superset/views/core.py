@@ -484,8 +484,7 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.Dashboard)
     list_columns = ['dashboard_link', 'creator', 'modified']
     edit_columns = [
-        'dashboard_title', 'slug', 'slices', 'owners', 'position_json', 'css',
-        'json_metadata']
+        'dashboard_title', 'slug', 'slices', 'owners']
     show_columns = edit_columns + ['table_names']
     search_columns = ('dashboard_title', 'slug')
     add_columns = edit_columns

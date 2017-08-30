@@ -105,14 +105,14 @@ AUTH_TYPE = AUTH_OAUTH
 OAUTH_PROVIDERS = [
     {'name': 'qiniu', 'icon': 'fa-github', 'token_key': 'access_token',
         'remote_app': {
-            'consumer_key': "XqcdCwjEoBdxnO1TTwrXcoCi",
-            'consumer_secret': "vI3GpXMZu6XB8aTCQpD5QEmr6X933YYB8jzYJWvk",
-            'base_url': 'https://portal.qiniu.com/oauth/v2/api/account/info',
+            'consumer_key': "uNoStPw55GyGjBGJfdrrR4y9",
+            'consumer_secret': "jmFi9oTg1xhcL9Bd4y3XU95GylehVMhhIwUoNui7",
+            'base_url': 'https://portalv4-dev.qiniu.io/oauth/v2/api/account/info',
             'request_token_params': {
             },
             'request_token_url': None,
-            'access_token_url': 'https://portal.qiniu.com/oauth/v2/token',
-            'authorize_url': 'https://portal.qiniu.com/oauth/v2/authorize'}
+            'access_token_url': 'https://portalv4-dev.qiniu.io/oauth/v2/token',
+            'authorize_url': 'https://portalv4-dev.qiniu.io/oauth/v2/authorize'}
     }]
 
 # Uncomment to setup Full admin role name
@@ -154,7 +154,7 @@ BABEL_DEFAULT_LOCALE = 'zh'
 BABEL_DEFAULT_FOLDER = './translations'
 # The allowed translation for you app
 LANGUAGES = {
-    'en': {'flag': 'us', 'name': 'English'},
+    # 'en': {'flag': 'us', 'name': 'English'},
     #'it': {'flag': 'it', 'name': 'Italian'},
     #'fr': {'flag': 'fr', 'name': 'French'},
     'zh': {'flag': 'cn', 'name': 'Chinese'},
