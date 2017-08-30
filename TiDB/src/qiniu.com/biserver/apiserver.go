@@ -131,11 +131,13 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 	//check existence of appid
 	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
+		err = errors.Info(ErrInvalidSqlError)
 		return
 	}
 
 	result, err := userInfo.Query()
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -155,17 +157,20 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 	//not exists, go on
 	pwd, err := generatePassword()
 	if err != nil {
+		err = errors.Info(ErrInternalServerError, "generator password error")
 		return
 	}
 
 	//create mysql user
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("CREATE USER '%s' IDENTIFIED BY '%s'", appId, pwd))
 	if err != nil {
+		err = errors.Info(ErrInvalidSqlError)
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.users (user,password) VALUES ('%s','%s')", s.MetaDB, appId, pwd))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	info.UserName = appId
@@ -181,16 +186,19 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 	//ensure appid is valid
 	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
+		err = errors.Info(ErrInvalidSqlError)
 		return
 	}
 
 	result, err := userInfo.Query()
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -202,7 +210,7 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	}
 	//exits, return last appids
 	if len(appids) < 1 {
-		err = fmt.Errorf("invalid appid, you should activate this appid first")
+		err = errors.Info(ErrInvalidAppIdError)
 		return
 	}
 
@@ -210,16 +218,19 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	userDBName := constructUserDBName(appId, dbName)
 	_, err = s.MySQLClient.Exec(getCreateUserDBSQL(userDBName))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.dbs (appid,dbname) VALUES ('%s','%s')", s.MetaDB, appId, dbName))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
-	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
+	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	return
@@ -239,11 +250,13 @@ func (s *ApiServer) GetDbs(env *rpcutil.Env) (dbs []string, err error) {
 	//create database
 	selectDBName, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT dbname from %s.dbs where appid= '%s'", s.MetaDB, appId))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	result, err := selectDBName.Query()
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -264,6 +277,7 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 	//ensure appid is valid
@@ -271,11 +285,13 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 	//delete metadata database
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE from %s.dbs where appid=%s", s.MetaDB, appId))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("DROP DATABASE %s", constructUserDBName(appId, dbName)))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -289,17 +305,20 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 	fmt.Println(appId, dbName)
 	data, err := ioutil.ReadAll(env.Req.Body)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	req := Command{}
 	err = json.Unmarshal(data, &req)
 	if err != nil {
+		err = errors.Info(ErrInvalidParameterError)
 		return
 	}
 
@@ -307,11 +326,12 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	st, ok := stmt.(*sqlparser.DDL)
 	if !ok {
-		err = fmt.Errorf("expect create table syntax")
+		err = errors.Info(ErrInvalidSqlError)
 		return
 	}
 
@@ -325,11 +345,13 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(req.CMD)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.tables (appid,dbname,tablename) VALUES ('%s','%s','%s')", s.MetaDB, appId, dbName, args.CmdArgs[1]))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -343,6 +365,7 @@ func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err erro
 
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 	fmt.Println(appId, dbName)
@@ -350,11 +373,13 @@ func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err erro
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("drop table %s.%s", constructUserDBName(appId, dbName), args.CmdArgs[1]))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE FROM %s.tables WHERE appid='%s' and dbname='%s' and tablename='%s'", s.MetaDB, appId, dbName, args.CmdArgs[1]))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -369,6 +394,7 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 	tables = make([]string, 0)
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 	//ensure appid is valid
@@ -376,11 +402,13 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 	//create database
 	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	result, err := tableNames.Query()
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -401,6 +429,7 @@ func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (tables []st
 	tables = make([]string, 0)
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 	//ensure appid is valid
@@ -408,11 +437,13 @@ func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (tables []st
 	//create database
 	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	result, err := tableNames.Query()
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -432,16 +463,19 @@ func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err er
 
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 	tableName := args.CmdArgs[1]
 
 	data, err := ioutil.ReadAll(env.Req.Body)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	schema, values, err := getSchemaAndValues(data)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	conn, err := driver.NewConn("root", "", "10.200.20.39:5000", constructUserDBName(appId, dbName), "")
@@ -455,6 +489,7 @@ func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err er
 	)
 	err = conn.Exec(sql)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -468,22 +503,25 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
+		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
 
 	fmt.Println(appId, dbName)
 	data, err := ioutil.ReadAll(env.Req.Body)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
 	req := Command{}
 	err = json.Unmarshal(data, &req)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	if req.CMD == "" {
-		err = fmt.Errorf("empty command")
+		err = errors.Info(ErrInvalidSqlError)
 		return
 	}
 
@@ -502,17 +540,18 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 		}
 	}
 	if !found {
-		err = fmt.Errorf("database %s not found", dbName)
+		err = errors.Info(ErrDBNotFoundError)
 		return
 	}
 
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
+		err = errors.Info(ErrInvalidSqlError)
 		return
 	}
 	_, ok := stmt.(*sqlparser.Select)
 	if !ok {
-		err = fmt.Errorf("invalid sql, only select sql supported")
+		err = errors.Info(ErrInvalidSqlError)
 		return
 	}
 	//table must exits in db
@@ -520,19 +559,22 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 	//execute the sql
 	conn, err := driver.NewConn("root", "", "10.200.20.39:5000", constructUserDBName(appId, dbName), "")
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
+		return
 	}
 	sql := fmt.Sprintf(req.CMD)
 	result, err := conn.FetchAll(sql, 10000)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	bs, err := json.Marshal(result)
 	if err != nil {
+		err = errors.Info(ErrInternalServerError)
 		return
 	}
 	fmt.Println(string(bs))
 
 	ret = convertResult(result)
-	fmt.Println(">>>>", ret)
 	return
 }
