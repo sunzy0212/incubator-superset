@@ -131,7 +131,7 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 	//check existence of appid
 	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
-		err = errors.Info(ErrInvalidSqlError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
@@ -164,13 +164,13 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 	//create mysql user
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("CREATE USER '%s' IDENTIFIED BY '%s'", appId, pwd))
 	if err != nil {
-		err = errors.Info(ErrInvalidSqlError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.users (user,password) VALUES ('%s','%s')", s.MetaDB, appId, pwd))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	info.UserName = appId
@@ -192,13 +192,13 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	//ensure appid is valid
 	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
-		err = errors.Info(ErrInvalidSqlError)
+		err = errors.Info(ErrInvalidSqlError, "prepare select error")
 		return
 	}
 
 	result, err := userInfo.Query()
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, "userinfo query error")
 		return
 	}
 
@@ -218,20 +218,17 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	userDBName := constructUserDBName(appId, dbName)
 	_, err = s.MySQLClient.Exec(getCreateUserDBSQL(userDBName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
+		err = errors.Info(ErrInternalServerError, err.Error())
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.dbs (appid,dbname) VALUES ('%s','%s')", s.MetaDB, appId, dbName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
+		err = errors.Info(ErrInternalServerError, err.Error())
 	}
 	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
+		err = errors.Info(ErrInternalServerError, err.Error())
 	}
 	return
 }
