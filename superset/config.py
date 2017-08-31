@@ -103,7 +103,7 @@ DRUID_ANALYSIS_TYPES = ['cardinality']
 AUTH_TYPE = AUTH_OAUTH
 
 OAUTH_PROVIDERS = [
-    {'name': 'qiniu', 'icon': 'fa-github', 'token_key': 'access_token',
+    {'name': 'qiniu', 'icon': 'fa-qiniu', 'token_key': 'access_token',
         'remote_app': {
             'consumer_key': "XqcdCwjEoBdxnO1TTwrXcoCi",
             'consumer_secret': "vI3GpXMZu6XB8aTCQpD5QEmr6X933YYB8jzYJWvk",
