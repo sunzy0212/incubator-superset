@@ -5,7 +5,7 @@
 ```
 POST /v1/activate
 Content-Type: application/json
-
+X-Appid: <Appid>
 ```
 
 返回包:
@@ -27,6 +27,7 @@ json {
 ```
 POST /v1/dbs/<DB_Name>?ignoreExists=true
 Content-Type: application/json
+X-Appid: <Appid>
 
 ```
 
@@ -45,6 +46,7 @@ Content-Type: application/json
 ```
 GET /v1/dbs
 Content-Type: application/json
+X-Appid: <Appid>
 
 ```
 
@@ -67,6 +69,7 @@ json
 ```
 DELETE /v1/dbs/<DB_Name>
 Content-Type: application/json
+X-Appid: <Appid>
 
 ```
 
@@ -85,6 +88,8 @@ Content-Type: application/json
 {
     "cmd":<Mysql_Command>
 }
+X-Appid: <Appid>
+
 ```
 
 返回包:
@@ -113,6 +118,8 @@ Content-Type: application/json
 {
     "cmd":<Mysql_Command>
 }
+X-Appid: <Appid>
+
 ```
 
 返回包:
@@ -128,6 +135,7 @@ Content-Type: application/json
 ```
 GET /v1/dbs/<DB_Name>/tables
 Content-Type: application/json
+X-Appid: <Appid>
 
 ```
 
@@ -150,6 +158,7 @@ json
 ```
 GET /v1/dbs/<DB_Name>/tables/<Table_Name>
 Content-Type: application/json
+X-Appid: <Appid>
 
 ```
 
@@ -158,17 +167,14 @@ Content-Type: application/json
 ```
 200 OK
 json
-[
-    {
-        "Field":<Field>,
-        "Type":<Type>,
-        "Null":<Null>,
-        "Key":<Key>,
-        "Default":<Default>,
-        "Extra":<Extra>
-    },
-    ...
-]
+{
+    "Field":<Field>,
+    "Type":<Type>,
+    "Null":<Null>,
+    "Key":<Key>,
+    "Default":<Default>,
+    "Extra":<Extra>
+}
 ```
 
 
@@ -177,33 +183,9 @@ json
 ```
 DELETE /v1/dbs/<DB_Name>/tables/<Table_Name>
 Content-Type: application/json
-{
-    "cmd":<Mysql_Command>
-}
-```
-
-返回包:
+X-Appid: <Appid>
 
 ```
-200 OK
-```
-
-# 写入数据点
-
-```
-POST /v1/dbs/<DB_Name>/tables/<Table_Name>/data?spliter=<Spliter>&ommitInvalid=<True|False>
-Content-Type: application/json
-{
-    <ColumnKey1>,<ColumnKey2>,<ColumnKey3>,...
-    <Value1>,<Value2>,<Value3>,...
-    ...
-}
-```
-
-* 数据格式本质上是CSV格式
-* 请求体的第一行永远是column key，默认用逗号分割,如果要更改分隔符，请在url中指定<Spliter>
-* 从第二行开始是数据，数据的列数必须和column key的数量一致
-* ommitInvalid: 是否忽略错误的点
 
 返回包:
 
@@ -219,6 +201,8 @@ Content-Type: application/json
 {
     "cmd":<Mysql_Command>
 }
+X-Appid: <Appid>
+
 ```
 
 返回包:
