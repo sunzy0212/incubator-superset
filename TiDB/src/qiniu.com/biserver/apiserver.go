@@ -131,7 +131,7 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 	//check existence of appid
 	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
-		err = errors.Info(ErrInvalidSqlError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
@@ -164,13 +164,13 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 	//create mysql user
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("CREATE USER '%s' IDENTIFIED BY '%s'", appId, pwd))
 	if err != nil {
-		err = errors.Info(ErrInvalidSqlError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.users (user,password) VALUES ('%s','%s')", s.MetaDB, appId, pwd))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	info.UserName = appId
@@ -192,13 +192,13 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	//ensure appid is valid
 	userInfo, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
-		err = errors.Info(ErrInvalidSqlError)
+		err = errors.Info(ErrInvalidSqlError, "prepare select error")
 		return
 	}
 
 	result, err := userInfo.Query()
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, "userinfo query error")
 		return
 	}
 
@@ -218,20 +218,17 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	userDBName := constructUserDBName(appId, dbName)
 	_, err = s.MySQLClient.Exec(getCreateUserDBSQL(userDBName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
+		err = errors.Info(ErrInternalServerError, err.Error())
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.dbs (appid,dbname) VALUES ('%s','%s')", s.MetaDB, appId, dbName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
+		err = errors.Info(ErrInternalServerError, err.Error())
 	}
 	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, appids[0]))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
+		err = errors.Info(ErrInternalServerError, err.Error())
 	}
 	return
 }
@@ -424,34 +421,70 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 // GET /v1/dbs/<DBName>/tables/<TableName>
 // Content-Type: application/json
 // X-Appid: <AppId>
-func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (tables []string, err error) {
+func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (schema TableSchema, err error) {
 
-	tables = make([]string, 0)
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
-	//ensure appid is valid
 
+	tableName := args.CmdArgs[1]
+
+	userDBName := constructUserDBName(appId, dbName)
 	//create database
-	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
+	// tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT table_name from information_schema.tables where table_schema= '%s' and table_name='%s' limit 1", userDBName, tableName))
+	// if err != nil {
+	// 	err = errors.Info(ErrInternalServerError)
+	// 	return
+	// }
+
+	// result, err := tableNames.Query()
+	// if err != nil {
+	// 	err = errors.Info(ErrInternalServerError)
+	// 	return
+	// }
+
+	// tables = make([]string, 0)
+
+	// var table_name string
+	// for result.Next() {
+	// 	result.Scan(&table_name)
+	// 	tables = append(tables, table_name)
+	// }
+	result, err := s.MySQLClient.Query(fmt.Sprintf("describe %s.%s", userDBName, tableName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		if strings.Contains(err.Error(), "Error 1146") {
+			err = errors.Info(ErrTableNotFoundError)
+			return
+		}
 		return
 	}
+	var table_default interface{}
+	var table_field string
+	var table_key interface{}
+	var table_null string
+	var table_extra string
+	var table_type string
 
-	result, err := tableNames.Query()
-	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
-	}
-
-	var tableName string
 	for result.Next() {
-		result.Scan(&tableName)
-		tables = append(tables, tableName)
+		err = result.Scan(&table_field, &table_type, &table_null, &table_key, &table_default, &table_extra)
+		if err != nil {
+			return
+		} else {
+			break
+		}
 	}
+
+	schema = TableSchema{
+		Field:   table_field,
+		Type:    table_type,
+		Null:    table_null,
+		Extra:   table_extra,
+		Default: table_default,
+		Key:     table_key,
+	}
+	fmt.Println(schema)
 
 	return
 }
