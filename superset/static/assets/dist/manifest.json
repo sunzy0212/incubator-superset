@@ -1,15 +1,17 @@
 {
-  "addSlice.js": "addSlice.22d6fa4fe0148992a430.entry.js",
+  "addSlice.js": "addSlice.b941e23f6c314cd53356.entry.js",
   "common.js": "common.1b285be71774e1d5c54e.entry.js",
-  "css-theme.js": "css-theme.157c46bab30cb073dac1.entry.js",
-  "dashboard.js": "dashboard.9bf0b32afb802f5471ae.entry.js",
-  "explore.js": "explore.790432b3f91d62a67636.entry.js",
+  "css-theme.js": "css-theme.7b36d7e2524417314ec7.entry.js",
+  "dashboard.js": "dashboard.16c414be6e74cab0d5dd.entry.js",
+  "explore.js": "explore.375c583349e1cb1d4028.entry.js",
   "glyphicons-halflings-regular.eot": "f4769f9bdb7466be65088239c12046d1.eot",
   "glyphicons-halflings-regular.svg": "89889688147bd7575d6327160d64e760.svg",
   "glyphicons-halflings-regular.ttf": "e18bbf611f2a2e43afc071aa2f4e1512.ttf",
   "glyphicons-halflings-regular.woff": "fa2772327f55d8198301fdb8bcfc8158.woff",
   "glyphicons-halflings-regular.woff2": "448c34a56d699c29117adc64c43affeb.woff2",
-  "profile.js": "profile.ad6f1c080cd302648bd0.entry.js",
-  "sqllab.js": "sqllab.8ff7ab44d0240bdb19ac.entry.js",
-  "welcome.js": "welcome.08d790a969b85368badc.entry.js"
+  "profile.js": "profile.6cdcb5b6bfda3dccfcda.entry.js",
+  "qiniu.eot?yrdxwd": "935b5ce84bd3bc87eda1a08896caaae3.eot",
+  "qiniu.ttf?yrdxwd": "f2ae1fcb71388291761557ded7def24d.ttf",
+  "sqllab.js": "sqllab.368192b22be189acb70a.entry.js",
+  "welcome.js": "welcome.ef8df66ab4b08e25f4ca.entry.js"
 }
