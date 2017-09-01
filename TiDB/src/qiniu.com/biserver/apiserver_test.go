@@ -156,6 +156,25 @@ func Test_apiserver(t *testing.T) {
         }'
         ret 200
 
+		get http://bi.com/v1/dbs/dbone/tables/tableone
+		header X-Appid 123
+		json '{
+			"field":"id",
+			"type":"text",
+			"null":"YES",
+			"key":"",
+			"default":null,
+			"extra":""
+		}'
+		ret 200
+
+		get http://bi.com/v1/dbs/dbone/tables/tableone1
+		header X-Appid 123
+		json '{
+			"error":"E8007: Table not found"
+		}'
+		ret 400
+
         post http://bi.com/v1/dbs/dbone/tables/tableone/data
 		header X-Appid 123
         body text 'id,name,age

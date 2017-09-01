@@ -421,34 +421,70 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 // GET /v1/dbs/<DBName>/tables/<TableName>
 // Content-Type: application/json
 // X-Appid: <AppId>
-func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (tables []string, err error) {
+func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (schema TableSchema, err error) {
 
-	tables = make([]string, 0)
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
-	//ensure appid is valid
 
+	tableName := args.CmdArgs[1]
+
+	userDBName := constructUserDBName(appId, dbName)
 	//create database
-	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
+	// tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT table_name from information_schema.tables where table_schema= '%s' and table_name='%s' limit 1", userDBName, tableName))
+	// if err != nil {
+	// 	err = errors.Info(ErrInternalServerError)
+	// 	return
+	// }
+
+	// result, err := tableNames.Query()
+	// if err != nil {
+	// 	err = errors.Info(ErrInternalServerError)
+	// 	return
+	// }
+
+	// tables = make([]string, 0)
+
+	// var table_name string
+	// for result.Next() {
+	// 	result.Scan(&table_name)
+	// 	tables = append(tables, table_name)
+	// }
+	result, err := s.MySQLClient.Query(fmt.Sprintf("describe %s.%s", userDBName, tableName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		if strings.Contains(err.Error(), "Error 1146") {
+			err = errors.Info(ErrTableNotFoundError)
+			return
+		}
 		return
 	}
+	var table_default interface{}
+	var table_field string
+	var table_key interface{}
+	var table_null string
+	var table_extra string
+	var table_type string
 
-	result, err := tableNames.Query()
-	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
-	}
-
-	var tableName string
 	for result.Next() {
-		result.Scan(&tableName)
-		tables = append(tables, tableName)
+		err = result.Scan(&table_field, &table_type, &table_null, &table_key, &table_default, &table_extra)
+		if err != nil {
+			return
+		} else {
+			break
+		}
 	}
+
+	schema = TableSchema{
+		Field:   table_field,
+		Type:    table_type,
+		Null:    table_null,
+		Extra:   table_extra,
+		Default: table_default,
+		Key:     table_key,
+	}
+	fmt.Println(schema)
 
 	return
 }

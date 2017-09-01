@@ -10,4 +10,5 @@ var (
 	ErrInvalidAppIdError     = httputil.NewError(400, "E8004: you should activate this user first before create resource")
 	ErrInvalidParameterError = httputil.NewError(400, "E8005: invalid parameters")
 	ErrDBNotFoundError       = httputil.NewError(400, "E8006: database not found")
+	ErrTableNotFoundError    = httputil.NewError(400, "E8007: Table not found")
 )
