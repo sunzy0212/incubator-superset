@@ -101,7 +101,7 @@ X-Appid: <Appid>
 * 数据类型的对应关系(workflow的数据类型 -> bi-studio的数据类型)
 * string -> TEXT
 * int -> INT 
-* long -> LONG 
+* long -> BIGINT 
 * float -> DOUBLE
 * date -> DATATIME
 * 创建一个包含全部数据类型的数据表的命运应该是这样的: 

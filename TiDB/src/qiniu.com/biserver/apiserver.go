@@ -16,6 +16,7 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/qiniu/log.v1"
 
 	"github.com/qiniu/http/rpcutil.v1"
 )
@@ -311,7 +312,6 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 		err = errors.Info(ErrInvalidParameterError)
 		return
 	}
-
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
 		err = errors.Info(ErrInternalServerError, err.Error())
@@ -328,6 +328,7 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	st.Format(buf)
 	rest := req.CMD[strings.Index(req.CMD, "("):]
 	req.CMD = buf.ParsedQuery().Query + rest
+	log.Info("req.CMD:", req.CMD)
 
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(req.CMD)
