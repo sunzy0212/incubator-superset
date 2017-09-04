@@ -301,7 +301,7 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	}
 	data, err := ioutil.ReadAll(env.Req.Body)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
@@ -314,7 +314,7 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	st, ok := stmt.(*sqlparser.DDL)
@@ -332,13 +332,13 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(req.CMD)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.tables (appid,dbname,tablename) VALUES ('%s','%s','%s')", s.MetaDB, appId, dbName, args.CmdArgs[1]))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
@@ -360,13 +360,13 @@ func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err erro
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("drop table %s.%s", constructUserDBName(appId, dbName), args.CmdArgs[1]))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE FROM %s.tables WHERE appid='%s' and dbname='%s' and tablename='%s'", s.MetaDB, appId, dbName, args.CmdArgs[1]))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
@@ -389,13 +389,13 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 	//create database
 	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
 	result, err := tableNames.Query()
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
@@ -473,12 +473,12 @@ func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err er
 
 	data, err := ioutil.ReadAll(env.Req.Body)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	schema, values, err := getSchemaAndValues(data)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	conn, err := driver.NewConn("root", "", "10.200.20.39:5000", constructUserDBName(appId, dbName), "")
@@ -492,7 +492,7 @@ func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err er
 	)
 	err = conn.Exec(sql)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
@@ -512,14 +512,14 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 
 	data, err := ioutil.ReadAll(env.Req.Body)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
 	req := Command{}
 	err = json.Unmarshal(data, &req)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	if req.CMD == "" {
@@ -559,13 +559,13 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 	//execute the sql
 	conn, err := driver.NewConn("root", "", "10.200.20.39:5000", constructUserDBName(appId, dbName), "")
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	sql := fmt.Sprintf(req.CMD)
 	result, err := conn.FetchAll(sql, 10000)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 
