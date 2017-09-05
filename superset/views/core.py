@@ -2033,6 +2033,9 @@ class Superset(BaseSupersetView):
         database_id = request.form.get('database_id')
         schema = request.form.get('schema') or None
 
+        if schema is not None:
+            schema = g.user.get_qiniu_id() + "_" + schema
+
         session = db.session()
         mydb = session.query(models.Database).filter_by(id=database_id).one()
 
