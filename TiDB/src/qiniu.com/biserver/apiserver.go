@@ -412,8 +412,9 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 // GET /v1/dbs/<DBName>/tables/<TableName>
 // Content-Type: application/json
 // X-Appid: <AppId>
-func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (schema TableSchema, err error) {
+func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (schemas []TableSchema, err error) {
 
+	schemas = make([]TableSchema, 0)
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
 		err = errors.Info(ErrHeaderAppIdError)
@@ -443,18 +444,16 @@ func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (schema Tabl
 		err = result.Scan(&table_field, &table_type, &table_null, &table_key, &table_default, &table_extra)
 		if err != nil {
 			return
-		} else {
-			break
 		}
-	}
-
-	schema = TableSchema{
-		Field:   table_field,
-		Type:    table_type,
-		Null:    table_null,
-		Extra:   table_extra,
-		Default: table_default,
-		Key:     table_key,
+		schema := TableSchema{
+			Field:   table_field,
+			Type:    table_type,
+			Null:    table_null,
+			Extra:   table_extra,
+			Default: table_default,
+			Key:     table_key,
+		}
+		schemas = append(schemas, schema)
 	}
 
 	return

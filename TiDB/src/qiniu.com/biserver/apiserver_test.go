@@ -158,14 +158,29 @@ func Test_apiserver(t *testing.T) {
 
 		get http://bi.com/v1/dbs/dbone/tables/tableone
 		header X-Appid 123
-		json '{
-			"field":"id",
-			"type":"text",
-			"null":"YES",
-			"key":"",
-			"default":null,
-			"extra":""
-		}'
+		json '[
+				{
+					"field":"id",
+					"type":"text",
+					"null":"YES",
+					"key":"",
+					"extra":""
+				},
+				{
+					"field":"name",
+					"type":"text",
+					"null":"YES",
+					"key":"",
+					"extra":""
+				},
+				{
+					"field":"age",
+					"type":"int(11)",
+					"null":"YES",
+					"key":"",
+					"extra":""
+				}
+			]'
 		ret 200
 
 		get http://bi.com/v1/dbs/dbone/tables/tableone1
