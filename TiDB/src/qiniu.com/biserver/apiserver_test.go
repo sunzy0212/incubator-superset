@@ -45,7 +45,7 @@ func Test_apiserver(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer clean()
+	//defer clean()
 
 	cfg := ApiServerConfig{
 		TcpAddress: ":8880",
@@ -101,6 +101,11 @@ func Test_apiserver(t *testing.T) {
 		header X-Appid 123
         ret 200
 
+		post http://bi.com/v1/dbs/dbone
+		header X-Appid 123
+        ret 409
+		json '{"error":"E8009: database already exists"}'
+
         get http://bi.com/v1/dbs 
         header X-Appid 123
         ret 200
@@ -117,7 +122,8 @@ func Test_apiserver(t *testing.T) {
 
         delete http://bi.com/v1/dbs/dbone
         header X-Appid 123
-        ret 599
+        ret 400
+		json '{"error":"E8006: database not found"}'
         `)
 
 	ctx.Exec(`
@@ -133,6 +139,14 @@ func Test_apiserver(t *testing.T) {
         }'
         ret 200
 
+		post http://bi.com/v1/dbs/dbone/tables/tableone
+		header X-Appid 123
+        json '{
+            "cmd":"create table tableone(a TEXT, b TEXT)"
+        }'
+        ret 409
+		json '{"error":"E8010: table already exists"}'
+
         get http://bi.com/v1/dbs/dbone/tables
 		header X-Appid 123
         ret 200
@@ -146,6 +160,12 @@ func Test_apiserver(t *testing.T) {
 		header X-Appid 123
         ret 200
         json '[]'
+
+		delete http://bi.com/v1/dbs/dbone/tables/tableone
+		header X-Appid 123
+        ret 400
+		json '{"error":"E8007: Table not found"}'
+
          `)
 
 	ctx.Exec(`
