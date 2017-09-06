@@ -193,7 +193,6 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	//ensure appid is valid
 	result, err := s.MySQLClient.Query(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
-		err = errors.Info(ErrInvalidSqlError, err.Error())
 		return
 	}
 
@@ -217,19 +216,13 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	userDBName := constructUserDBName(appId, dbName)
 	_, err = s.MySQLClient.Exec(getCreateUserDBSQL(userDBName))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
+		err = translateMysqlError(err)
 		return
 	}
 
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.dbs (appid,dbname) VALUES ('%s','%s')", s.MetaDB, appId, dbName))
-	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
-		return
-	}
-	fmt.Println(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
+	log.Info(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	return
@@ -247,9 +240,10 @@ func (s *ApiServer) GetDbs(env *rpcutil.Env) (dbs []string, err error) {
 	}
 
 	//create database
-	result, err := s.MySQLClient.Query(fmt.Sprintf("SELECT dbname from %s.dbs where appid= '%s'", s.MetaDB, appId))
+	sql := fmt.Sprintf("SELECT SCHEMA_NAME from information_schema.schemata where SCHEMA_NAME like '%s%%'", appId)
+	log.Println(sql)
+	result, err := s.MySQLClient.Query(sql)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
 		return
 	}
 
@@ -257,7 +251,10 @@ func (s *ApiServer) GetDbs(env *rpcutil.Env) (dbs []string, err error) {
 	var dbName string
 	for result.Next() {
 		result.Scan(&dbName)
-		dbs = append(dbs, dbName)
+		if strings.HasPrefix(dbName, appId) {
+			dbName = strings.TrimLeft(dbName, appId+"_")
+			dbs = append(dbs, dbName)
+		}
 	}
 
 	return
@@ -274,16 +271,9 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 		return
 	}
 
-	//delete metadata database
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE from %s.dbs where appid=%s", s.MetaDB, appId))
-	if err != nil {
-		err = errors.Info(ErrInternalServerError)
-		return
-	}
-
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("DROP DATABASE %s", constructUserDBName(appId, dbName)))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError)
+		err = translateMysqlError(err)
 		return
 	}
 
@@ -314,7 +304,6 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	}
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	st, ok := stmt.(*sqlparser.DDL)
@@ -333,7 +322,7 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(req.CMD)
 	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
+		err = translateMysqlError(err)
 		return
 	}
 
@@ -356,18 +345,11 @@ func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err erro
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
-	fmt.Println(appId, dbName)
 
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("drop table %s.%s", constructUserDBName(appId, dbName), args.CmdArgs[1]))
 	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
-		return
-	}
-
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("DELETE FROM %s.tables WHERE appid='%s' and dbname='%s' and tablename='%s'", s.MetaDB, appId, dbName, args.CmdArgs[1]))
-	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
+		err = translateMysqlError(err)
 		return
 	}
 
@@ -388,7 +370,7 @@ func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []str
 	//ensure appid is valid
 
 	//create database
-	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT tablename from %s.tables where appid= '%s' and dbname='%s'", s.MetaDB, appId, dbName))
+	tableNames, err := s.MySQLClient.Prepare(fmt.Sprintf("SELECT TABLE_NAME from information_schema.tables where TABLE_SCHEMA= '%s'", constructUserDBName(appId, dbName)))
 	if err != nil {
 		err = errors.Info(ErrInternalServerError, err.Error())
 		return
@@ -527,23 +509,6 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 		return
 	}
 
-	//appid must own this db
-	dbs, err := getDBByAppID(s.MySQLClient, s.MetaDB, appId)
-	if err != nil {
-		return
-	}
-
-	found := false
-	for _, db := range dbs {
-		if db == dbName {
-			found = true
-		}
-	}
-	if !found {
-		err = errors.Info(ErrDBNotFoundError)
-		return
-	}
-
 	stmt, err := sqlparser.Parse(req.CMD)
 	if err != nil {
 		err = errors.Info(ErrInvalidSqlError)
@@ -559,7 +524,7 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 	//execute the sql
 	conn, err := driver.NewConn("root", "", "10.200.20.39:5000", constructUserDBName(appId, dbName), "")
 	if err != nil {
-		err = errors.Info(ErrInternalServerError, err.Error())
+		// err = errors.Info(ErrInternalServerError, err.Error())
 		return
 	}
 	sql := fmt.Sprintf(req.CMD)
