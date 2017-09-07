@@ -1,5 +1,6 @@
 """Views used by the SqlAlchemy connector"""
 import logging
+import requests
 
 from past.builtins import basestring
 
@@ -213,7 +214,7 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
             sa.func.count('*')).filter(
             models.SqlaTable.table_name == table.table_name,
             models.SqlaTable.schema == table.schema,
-            models.SqlaTable.database_id == table.database.id,
+            # models.SqlaTable.database_id == table.database.id,
             models.SqlaTable.qiniu_uid == get_curr_user(),
         ).scalar()
         # table object is already added to the session
@@ -253,6 +254,67 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
 
     def _delete(self, pk):
         DeleteMixin._delete(self, pk)
+
+    # def pre_delete(self, table):
+    #     result = self.delete_table_from_report(table.database_name,table.name)
+    #     if not result:
+    #         print("delete table fail")
+
+    def delete_table_from_report(self, databaseName,tableName):
+        qiniu_uid = str(g.user.get_qiniu_id())
+        r = requests.delete("http://10.200.20.39:2308/v1/dbs/%s/tables/%s"%(databaseName,tableName), headers={'X-Appid': qiniu_uid})
+        if r.status_code != 200:
+            return "success"
+        return None
+
+    def get_user_all_tables(self):
+        qiniu_uid = str(g.user.get_qiniu_id())
+        r = requests.get("http://10.200.20.39:2308/v1/dbs", headers={'X-Appid': qiniu_uid})
+        if r.status_code != 200:
+            return ""
+        result = r.json()
+        tables = []
+        for db in result:
+            r = requests.get("http://10.200.20.39:2308/v1/dbs/%s/tables"%(db), headers={'X-Appid': qiniu_uid})
+            if r.status_code != 200:
+                print("get db table fail, continue")
+                continue
+            tabs = r.json()
+            for tab in tabs:
+                tables.append([db,tab])
+        return tables
+
+    def add_table(self, databaseName,tableName):
+        """
+            Add function logic, override to implement different logic
+            returns add widget or None
+        """
+        item = self.datamodel.obj()
+        item.qiniu_uid = int(g.user.get_qiniu_id())
+        item.database_name = databaseName
+        item.table_name = tableName
+        item.query_languge = u'sql'
+
+        try:
+            if self.datamodel.add(item):
+                self.post_add(item)
+        finally:
+            return None
+
+        return self._get_add_widget(form=form, exclude_cols=exclude_cols)
+
+    @expose('/list/', methods=['GET', 'POST'])
+    @has_access
+    def list(self):
+        tables = self.get_user_all_tables()
+        for table in tables:
+            w = self.add_table(table[0],table[1])
+            if not w:
+                print("add table fail")
+        widgets = self._list()
+        return self.render_template(self.list_template,
+                                    title=self.list_title,
+                                    widgets=widgets)
 
     @expose('/edit/<pk>', methods=['GET', 'POST'])
     @has_access
