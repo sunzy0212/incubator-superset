@@ -135,7 +135,6 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
 appbuilder.add_view_no_menu(SqlMetricInlineView)
 
 def get_curr_user():
-    print(">>>>>> get_curr_user: g.user.get_id",g.user.get_qiniu_id(),type(g.user.get_qiniu_id()))
     return g.user.get_qiniu_id_asStr()
 
 class TableModelView(SupersetModelView, DeleteMixin):  # noqa

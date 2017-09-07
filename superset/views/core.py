@@ -227,8 +227,7 @@ def get_curr_user():
 class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.Database)
     list_columns = [
-        'database_name', 'backend', 'allow_run_sync', 'allow_run_async',
-        'allow_dml', 'creator', 'modified']
+        'database_name', 'modified']
     add_columns = [
         'database_name',
         'expose_in_sqllab', 'allow_run_sync']
@@ -321,6 +320,65 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
 
     def _delete(self, pk):
         DeleteMixin._delete(self, pk)
+
+    def pre_delete(self, db):
+        databaseName = db.name
+        result = self.delete_database_from_report(databaseName)
+        if not result:
+            print("delete db fail")
+
+    def delete_database_from_report(self,databaseName):
+        qiniu_uid = str(g.user.get_qiniu_id())
+        r = requests.delete("http://10.200.20.39:2308/v1/dbs/"+databaseName, headers={'X-Appid': qiniu_uid})
+        if r.status_code != 200:
+            return "success"
+        return None
+
+    def get_user_all_databases(self):
+        qiniu_uid = str(g.user.get_qiniu_id())
+        r = requests.get("http://10.200.20.39:2308/v1/dbs", headers={'X-Appid': qiniu_uid})
+        if r.status_code != 200:
+            return ""
+        result = r.json()
+        return result
+
+    def add_database(self,databaseName):
+        """
+            Add function logic, override to implement different logic
+            returns add widget or None
+        """
+        item = self.datamodel.obj()
+        item.qiniu_uid = int(g.user.get_qiniu_id())
+        item.allow_run_sync=True
+        item.database_name = databaseName
+        item.expose_in_sqllab=True
+
+        try:
+            self.pre_add(item)
+        except Exception as e:
+            flash(str(e), "danger")
+        else:
+            if self.datamodel.add(item):
+                self.post_add(item)
+            #flash(*self.datamodel.message)
+        finally:
+            return None
+
+        
+        return self._get_add_widget(form=form, exclude_cols=exclude_cols)
+
+    @expose('/list/', methods=['GET', 'POST'])
+    @has_access
+    def list(self):
+        databases = self.get_user_all_databases()
+        for database in databases:
+            w = self.add_database(database)
+            if not w:
+                print("add database fail")
+        widgets = self._list()
+        return self.render_template(self.list_template,
+                                    title=self.list_title,
+                                    widgets=widgets)
 
 # appbuilder.add_link(
 #     'Import Dashboards',
