@@ -184,4 +184,5 @@ winreg/
 wtforms/
 xmlrpc/
 thrift_sasl-0.2.1.dist-info/
-superset/static/assets/node_modules
+superset/static/assets/node_modules/*
+!superset/static/assets/node_modules/font-awesome
