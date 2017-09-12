@@ -20,6 +20,7 @@ from superset.views.base import (
     SupersetModelView, ListWidgetWithCheckboxes, DeleteMixin, DatasourceFilter,
     get_datasource_exist_error_mgs,
 )
+from superset.models.core import Database
 
 from . import models
 
@@ -214,7 +215,7 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
             sa.func.count('*')).filter(
             models.SqlaTable.table_name == table.table_name,
             models.SqlaTable.schema == table.schema,
-            # models.SqlaTable.database_id == table.database.id,
+            models.SqlaTable.database_id == table.database.id,
             models.SqlaTable.qiniu_uid == get_curr_user(),
         ).scalar()
         # table object is already added to the session
@@ -255,10 +256,10 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
     def _delete(self, pk):
         DeleteMixin._delete(self, pk)
 
-    # def pre_delete(self, table):
-    #     result = self.delete_table_from_report(table.database_name,table.name)
-    #     if not result:
-    #         print("delete table fail")
+    def pre_delete(self, table):
+        result = self.delete_table_from_report(table.database.database_name,table.table_name)
+        if not result:
+            print("delete table fail")
 
     def delete_table_from_report(self, databaseName,tableName):
         qiniu_uid = str(g.user.get_qiniu_id())
@@ -284,6 +285,13 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
                 tables.append([db,tab])
         return tables
 
+    def get_database_id(self,databaseName):
+        database = db.session.query(Database).filter(
+            Database.database_name == databaseName,
+            Database.qiniu_uid == g.user.get_qiniu_id(),
+        ).first()
+        return database.id
+
     def add_table(self, databaseName,tableName):
         """
             Add function logic, override to implement different logic
@@ -294,10 +302,26 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
         item.database_name = databaseName
         item.table_name = tableName
         item.query_languge = u'sql'
+        dbid = self.get_database_id(databaseName)
+        item.database_id = dbid
+
+
+        number_of_existing_tables = db.session.query(
+            sa.func.count('*')).filter(
+            models.SqlaTable.table_name == item.table_name,
+            models.SqlaTable.database_id == dbid,
+            models.SqlaTable.qiniu_uid == get_curr_user(),
+        ).scalar()
+        # table object is already added to the session
+        if number_of_existing_tables > 0:
+            print("already added")
+            return None
 
         try:
-            if self.datamodel.add(item):
+            result = self.datamodel.add(item)
+            if result:
                 self.post_add(item)
+            # flash(*self.datamodel.message)
         finally:
             return None
 
