@@ -187,7 +187,7 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 
 // POST /v1/load_examples
 // X-Appid: <AppId>
-func (s *ApiServer) PostLoad_examples(env *rpcutil.Env) (err error) {
+func (s *ApiServer) PostLoadexamples(env *rpcutil.Env) (err error) {
 	appId := env.Req.Header.Get(X_APPID)
 	if appId == "" {
 		err = errors.Info(ErrHeaderAppIdError)
