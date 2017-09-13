@@ -16,24 +16,30 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/qiniu/log.v1"
-
 	"github.com/qiniu/http/rpcutil.v1"
+	"github.com/qiniu/log.v1"
+	mysqlclient "github.com/rbwsam/ferry/mysql"
 )
 
 type ApiServerConfig struct {
-	TcpAddress  string
-	MysqlConfig MysqlConfig
+	TcpAddress     string
+	SampleDatabase string
+	MysqlConfig    MysqlConfig
 }
 
 type ApiServer struct {
 	Listener    driver.Listener
 	MySQLClient *sql.DB
 	MetaDB      string
+	Config      *ApiServerConfig
 }
 
 func New(cfg *ApiServerConfig) (*ApiServer, error) {
 	server := &ApiServer{}
+
+	if cfg.SampleDatabase == "" {
+		log.Warn("sample database configuration is empty")
+	}
 
 	log := xlog.NewStdLog(xlog.Level(xlog.DEBUG))
 	handler := NewTiDBHandler(log)
@@ -53,7 +59,7 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 		return nil, err
 	}
 	server.MetaDB = cfg.MysqlConfig.MetaDB
-
+	server.Config = cfg
 	//checkout mysql is alive
 	err = server.MySQLClient.Ping()
 	if err != nil {
@@ -175,6 +181,76 @@ func (s *ApiServer) PostActivate(env *rpcutil.Env) (info UserInfo, err error) {
 	}
 	info.UserName = appId
 	info.Password = pwd
+
+	return
+}
+
+// POST /v1/load_examples
+// X-Appid: <AppId>
+func (s *ApiServer) PostLoad_examples(env *rpcutil.Env) (err error) {
+	appId := env.Req.Header.Get(X_APPID)
+	if appId == "" {
+		err = errors.Info(ErrHeaderAppIdError)
+		return
+	}
+
+	//ensure appid is valid
+	result, err := s.MySQLClient.Query(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
+	if err != nil {
+		return
+	}
+
+	var password string
+	for result.Next() {
+		err = result.Scan(&password)
+		if err != nil {
+			err = errors.Info(ErrInternalServerError, err.Error())
+			return
+		} else {
+			break
+		}
+	}
+	//exits, return last passwords
+	if password == "" {
+		err = errors.Info(ErrInvalidAppIdError)
+		return
+	}
+
+	//create database
+	userDBName := constructUserDBName(appId, "example_database")
+	_, err = s.MySQLClient.Exec(getCreateUserDBSQL(userDBName))
+	if err != nil {
+		err = translateMysqlError(err)
+		return
+	}
+
+	log.Info(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
+	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
+	if err != nil {
+		return
+	}
+
+	//copy sample data to destination database
+	items := strings.Split(s.Config.MysqlConfig.Address, ":")
+	if len(items) != 2 {
+		err = errors.Info(ErrInternalServerError)
+		return
+	}
+	host := items[0]
+	port := items[1]
+	err = copyTables(&mysqlclient.Config{
+		Host:     host,
+		Port:     port,
+		Database: s.Config.SampleDatabase,
+		User:     s.Config.MysqlConfig.User,
+		Password: s.Config.MysqlConfig.Password,
+	}, &mysqlclient.Config{
+		Host:     host,
+		Port:     port,
+		Database: userDBName,
+		User:     s.Config.MysqlConfig.User,
+		Password: s.Config.MysqlConfig.Password,
+	})
 
 	return
 }

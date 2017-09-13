@@ -36,9 +36,10 @@ type EndPoint struct {
 }
 
 type Config struct {
-	M MysqlConfig             `json:"mysql"`
-	S EndPoint                `json:"service"`
-	L biserver.AuditlogConfig `json:"auditlog"`
+	M              MysqlConfig             `json:"mysql"`
+	S              EndPoint                `json:"service"`
+	SampleDatabase string                  `json:"sample_database"`
+	L              biserver.AuditlogConfig `json:"auditlog"`
 }
 
 func ensureRequiredConfig(cfg *Config) (err error) {
@@ -72,7 +73,8 @@ func main() {
 	}()
 
 	svr, err := biserver.New(&biserver.ApiServerConfig{
-		TcpAddress: conf.S.TcpPort,
+		TcpAddress:     conf.S.TcpPort,
+		SampleDatabase: conf.SampleDatabase,
 		MysqlConfig: biserver.MysqlConfig{
 			User:     conf.M.User,
 			Password: conf.M.Password,
