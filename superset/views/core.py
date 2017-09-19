@@ -451,10 +451,9 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
         'slice_name', 'description', 'viz_type',
     )
     list_columns = [
-        'slice_link', 'viz_type', 'datasource_link', 'creator', 'modified']
+        'slice_link', 'viz_type', 'datasource_link', 'modified']
     edit_columns = [
-        'slice_name', 'description', 'viz_type', 'owners', 'dashboards',
-        'params', 'cache_timeout']
+        'slice_name', 'description', 'dashboards']
     base_order = ('changed_on', 'desc')
     description_columns = {
         'description': Markup(
@@ -540,9 +539,9 @@ appbuilder.add_view_no_menu(SliceAddView)
 
 class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.Dashboard)
-    list_columns = ['dashboard_link', 'creator', 'modified']
+    list_columns = ['dashboard_link', 'modified']
     edit_columns = [
-        'dashboard_title', 'slug', 'slices', 'owners']
+        'dashboard_title', 'slug', 'slices']
     show_columns = edit_columns + ['table_names']
     search_columns = ('dashboard_title', 'slug')
     add_columns = edit_columns
