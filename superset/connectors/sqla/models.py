@@ -43,6 +43,7 @@ class TableColumn(Model, BaseColumn):
     expression = Column(Text, default='')
     python_date_format = Column(String(255))
     database_expression = Column(String(255))
+    qiniu_uid = Column(Integer)
 
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
@@ -127,6 +128,7 @@ class SqlMetric(Model, BaseMetric):
         backref=backref('metrics', cascade='all, delete-orphan'),
         foreign_keys=[table_id])
     expression = Column(Text)
+    qiniu_uid = Column(Integer)
 
     export_fields = (
         'metric_name', 'verbose_name', 'metric_type', 'table_id', 'expression',
