@@ -99,7 +99,7 @@ X-Appid: <Appid>
 ```
 
 * 数据类型的对应关系(workflow的数据类型 -> bi-studio的数据类型)
-* string -> TEXT
+* string -> VARCHAR(1024)
 * int -> INT 
 * long -> BIGINT 
 * float -> DOUBLE
