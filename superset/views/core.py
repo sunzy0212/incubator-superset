@@ -233,7 +233,8 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         'expose_in_sqllab', 'allow_run_sync']
     search_exclude_columns = (
         'password', 'tables', 'created_by', 'changed_by', 'queries',
-        'saved_queries', )
+        'saved_queries','created_on','perm','qiniu_uid',
+        'sqlalchemy_uri','extra','allow_ctas','verbose_name','force_ctas_schema','cache_timeout' )
 
     base_filters = [['qiniu_uid', FilterEqualFunction, get_curr_user]]
 
