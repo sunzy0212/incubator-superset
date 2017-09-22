@@ -340,7 +340,7 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     def get_user_all_databases(self):
         qiniu_uid = str(g.user.get_qiniu_id())
         biserver_url = appbuilder.app.config.get('BISERVER_BACKEND_URL')
-        r = requests.get("%s/v1/dbs"%(), headers={'X-Appid': qiniu_uid})
+        r = requests.get("%s/v1/dbs"%(biserver_url), headers={'X-Appid': qiniu_uid})
         if r.status_code != 200:
             return ""
         result = r.json()
