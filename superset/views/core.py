@@ -301,11 +301,13 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     }
     def get_db_sqlalchemy_uri(self,dbname):
         qiniu_uid = str(g.user.get_qiniu_id())
-        r = requests.post("http://10.200.20.39:2308/v1/activate",headers={'X-Appid':qiniu_uid})
+        biserver_url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
+        r = requests.post("%s/v1/activate"%(biserver_url),headers={'X-Appid':qiniu_uid})
         if r.status_code != 200:
             return ""
         result = r.json()
-        return u'mysql://%s:%s@10.200.20.39:5000/%s_%s'%(qiniu_uid,result["password"],qiniu_uid,dbname)
+        tidb_url = appbuilder.app.config.get("TIDB_BACKEND_URL")
+        return u'mysql://%s:%s@%s/%s_%s'%(qiniu_uid,result["password"],tidb_url,qiniu_uid,dbname)
 
     def pre_add(self, db):
         db.sqlalchemy_uri = self.get_db_sqlalchemy_uri(db.name)
@@ -329,14 +331,16 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
 
     def delete_database_from_report(self,databaseName):
         qiniu_uid = str(g.user.get_qiniu_id())
-        r = requests.delete("http://10.200.20.39:2308/v1/dbs/"+databaseName, headers={'X-Appid': qiniu_uid})
+        biserver_url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
+        r = requests.delete("%s/v1/dbs/%s"%(biserver_url,databaseName), headers={'X-Appid': qiniu_uid})
         if r.status_code != 200:
             return "success"
         return None
 
     def get_user_all_databases(self):
         qiniu_uid = str(g.user.get_qiniu_id())
-        r = requests.get("http://10.200.20.39:2308/v1/dbs", headers={'X-Appid': qiniu_uid})
+        biserver_url = appbuilder.app.config.get(BISERVER_BACKEND_URL)
+        r = requests.get("%s/v1/dbs"%(), headers={'X-Appid': qiniu_uid})
         if r.status_code != 200:
             return ""
         result = r.json()
@@ -516,12 +520,13 @@ appbuilder.add_view(
     category="",
     category_icon='',)
 
-class BIServerBackendView(SupersetModelView): # noqa
+class BIServerBackendView(BaseSupersetView): # noqa
     @expose('/load_examples',methods=['POST'])
     @has_access
     def load_example(self):
         qiniu_uid = g.user.get_qiniu_id()
-        r = requests.post("http://10.200.20.39:2308/v1/loadexamples",headers={'X-Appid':qiniu_uid})
+        biserver_url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
+        r = requests.post("%s/v1/loadexamples"%(biserver_url),headers={'X-Appid':qiniu_uid})
         if r.status_code != 200:
             print("load example for %s fail"%(qiniu_uid))
             return None

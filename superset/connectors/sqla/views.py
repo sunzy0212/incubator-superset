@@ -263,20 +263,23 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
 
     def delete_table_from_report(self, databaseName,tableName):
         qiniu_uid = str(g.user.get_qiniu_id())
-        r = requests.delete("http://10.200.20.39:2308/v1/dbs/%s/tables/%s"%(databaseName,tableName), headers={'X-Appid': qiniu_uid})
+        biserver_url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
+        r = requests.delete("%s/v1/dbs/%s/tables/%s"%(biserver_url,databaseName,tableName), headers={'X-Appid': qiniu_uid})
         if r.status_code != 200:
             return "success"
         return None
 
     def get_user_all_tables(self):
         qiniu_uid = str(g.user.get_qiniu_id())
-        r = requests.get("http://10.200.20.39:2308/v1/dbs", headers={'X-Appid': qiniu_uid})
+        url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
+        r = requests.get("%s/v1/dbs"%(url), headers={'X-Appid': qiniu_uid})
         if r.status_code != 200:
             return ""
         result = r.json()
         tables = []
+        biserver_url = self.appbuilder.app.config.get("BISERVER_BACKEND_URL")
         for db in result:
-            r = requests.get("http://10.200.20.39:2308/v1/dbs/%s/tables"%(db), headers={'X-Appid': qiniu_uid})
+            r = requests.get("%s/v1/dbs/%s/tables"%(biserver_url,db), headers={'X-Appid': qiniu_uid})
             if r.status_code != 200:
                 print("get db table fail, continue")
                 continue
