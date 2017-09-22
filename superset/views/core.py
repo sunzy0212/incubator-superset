@@ -516,6 +516,17 @@ appbuilder.add_view(
     category="",
     category_icon='',)
 
+class BIServerBackendView(SupersetModelView): # noqa
+    @expose('/load_examples',methods=['POST'])
+    @has_access
+    def load_example(self):
+        qiniu_uid = g.user.get_qiniu_id()
+        r = requests.post("http://10.200.20.39:2308/v1/loadexamples",headers={'X-Appid':qiniu_uid})
+        if r.status_code != 200:
+            print("load example for %s fail"%(qiniu_uid))
+            return None
+
+appbuilder.add_view_no_menu(BIServerBackendView)
 
 class SliceAsync(SliceModelView):  # noqa
     list_columns = [
