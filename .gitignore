@@ -1,10 +1,8 @@
-.gitignore
+/*
 
-*
-!superset
+!.gitignore
 !flask_appBuilder
 
-!*/
-
+!superset
 superset/static/assets/node_modules/*
 !superset/static/assets/node_modules/font-awesome
