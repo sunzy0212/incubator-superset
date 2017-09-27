@@ -47,6 +47,12 @@
 </div>
 
 <script>
+    var csrftoken = $("input[name='csrf_token']").attr("value");
+    $.ajaxSetup( {
+        beforeSend: function ( xhr ) {
+            xhr.setRequestHeader( 'X-CSRF-Token', csrftoken );
+        }
+    });
     $(document).ready(function() {
         if (!localStorage["didLoginBefore"]) {
             localStorage["didLoginBefore"] = true;
@@ -69,18 +75,38 @@
                     $("#waitForLoadingData p.dialog-message").text("已等待 " + count + " 秒");
                     timer = setTimeout(updateMessage, 1000);
                     count++;
-                    bar.animate(count / 10);
+                    if (count > 9) {
+                        const c = count - 9;
+                        bar.animate(0.9 + (1 - 1 / c) * 0.1);
+                    } else {
+                        bar.animate(count / 10);
+                    }
                 }
                 updateMessage();
 
-                setTimeout(function() {
+                function handleResult(success) {
                     if (timer !== undefined) {
                         clearTimeout(timer);
                     }
-                    $("#waitForLoadingData p.dialog-message").text("数据已全部更新");
+                    container.attr("style", "display: none");
+                    var text = success ? "数据已全部更新" : "更新数据失败";
+                    $("#waitForLoadingData p.dialog-message").text(text);
                     $("#waitForLoadingData button").removeAttr("disabled");
+                }
 
-                }, 10000);
+                $.ajax({
+                    url: "/biserverbackendview/load_examples",
+                    method: "POST",
+                    data: {
+//                        "CSRF": csrftoken,
+                    },
+                    success: function() {
+                        handleResult(true);
+                    },
+                    error: function() {
+                        handleResult(false);
+                    },
+                });
             });
             $("#confirmLoadData").modal("show");
         }
