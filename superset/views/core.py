@@ -347,7 +347,8 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         result = r.json()
         return result
 
-    def add_database(self,databaseName):
+    @expose("/databases/<databaseNname>", methods=['POST'])
+    def databases(self,databaseName):
         """
             Add function logic, override to implement different logic
             returns add widget or None
@@ -524,7 +525,7 @@ appbuilder.add_view(
 class BIServerBackendView(BaseSupersetView): # noqa
     @expose('/load_examples',methods=['POST'])
     @has_access
-    def load_example(self):
+    def load_examples(self):
         qiniu_uid = g.user.get_qiniu_id()
         biserver_url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
         r = requests.post("%s/v1/loadexamples"%(biserver_url),headers={'X-Appid':qiniu_uid})

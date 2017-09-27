@@ -227,9 +227,6 @@
 
 {% macro panel_begin(title) %}
 <div class="panel panel-primary">
-	<div class="panel-heading">
-	<h4 class="panel-title">{{title}}</h4>
-	</div>
 {% endmacro %}
 {% macro panel_end() %}
 </div>
@@ -238,13 +235,7 @@
 
 {% macro accordion_tag(id, label, open) %}
 <div class="panel-group" id="{{id}}">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#{{id}}"
-                   href="#{{id}}_href">{{label}}</a><span class="caret"></span>
-            </h4>
-        </div>
+    <div class="panel hide panel-default">
         {% if open %}
         <div id="{{id}}_href" class="panel-collapse collapse in">
             {% else %}
