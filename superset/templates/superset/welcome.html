@@ -37,6 +37,7 @@
       </div>
       <div class="modal-body">
         <p class="dialog-message">已等待 0 秒</p>
+        <div id="progressbar" style="width: 100%; height: 5px"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal" disabled>完成</button>
@@ -51,12 +52,24 @@
             localStorage["didLoginBefore"] = true;
             $("#confirmLoadData button.btn-primary").on("click", function() {
                 $("#waitForLoadingData").modal("show");
+                var container = $("#progressbar");
+                var bar = new ProgressBar.Line(container[0], {
+                    strokeWidth: 4,
+                    easing: 'easeInOut',
+                    duration: 1400,
+                    color: '#258CF7',
+                    trailColor: '#eee',
+                    trailWidth: 1,
+                    svgStyle: {width: '100%', height: '100%'}
+                });
+
                 var count = 0;
                 var timer;
                 function updateMessage() {
                     $("#waitForLoadingData p.dialog-message").text("已等待 " + count + " 秒");
                     timer = setTimeout(updateMessage, 1000);
                     count++;
+                    bar.animate(count / 10);
                 }
                 updateMessage();
 
