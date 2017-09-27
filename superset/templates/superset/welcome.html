@@ -10,14 +10,68 @@
 {% block title %}{{ _("Welcome!") }}{% endblock %}
 
 {% block body %}
+
+<div id="confirmLoadData" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">确认</h4>
+      </div>
+      <div class="modal-body">
+        <p>是否需要导入样例数据？</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">不需要</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">导入数据</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="waitForLoadingData" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">正在导入数据</h4>
+      </div>
+      <div class="modal-body">
+        <p class="dialog-message">已等待 0 秒</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" disabled>完成</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-    if (!localStorage["didLoginBefore"]) {
-        localStorage["didLoginBefore"] = true;
-        var yes = confirm("是否需要导入示范数据？");
-        if (yes) {
-            alert("跳转！");
+    $(document).ready(function() {
+        if (!localStorage["didLoginBefore"]) {
+            localStorage["didLoginBefore"] = true;
+            $("#confirmLoadData button.btn-primary").on("click", function() {
+                $("#waitForLoadingData").modal("show");
+                var count = 0;
+                var timer;
+                function updateMessage() {
+                    $("#waitForLoadingData p.dialog-message").text("已等待 " + count + " 秒");
+                    timer = setTimeout(updateMessage, 1000);
+                    count++;
+                }
+                updateMessage();
+
+                setTimeout(function() {
+                    if (timer !== undefined) {
+                        clearTimeout(timer);
+                    }
+                    $("#waitForLoadingData p.dialog-message").text("数据已全部更新");
+                    $("#waitForLoadingData button").removeAttr("disabled");
+
+                }, 10000);
+            });
+            $("#confirmLoadData").modal("show");
         }
-    }
+    });
 </script>
 <div class="container welcome">
   {% include 'superset/flash_wrapper.html' %}
