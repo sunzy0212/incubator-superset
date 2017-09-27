@@ -6,3 +6,4 @@
 !superset
 superset/static/assets/node_modules/*
 !superset/static/assets/node_modules/font-awesome
+*.pyc
