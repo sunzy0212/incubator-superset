@@ -347,6 +347,7 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         result = r.json()
         return result
 
+    @expose("/databases/<databaseNname>", methods=['POST'])
     def add_database(self,databaseName):
         """
             Add function logic, override to implement different logic
