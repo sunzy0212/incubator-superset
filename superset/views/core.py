@@ -529,9 +529,10 @@ class BIServerBackendView(BaseSupersetView): # noqa
         qiniu_uid = g.user.get_qiniu_id()
         biserver_url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
         r = requests.post("%s/v1/loadexamples"%(biserver_url),headers={'X-Appid':qiniu_uid})
-        if r.status_code != 200:
-            print("load example for %s fail"%(qiniu_uid))
-            return None
+
+        return Response(
+            json.dumps(r.json()),
+            status=r.status_code)
 
 appbuilder.add_view_no_menu(BIServerBackendView)
 
