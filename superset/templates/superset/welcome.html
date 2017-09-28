@@ -33,7 +33,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">正在导入数据</h4>
+        <h4 id="loading-title" class="modal-title">正在导入数据</h4>
       </div>
       <div class="modal-body">
         <p class="dialog-message">已等待 0 秒</p>
@@ -84,12 +84,13 @@
                 }
                 updateMessage();
 
-                function handleResult(success) {
+                function handleResult(success, errMessage) {
                     if (timer !== undefined) {
                         clearTimeout(timer);
                     }
                     container.attr("style", "display: none");
-                    var text = success ? "数据已全部更新" : "更新数据失败";
+                    var text = success ? "数据已全部更新" : ("更新数据失败：" + errMessage);
+                    $("#loading-title").text("完成");
                     $("#waitForLoadingData p.dialog-message").text(text);
                     $("#waitForLoadingData button").removeAttr("disabled");
                 }
@@ -97,14 +98,26 @@
                 $.ajax({
                     url: "/biserverbackendview/load_examples",
                     method: "POST",
-                    data: {
-//                        "CSRF": csrftoken,
-                    },
                     success: function() {
                         handleResult(true);
                     },
-                    error: function() {
-                        handleResult(false);
+                    error: function(err) {
+                        var status = err.status,
+                            responseText = err.responseText;
+                        if (responseText) {
+                            try {
+                                const jsonObject = JSON.parse(responseText);
+                                if (jsonObject && jsonObject.error) {
+                                    responseText = jsonObject.error;
+                                }
+                            } catch (err) {}
+                        }
+                        if (status === 409 && responseText.match(/^E8009/)) {
+                            // 409: E8009 means database exist. it's successful.
+                            handleResult(true);
+                        } else {
+                            handleResult(false, responseText);
+                        }
                     },
                 });
             });
