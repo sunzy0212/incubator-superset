@@ -378,7 +378,7 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     def list(self):
         databases = self.get_user_all_databases()
         for database in databases:
-            w = self.add_databases(database)
+            w = self.databases(database)
             if not w:
                 print("add database fail")
         widgets = self._list()
