@@ -528,6 +528,11 @@ class BIServerBackendView(BaseSupersetView): # noqa
     def load_examples(self):
         qiniu_uid = g.user.get_qiniu_id()
         biserver_url = appbuilder.app.config.get("BISERVER_BACKEND_URL")
+        r = requests.post("%s/v1/activate"%(biserver_url),headers={'X-Appid':qiniu_uid})
+        if r.status_code != 200:
+            return Response(
+                json.dumps(r.json()),
+                status= r.status_code)
         r = requests.post("%s/v1/loadexamples"%(biserver_url),headers={'X-Appid':qiniu_uid})
 
         return Response(
