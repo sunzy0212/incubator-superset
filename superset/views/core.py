@@ -2338,12 +2338,13 @@ class Superset(BaseSupersetView):
             status=200,
             mimetype="application/json")
 
-    @app.errorhandler(500)
-    def show_traceback(self):
-        return render_template(
-            'superset/traceback.html',
-            error_msg=get_error_msg(),
-        ), 500
+    @app.errorhandler(Exception)
+    def show_servererror(self):
+        return render_template('superset/500.html'), 500
+    
+    @app.errorhandler(404)
+    def show_notfound(self):
+        return render_template('superset/404.html'), 404
 
     @expose("/welcome")
     def welcome(self):
