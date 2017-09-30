@@ -333,11 +333,11 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
     @expose('/list/', methods=['GET', 'POST'])
     @has_access
     def list(self):
-        tables = self.get_user_all_tables()
-        for table in tables:
-            w = self.add_table(table[0],table[1])
-            if not w:
-                print("add table fail")
+        # tables = self.get_user_all_tables()
+        # for table in tables:
+        #     w = self.add_table(table[0],table[1])
+        #     if not w:
+        #         print("add table fail")
         widgets = self._list()
         return self.render_template(self.list_template,
                                     title=self.list_title,
