@@ -1,6 +1,10 @@
 package biserver
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"strings"
 
@@ -114,4 +118,27 @@ func convertResult(result *sqltypes.Result) QueryRet {
 	ret.Results[0].Rows = result.Rows
 
 	return ret
+}
+
+func getEncryptPasswordForDB(secretKey, p string) (password string, err error) {
+	h := sha256.New()
+	h.Write([]byte(secretKey))
+	secret := h.Sum(nil)
+
+	//补齐16的倍数位
+	padding := 16 - len(p)%16
+	for i := 0; i < padding; i++ {
+		p += "*"
+	}
+
+	pwd := []byte(p)
+	block, err := aes.NewCipher(secret)
+	if err != nil {
+		return
+	}
+	iv := secret[:16]
+	mode := cipher.NewCBCEncrypter(block, iv)
+	ciphertext := make([]byte, len(pwd))
+	mode.CryptBlocks(ciphertext, pwd)
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/hex"
+	"fmt"
 	"net/http"
 	"runtime"
 
@@ -36,10 +38,12 @@ type EndPoint struct {
 }
 
 type Config struct {
-	M              MysqlConfig             `json:"mysql"`
-	S              EndPoint                `json:"service"`
-	SampleDatabase string                  `json:"sample_database"`
-	L              biserver.AuditlogConfig `json:"auditlog"`
+	M                 MysqlConfig             `json:"mysql"`
+	SuperMeta         MysqlConfig             `json:"superset_mysql"`
+	S                 EndPoint                `json:"service"`
+	SampleDatabase    string                  `json:"sample_database"`
+	SupersetSecretKey string                  `json:"superset_secret_key"`
+	L                 biserver.AuditlogConfig `json:"auditlog"`
 }
 
 func ensureRequiredConfig(cfg *Config) (err error) {
@@ -71,6 +75,11 @@ func main() {
 		}
 
 	}()
+	secretKey_bytes, err := hex.DecodeString(conf.SupersetSecretKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+	conf.SupersetSecretKey = fmt.Sprintf("%s", secretKey_bytes)
 
 	svr, err := biserver.New(&biserver.ApiServerConfig{
 		TcpAddress:     conf.S.TcpPort,
@@ -82,6 +91,14 @@ func main() {
 			Protocol: conf.M.Protocol,
 			Address:  conf.M.Address,
 		},
+		SuperMysqlConfig: biserver.MysqlConfig{
+			User:     conf.SuperMeta.User,
+			Password: conf.SuperMeta.Password,
+			MetaDB:   conf.SuperMeta.MetaDB,
+			Protocol: conf.SuperMeta.Protocol,
+			Address:  conf.SuperMeta.Address,
+		},
+		SupersetSecretKey: conf.SupersetSecretKey,
 	})
 	if err != nil {
 		log.Fatal(err)

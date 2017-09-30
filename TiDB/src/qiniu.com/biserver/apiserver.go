@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"qbox.us/errors"
 
@@ -22,16 +23,19 @@ import (
 )
 
 type ApiServerConfig struct {
-	TcpAddress     string
-	SampleDatabase string
-	MysqlConfig    MysqlConfig
+	TcpAddress        string
+	SampleDatabase    string
+	MysqlConfig       MysqlConfig
+	SuperMysqlConfig  MysqlConfig
+	SupersetSecretKey string
 }
 
 type ApiServer struct {
-	Listener    driver.Listener
-	MySQLClient *sql.DB
-	MetaDB      string
-	Config      *ApiServerConfig
+	Listener         driver.Listener
+	MySQLClient      *sql.DB
+	SuperMySQLClient *sql.DB
+	MetaDB           string
+	Config           *ApiServerConfig
 }
 
 func New(cfg *ApiServerConfig) (*ApiServer, error) {
@@ -39,6 +43,10 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 
 	if cfg.SampleDatabase == "" {
 		log.Warn("sample database configuration is empty")
+	}
+
+	if cfg.SupersetSecretKey == "" {
+		log.Fatal("superset secrete key is empty, database cannot be created")
 	}
 
 	log := xlog.NewStdLog(xlog.Level(xlog.DEBUG))
@@ -58,12 +66,28 @@ func New(cfg *ApiServerConfig) (*ApiServer, error) {
 		fmt.Println(err)
 		return nil, err
 	}
+
+	server.SuperMySQLClient, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", cfg.SuperMysqlConfig.User,
+		cfg.SuperMysqlConfig.Password,
+		cfg.SuperMysqlConfig.Protocol,
+		cfg.SuperMysqlConfig.Address,
+		cfg.SuperMysqlConfig.MetaDB))
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
 	server.MetaDB = cfg.MysqlConfig.MetaDB
 	server.Config = cfg
 	//checkout mysql is alive
 	err = server.MySQLClient.Ping()
 	if err != nil {
 		fmt.Println("ping mysql server fail", err)
+		return nil, err
+	}
+
+	err = server.SuperMySQLClient.Ping()
+	if err != nil {
+		fmt.Println("ping superset meta mysql server fail", err)
 		return nil, err
 	}
 
@@ -299,6 +323,55 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 	log.Info(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
 	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	//insert metedata into superset
+	sqlTemplate := `insert into dbs (
+						created_on,
+						changed_on,
+						database_name,
+						sqlalchemy_uri,
+						created_by_fk,
+						changed_by_fk,
+						password,
+						select_as_create_table_as,
+						allow_ctas,
+						expose_in_sqllab,
+						allow_run_async,
+						allow_run_sync,
+						allow_dml,
+						qiniu_uid
+						) values 
+						(
+							'%s',
+							'%s',
+							'%s',
+							'%s',
+							(select id from ab_user where username='%s'),
+							(select id from ab_user where username='%s'),
+							'%s',
+							0,
+							0,
+							1,
+							0,
+							1,
+							0,
+							%s
+						)`
+	now := time.Now().Format("2006-01-02 15:04:05")
+	uri := fmt.Sprintf("mysql://%s:XXXXXXXXXX@%s/%s", appId, s.Config.MysqlConfig.Address, userDBName)
+	pwd, err := getEncryptPasswordForDB(s.Config.SupersetSecretKey, password)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	sql := fmt.Sprintf(sqlTemplate, now, now, dbName, uri, appId, appId, pwd, appId)
+	//sql += ";\n" + fmt.Sprintf("update dbs set perm=(select concat([]))")
+	_, err = s.SuperMySQLClient.Exec(sql)
+	if err != nil {
+		log.Error(err)
 		return
 	}
 	return
@@ -405,6 +478,36 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("INSERT INTO %s.tables (appid,dbname,tablename) VALUES ('%s','%s','%s')", s.MetaDB, appId, dbName, args.CmdArgs[1]))
 	if err != nil {
 		err = errors.Info(ErrInternalServerError, err.Error())
+		return
+	}
+
+	sqlTemplate := `insert into tables (
+						created_on,
+						changed_on,
+						table_name,
+						database_id,
+						created_by_fk,
+						changed_by_fk,
+						offset,
+						is_featured,
+						qiniu_uid
+					) values (
+						'%s',
+						'%s',
+						'%s',
+						(select id from dbs where database_name='%s'),
+						(select id from ab_user where username = '%s'),
+						(select id from ab_user where username = '%s'),
+						0,
+						0,
+						%s
+					)`
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+	sql := fmt.Sprintf(sqlTemplate, now, now, args.CmdArgs[1], dbName, appId, appId, appId)
+	_, err = s.SuperMySQLClient.Exec(sql)
+	if err != nil {
+		log.Error(err)
 		return
 	}
 
