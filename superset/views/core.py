@@ -373,18 +373,18 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         
         return self._get_add_widget(form=form, exclude_cols=exclude_cols)
 
-    @expose('/list/', methods=['GET', 'POST'])
-    @has_access
-    def list(self):
-        databases = self.get_user_all_databases()
-        for database in databases:
-            w = self.databases(database)
-            if not w:
-                print("add database fail")
-        widgets = self._list()
-        return self.render_template(self.list_template,
-                                    title=self.list_title,
-                                    widgets=widgets)
+    # @expose('/list/', methods=['GET', 'POST'])
+    # @has_access
+    # def list(self):
+    #     databases = self.get_user_all_databases()
+    #     for database in databases:
+    #         w = self.databases(database)
+    #         if not w:
+    #             print("add database fail")
+    #     widgets = self._list()
+    #     return self.render_template(self.list_template,
+    #                                 title=self.list_title,
+    #                                 widgets=widgets)
 
 # appbuilder.add_link(
 #     'Import Dashboards',
