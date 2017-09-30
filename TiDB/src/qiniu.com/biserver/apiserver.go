@@ -481,6 +481,36 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 		return
 	}
 
+	sqlTemplate := `insert into tables (
+						created_on,
+						changed_on,
+						table_name,
+						database_id,
+						created_by_fk,
+						changed_by_fk,
+						offset,
+						is_featured,
+						qiniu_uid
+					) values (
+						'%s',
+						'%s',
+						'%s',
+						(select id from dbs where database_name='%s'),
+						(select id from ab_user where username = '%s'),
+						(select id from ab_user where username = '%s'),
+						0,
+						0,
+						%s
+					)`
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+	sql := fmt.Sprintf(sqlTemplate, now, now, args.CmdArgs[1], dbName, appId, appId, appId)
+	_, err = s.SuperMySQLClient.Exec(sql)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
 	return
 }
 

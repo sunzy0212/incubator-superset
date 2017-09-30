@@ -75,6 +75,11 @@ func main() {
 		}
 
 	}()
+	secretKey_bytes, err := hex.DecodeString(conf.SupersetSecretKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+	conf.SupersetSecretKey = fmt.Sprintf("%s", secretKey_bytes)
 
 	svr, err := biserver.New(&biserver.ApiServerConfig{
 		TcpAddress:     conf.S.TcpPort,
@@ -98,12 +103,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	secretKey_bytes, err := hex.DecodeString(conf.SupersetSecretKey)
-	if err != nil {
-		log.Fatal(err)
-	}
-	conf.SupersetSecretKey = string(secretKey_bytes)
-	fmt.Printf("\n%s\n", hex.EncodeToString([]byte(conf.SupersetSecretKey)))
 
 	go svr.Accept()
 

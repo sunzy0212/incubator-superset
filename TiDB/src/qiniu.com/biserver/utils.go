@@ -130,6 +130,7 @@ func getEncryptPasswordForDB(secretKey, p string) (password string, err error) {
 	for i := 0; i < padding; i++ {
 		p += "*"
 	}
+
 	pwd := []byte(p)
 	block, err := aes.NewCipher(secret)
 	if err != nil {
