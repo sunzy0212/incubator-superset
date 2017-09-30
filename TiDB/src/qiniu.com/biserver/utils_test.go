@@ -35,3 +35,16 @@ func Test_passwordGenerator(t *testing.T) {
 	}
 	t.Log(p)
 }
+
+func Test_encryptoPassword(t *testing.T) {
+	s := "thisismyscretkey1234"
+
+	got, err := getEncryptPasswordForDB(s, "wefganelwo4624943534")
+	if err != nil {
+		t.Fatal(err)
+	}
+	exp := "ygqzdXTUM6lKAbTKkZpswjP4Xv821xQk+luXExGFTMA="
+	if got != exp {
+		t.Fatalf("encryptPassword fail\ngot:%v\nexp:%v\n", got, exp)
+	}
+}
