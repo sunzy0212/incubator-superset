@@ -28,6 +28,7 @@ def get_curr_user():
 
 class SavedQueryView(SupersetModelView, DeleteMixin):
     datamodel = SQLAInterface(SavedQuery)
+
     list_columns = [
         'label', 'database', 'schema', 'description',
         'modified', 'pop_tab_link']

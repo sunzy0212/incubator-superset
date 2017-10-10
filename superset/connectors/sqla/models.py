@@ -10,9 +10,8 @@ from sqlalchemy import (
     DateTime,
 )
 import sqlalchemy as sa
-from sqlalchemy import asc, and_, desc, select
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ColumnClause, TextAsFrom
+from sqlalchemy import asc, and_, desc, select, or_
+from sqlalchemy.sql.expression import TextAsFrom
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.sql import table, literal_column, text, column
 
@@ -21,7 +20,7 @@ from flask_appbuilder import Model
 from flask_babel import lazy_gettext as _
 
 from superset import db, utils, import_util, sm
-from superset.connectors.base import BaseDatasource, BaseColumn, BaseMetric
+from superset.connectors.base.models import BaseDatasource, BaseColumn, BaseMetric
 from superset.utils import DTTM_ALIAS, QueryStatus
 from superset.models.helpers import QueryResult
 from superset.models.core import Database
@@ -63,10 +62,12 @@ class TableColumn(Model, BaseColumn):
 
     def get_time_filter(self, start_dttm, end_dttm):
         col = self.sqla_col.label('__time')
-        return and_(
-            col >= text(self.dttm_sql_literal(start_dttm)),
-            col <= text(self.dttm_sql_literal(end_dttm)),
-        )
+        l = []
+        if start_dttm:
+            l.append(col >= text(self.dttm_sql_literal(start_dttm)))
+        if end_dttm:
+            l.append(col <= text(self.dttm_sql_literal(end_dttm)))
+        return and_(*l)
 
     def get_timestamp_expression(self, time_grain):
         """Getting the time component of the query"""
@@ -170,6 +171,7 @@ class SqlaTable(Model, BaseDatasource):
     database_id = Column(Integer, ForeignKey('dbs.id'), nullable=False)
     fetch_values_predicate = Column(String(1000))
     user_id = Column(Integer, ForeignKey('ab_user.id'))
+    qiniu_uid = Column(Integer)
     owner = relationship(
         sm.user_model,
         backref='tables',
@@ -180,11 +182,6 @@ class SqlaTable(Model, BaseDatasource):
         foreign_keys=[database_id])
     schema = Column(String(255))
     sql = Column(Text)
-    slices = relationship(
-        'Slice',
-        primaryjoin=(
-            "SqlaTable.id == foreign(Slice.datasource_id) and "
-            "Slice.datasource_type == 'table'"))
 
     baselink = "tablemodelview"
     export_fields = (
@@ -199,6 +196,10 @@ class SqlaTable(Model, BaseDatasource):
 
     def __repr__(self):
         return self.name
+
+    @property
+    def connection(self):
+        return str(self.database)
 
     @property
     def description_markeddown(self):
@@ -293,10 +294,12 @@ class SqlaTable(Model, BaseDatasource):
         """
         cols = {col.column_name: col for col in self.columns}
         target_col = cols[column_name]
+        tp = self.get_template_processor()
+        db_engine_spec = self.database.db_engine_spec
 
         qry = (
             select([target_col.sqla_col])
-            .select_from(self.get_from_clause())
+            .select_from(self.get_from_clause(tp, db_engine_spec))
             .distinct(column_name)
         )
         if limit:
@@ -330,7 +333,6 @@ class SqlaTable(Model, BaseDatasource):
         )
         logging.info(sql)
         sql = sqlparse.format(sql, reindent=True)
-        sql = self.database.db_engine_spec.sql_preprocessor(sql)
         return sql
 
     def get_sqla_table(self):
@@ -339,12 +341,14 @@ class SqlaTable(Model, BaseDatasource):
             tbl.schema = self.schema
         return tbl
 
-    def get_from_clause(self, template_processor=None):
+    def get_from_clause(self, template_processor=None, db_engine_spec=None):
         # Supporting arbitrary SQL statements in place of tables
         if self.sql:
             from_sql = self.sql
             if template_processor:
                 from_sql = template_processor.process_template(from_sql)
+            if db_engine_spec:
+                from_sql = db_engine_spec.escape_sql(from_sql)
             return TextAsFrom(sa.text(from_sql), []).alias('expr_qry')
         return self.get_sqla_table()
 
@@ -363,9 +367,9 @@ class SqlaTable(Model, BaseDatasource):
             orderby=None,
             extras=None,
             columns=None,
-            form_data=None):
+            form_data=None,
+            order_desc=True):
         """Querying any sqla table from this common interface"""
-
         template_kwargs = {
             'from_dttm': from_dttm,
             'groupby': groupby,
@@ -375,13 +379,16 @@ class SqlaTable(Model, BaseDatasource):
             'form_data': form_data,
         }
         template_processor = self.get_template_processor(**template_kwargs)
+        db_engine_spec = self.database.db_engine_spec
+
+        orderby = orderby or []
 
         # For backward compatibility
         if granularity not in self.dttm_cols:
             granularity = self.main_dttm_col
 
         # Database spec supports join-free timeslot grouping
-        time_groupby_inline = self.database.db_engine_spec.time_groupby_inline
+        time_groupby_inline = db_engine_spec.time_groupby_inline
 
         cols = {col.column_name: col for col in self.columns}
         metrics_dict = {m.metric_name: m for m in self.metrics}
@@ -390,15 +397,12 @@ class SqlaTable(Model, BaseDatasource):
             raise Exception(_(
                 "Datetime column not provided as part table configuration "
                 "and is required by this type of chart"))
+        if not groupby and not metrics and not columns:
+            raise Exception(_("Empty query?"))
         for m in metrics:
             if m not in metrics_dict:
                 raise Exception(_("Metric '{}' is not valid".format(m)))
         metrics_exprs = [metrics_dict.get(m).sqla_col for m in metrics]
-        timeseries_limit_metric = metrics_dict.get(timeseries_limit_metric)
-        timeseries_limit_metric_expr = None
-        if timeseries_limit_metric:
-            timeseries_limit_metric_expr = \
-                timeseries_limit_metric.sqla_col
         if metrics_exprs:
             main_metric_expr = metrics_exprs[0]
         else:
@@ -436,7 +440,7 @@ class SqlaTable(Model, BaseDatasource):
                 groupby_exprs += [timestamp]
 
             # Use main dttm column to support index with secondary dttm columns
-            if self.database.db_engine_spec.time_secondary_columns and \
+            if db_engine_spec.time_secondary_columns and \
                     self.main_dttm_col in self.dttm_cols and \
                     self.main_dttm_col != dttm_col.column_name:
                 time_filters.append(cols[self.main_dttm_col].
@@ -446,7 +450,7 @@ class SqlaTable(Model, BaseDatasource):
         select_exprs += metrics_exprs
         qry = sa.select(select_exprs)
 
-        tbl = self.get_from_clause(template_processor)
+        tbl = self.get_from_clause(template_processor, db_engine_spec)
 
         if not columns:
             qry = qry.group_by(*groupby_exprs)
@@ -510,12 +514,16 @@ class SqlaTable(Model, BaseDatasource):
         else:
             qry = qry.where(and_(*where_clause_and))
         qry = qry.having(and_(*having_clause_and))
-        if groupby:
-            qry = qry.order_by(desc(main_metric_expr))
-        elif orderby:
-            for col, ascending in orderby:
-                direction = asc if ascending else desc
-                qry = qry.order_by(direction(col))
+
+        if not orderby and not columns:
+            orderby = [(main_metric_expr, not order_desc)]
+
+        for col, ascending in orderby:
+            direction = asc if ascending else desc
+            print('-='*20)
+            print([col, ascending])
+            print('-='*20)
+            qry = qry.order_by(direction(col))
 
         if row_limit:
             qry = qry.limit(row_limit)
@@ -535,11 +543,15 @@ class SqlaTable(Model, BaseDatasource):
             )
             subq = subq.where(and_(*(where_clause_and + [inner_time_filter])))
             subq = subq.group_by(*inner_groupby_exprs)
+
             ob = inner_main_metric_expr
-            if timeseries_limit_metric_expr is not None:
-                ob = timeseries_limit_metric_expr
-            subq = subq.order_by(desc(ob))
+            if timeseries_limit_metric:
+                timeseries_limit_metric = metrics_dict.get(timeseries_limit_metric)
+                ob = timeseries_limit_metric.sqla_col
+            direction = desc if order_desc else asc
+            subq = subq.order_by(direction(ob))
             subq = subq.limit(timeseries_limit)
+
             on_clause = []
             for i, gb in enumerate(groupby):
                 on_clause.append(
@@ -578,31 +590,30 @@ class SqlaTable(Model, BaseDatasource):
         try:
             table = self.get_sqla_table_object()
         except Exception:
-            raise Exception(
-                "Table doesn't seem to exist in the specified database, "
-                "couldn't fetch column information")
+            raise Exception(_(
+                "Table [{}] doesn't seem to exist in the specified database, "
+                "couldn't fetch column information").format(self.table_name))
 
-        TC = TableColumn  # noqa shortcut to class
         M = SqlMetric  # noqa
         metrics = []
         any_date_col = None
-        db_dialect = self.database.get_sqla_engine().dialect
+        db_dialect = self.database.get_dialect()
+        dbcols = (
+            db.session.query(TableColumn)
+            .filter(TableColumn.table == self)
+            .filter(or_(TableColumn.column_name == col.name
+                        for col in table.columns)))
+        dbcols = {dbcol.column_name: dbcol for dbcol in dbcols}
+
         for col in table.columns:
             try:
-                datatype = "{}".format(col.type).upper()
+                datatype = col.type.compile(dialect=db_dialect).upper()
             except Exception as e:
                 datatype = "UNKNOWN"
                 logging.error(
                     "Unrecognized data type in {}.{}".format(table, col.name))
                 logging.exception(e)
-            dbcol = (
-                db.session
-                .query(TC)
-                .filter(TC.table == self)
-                .filter(TC.column_name == col.name)
-                .first()
-            )
-            db.session.flush()
+            dbcol = dbcols.get(col.name, None)
             if not dbcol:
                 dbcol = TableColumn(column_name=col.name, type=datatype)
                 dbcol.groupby = dbcol.is_string
@@ -610,14 +621,11 @@ class SqlaTable(Model, BaseDatasource):
                 dbcol.sum = dbcol.is_num
                 dbcol.avg = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
-
-            db.session.merge(self)
             self.columns.append(dbcol)
-
             if not any_date_col and dbcol.is_time:
                 any_date_col = col.name
 
-            quoted = "{}".format(col.compile(dialect=db_dialect))
+            quoted = str(col.compile(dialect=db_dialect))
             if dbcol.sum:
                 metrics.append(M(
                     metric_name='sum__' + dbcol.column_name,
@@ -654,8 +662,6 @@ class SqlaTable(Model, BaseDatasource):
                     expression="COUNT(DISTINCT {})".format(quoted)
                 ))
             dbcol.type = datatype
-            db.session.merge(self)
-            db.session.commit()
 
         metrics.append(M(
             metric_name='count',
@@ -663,19 +669,18 @@ class SqlaTable(Model, BaseDatasource):
             metric_type='count',
             expression="COUNT(*)"
         ))
+
+        dbmetrics = db.session.query(M).filter(M.table_id == self.id).filter(
+            or_(M.metric_name == metric.metric_name for metric in metrics))
+        dbmetrics = {metric.metric_name: metric for metric in dbmetrics}
         for metric in metrics:
-            m = (
-                db.session.query(M)
-                .filter(M.metric_name == metric.metric_name)
-                .filter(M.table_id == self.id)
-                .first()
-            )
             metric.table_id = self.id
-            if not m:
+            if not dbmetrics.get(metric.metric_name, None):
                 db.session.add(metric)
-                db.session.commit()
         if not self.main_dttm_col:
             self.main_dttm_col = any_date_col
+        db.session.merge(self)
+        db.session.commit()
 
     @classmethod
     def import_obj(cls, i_datasource, import_time=None):

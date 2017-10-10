@@ -16,13 +16,13 @@
 <div class='wrapper'>
   <div class='pad1'>
     <h1>
-      <a href="../../index.html">All files</a> / <a href="index.html">javascripts/components</a> FaveStar.jsx
+      <a href="../../index.html">all files</a> / <a href="index.html">javascripts/components/</a> FaveStar.jsx
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/11</span>
+        <span class='fraction'>0/17</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -30,14 +30,14 @@
         <span class='fraction'>0/0</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/0</span>
+        <span class='fraction'>0/3</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/11</span>
+        <span class='fraction'>0/16</span>
       </div>
     </div>
   </div>
@@ -88,35 +88,37 @@
 43
 44
 45
-46</td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+46
+47</td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -137,33 +139,34 @@
 <span class="cstat-no" title="statement not covered" >import PropTypes from 'prop-types';</span>
 <span class="cstat-no" title="statement not covered" >import cx from 'classnames';</span>
 <span class="cstat-no" title="statement not covered" >import TooltipWrapper from './TooltipWrapper';</span>
+<span class="cstat-no" title="statement not covered" >import { t } from '../locales';</span>
 &nbsp;
-c</span>onst propTypes = <span class="cstat-no" title="statement not covered" >{
+<span class="cstat-no" title="statement not covered" >const propTypes = {</span>
   sliceId: PropTypes.number.isRequired,
   actions: PropTypes.object.isRequired,
   isStarred: PropTypes.bool.isRequired,
 };
 &nbsp;
-export default class FaveStar extends React.Component {
-  componentDidMount() {
-<span class="cstat-no" title="statement not covered" >    this.props.actions.fetchFaveStar(this.props.sliceId);</span>
+export default class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >FaveStar extends React.Component {</span></span>
+  componentDidMount() <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >{</span></span>
+    this.<span class="cstat-no" title="statement not covered" >props.actions.fetchFaveStar(this.props.sliceId);</span>
   }
 &nbsp;
-  onClick(e) {
-<span class="cstat-no" title="statement not covered" >    e.preventDefault();</span>
-<span class="cstat-no" title="statement not covered" >    this.props.actions.saveFaveStar(this.props.sliceId, this.props.isStarred);</span>
+  onClick(<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >e) {</span></span>
+    e.<span class="cstat-no" title="statement not covered" >preventDefault();</span>
+    this.<span class="cstat-no" title="statement not covered" >props.actions.saveFaveStar(this.props.sliceId, this.props.isStarred);</span>
   }
 &nbsp;
-  render() {
-    c</span>onst iconClassNames = <span class="cstat-no" title="statement not covered" >cx('fa', {
+  render() <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >{</span></span>
+    const <span class="cstat-no" title="statement not covered" >iconClassNames = cx('fa', {</span>
       'fa-star': this.props.isStarred,
       'fa-star-o': !this.props.isStarred,
     });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return (</span>
-      &lt;TooltipWrapper
+    return (
+<span class="cstat-no" title="statement not covered" >      &lt;TooltipWrapper</span>
         label="fave-unfave"
-        tooltip="Click to favorite/unfavorite"
+        tooltip={t('Click to favorite/unfavorite')}
       &gt;
         &lt;a
           href="#"
@@ -184,7 +187,7 @@ export default class FaveStar extends React.Component {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri May 19 2017 23:41:00 GMT-0700 (PDT)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 03 2017 21:13:08 GMT-0700 (PDT)
 </div>
 </div>
 <script src="../../prettify.js"></script>

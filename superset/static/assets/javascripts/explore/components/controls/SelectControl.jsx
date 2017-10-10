@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select, { Creatable } from 'react-select';
 import ControlHeader from '../ControlHeader';
+import { t } from '../../../locales';
 
 const propTypes = {
   choices: PropTypes.array,
@@ -36,6 +37,55 @@ const defaultProps = {
   valueKey: 'value',
 };
 
+// Handle `onPaste` so that users may paste in
+// options as comma-delimited, slightly modified from
+// https://github.com/JedWatson/react-select/issues/1672
+function pasteSelect(props) {
+  let pasteInput;
+  return (
+    <Select
+      {...props}
+      ref={(ref) => {
+        // Creatable requires a reference to its Select child
+        if (props.ref) {
+          props.ref(ref);
+        }
+        pasteInput = ref;
+      }}
+      inputProps={{
+        onPaste: (evt) => {
+          if (!props.multi) {
+            return;
+          }
+          evt.preventDefault();
+          // pull text from the clipboard and split by comma
+          const clipboard = evt.clipboardData.getData('Text');
+          if (!clipboard) {
+            return;
+          }
+          const values = clipboard.split(/[,]+/).map(v => v.trim());
+          const options = values
+            .filter(value =>
+              // Creatable validates options
+              props.isValidNewOption ? props.isValidNewOption({ label: value }) : !!value,
+            )
+            .map(value => ({
+              [props.labelKey]: value,
+              [props.valueKey]: value,
+            }));
+          if (options.length) {
+            pasteInput.selectValue(options);
+          }
+        },
+      }}
+    />
+  );
+}
+pasteSelect.propTypes = {
+  multi: PropTypes.bool,
+  ref: PropTypes.func,
+};
+
 export default class SelectControl extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -43,7 +93,8 @@ export default class SelectControl extends React.PureComponent {
     this.onChange = this.onChange.bind(this);
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.choices !== this.props.choices) {
+    if (nextProps.choices !== this.props.choices ||
+        nextProps.options !== this.props.options) {
       const options = this.getOptions(nextProps);
       this.setState({ options });
     }
@@ -101,9 +152,10 @@ export default class SelectControl extends React.PureComponent {
     const selectProps = {
       multi: this.props.multi,
       name: `select-${this.props.name}`,
-      placeholder: `Select (${this.state.options.length})`,
+      placeholder: t('Select %s', this.state.options.length),
       options: this.state.options,
       value: this.props.value,
+      labelKey: 'label',
       valueKey: this.props.valueKey,
       autosize: false,
       clearable: this.props.clearable,
@@ -113,8 +165,13 @@ export default class SelectControl extends React.PureComponent {
       valueRenderer: this.props.valueRenderer,
     };
     //  Tab, comma or Enter will trigger a new option created for FreeFormSelect
-    const selectWrap = this.props.freeForm ?
-      (<Creatable {...selectProps} />) : (<Select {...selectProps} />);
+    const selectWrap = this.props.freeForm ? (
+      <Creatable {...selectProps}>
+        {pasteSelect}
+      </Creatable>
+    ) : (
+      pasteSelect(selectProps)
+    );
     return (
       <div>
         {this.props.showHeader &&

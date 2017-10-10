@@ -1,25 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import CheckboxControl from './controls/CheckboxControl';
-import FilterControl from './controls/FilterControl';
-import HiddenControl from './controls/HiddenControl';
-import SelectControl from './controls/SelectControl';
-import TextAreaControl from './controls/TextAreaControl';
-import TextControl from './controls/TextControl';
-import VizTypeControl from './controls/VizTypeControl';
-import BoundsControl from './controls/BoundsControl';
+import controlMap from './controls';
 
-const controlMap = {
-  CheckboxControl,
-  FilterControl,
-  HiddenControl,
-  SelectControl,
-  TextAreaControl,
-  TextControl,
-  VizTypeControl,
-  BoundsControl,
-};
 const controlTypes = Object.keys(controlMap);
 
 const propTypes = {
@@ -52,6 +35,7 @@ const defaultProps = {
 export default class Control extends React.PureComponent {
   constructor(props) {
     super(props);
+    this.state = { hovered: false };
     this.validate = this.validate.bind(this);
     this.onChange = this.onChange.bind(this);
   }
@@ -60,6 +44,9 @@ export default class Control extends React.PureComponent {
   }
   onChange(value, errors) {
     this.validateAndSetValue(value, errors);
+  }
+  setHover(hovered) {
+    this.setState({ hovered });
   }
   validateAndSetValue(value, errors) {
     let validationErrors = this.props.validationErrors;
@@ -92,9 +79,14 @@ export default class Control extends React.PureComponent {
     const ControlType = controlMap[this.props.type];
     const divStyle = this.props.hidden ? { display: 'none' } : null;
     return (
-      <div style={divStyle}>
+      <div
+        style={divStyle}
+        onMouseEnter={this.setHover.bind(this, true)}
+        onMouseLeave={this.setHover.bind(this, false)}
+      >
         <ControlType
           onChange={this.onChange}
+          hovered={this.state.hovered}
           {...this.props}
         />
       </div>
