@@ -8,17 +8,23 @@ import GridLayout from './components/GridLayout';
 import Header from './components/Header';
 import { appSetup } from '../common';
 import AlertsWrapper from '../components/AlertsWrapper';
-
+import { t } from '../locales';
 import '../../stylesheets/dashboard.css';
 
-const px = require('../modules/superset');
+const superset = require('../modules/superset');
 const urlLib = require('url');
 const utils = require('../modules/utils');
+
+let px;
 
 appSetup();
 
 export function getInitialState(boostrapData) {
-  const dashboard = Object.assign({}, utils.controllerInterface, boostrapData.dashboard_data);
+  const dashboard = Object.assign(
+    {},
+    utils.controllerInterface,
+    boostrapData.dashboard_data,
+    { common: boostrapData.common });
   dashboard.firstLoad = true;
 
   dashboard.posDict = {};
@@ -33,7 +39,7 @@ export function getInitialState(boostrapData) {
 }
 
 function unload() {
-  const message = 'You have unsaved changes.';
+  const message = t('You have unsaved changes.');
   window.event.returnValue = message; // Gecko + IE
   return message; // Gecko + Webkit, Safari, Chrome etc.
 }
@@ -50,9 +56,9 @@ function renderAlert() {
   render(
     <div className="container-fluid">
       <Alert bsStyle="warning">
-        <strong>You have unsaved changes.</strong> Click the&nbsp;
+        <strong>{t('You have unsaved changes.')}</strong> {t('Click the')} &nbsp;
         <i className="fa fa-save" />&nbsp;
-        button on the top right to save your changes.
+        {t('button on the top right to save your changes.')}
       </Alert>
     </div>,
     document.getElementById('alert-container'),
@@ -62,7 +68,7 @@ function renderAlert() {
 function initDashboardView(dashboard) {
   render(
     <div>
-      <AlertsWrapper />
+      <AlertsWrapper initMessages={dashboard.common.flash_messages} />
       <Header dashboard={dashboard} />
     </div>,
     document.getElementById('dashboard-header'),
@@ -120,7 +126,8 @@ export function dashboardContainer(dashboard, datasources, userid) {
         }
       });
       this.loadPreSelectFilters();
-      this.startPeriodicRender(0);
+      this.renderSlices(this.sliceObjects);
+      this.firstLoad = false;
       this.bindResizeToWindowResize();
     },
     onChange() {
@@ -155,13 +162,12 @@ export function dashboardContainer(dashboard, datasources, userid) {
         .addClass('danger')
         .attr(
           'title',
-          `Served from data cached ${cachedWhen}. ` +
-          'Click to force refresh')
+          t('Served from data cached %s . Click to force refresh.', cachedWhen))
         .tooltip('fixTitle');
       } else {
         refresh
         .removeClass('danger')
-        .attr('title', 'Click to force refresh')
+        .attr('title', t('Click to force refresh'))
         .tooltip('fixTitle');
       }
     },
@@ -169,7 +175,7 @@ export function dashboardContainer(dashboard, datasources, userid) {
       const f = [];
       const immuneSlices = this.metadata.filter_immune_slices || [];
       if (sliceId && immuneSlices.includes(sliceId)) {
-        // The slice is immune to dashboard fiterls
+        // The slice is immune to dashboard filters
         return f;
       }
 
@@ -182,6 +188,10 @@ export function dashboardContainer(dashboard, datasources, userid) {
         immuneToFields = this.metadata.filter_immune_slice_fields[sliceId];
       }
       for (const filteringSliceId in this.filters) {
+        if (filteringSliceId === sliceId.toString()) {
+          // Filters applied by the slice don't apply to itself
+          continue;
+        }
         for (const field in this.filters[filteringSliceId]) {
           if (!immuneToFields.includes(field)) {
             f.push({
@@ -195,21 +205,29 @@ export function dashboardContainer(dashboard, datasources, userid) {
       return f;
     },
     addFilter(sliceId, col, vals, merge = true, refresh = true) {
-      if (!(sliceId in this.filters)) {
-        this.filters[sliceId] = {};
-      }
-      if (!(col in this.filters[sliceId]) || !merge) {
-        this.filters[sliceId][col] = vals;
+      if (
+        this.getSlice(sliceId) && (
+          ['__from', '__to', '__time_col', '__time_grain', '__time_origin', '__granularity']
+            .indexOf(col) >= 0 ||
+            this.getSlice(sliceId).formData.groupby.indexOf(col) !== -1
+        )
+      ) {
+        if (!(sliceId in this.filters)) {
+          this.filters[sliceId] = {};
+        }
+        if (!(col in this.filters[sliceId]) || !merge) {
+          this.filters[sliceId][col] = vals;
 
-        // d3.merge pass in array of arrays while some value form filter components
-        // from and to filter box require string to be process and return
-      } else if (this.filters[sliceId][col] instanceof Array) {
-        this.filters[sliceId][col] = d3.merge([this.filters[sliceId][col], vals]);
-      } else {
-        this.filters[sliceId][col] = d3.merge([[this.filters[sliceId][col]], vals])[0] || '';
-      }
-      if (refresh) {
-        this.refreshExcept(sliceId);
+          // d3.merge pass in array of arrays while some value form filter components
+          // from and to filter box require string to be process and return
+        } else if (this.filters[sliceId][col] instanceof Array) {
+          this.filters[sliceId][col] = d3.merge([this.filters[sliceId][col], vals]);
+        } else {
+          this.filters[sliceId][col] = d3.merge([[this.filters[sliceId][col]], vals])[0] || '';
+        }
+        if (refresh) {
+          this.refreshExcept(sliceId);
+        }
       }
       this.updateFilterParamsInUrl();
     },
@@ -242,22 +260,31 @@ export function dashboardContainer(dashboard, datasources, userid) {
         this.refreshTimer = null;
       }
     },
+    renderSlices(slices, force = false, interval = 0) {
+      if (!interval) {
+        slices.forEach(slice => slice.render(force));
+        return;
+      }
+      const meta = this.metadata;
+      const refreshTime = Math.max(interval, meta.stagger_time || 5000); // default 5 seconds
+      if (typeof meta.stagger_refresh !== 'boolean') {
+        meta.stagger_refresh = meta.stagger_refresh === undefined ?
+          true : meta.stagger_refresh === 'true';
+      }
+      const delay = meta.stagger_refresh ? refreshTime / (slices.length - 1) : 0;
+      slices.forEach((slice, i) => {
+        setTimeout(() => slice.render(force), delay * i);
+      });
+    },
     startPeriodicRender(interval) {
       this.stopPeriodicRender();
       const dash = this;
-      const maxRandomDelay = Math.max(interval * 0.2, 5000);
+      const immune = this.metadata.timed_refresh_immune_slices || [];
       const refreshAll = () => {
-        dash.sliceObjects.forEach((slice) => {
-          const force = !dash.firstLoad;
-          setTimeout(() => {
-            slice.render(force);
-          },
-          // Randomize to prevent all widgets refreshing at the same time
-          maxRandomDelay * Math.random());
-        });
-        dash.firstLoad = false;
+        const slices = dash.sliceObjects
+          .filter(slice => immune.indexOf(slice.data.slice_id) === -1);
+        dash.renderSlices(slices, true, interval * 0.2);
       };
-
       const fetchAndRender = function () {
         refreshAll();
         if (interval > 0) {
@@ -270,16 +297,9 @@ export function dashboardContainer(dashboard, datasources, userid) {
     },
     refreshExcept(sliceId) {
       const immune = this.metadata.filter_immune_slices || [];
-      this.sliceObjects.forEach((slice) => {
-        if (slice.data.slice_id !== sliceId && immune.indexOf(slice.data.slice_id) === -1) {
-          slice.render();
-          const sliceSeletor = $(`#${slice.data.slice_id}-cell`);
-          sliceSeletor.addClass('slice-cell-highlight');
-          setTimeout(function () {
-            sliceSeletor.removeClass('slice-cell-highlight');
-          }, 1200);
-        }
-      });
+      const slices = this.sliceObjects.filter(slice =>
+        slice.data.slice_id !== sliceId && immune.indexOf(slice.data.slice_id) === -1);
+      this.renderSlices(slices);
     },
     clearFilters(sliceId) {
       delete this.filters[sliceId];
@@ -335,8 +355,8 @@ export function dashboardContainer(dashboard, datasources, userid) {
         error(error) {
           const errorMsg = getAjaxErrorMsg(error);
           utils.showModal({
-            title: 'Error',
-            body: 'Sorry, there was an error adding slices to this dashboard: ' + errorMsg,
+            title: t('Error'),
+            body: t('Sorry, there was an error adding slices to this dashboard: %s', errorMsg),
           });
         },
       });
@@ -354,6 +374,7 @@ $(document).ready(() => {
   const dashboardData = $('.dashboard').data('bootstrap');
 
   const state = getInitialState(dashboardData);
+  px = superset(state);
   const dashboard = dashboardContainer(state.dashboard, state.datasources, state.user_id);
   initDashboardView(dashboard);
   dashboard.init();

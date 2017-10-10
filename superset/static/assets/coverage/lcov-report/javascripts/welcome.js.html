@@ -16,13 +16,13 @@
 <div class='wrapper'>
   <div class='pad1'>
     <h1>
-      <a href="../index.html">All files</a> / <a href="index.html">javascripts</a> welcome.js
+      <a href="../index.html">all files</a> / <a href="index.html">javascripts/</a> welcome.js
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/33</span>
+        <span class='fraction'>0/34</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -37,7 +37,7 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/33</span>
+        <span class='fraction'>0/34</span>
       </div>
     </div>
   </div>
@@ -100,8 +100,7 @@
 55
 56
 57
-58
-59</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+58</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -109,12 +108,11 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -160,37 +158,36 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* eslint no-unused-vars: 0 */
-<span class="cstat-no" title="statement not covered" >import 'datatables.net';</span>
-<span class="cstat-no" title="statement not covered" >import dt from 'datatables.net-bs';</span>
 <span class="cstat-no" title="statement not covered" >import d3 from 'd3';</span>
+<span class="cstat-no" title="statement not covered" >import dt from 'datatables.net-bs';</span>
+<span class="cstat-no" title="statement not covered" >import 'datatables.net-bs/css/dataTables.bootstrap.css';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >import '../stylesheets/welcome.css';</span>
 <span class="cstat-no" title="statement not covered" >import { appSetup } from './common';</span>
 &nbsp;
-appSetup();
-<span class="cstat-no" title="statement not covered" >require('datatables-bootstrap3-plugin/media/css/datatables-bootstrap3.css');</span>
+<span class="cstat-no" title="statement not covered" >appSetup();</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >dt(window, $);</span>
 &nbsp;
-f</span>unction <span class="fstat-no" title="function not covered" >modelViewTable(selector, modelView, orderCol, order) {
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >function modelViewTable(selector, modelView, orderCol, order) {</span></span>
   // Builds a dataTable from a flask appbuilder api endpoint
-  l</span>et url = <span class="cstat-no" title="statement not covered" >'/' + modelView.toLowerCase() + '/api/read';
-<span class="cstat-no" title="statement not covered" >  url += '?_oc_' + modelView + '=' + orderCol;</span>
-<span class="cstat-no" title="statement not covered" >  url += '&amp;_od_' + modelView + '=' + order;</span>
-<span class="cstat-no" title="statement not covered" >  $.getJSON(url, <span class="fstat-no" title="function not covered" >function (</span>data) {</span>
-    c</span>onst columns = <span class="cstat-no" title="statement not covered" >['dashboard_link', 'creator', 'modified'];
-    c</span>onst tableData = <span class="cstat-no" title="statement not covered" >$.map(data.result, <span class="fstat-no" title="function not covered" >function (</span>el) {
-      c</span>onst row = <span class="cstat-no" title="statement not covered" >$.map(columns, <span class="fstat-no" title="function not covered" >function (</span>col) {
-<span class="cstat-no" title="statement not covered" >        return el[col];</span>
+  let <span class="cstat-no" title="statement not covered" >url = '/' + modelView.toLowerCase() + '/api/read';</span>
+  url += <span class="cstat-no" title="statement not covered" >'?_oc_' + modelView + '=' + orderCol;</span>
+  url += <span class="cstat-no" title="statement not covered" >'&amp;_od_' + modelView + '=' + order;</span>
+  $.<span class="cstat-no" title="statement not covered" >getJSON(url, <span class="fstat-no" title="function not covered" >function (data) {</span></span>
+    const <span class="cstat-no" title="statement not covered" >columns = ['dashboard_link', 'creator', 'modified'];</span>
+    const <span class="cstat-no" title="statement not covered" >tableData = $.map(data.result, <span class="fstat-no" title="function not covered" >function (el) {</span></span>
+      const <span class="cstat-no" title="statement not covered" >row = $.map(columns, <span class="fstat-no" title="function not covered" >function (col) {</span></span>
+        return <span class="cstat-no" title="statement not covered" >el[col];</span>
       });
-<span class="cstat-no" title="statement not covered" >      return [row];</span>
+      return <span class="cstat-no" title="statement not covered" >[row];</span>
     });
-    c</span>onst cols = <span class="cstat-no" title="statement not covered" >$.map(columns, <span class="fstat-no" title="function not covered" >function (</span>col) {
-<span class="cstat-no" title="statement not covered" >      return { sTitle: data.label_columns[col] };</span>
+    const <span class="cstat-no" title="statement not covered" >cols = $.map(columns, <span class="fstat-no" title="function not covered" >function (col) {</span></span>
+      return <span class="cstat-no" title="statement not covered" >{ sTitle: data.label_columns[col] };</span>
     });
-    c</span>onst panel = <span class="cstat-no" title="statement not covered" >$(selector).parents('.panel');
-<span class="cstat-no" title="statement not covered" >    panel.find('img.loading').remove();</span>
-<span class="cstat-no" title="statement not covered" >    $(selector).DataTable({</span>
+    const <span class="cstat-no" title="statement not covered" >panel = $(selector).parents('.panel');</span>
+    panel.<span class="cstat-no" title="statement not covered" >find('img.loading').remove();</span>
+    $(<span class="cstat-no" title="statement not covered" >selector).DataTable({</span>
       aaData: tableData,
       aoColumns: cols,
       bPaginate: true,
@@ -201,21 +198,21 @@ f</span>unction <span class="fstat-no" title="function not covered" >modelViewTa
       bInfo: false,
     });
     // Hack to move the searchbox in the right spot
-    c</span>onst search = <span class="cstat-no" title="statement not covered" >panel.find('.dataTables_filter input');
-<span class="cstat-no" title="statement not covered" >    search.addClass('form-control').detach();</span>
-<span class="cstat-no" title="statement not covered" >    search.appendTo(panel.find('.search'));</span>
-<span class="cstat-no" title="statement not covered" >    panel.find('.dataTables_filter').remove();</span>
+    const <span class="cstat-no" title="statement not covered" >search = panel.find('.dataTables_filter input');</span>
+    search.<span class="cstat-no" title="statement not covered" >addClass('form-control').detach();</span>
+    search.<span class="cstat-no" title="statement not covered" >appendTo(panel.find('.search'));</span>
+    panel.<span class="cstat-no" title="statement not covered" >find('.dataTables_filter').remove();</span>
     // Hack to display the page navigator properly
-<span class="cstat-no" title="statement not covered" >    panel.find('.col-sm-5').remove();</span>
-    c</span>onst nav = <span class="cstat-no" title="statement not covered" >panel.find('.col-sm-7');
-<span class="cstat-no" title="statement not covered" >    nav.removeClass('col-sm-7');</span>
-<span class="cstat-no" title="statement not covered" >    nav.addClass('col-sm-12');</span>
-<span class="cstat-no" title="statement not covered" >    $(selector).slideDown();</span>
-<span class="cstat-no" title="statement not covered" >    $('[data-toggle="tooltip"]').tooltip({ container: 'body' });</span>
+    panel.<span class="cstat-no" title="statement not covered" >find('.col-sm-5').remove();</span>
+    const <span class="cstat-no" title="statement not covered" >nav = panel.find('.col-sm-7');</span>
+    nav.<span class="cstat-no" title="statement not covered" >removeClass('col-sm-7');</span>
+    nav.<span class="cstat-no" title="statement not covered" >addClass('col-sm-12');</span>
+    $(<span class="cstat-no" title="statement not covered" >selector).slideDown();</span>
+    $(<span class="cstat-no" title="statement not covered" >'[data-toggle="tooltip"]').tooltip({ container: 'body' });</span>
   });
 }
-<span class="cstat-no" title="statement not covered" >$(document).ready(<span class="fstat-no" title="function not covered" >function () </span>{</span>
-<span class="cstat-no" title="statement not covered" >  modelViewTable('#dash_table', 'DashboardModelViewAsync', 'changed_on', 'desc');</span>
+<span class="cstat-no" title="statement not covered" >$(document).ready(<span class="fstat-no" title="function not covered" >function () {</span></span>
+  modelViewTable(<span class="cstat-no" title="statement not covered" >'#dash_table', 'DashboardModelViewAsync', 'changed_on', 'desc');</span>
 });
 &nbsp;</pre></td></tr>
 </table></pre>
@@ -223,7 +220,7 @@ f</span>unction <span class="fstat-no" title="function not covered" >modelViewTa
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri May 19 2017 23:41:00 GMT-0700 (PDT)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 03 2017 21:13:08 GMT-0700 (PDT)
 </div>
 </div>
 <script src="../prettify.js"></script>

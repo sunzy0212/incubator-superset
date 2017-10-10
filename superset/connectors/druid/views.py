@@ -3,19 +3,19 @@ import logging
 
 import sqlalchemy as sqla
 
-from flask import Markup, flash, redirect, abort
+from flask import Markup, flash, redirect
 from flask_appbuilder import CompactCRUDMixin, expose
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 
 from flask_babel import lazy_gettext as _
 from flask_babel import gettext as __
 
-import superset
 from superset import db, utils, appbuilder, sm, security
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.utils import has_access
-from superset.views.base import BaseSupersetView
+from superset.connectors.base.views import DatasourceModelView
 from superset.views.base import (
+    BaseSupersetView,
     SupersetModelView, validate_json, DeleteMixin, ListWidgetWithCheckboxes,
     DatasourceFilter, get_datasource_exist_error_mgs)
 
@@ -24,12 +24,18 @@ from . import models
 
 class DruidColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     datamodel = SQLAInterface(models.DruidColumn)
+
+    list_title = _('List Druid Column')
+    show_title = _('Show Druid Column')
+    add_title = _('Add Druid Column')
+    edit_title = _('Edit Druid Column')
+
     edit_columns = [
         'column_name', 'description', 'dimension_spec_json', 'datasource',
         'groupby', 'filterable', 'count_distinct', 'sum', 'min', 'max']
     add_columns = edit_columns
     list_columns = [
-        'column_name', 'type', 'groupby', 'filterable', 'count_distinct',
+        'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
         'sum', 'min', 'max']
     can_delete = False
     page_size = 500
@@ -70,10 +76,16 @@ appbuilder.add_view_no_menu(DruidColumnInlineView)
 
 class DruidMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     datamodel = SQLAInterface(models.DruidMetric)
+
+    list_title = _('List Druid Metric')
+    show_title = _('Show Druid Metric')
+    add_title = _('Add Druid Metric')
+    edit_title = _('Edit Druid Metric')
+
     list_columns = ['metric_name', 'verbose_name', 'metric_type']
     edit_columns = [
         'metric_name', 'description', 'verbose_name', 'metric_type', 'json',
-        'datasource', 'd3format', 'is_restricted']
+        'datasource', 'd3format', 'is_restricted', 'warning_text']
     add_columns = edit_columns
     page_size = 500
     validators_columns = {
@@ -97,6 +109,7 @@ class DruidMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'metric_type': _("Type"),
         'json': _("JSON"),
         'datasource': _("Druid Datasource"),
+        'warning_text': _("Warning Message"),
     }
 
     def post_add(self, metric):
@@ -112,6 +125,12 @@ appbuilder.add_view_no_menu(DruidMetricInlineView)
 
 class DruidClusterModelView(SupersetModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.DruidCluster)
+
+    list_title = _('List Druid Cluster')
+    show_title = _('Show Druid Cluster')
+    add_title = _('Add Druid Cluster')
+    edit_title = _('Edit Druid Cluster')
+
     add_columns = [
         'verbose_name', 'coordinator_host', 'coordinator_port',
         'coordinator_endpoint', 'broker_host', 'broker_port',
@@ -149,13 +168,17 @@ appbuilder.add_view(
     category_icon='fa-database',)
 
 
-class DruidDatasourceModelView(SupersetModelView, DeleteMixin):  # noqa
+class DruidDatasourceModelView(DatasourceModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.DruidDatasource)
+
+    list_title = _('List Druid Datasource')
+    show_title = _('Show Druid Datasource')
+    add_title = _('Add Druid Datasource')
+    edit_title = _('Edit Druid Datasource')
+
     list_widget = ListWidgetWithCheckboxes
     list_columns = [
         'datasource_link', 'cluster', 'changed_by_', 'modified']
-    order_columns = [
-        'datasource_link', 'changed_on_', 'offset']
     related_views = [DruidColumnInlineView, DruidMetricInlineView]
     edit_columns = [
         'datasource_name', 'cluster', 'slices', 'description', 'owner',
@@ -212,17 +235,17 @@ class DruidDatasourceModelView(SupersetModelView, DeleteMixin):  # noqa
     }
 
     def pre_add(self, datasource):
-        number_of_existing_datasources = db.session.query(
-            sqla.func.count('*')).filter(
-            models.DruidDatasource.datasource_name ==
-                datasource.datasource_name,
-            models.DruidDatasource.cluster_name == datasource.cluster.id
-        ).scalar()
-
-        # table object is already added to the session
-        if number_of_existing_datasources > 1:
-            raise Exception(get_datasource_exist_error_mgs(
-                datasource.full_name))
+        with db.session.no_autoflush:
+            query = (
+                db.session.query(models.DruidDatasource)
+                .filter(models.DruidDatasource.datasource_name ==
+                        datasource.datasource_name,
+                        models.DruidDatasource.cluster_name ==
+                        datasource.cluster.id)
+            )
+            if db.session.query(query.exists()).scalar():
+                raise Exception(get_datasource_exist_error_mgs(
+                    datasource.full_name))
 
     def post_add(self, datasource):
         datasource.generate_metrics()
@@ -250,14 +273,14 @@ class Druid(BaseSupersetView):
 
     @has_access
     @expose("/refresh_datasources/")
-    def refresh_datasources(self):
+    def refresh_datasources(self, refreshAll=True):
         """endpoint that refreshes druid datasources metadata"""
         session = db.session()
         DruidCluster = ConnectorRegistry.sources['druid'].cluster_class
         for cluster in session.query(DruidCluster).all():
             cluster_name = cluster.cluster_name
             try:
-                cluster.refresh_datasources()
+                cluster.refresh_datasources(refreshAll=refreshAll)
             except Exception as e:
                 flash(
                     "Error while processing cluster '{}'\n{}".format(
@@ -273,8 +296,25 @@ class Druid(BaseSupersetView):
         session.commit()
         return redirect("/druiddatasourcemodelview/list/")
 
+    @has_access
+    @expose("/scan_new_datasources/")
+    def scan_new_datasources(self):
+        """
+        Calling this endpoint will cause a scan for new
+        datasources only and add them.
+        """
+        return self.refresh_datasources(refreshAll=False)
+
 appbuilder.add_view_no_menu(Druid)
 
+appbuilder.add_link(
+    "Scan New Datasources",
+    label=__("Scan New Datasources"),
+    href='/druid/scan_new_datasources/',
+    category='Sources',
+    category_label=__("Sources"),
+    category_icon='fa-database',
+    icon="fa-refresh")
 appbuilder.add_link(
     "Refresh Druid Metadata",
     label=__("Refresh Druid Metadata"),

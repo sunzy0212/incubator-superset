@@ -20,32 +20,47 @@ from werkzeug.contrib.fixers import ProxyFix
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset import utils, config  # noqa
 
-
 APP_DIR = os.path.dirname(__file__)
 CONFIG_MODULE = os.environ.get('SUPERSET_CONFIG', 'superset.config')
 
 with open(APP_DIR + '/static/assets/backendSync.json', 'r') as f:
     frontend_config = json.load(f)
 
-
 app = Flask(__name__)
 app.config.from_object(CONFIG_MODULE)
 conf = app.config
 
+#################################################################
+# Handling manifest file logic at app start
+#################################################################
+MANIFEST_FILE = APP_DIR + '/static/assets/dist/manifest.json'
+manifest = {}
+
+
+def parse_manifest_json():
+    global manifest
+    try:
+        with open(MANIFEST_FILE, 'r') as f:
+            manifest = json.load(f)
+    except Exception:
+        print("no manifest file found at " + MANIFEST_FILE)
+
+
+def get_manifest_file(filename):
+    if app.debug:
+        parse_manifest_json()
+    return '/static/assets/dist/' + manifest.get(filename, '')
+
+
+parse_manifest_json()
+
 
 @app.context_processor
 def get_js_manifest():
-    manifest = {}
-    try:
-        with open(APP_DIR + '/static/assets/dist/manifest.json', 'r') as f:
-            manifest = json.load(f)
-    except Exception as e:
-        print(
-            "no manifest file found at " +
-            APP_DIR + "/static/assets/dist/manifest.json"
-        )
-    return dict(js_manifest=manifest)
+    return dict(js_manifest=get_manifest_file)
 
+
+#################################################################
 
 for bp in conf.get('BLUEPRINTS'):
     try:
@@ -68,8 +83,11 @@ db = SQLA(app)
 
 if conf.get('WTF_CSRF_ENABLED'):
     csrf = CSRFProtect(app)
+    csrf_exempt_list = conf.get('WTF_CSRF_EXEMPT_LIST', [])
+    for ex in csrf_exempt_list:
+        csrf.exempt(ex)
 
-utils.pessimistic_connection_handling(db.engine.pool)
+utils.pessimistic_connection_handling(db.engine)
 
 cache = utils.setup_cache(app, conf.get('CACHE_CONFIG'))
 tables_cache = utils.setup_cache(app, conf.get('TABLE_NAMES_CACHE_CONFIG'))
@@ -82,10 +100,11 @@ logging.getLogger().setLevel(app.config.get('LOG_LEVEL'))
 
 if app.config.get('ENABLE_TIME_ROTATE'):
     logging.getLogger().setLevel(app.config.get('TIME_ROTATE_LOG_LEVEL'))
-    handler = TimedRotatingFileHandler(app.config.get('FILENAME'),
-                                       when=app.config.get('ROLLOVER'),
-                                       interval=app.config.get('INTERVAL'),
-                                       backupCount=app.config.get('BACKUP_COUNT'))
+    handler = TimedRotatingFileHandler(
+        app.config.get('FILENAME'),
+        when=app.config.get('ROLLOVER'),
+        interval=app.config.get('INTERVAL'),
+        backupCount=app.config.get('BACKUP_COUNT'))
     logging.getLogger().addHandler(handler)
 
 if app.config.get('ENABLE_CORS'):
@@ -96,17 +115,18 @@ if app.config.get('ENABLE_PROXY_FIX'):
     app.wsgi_app = ProxyFix(app.wsgi_app)
 
 if app.config.get('ENABLE_CHUNK_ENCODING'):
-    class ChunkedEncodingFix(object):
 
+    class ChunkedEncodingFix(object):
         def __init__(self, app):
             self.app = app
 
         def __call__(self, environ, start_response):
             # Setting wsgi.input_terminated tells werkzeug.wsgi to ignore
             # content-length and read the stream till the end.
-            if 'chunked' == environ.get('HTTP_TRANSFER_ENCODING', '').lower():
+            if environ.get('HTTP_TRANSFER_ENCODING', '').lower() == u'chunked':
                 environ['wsgi.input_terminated'] = True
             return self.app(environ, start_response)
+
     app.wsgi_app = ChunkedEncodingFix(app.wsgi_app)
 
 if app.config.get('UPLOAD_FOLDER'):
@@ -124,8 +144,10 @@ class MyIndexView(IndexView):
     def index(self):
         return redirect('/superset/welcome')
 
+
 appbuilder = AppBuilder(
-    app, db.session,
+    app,
+    db.session,
     base_template='superset/base.html',
     indexview=MyIndexView,
     security_manager_class=app.config.get("CUSTOM_SECURITY_MANAGER"))

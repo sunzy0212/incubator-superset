@@ -8,19 +8,19 @@ import decimal
 import functools
 import json
 import logging
-import numpy
 import os
-import parsedatetime
-import pytz
-import smtplib
-import sqlalchemy as sa
 import signal
+import parsedatetime
+import smtplib
+import pytz
+import sqlalchemy as sa
 import uuid
 import sys
 import zlib
+import numpy
 
 from builtins import object
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 
 import celery
 from dateutil.parser import parse
@@ -28,19 +28,20 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.utils import formatdate
+
 from flask import flash, Markup, render_template, url_for, redirect, request
 from flask_appbuilder.const import (
     LOGMSG_ERR_SEC_ACCESS_DENIED,
     FLAMSG_ERR_SEC_ACCESS_DENIED,
     PERMISSION_PREFIX
 )
-from flask_cache import Cache
 from flask_appbuilder._compat import as_unicode
 from flask_babel import gettext as __
+from flask_cache import Cache
 import markdown as md
 from past.builtins import basestring
 from pydruid.utils.having import Having
-from sqlalchemy import event, exc
+from sqlalchemy import event, exc, select
 from sqlalchemy.types import TypeDecorator, TEXT
 
 logging.getLogger('MARKDOWN').setLevel(logging.INFO)
@@ -78,8 +79,7 @@ def can_access(sm, permission_name, view_name, user):
     """Protecting from has_access failing from missing perms/view"""
     if user.is_anonymous():
         return sm.is_item_public(permission_name, view_name)
-    else:
-        return sm._has_view_access(user, permission_name, view_name)
+    return sm._has_view_access(user, permission_name, view_name)
 
 
 def flasher(msg, severity=None):
@@ -94,7 +94,6 @@ def flasher(msg, severity=None):
 
 
 class memoized(object):  # noqa
-
     """Decorator that caches a function's return value each time it is called
 
     If called later with the same arguments, the cached value is returned, and
@@ -161,11 +160,13 @@ class DimSelector(Having):
         # Just a hack to prevent any exceptions
         Having.__init__(self, type='equalTo', aggregation=None, value=None)
 
-        self.having = {'having': {
-            'type': 'dimSelector',
-            'dimension': args['dimension'],
-            'value': args['value'],
-        }}
+        self.having = {
+            'having': {
+                'type': 'dimSelector',
+                'dimension': args['dimension'],
+                'value': args['value'],
+            }
+        }
 
 
 def list_minus(l, minus):
@@ -198,12 +199,18 @@ def parse_human_datetime(s):
     >>> year_ago_1 == year_ago_2
     True
     """
+    if not s:
+        return None
     try:
         dttm = parse(s)
     except Exception:
         try:
             cal = parsedatetime.Calendar()
-            dttm = dttm_from_timtuple(cal.parse(s)[0])
+            parsed_dttm, parsed_flags = cal.parseDT(s)
+            # when time is not extracted, we "reset to midnight"
+            if parsed_flags & 2 == 0:
+                parsed_dttm = parsed_dttm.replace(hour=0, minute=0, second=0)
+            dttm = dttm_from_timtuple(parsed_dttm.utctimetuple())
         except Exception as e:
             logging.exception(e)
             raise ValueError("Couldn't parse date string [{}]".format(s))
@@ -225,13 +232,11 @@ def parse_human_timedelta(s):
     cal = parsedatetime.Calendar()
     dttm = dttm_from_timtuple(datetime.now().timetuple())
     d = cal.parse(s, dttm)[0]
-    d = datetime(
-        d.tm_year, d.tm_mon, d.tm_mday, d.tm_hour, d.tm_min, d.tm_sec)
+    d = datetime(d.tm_year, d.tm_mon, d.tm_mday, d.tm_hour, d.tm_min, d.tm_sec)
     return d - dttm
 
 
 class JSONEncodedDict(TypeDecorator):
-
     """Represents an immutable structure as a json-encoded string."""
 
     impl = TEXT
@@ -272,6 +277,8 @@ def base_json_conv(obj):
         return float(obj)
     elif isinstance(obj, uuid.UUID):
         return str(obj)
+    elif isinstance(obj, timedelta):
+        return str(obj)
 
 
 def json_iso_dttm_ser(obj):
@@ -293,8 +300,7 @@ def json_iso_dttm_ser(obj):
         obj = obj.isoformat()
     else:
         raise TypeError(
-            "Unserializable object {} of type {}".format(obj, type(obj))
-        )
+            "Unserializable object {} of type {}".format(obj, type(obj)))
     return obj
 
 
@@ -320,8 +326,7 @@ def json_int_dttm_ser(obj):
         obj = (obj - EPOCH.date()).total_seconds() * 1000
     else:
         raise TypeError(
-            "Unserializable object {} of type {}".format(obj, type(obj))
-        )
+            "Unserializable object {} of type {}".format(obj, type(obj)))
     return obj
 
 
@@ -345,7 +350,7 @@ def error_msg_from_exception(e):
     """
     msg = ''
     if hasattr(e, 'message'):
-        if type(e.message) is dict:
+        if isinstance(e.message, dict):
             msg = e.message.get('message')
         elif e.message:
             msg = "{}".format(e.message)
@@ -374,9 +379,8 @@ def generic_find_constraint_name(table, columns, referenced, db):
     t = sa.Table(table, db.metadata, autoload=True, autoload_with=db.engine)
 
     for fk in t.foreign_key_constraints:
-        if (
-                fk.referred_table.name == referenced and
-                set(fk.column_keys) == columns):
+        if (fk.referred_table.name == referenced
+                and set(fk.column_keys) == columns):
             return fk.name
 
 
@@ -413,6 +417,7 @@ class timeout(object):
     """
     To be used in a ``with`` block and timeout its content.
     """
+
     def __init__(self, seconds=1, error_message='Timeout'):
         self.seconds = seconds
         self.error_message = error_message
@@ -436,23 +441,45 @@ class timeout(object):
             logging.warning("timeout can't be used in the current context")
             logging.exception(e)
 
-def pessimistic_connection_handling(target):
-    @event.listens_for(target, "checkout")
-    def ping_connection(dbapi_connection, connection_record, connection_proxy):
-        """
-        Disconnect Handling - Pessimistic, taken from:
-        http://docs.sqlalchemy.org/en/rel_0_9/core/pooling.html
-        """
-        cursor = dbapi_connection.cursor()
+
+def pessimistic_connection_handling(some_engine):
+    @event.listens_for(some_engine, "engine_connect")
+    def ping_connection(connection, branch):
+        if branch:
+            # "branch" refers to a sub-connection of a connection,
+            # we don't want to bother pinging on these.
+            return
+
+        # turn off "close with result".  This flag is only used with
+        # "connectionless" execution, otherwise will be False in any case
+        save_should_close_with_result = connection.should_close_with_result
+        connection.should_close_with_result = False
+
         try:
-            cursor.execute("SELECT 1")
-        except:
-            raise exc.DisconnectionError()
-        cursor.close()
+            # run a SELECT 1.   use a core select() so that
+            # the SELECT of a scalar value without a table is
+            # appropriately formatted for the backend
+            connection.scalar(select([1]))
+        except exc.DBAPIError as err:
+            # catch SQLAlchemy's DBAPIError, which is a wrapper
+            # for the DBAPI's exception.  It includes a .connection_invalidated
+            # attribute which specifies if this connection is a "disconnect"
+            # condition, which is based on inspection of the original exception
+            # by the dialect in use.
+            if err.connection_invalidated:
+                # run the same SELECT again - the connection will re-validate
+                # itself and establish a new connection.  The disconnect detection
+                # here also causes the whole connection pool to be invalidated
+                # so that all stale connections are discarded.
+                connection.scalar(select([1]))
+            else:
+                raise
+        finally:
+            # restore "close with result"
+            connection.should_close_with_result = save_should_close_with_result
 
 
 class QueryStatus(object):
-
     """Enum-type class for query statuses"""
 
     STOPPED = 'stopped'
@@ -508,11 +535,11 @@ def send_email_smtp(to, subject, html_content, config, files=None,
     for fname in files or []:
         basename = os.path.basename(fname)
         with open(fname, "rb") as f:
-            msg.attach(MIMEApplication(
-                f.read(),
-                Content_Disposition='attachment; filename="%s"' % basename,
-                Name=basename
-            ))
+            msg.attach(
+                MIMEApplication(
+                    f.read(),
+                    Content_Disposition='attachment; filename="%s"' % basename,
+                    Name=basename))
 
     send_MIME_email(smtp_mail_from, recipients, msg, config, dryrun=dryrun)
 
@@ -569,17 +596,20 @@ def has_access(f):
 
     def wraps(self, *args, **kwargs):
         permission_str = PERMISSION_PREFIX + f._permission_name
-        if self.appbuilder.sm.has_access(
-                permission_str, self.__class__.__name__):
+        if self.appbuilder.sm.has_access(permission_str,
+                                         self.__class__.__name__):
             return f(self, *args, **kwargs)
         else:
-            logging.warning(LOGMSG_ERR_SEC_ACCESS_DENIED.format(
-                permission_str, self.__class__.__name__))
+            logging.warning(
+                LOGMSG_ERR_SEC_ACCESS_DENIED.format(permission_str,
+                                                    self.__class__.__name__))
             flash(as_unicode(FLAMSG_ERR_SEC_ACCESS_DENIED), "danger")
         # adds next arg to forward to the original path once user is logged in.
-        return redirect(url_for(
-            self.appbuilder.sm.auth_view.__class__.__name__ + ".login",
-            next=request.path))
+        return redirect(
+            url_for(
+                self.appbuilder.sm.auth_view.__class__.__name__ + ".login",
+                next=request.path))
+
     f._permission_name = permission_str
     return functools.update_wrapper(wraps, f)
 
@@ -625,6 +655,7 @@ def zlib_decompress_to_string(blob):
         return decompressed.decode("utf-8")
     return zlib.decompress(blob)
 
+
 _celery_app = None
 
 
@@ -634,3 +665,31 @@ def get_celery_app(config):
         return _celery_app
     _celery_app = celery.Celery(config_source=config.get('CELERY_CONFIG'))
     return _celery_app
+
+
+def merge_extra_filters(form_data):
+    # extra_filters are temporary/contextual filters that are external
+    # to the slice definition. We use those for dynamic interactive
+    # filters like the ones emitted by the "Filter Box" visualization
+    if form_data.get('extra_filters'):
+        # __form and __to are special extra_filters that target time
+        # boundaries. The rest of extra_filters are simple
+        # [column_name in list_of_values]. `__` prefix is there to avoid
+        # potential conflicts with column that would be named `from` or `to`
+        if 'filters' not in form_data:
+            form_data['filters'] = []
+        date_options = {
+            '__from': 'since',
+            '__to': 'until',
+            '__time_col': 'granularity_sqla',
+            '__time_grain': 'time_grain_sqla',
+            '__time_origin': 'druid_time_origin',
+            '__granularity': 'granularity',
+        }
+        for filtr in form_data['extra_filters']:
+            if date_options.get(filtr['col']):  # merge date options
+                if filtr.get('val'):
+                    form_data[date_options[filtr['col']]] = filtr['val']
+            else:
+                form_data['filters'] += [filtr]  # merge col filters
+        del form_data['extra_filters']

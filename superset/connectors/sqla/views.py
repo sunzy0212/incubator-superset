@@ -1,9 +1,8 @@
 """Views used by the SqlAlchemy connector"""
 import logging
-
 from past.builtins import basestring
 
-from flask import Markup, flash, redirect, abort
+from flask import Markup, flash, redirect
 from flask_appbuilder import CompactCRUDMixin, expose
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 import sqlalchemy as sa
@@ -13,6 +12,7 @@ from flask_babel import gettext as __
 
 from superset import appbuilder, db, utils, security, sm
 from superset.utils import has_access
+from superset.connectors.base.views import DatasourceModelView
 from superset.views.base import (
     SupersetModelView, ListWidgetWithCheckboxes, DeleteMixin, DatasourceFilter,
     get_datasource_exist_error_mgs,
@@ -23,6 +23,12 @@ from . import models
 
 class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     datamodel = SQLAInterface(models.TableColumn)
+
+    list_title = _('List Columns')
+    show_title = _('Show Column')
+    add_title = _('Add Column')
+    edit_title = _('Edit Column')
+
     can_delete = False
     list_widget = ListWidgetWithCheckboxes
     edit_columns = [
@@ -32,7 +38,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'is_dttm', 'python_date_format', 'database_expression']
     add_columns = edit_columns
     list_columns = [
-        'column_name', 'type', 'groupby', 'filterable', 'count_distinct',
+        'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
         'sum', 'min', 'max', 'is_dttm']
     page_size = 500
     description_columns = {
@@ -84,17 +90,24 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'expression': _("Expression"),
         'is_dttm': _("Is temporal"),
         'python_date_format': _("Datetime Format"),
-        'database_expression': _("Database Expression")
+        'database_expression': _("Database Expression"),
+        'type': _('Type'),
     }
 appbuilder.add_view_no_menu(TableColumnInlineView)
 
 
 class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     datamodel = SQLAInterface(models.SqlMetric)
+
+    list_title = _('List Metrics')
+    show_title = _('Show Metric')
+    add_title = _('Add Metric')
+    edit_title = _('Edit Metric')
+
     list_columns = ['metric_name', 'verbose_name', 'metric_type']
     edit_columns = [
         'metric_name', 'description', 'verbose_name', 'metric_type',
-        'expression', 'table', 'd3format', 'is_restricted']
+        'expression', 'table', 'd3format', 'is_restricted', 'warning_text']
     description_columns = {
         'expression': utils.markdown(
             "a valid SQL expression as supported by the underlying backend. "
@@ -120,6 +133,9 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'metric_type': _("Type"),
         'expression': _("SQL Expression"),
         'table': _("Table"),
+        'd3format': _("D3 Format"),
+        'is_restricted': _('Is Restricted'),
+        'warning_text': _('Warning Message'),
     }
 
     def post_add(self, metric):
@@ -133,13 +149,17 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
 appbuilder.add_view_no_menu(SqlMetricInlineView)
 
 
-class TableModelView(SupersetModelView, DeleteMixin):  # noqa
+class TableModelView(DatasourceModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.SqlaTable)
+
+    list_title = _('List Tables')
+    show_title = _('Show Table')
+    add_title = _('Add Table')
+    edit_title = _('Edit Table')
+
     list_columns = [
         'link', 'database',
         'changed_by_', 'modified']
-    order_columns = [
-        'link', 'database', 'changed_on_']
     add_columns = ['database', 'schema', 'table_name']
     edit_columns = [
         'table_name', 'sql', 'filter_select_enabled', 'slices',
@@ -197,34 +217,33 @@ class TableModelView(SupersetModelView, DeleteMixin):  # noqa
         'changed_on_': _("Last Changed"),
         'filter_select_enabled': _("Enable Filter Select"),
         'schema': _("Schema"),
-        'default_endpoint': _(
-            "Redirects to this endpoint when clicking on the datasource "
-            "from the datasource list"),
+        'default_endpoint': _('Default Endpoint'),
         'offset': _("Offset"),
         'cache_timeout': _("Cache Timeout"),
+        'table_name': _("Table Name"),
+        'fetch_values_predicate': _('Fetch Values Predicate'),
+        'owner': _("Owner"),
+        'main_dttm_col': _("Main Datetime Column"),
+        'description': _('Description'),
     }
 
     def pre_add(self, table):
-        number_of_existing_tables = db.session.query(
-            sa.func.count('*')).filter(
-            models.SqlaTable.table_name == table.table_name,
-            models.SqlaTable.schema == table.schema,
-            models.SqlaTable.database_id == table.database.id
-        ).scalar()
-        # table object is already added to the session
-        if number_of_existing_tables > 1:
-            raise Exception(get_datasource_exist_error_mgs(table.full_name))
+        with db.session.no_autoflush:
+            table_query = db.session.query(models.SqlaTable).filter(
+                models.SqlaTable.table_name == table.table_name,
+                models.SqlaTable.schema == table.schema,
+                models.SqlaTable.database_id == table.database.id)
+            if db.session.query(table_query.exists()).scalar():
+                raise Exception(
+                    get_datasource_exist_error_mgs(table.full_name))
 
         # Fail before adding if the table can't be found
-        try:
-            table.get_sqla_table_object()
-        except Exception as e:
-            logging.exception(e)
-            raise Exception(
+        if not table.database.has_table(table):
+            raise Exception(_(
                 "Table [{}] could not be found, "
                 "please double check your "
                 "database connection, schema, and "
-                "table name".format(table.name))
+                "table name").format(table.name))
 
     def post_add(self, table, flash_message=True):
         table.fetch_metadata()

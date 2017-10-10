@@ -492,7 +492,6 @@ class AuthOAuthView(AuthView):
     @expose('/login/<provider>')
     @expose('/login/<provider>/<register>')
     def login(self, provider=None, register=None):
-        print("@@@@@@@@@@@@@@@@@",provider,register)
         log.debug('Provider: {0}'.format(provider))
         if g.user is not None and g.user.is_authenticated():
             log.debug("Already authenticated {0}".format(g.user))
@@ -522,18 +521,15 @@ class AuthOAuthView(AuthView):
             flash(u'You denied the request to sign in.', 'warning')
             return redirect('login')
         log.debug('OAUTH Authorized resp: {0}'.format(resp))
-        print('$$$$$$$$$$$$$$$OAUTH Authorized resp: {0}'.format(resp))
         # Retrieves specific user info from the provider
         try:
             self.appbuilder.sm.set_oauth_session(provider, resp)
             userinfo = self.appbuilder.sm.oauth_user_info(provider)
-            print("$$$$$$$$$$$$$ ",userinfo)
         except Exception as e:
             log.error("Error returning OAuth user info: {0}".format(e))
             user = None
         else:
             log.debug("User info retrieved from {0}: {1}".format(provider, userinfo))
-            print("$$$$$$$$$$$$$ User info retrieved from {0}: {1}".format(provider, userinfo))
             # User email is not whitelisted
             if provider in self.appbuilder.sm.oauth_whitelists:
                 whitelist = self.appbuilder.sm.oauth_whitelists[provider]
@@ -547,15 +543,12 @@ class AuthOAuthView(AuthView):
                     return redirect('login')
             else:
                 log.debug('No whitelist for OAuth provider')
-            print("start to auth user oauth")
             user = self.appbuilder.sm.auth_user_oauth(userinfo)
-            print("auth user oauth finished",user)
 
         if user is None:
             flash(as_unicode(self.invalid_login_message), 'warning')
             return redirect('login')
         else:
-            print("######### start to login user")
             login_user(user)
             return redirect(self.appbuilder.get_url_for_index)
         

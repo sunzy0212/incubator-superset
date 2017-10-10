@@ -4,6 +4,12 @@ from functools import reduce
 from flask_babel import lazy_gettext
 from .filters import Filters
 
+try:
+    import enum
+    _has_enum = True
+except ImportError:
+    _has_enum = False
+
 log = logging.getLogger(__name__)
 
 
@@ -32,7 +38,23 @@ class BaseInterface(object):
     def __init__(self, obj):
         self.obj = obj
 
-    def _get_attr_value(self, item, col):
+    def _get_attr(self, col_name):
+        if not hasattr(self.obj, col_name):
+            # it's an inner obj attr
+            try:
+                _obj = self.obj
+                for i in col_name.split('.'):
+                    try:
+                        _obj = self.get_related_model(i)
+                    except Exception as e:
+                        _obj = getattr(_obj, i)
+                return _obj
+            except Exception as e:
+                return None
+        return getattr(self.obj, col_name)
+
+    @staticmethod
+    def _get_attr_value(item, col):
         if not hasattr(item, col):
             # it's an inner obj attr
             try:
@@ -44,7 +66,12 @@ class BaseInterface(object):
             return getattr(item, col)()
         else:
             # its an attribute
-            return getattr(item, col)
+            value = getattr(item, col)
+            # if value is an Enum instance than list and show widgets should display
+            # its .value rather than its .name:
+            if _has_enum and isinstance(value, enum.Enum):
+                return value.value
+            return value
 
     def get_filters(self, search_columns=None):
         search_columns = search_columns or []
@@ -151,6 +178,9 @@ class BaseInterface(object):
         return False
 
     def is_datetime(self, col_name):
+        return False
+
+    def is_enum(self, col_name):
         return False
 
     def is_relation(self, prop):

@@ -66,8 +66,11 @@ class SQLAInterface(BaseInterface):
             # this decorator will add a property to the method named *_col_name*
             if hasattr(self.obj, order_column):
                 if hasattr(getattr(self.obj, order_column), '_col_name'):
-                    order_column = getattr(getattr(self.obj, order_column), '_col_name')
-            query = query.order_by(order_column + ' ' + order_direction)
+                    order_column = getattr(self._get_attr(order_column), '_col_name')
+            if order_direction == 'asc':
+                query = query.order_by(self._get_attr(order_column).asc())
+            else:
+                query = query.order_by(self._get_attr(order_column).desc())
         return query
 
     def query(self, filters=None, order_column='', order_direction='',
@@ -201,6 +204,12 @@ class SQLAInterface(BaseInterface):
         except:
             return False
 
+    def is_enum(self, col_name):
+        try:
+            return isinstance(self.list_columns[col_name].type, sa.types.Enum)
+        except:
+            return False
+
     def is_relation(self, col_name):
         try:
             return isinstance(self.list_properties[col_name], sa.orm.properties.RelationshipProperty)
@@ -264,6 +273,8 @@ class SQLAInterface(BaseInterface):
 
     def get_max_length(self, col_name):
         try:
+            if self.is_enum(col_name):
+                return -1
             col = self.list_columns[col_name]
             if col.type.length:
                 return col.type.length

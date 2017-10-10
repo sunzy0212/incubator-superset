@@ -16,13 +16,13 @@
 <div class='wrapper'>
   <div class='pad1'>
     <h1>
-      <a href="../index.html">All files</a> / <a href="index.html">javascripts</a> syncBackend.js
+      <a href="../index.html">all files</a> / <a href="index.html">javascripts/</a> syncBackend.js
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/14</span>
+        <span class='fraction'>0/16</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
@@ -32,12 +32,12 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/2</span>
+        <span class='fraction'>0/3</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/14</span>
+        <span class='fraction'>0/16</span>
       </div>
     </div>
   </div>
@@ -73,17 +73,17 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -96,26 +96,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* eslint no-console: 0 */
 <span class="cstat-no" title="statement not covered" >import fs from 'fs';</span>
 <span class="cstat-no" title="statement not covered" >import path from 'path';</span>
-<span class="cstat-no" title="statement not covered" >import { controls } from './explorev2/stores/controls';</span>
+<span class="cstat-no" title="statement not covered" >import { controls } from './explore/stores/controls';</span>
 &nbsp;
-function exportFile(fileLocation, content) {
-<span class="cstat-no" title="statement not covered" >  fs.writeFile(fileLocation, content, <span class="fstat-no" title="function not covered" >function (</span>err) {</span>
-<span class="cstat-no" title="statement not covered" >    if (err) {</span>
-<span class="cstat-no" title="statement not covered" >      console.log(`File ${fileLocation} was not saved... :(`);</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >function exportFile(fileLocation, content) {</span></span>
+  fs.<span class="cstat-no" title="statement not covered" >writeFile(fileLocation, content, <span class="fstat-no" title="function not covered" >function (err) {</span></span>
+    if (<span class="cstat-no" title="statement not covered" >err) {</span>
+      console.<span class="cstat-no" title="statement not covered" >log(`File ${fileLocation} was not saved... :(`);</span>
     } else {
-<span class="cstat-no" title="statement not covered" >      console.log(`File ${fileLocation} was saved!`);</span>
+      console.<span class="cstat-no" title="statement not covered" >log(`File ${fileLocation} was saved!`);</span>
     }
   });
 }
 &nbsp;
-f</span>unction <span class="fstat-no" title="function not covered" >main() {
-  c</span>onst APP_DIR = <span class="cstat-no" title="statement not covered" >path.resolve(__dirname, './');
-  c</span>onst dir = <span class="cstat-no" title="statement not covered" >APP_DIR + '/../dist/';
-<span class="cstat-no" title="statement not covered" >  if (!fs.existsSync(dir)) {</span>
-<span class="cstat-no" title="statement not covered" >    fs.mkdirSync(dir);</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >function main() {</span></span>
+  const <span class="cstat-no" title="statement not covered" >APP_DIR = path.resolve(__dirname, './');</span>
+  const <span class="cstat-no" title="statement not covered" >dir = APP_DIR + '/../dist/';</span>
+  if (<span class="cstat-no" title="statement not covered" >!fs.existsSync(dir)) {</span>
+    fs.<span class="cstat-no" title="statement not covered" >mkdirSync(dir);</span>
   }
-  c</span>onst blob = <span class="cstat-no" title="statement not covered" >{ controls };
-<span class="cstat-no" title="statement not covered" >  exportFile(APP_DIR + '/../backendSync.json', JSON.stringify(blob, null, 2));</span>
+  const <span class="cstat-no" title="statement not covered" >blob = { controls };</span>
+  exportFile(<span class="cstat-no" title="statement not covered" >APP_DIR + '/../backendSync.json', JSON.stringify(blob, null, 2));</span>
 }
 <span class="cstat-no" title="statement not covered" >main();</span>
 &nbsp;</pre></td></tr>
@@ -124,7 +124,7 @@ f</span>unction <span class="fstat-no" title="function not covered" >main() {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri May 19 2017 23:41:00 GMT-0700 (PDT)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 03 2017 21:13:08 GMT-0700 (PDT)
 </div>
 </div>
 <script src="../prettify.js"></script>
