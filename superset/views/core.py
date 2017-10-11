@@ -1281,7 +1281,7 @@ class Superset(BaseSupersetView):
         return json_success(payload)
 
     def save_or_overwrite_slice(
-            self, args, slc, slice_add_perm, slice_overwrite_perm,
+            self, args, slc, slice_add_perm, slice_overwrite_perm,slice_download_perm,
             datasource_id, datasource_type):
         """Save or overwrite a slice"""
         slice_name = args.get('slice_name')
