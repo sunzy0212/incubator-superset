@@ -1,5 +1,5 @@
 from sqlalchemy.orm import subqueryload
-
+from flask import g
 
 class ConnectorRegistry(object):
     """ Central Registry for all available datasource engines"""
@@ -27,8 +27,12 @@ class ConnectorRegistry(object):
     def get_all_datasources(cls, session):
         datasources = []
         for source_type in ConnectorRegistry.sources:
-            datasources.extend(
-                session.query(ConnectorRegistry.sources[source_type]).all())
+            data_module = ConnectorRegistry.sources[source_type]
+            datasources_by_uid = session.query(data_module).all()
+            qiniu_uid = long(g.user.get_qiniu_id())
+            for ds in datasources_by_uid:
+                if ds.qiniu_uid == qiniu_uid:
+                    datasources.append(ds)
         return datasources
 
     @classmethod

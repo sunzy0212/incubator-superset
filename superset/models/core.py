@@ -33,6 +33,7 @@ from sqlalchemy.orm.session import make_transient
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import TextAsFrom
+from sqlalchemy.engine import url
 from sqlalchemy_utils import EncryptedType
 
 from superset import app, db, db_engine_specs, utils, sm
@@ -86,8 +87,7 @@ class CssTemplate(Model, AuditMixinNullable):
 slice_user = Table('slice_user', metadata,
                    Column('id', Integer, primary_key=True),
                    Column('user_id', Integer, ForeignKey('ab_user.id')),
-                   Column('slice_id', Integer, ForeignKey('slices.id'))
-                   )
+                   Column('slice_id', Integer, ForeignKey('slices.id')))
 
 
 class Slice(Model, AuditMixinNullable, ImportMixin):
@@ -121,6 +121,17 @@ class Slice(Model, AuditMixinNullable, ImportMixin):
     @property
     def datasource(self):
         return self.get_datasource
+
+    def clone(self):
+        return Slice(
+            slice_name=self.slice_name,
+            datasource_id=self.datasource_id,
+            datasource_type=self.datasource_type,
+            datasource_name=self.datasource_name,
+            viz_type=self.viz_type,
+            params=self.params,
+            description=self.description,
+            cache_timeout=self.cache_timeout)
 
     @datasource.getter
     @utils.memoized
@@ -324,6 +335,14 @@ class Dashboard(Model, AuditMixinNullable, ImportMixin):
 
     @property
     def url(self):
+        if self.json_metadata:
+            # add default_filters to the preselect_filters of dashboard
+            json_metadata = json.loads(self.json_metadata)
+            default_filters = json_metadata.get('default_filters')
+            if default_filters:
+                filters = parse.quote(default_filters.encode('utf8'))
+                return "/superset/dashboard/{}/?preselect_filters={}".format(
+                    self.slug or self.id, filters)
         return "/superset/dashboard/{}/".format(self.slug or self.id)
 
     @property
@@ -413,6 +432,7 @@ class Dashboard(Model, AuditMixinNullable, ImportMixin):
         slices = copy(dashboard_to_import.slices)
         old_to_new_slc_id_dict = {}
         new_filter_immune_slices = []
+        new_timed_refresh_immune_slices = []
         new_expanded_slices = {}
         i_params_dict = dashboard_to_import.params_dict
         for slc in slices:
@@ -426,6 +446,10 @@ class Dashboard(Model, AuditMixinNullable, ImportMixin):
             if ('filter_immune_slices' in i_params_dict and
                     old_slc_id_str in i_params_dict['filter_immune_slices']):
                 new_filter_immune_slices.append(new_slc_id_str)
+            if ('timed_refresh_immune_slices' in i_params_dict and
+                    old_slc_id_str in
+                    i_params_dict['timed_refresh_immune_slices']):
+                new_timed_refresh_immune_slices.append(new_slc_id_str)
             if ('expanded_slices' in i_params_dict and
                     old_slc_id_str in i_params_dict['expanded_slices']):
                 new_expanded_slices[new_slc_id_str] = (
@@ -448,6 +472,9 @@ class Dashboard(Model, AuditMixinNullable, ImportMixin):
         if new_filter_immune_slices:
             dashboard_to_import.alter_params(
                 filter_immune_slices=new_filter_immune_slices)
+        if new_timed_refresh_immune_slices:
+            dashboard_to_import.alter_params(
+                timed_refresh_immune_slices=new_timed_refresh_immune_slices)
 
         new_slices = session.query(Slice).filter(
             Slice.id.in_(old_to_new_slc_id_dict.values())).all()
@@ -538,6 +565,8 @@ class Database(Model, AuditMixinNullable):
     }
     """))
     perm = Column(String(1000))
+    custom_password_store = config.get('SQLALCHEMY_CUSTOM_PASSWORD_STORE')
+    impersonate_user = Column(Boolean, default=False)
 
     def __repr__(self):
         return self.verbose_name if self.verbose_name else self.database_name
@@ -558,19 +587,21 @@ class Database(Model, AuditMixinNullable):
     def set_sqlalchemy_uri(self, uri):
         password_mask = "X" * 10
         conn = sqla.engine.url.make_url(uri)
-        if conn.password != password_mask:
+        if conn.password != password_mask and not self.custom_password_store:
             # do not over-write the password with the password mask
             self.password = conn.password
         conn.password = password_mask if conn.password else None
         self.sqlalchemy_uri = str(conn)  # hides the password
 
-    def get_sqla_engine(self, schema=None, nullpool=False):
+    def get_sqla_engine(self, schema=None, nullpool=False, user_name=None):
         extra = self.get_extra()
         uri = make_url(self.sqlalchemy_uri_decrypted)
         params = extra.get('engine_params', {})
         if nullpool:
             params['poolclass'] = NullPool
         uri = self.db_engine_spec.adjust_database_uri(uri, schema)
+        if self.impersonate_user:
+            uri.username = user_name if user_name else g.user.username
         return create_engine(uri, **params)
 
     def get_reserved_words(self):
@@ -702,7 +733,10 @@ class Database(Model, AuditMixinNullable):
     @property
     def sqlalchemy_uri_decrypted(self):
         conn = sqla.engine.url.make_url(self.sqlalchemy_uri)
-        conn.password = self.password
+        if self.custom_password_store:
+            conn.password = self.custom_password_store(conn)
+        else:
+            conn.password = self.password
         return str(conn)
 
     @property
@@ -712,6 +746,16 @@ class Database(Model, AuditMixinNullable):
     def get_perm(self):
         return (
             "[{obj.database_name}].(id:{obj.id})").format(obj=self)
+
+    def has_table(self, table):
+        engine = self.get_sqla_engine()
+        return engine.dialect.has_table(
+            engine, table.table_name, table.schema or None)
+
+    def get_dialect(self):
+        sqla_url = url.make_url(self.sqlalchemy_uri_decrypted)
+        return sqla_url.get_dialect()()
+
 
 sqla.event.listen(Database, 'after_insert', set_perm)
 sqla.event.listen(Database, 'after_update', set_perm)
@@ -748,11 +792,14 @@ class Log(Model):
             post_data = request.form or {}
             d.update(post_data)
             d.update(kwargs)
-            slice_id = d.get('slice_id', 0)
+            slice_id = d.get('slice_id')
+
             try:
-                slice_id = int(slice_id) if slice_id else 0
-            except ValueError:
+                slice_id = int(
+                    slice_id or json.loads(d.get('form_data')).get('slice_id'))
+            except (ValueError, TypeError):
                 slice_id = 0
+
             params = ""
             try:
                 params = json.dumps(d)
@@ -760,12 +807,11 @@ class Log(Model):
                 pass
             stats_logger.incr(f.__name__)
             value = f(*args, **kwargs)
-
             sesh = db.session()
             log = cls(
                 action=f.__name__,
                 json=params,
-                dashboard_id=d.get('dashboard_id') or None,
+                dashboard_id=d.get('dashboard_id'),
                 slice_id=slice_id,
                 duration_ms=(
                     datetime.now() - start_dttm).total_seconds() * 1000,
