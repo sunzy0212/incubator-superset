@@ -511,6 +511,77 @@ func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error)
 		return
 	}
 
+	schemas, err := s.getDbs_tables_schema(constructUserDBName(appId, dbName), args.CmdArgs[1])
+	if err != nil {
+		return
+	}
+
+	//insert column value sql
+	insertColumnValueSql := `insert into table_columns(
+created_on,
+changed_on,
+table_id,
+column_name,
+is_dttm,
+is_active,
+type,
+groupby,
+count_distinct,
+sum,
+max,
+min,
+filterable,
+created_by_fk,
+changed_by_fk,
+avg
+) values`
+	for i, schema := range schemas {
+		columnValue, err1 := generateTableColumns(schema.Field, schema.Type, appId, dbName, args.CmdArgs[1])
+		if err1 != nil {
+			return err1
+		}
+		insertColumnValueSql += columnValue
+		if i != len(schemas)-1 {
+			insertColumnValueSql += ","
+		}
+	}
+
+	_, err = s.SuperMySQLClient.Exec(insertColumnValueSql)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	//insert sql metrics sql
+	insertSqlMetricSql := `insert into sql_metrics (
+created_on,
+changed_on,
+metric_name,
+verbose_name,
+metric_type,
+table_id,
+expression,
+created_by_fk,
+changed_by_fk
+) values`
+
+	for i, schema := range schemas {
+		metricValue, err1 := generateSqlMetrics(schema.Field, schema.Type, appId, dbName, args.CmdArgs[1])
+		if err1 != nil {
+			return err1
+		}
+		insertSqlMetricSql += metricValue
+		if i != len(schemas)-1 {
+			insertSqlMetricSql += ","
+		}
+	}
+
+	_, err = s.SuperMySQLClient.Exec(insertSqlMetricSql)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
 	return
 }
 
@@ -586,38 +657,7 @@ func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (schemas []T
 
 	userDBName := constructUserDBName(appId, dbName)
 
-	result, err := s.MySQLClient.Query(fmt.Sprintf("describe %s.%s", userDBName, tableName))
-	if err != nil {
-		if strings.Contains(err.Error(), "Error 1146") {
-			err = errors.Info(ErrTableNotFoundError)
-			return
-		}
-		return
-	}
-	var table_default interface{}
-	var table_field string
-	var table_key interface{}
-	var table_null string
-	var table_extra string
-	var table_type string
-
-	for result.Next() {
-		err = result.Scan(&table_field, &table_type, &table_null, &table_key, &table_default, &table_extra)
-		if err != nil {
-			return
-		}
-		schema := TableSchema{
-			Field:   table_field,
-			Type:    table_type,
-			Null:    table_null,
-			Extra:   table_extra,
-			Default: table_default,
-			Key:     table_key,
-		}
-		schemas = append(schemas, schema)
-	}
-
-	return
+	return s.getDbs_tables_schema(userDBName, tableName)
 }
 
 // POST /v1/dbs/<DBName>/tables/<TableName>/data
@@ -714,5 +754,41 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 	}
 
 	ret = convertResult(result)
+	return
+}
+
+func (s *ApiServer) getDbs_tables_schema(userDBName, tableName string) (schemas []TableSchema, err error) {
+
+	result, err := s.MySQLClient.Query(fmt.Sprintf("describe %s.%s", userDBName, tableName))
+	if err != nil {
+		if strings.Contains(err.Error(), "Error 1146") {
+			err = errors.Info(ErrTableNotFoundError)
+			return
+		}
+		return
+	}
+	var table_default interface{}
+	var table_field string
+	var table_key interface{}
+	var table_null string
+	var table_extra string
+	var table_type string
+
+	for result.Next() {
+		err = result.Scan(&table_field, &table_type, &table_null, &table_key, &table_default, &table_extra)
+		if err != nil {
+			return
+		}
+		schema := TableSchema{
+			Field:   table_field,
+			Type:    table_type,
+			Null:    table_null,
+			Extra:   table_extra,
+			Default: table_default,
+			Key:     table_key,
+		}
+		schemas = append(schemas, schema)
+	}
+
 	return
 }

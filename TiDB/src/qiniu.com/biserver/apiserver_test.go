@@ -316,3 +316,27 @@ func Test_TParser(t *testing.T) {
 	//t.Log(spew.Sdump(st.Cols.Text()))
 
 }
+
+func Test_generateTableColumns(t *testing.T) {
+
+	got, err := generateTableColumns("time", "DATETIME", "123", "testDB", "testTable")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(got)
+}
+
+func Test_generateSqlMetrics(t *testing.T) {
+
+	got, err := generateSqlMetrics("time", "DATETIME", "123", "testDB", "testTable")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(got)
+
+	got, err = generateSqlMetrics("time", "INT", "123", "testDB", "testTable")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(got)
+}
