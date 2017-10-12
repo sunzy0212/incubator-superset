@@ -2,23 +2,57 @@
 // Variables
 // --------------------------------------------------
 
+@font-face {
+    font-family: 'qiniu';
+    src: url('../../fonts/qiniu.eot?yrdxwd');
+    src: url('../../fonts/qiniu.eot?yrdxwd#iefix') format('embedded-opentype'),
+    url('../../fonts/qiniu.ttf?yrdxwd') format('truetype'),
+    url('../../fonts/qiniu.woff?yrdxwd') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .fa-qiniu:before{
+    font-family: 'qiniu';
+    content:"";
+  }
+  
+  a[data-original-title="如果您还不是用户，请先注册"] {
+    display: none;
+  }
+  
+  div.table-responsive a[data-original-title="显示记录"] {
+    display: none;
+  }
+  
+  div.table-responsive a[data-original-title="编辑记录"] {
+    display: none;
+  }
+  
+  div.table-responsive a[data-original-title="删除记录"] {
+    color: #7a8599;
+  }
+  
+  th[class="col-md-1 col-lg-1 col-sm-1"] {
+    width: 10px;
+  }  
 
 //== Colors
 //
 //## Gray and brand colors for use across Bootstrap.
 
-@gray-base:              #000;
-@gray-darker:            lighten(@gray-base, 13.5%);
-@gray-dark:              lighten(@gray-base, 20%);
-@gray:                   lighten(@gray-base, 33.5%);
-@gray-light:             lighten(@gray-base, 70%);
-@gray-lighter:           lighten(@gray-base, 95%);
+@gray-base: #7a8599;
+@gray-darker: lighten(@gray-base, 13.5%);
+@gray-dark: #7a8599;
+@gray: lighten(@gray-base, 33.5%);
+@gray-light: lighten(@gray-base, 70%);
+@gray-lighter: lighten(@gray-base, 95%);
 
-@brand-primary:         #00A699;
-@brand-success:         #4AC15F;
-@brand-info:            lighten(#2AB7CA, 15%);
-@brand-warning:         #FED766;
-@brand-danger:          #FE4A49;
+@brand-primary: #1989FA;
+@brand-success: #9ECDFD;
+@brand-info: lighten(#2AB7CA, 15%);
+@brand-warning: #FED766;
+@brand-danger: #FE4A49;
 
 //== Scaffolding
 //
@@ -148,7 +182,7 @@
 @btn-primary-bg:                 @brand-primary;
 @btn-primary-border:             @brand-primary;
 
-@btn-default-color:              @gray;
+@btn-default-color:              @gray-base;
 @btn-default-bg:                 #fff;
 @btn-default-border:             @gray-light;
 
@@ -578,7 +612,7 @@
 @label-danger-bg:             @brand-danger;
 
 //** Default label text color
-@label-color:                 #fff;
+@label-color:                 #828D9F;
 //** Default text color of a linked label
 @label-link-hover-color:      #fff;
 
@@ -848,7 +882,7 @@
 //** Horizontal offset for forms and lists.
 @component-offset-horizontal: 180px;
 //** Text muted color
-@text-muted:                  @gray-light;
+@text-muted:                  #B4B4B4;
 //** Abbreviations and acronyms border color
 @abbr-border-color:           @gray-light;
 //** Headings small color
