@@ -1323,7 +1323,7 @@ mark,
   text-transform: capitalize;
 }
 .text-muted {
-  color: #ffffff;
+  color: #B4B4B4;
 }
 .text-primary {
   color: #1989FA;
@@ -2241,7 +2241,7 @@ table {
 caption {
   padding-top: 8px;
   padding-bottom: 8px;
-  color: #ffffff;
+  color: #B4B4B4;
   text-align: left;
 }
 th {
@@ -4827,7 +4827,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
   font-size: 75%;
   font-weight: bold;
   line-height: 1;
-  color: #fff;
+  color: #828D9F;
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
@@ -6852,16 +6852,6 @@ table .info,
 .table .info {
   color: #fff;
 }
-table .success a,
-.table .success a,
-table .warning a,
-.table .warning a,
-table .danger a,
-.table .danger a,
-table .info a,
-.table .info a {
-  color: #fff;
-}
 table .success .btn-default,
 .table .success .btn-default,
 table .warning .btn-default,
@@ -8823,7 +8813,7 @@ mark,
   text-transform: capitalize;
 }
 .text-muted {
-  color: #ffffff;
+  color: #B4B4B4;
 }
 .text-primary {
   color: #1989FA;
@@ -9741,7 +9731,7 @@ table {
 caption {
   padding-top: 8px;
   padding-bottom: 8px;
-  color: #ffffff;
+  color: #B4B4B4;
   text-align: left;
 }
 th {
@@ -12327,7 +12317,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
   font-size: 75%;
   font-weight: bold;
   line-height: 1;
-  color: #fff;
+  color: #828D9F;
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
@@ -14324,16 +14314,6 @@ table .danger,
 .table .danger,
 table .info,
 .table .info {
-  color: #fff;
-}
-table .success a,
-.table .success a,
-table .warning a,
-.table .warning a,
-table .danger a,
-.table .danger a,
-table .info a,
-.table .info a {
   color: #fff;
 }
 table .success .btn-default,
