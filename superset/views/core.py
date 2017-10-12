@@ -2474,6 +2474,7 @@ class Superset(BaseSupersetView):
         """SQL Editor"""
         d = {
             'defaultDbId': config.get('SQLLAB_DEFAULT_DBID'),
+            'common': self.common_bootsrap_payload(),
         }
         return self.render_template(
             'superset/basic.html',
