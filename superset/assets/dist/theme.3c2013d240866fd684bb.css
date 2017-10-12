@@ -1323,7 +1323,7 @@ mark,
   text-transform: capitalize;
 }
 .text-muted {
-  color: #ffffff;
+  color: #B4B4B4;
 }
 .text-primary {
   color: #1989FA;
@@ -2241,7 +2241,7 @@ table {
 caption {
   padding-top: 8px;
   padding-bottom: 8px;
-  color: #ffffff;
+  color: #B4B4B4;
   text-align: left;
 }
 th {
@@ -4827,7 +4827,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
   font-size: 75%;
   font-weight: bold;
   line-height: 1;
-  color: #fff;
+  color: #828D9F;
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
@@ -8813,7 +8813,7 @@ mark,
   text-transform: capitalize;
 }
 .text-muted {
-  color: #ffffff;
+  color: #B4B4B4;
 }
 .text-primary {
   color: #1989FA;
@@ -9731,7 +9731,7 @@ table {
 caption {
   padding-top: 8px;
   padding-bottom: 8px;
-  color: #ffffff;
+  color: #B4B4B4;
   text-align: left;
 }
 th {
@@ -12317,7 +12317,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
   font-size: 75%;
   font-weight: bold;
   line-height: 1;
-  color: #fff;
+  color: #828D9F;
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
