@@ -1072,9 +1072,6 @@
          "Since": [
             "起始时间"
          ],
-         "7 days ago": [
-            "7天前"
-         ],
          "Until": [
             "结束时间"
          ],
@@ -2068,9 +2065,6 @@
          "Redirects to this endpoint when clicking on the table from the table list": [
             "点击表列表中的表时将重定向到此端点"
          ],
-         "Changed By": [
-            "修改人"
-         ],
          "Database": [
             "数据库"
          ],
@@ -2087,7 +2081,7 @@
             "表名"
          ],
          "Fetch Values Predicate": [
-            ""
+            "预加载数据"
          ],
          "Main Datetime Column": [
             "时间字段"
@@ -2219,16 +2213,16 @@
             "作者"
          ],
          "SQLAlchemy URI": [
-            "SQLAlchemy URI"
+            "数据库 URI"
          ],
          "Extra": [
             "扩展"
          ],
          "Allow Run Sync": [
-            ""
+            "允许同步执行"
          ],
          "Allow Run Async": [
-            ""
+            "允许异步执行"
          ],
          "Impersonate queries to the database": [
             ""
@@ -2247,9 +2241,6 @@
          ],
          "Roles to grant": [
             "角色授权"
-         ],
-         "Created On": [
-            "创建日期"
          ],
          "Access requests": [
             "访问请求"
@@ -2306,7 +2297,7 @@
             "可以在这里或者在看板视图修改单个看板的CSS样式"
          ],
          "To get a readable URL for your dashboard": [
-            "为看板生成一个可读的URL"
+            "为报表生成一个可读的URL"
          ],
          "This JSON object is generated dynamically when clicking the save or overwrite button in the dashboard view. It is exposed here for reference and for power users who may want to alter specific parameters.": [
             "当在看板视图中单击“保存”或“覆盖”按钮时，这些参数会在视图中动态生成。高级用户可以在这里改变特定的参数。"
@@ -2318,7 +2309,7 @@
             "报表"
          ],
          "Slug": [
-            "Slug"
+            "可读的URL"
          ],
          "Position JSON": [
             "位置参数"
@@ -2414,13 +2405,58 @@
             "编辑保存的查询"
          ],
          "Pop Tab Link": [
-            ""
-         ],
-         "Changed on": [
-            ""
+            "打开查询链接"
          ],
          "Saved Queries": [
             "已保存查询"
+         ],
+         "tables": [
+            "表"
+         ],
+         "Created By": [
+            "创建者"
+         ],
+         "Created On": [
+            "创建日期"
+         ],
+         "Changed By": [
+            "修改人"
+         ],
+         "Changed On": [
+            "修改时间"
+         ],
+         "success": [
+            "成功"
+         ],
+         "failed": [
+            "失败"
+         ],
+         "running": [
+            "执行中"
+         ],
+         "pending": [
+            "等待中"
+         ],
+         "now": [
+            "现在"
+         ],
+         "1 hour ago": [
+            "1小时前"
+         ],
+         "1 day ago": [
+            "1天前"
+         ],
+         "7 days ago": [
+            "一周前"
+         ],
+         "28 days ago": [
+            "28天前"
+         ],
+         "90 days ago": [
+            "3个月前"
+         ],
+         "1 year ago": [
+            "一年前"
          ]
       }
    }

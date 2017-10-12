@@ -1626,10 +1626,6 @@ msgstr "插值方式"
 msgid "Since"
 msgstr "起始时间"
 
-#: superset/assets/javascripts/explore/stores/controls.jsx:611
-msgid "7 days ago"
-msgstr "7天前"
-
 #: superset/assets/javascripts/explore/stores/controls.jsx:617
 msgid "Until"
 msgstr "结束时间"
@@ -3097,10 +3093,6 @@ msgstr "当获取不同的值来填充过滤器组件应用时。支持jinja的�
 msgid "Redirects to this endpoint when clicking on the table from the table list"
 msgstr "点击表列表中的表时将重定向到此端点"
 
-#: superset/connectors/sqla/views.py:215
-msgid "Changed By"
-msgstr "修改人"
-
 #: superset/connectors/sqla/views.py:216 superset/views/core.py:247
 #: superset/views/sql_lab.py:19 superset/views/sql_lab.py:55
 msgid "Database"
@@ -3124,7 +3116,7 @@ msgstr "表名"
 
 #: superset/connectors/sqla/views.py:224
 msgid "Fetch Values Predicate"
-msgstr ""
+msgstr "预加载数据"
 
 #: superset/connectors/sqla/views.py:226
 msgid "Main Datetime Column"
@@ -3326,7 +3318,7 @@ msgstr "作者"
 
 #: superset/views/core.py:250
 msgid "SQLAlchemy URI"
-msgstr "SQLAlchemy URI"
+msgstr "数据库 URI"
 
 #: superset/views/core.py:252
 msgid "Extra"
@@ -3334,11 +3326,11 @@ msgstr "扩展"
 
 #: superset/views/core.py:253
 msgid "Allow Run Sync"
-msgstr ""
+msgstr "允许同步执行"
 
 #: superset/views/core.py:254
 msgid "Allow Run Async"
-msgstr ""
+msgstr "允许异步执行"
 
 #: superset/views/core.py:255
 msgid "Impersonate queries to the database"
@@ -3364,10 +3356,6 @@ msgstr "数据库URL"
 #: superset/views/core.py:319
 msgid "Roles to grant"
 msgstr "角色授权"
-
-#: superset/views/core.py:320
-msgid "Created On"
-msgstr "创建日期"
 
 #: superset/views/core.py:326
 msgid "Access requests"
@@ -3452,7 +3440,7 @@ msgstr "可以在这里或者在看板视图修改单个看板的CSS样式"
 
 #: superset/views/core.py:460
 msgid "To get a readable URL for your dashboard"
-msgstr "为看板生成一个可读的URL"
+msgstr "为报表生成一个可读的URL"
 
 #: superset/views/core.py:461
 msgid ""
@@ -3471,7 +3459,7 @@ msgstr "报表"
 
 #: superset/views/core.py:476
 msgid "Slug"
-msgstr "Slug"
+msgstr "可读的URL"
 
 #: superset/views/core.py:481
 msgid "Position JSON"
@@ -3609,12 +3597,70 @@ msgstr "编辑保存的查询"
 
 #: superset/views/sql_lab.py:59
 msgid "Pop Tab Link"
-msgstr ""
-
-#: superset/views/sql_lab.py:60
-msgid "Changed on"
-msgstr ""
+msgstr "打开查询链接"
 
 #: superset/views/sql_lab.py:79
 msgid "Saved Queries"
 msgstr "已保存查询"
+
+#: superset/views/core.py:311
+msgid "tables"
+msgstr "表"
+
+#: superset/views/core.py:312
+msgid "Created By"
+msgstr "创建者"
+
+#: superset/views/core.py:313
+#: superset/views/core.py:320
+msgid "Created On"
+msgstr "创建日期"
+
+#: superset/views/core.py:314
+#: superset/connectors/sqla/views.py:215
+msgid "Changed By"
+msgstr "修改人"
+
+#: superset/views/core.py:315
+#: superset/views/sql_lab.py:60
+msgid "Changed On"
+msgstr "修改时间"
+
+
+#: superset/assets/javascripts/SqlLab/constants.js:12
+#: superset/assets/javascripts/SqlLab/components/QuerySearch.jsx:180
+msgid "success"
+msgstr "成功"
+
+msgid "failed"
+msgstr "失败"
+
+msgid "running"
+msgstr "执行中"
+
+msgid "pending"
+msgstr "等待中"
+
+#: superset/assets/javascripts/SqlLab/constants.js:19
+#: superset/assets/javascripts/SqlLab/components/QuerySearch.jsx:162
+msgid "now"
+msgstr "现在"
+
+msgid "1 hour ago"
+msgstr "1小时前"
+
+msgid "1 day ago"
+msgstr "1天前"
+
+#: superset/assets/javascripts/explore/stores/controls.jsx:611
+msgid "7 days ago"
+msgstr "一周前"
+
+msgid "28 days ago"
+msgstr "28天前"
+
+msgid "90 days ago"
+msgstr "3个月前"
+
+msgid "1 year ago"
+msgstr "一年前"

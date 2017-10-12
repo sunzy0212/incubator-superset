@@ -308,6 +308,12 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         'sqlalchemy_uri': _("SQLAlchemy URI"),
         'cache_timeout': _("Cache Timeout"),
         'extra': _("Extra"),
+        'modified': _("Modified"),
+        'tables': _("tables"),
+        'created_by': _("Created By"),
+        'created_on': _("Created On"),
+        'changed_by': _("Changed By"),
+        'changed_on': _("Changed On"),
     }
     def get_db_sqlalchemy_uri(self,dbname):
         qiniu_uid = str(g.user.get_qiniu_id())
