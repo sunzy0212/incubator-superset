@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Label } from 'react-bootstrap';
+import { t } from '../../locales';
 
 import { STATE_BSSTYLE_MAP } from '../constants';
 
@@ -12,7 +13,7 @@ export default function QueryStateLabel({ query }) {
   const bsStyle = STATE_BSSTYLE_MAP[query.state];
   return (
     <Label className="m-r-3" bsStyle={bsStyle}>
-      {query.state}
+      {t(query.state)}
     </Label>
   );
 }

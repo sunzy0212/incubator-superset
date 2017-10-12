@@ -5,6 +5,7 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.models.sqla.filters import FilterEqualFunction,FilterEqual
 
 from flask_babel import gettext as __
+from flask_babel import lazy_gettext as _
 
 from superset import appbuilder
 from superset.models.sql_lab import Query, SavedQuery
@@ -40,6 +41,19 @@ class SavedQueryView(SupersetModelView, DeleteMixin):
     edit_columns = add_columns
     base_order = ('changed_on', 'desc')
     base_filters = [["qiniu_uid", FilterEqualFunction, get_curr_user]]
+
+    label_columns = {
+        'label': _("Label"),
+        'database': _("Database"),
+        'schema': _("Table"),
+        'description': _("Description"),
+        'pop_tab_link': _("Pop Tab Link"),
+        'modified': _("Modified"),
+        'created_by': _("Created By"),
+        'created_on': _("Created On"),
+        'changed_by': _("Changed By"),
+        'changed_on': _("Changed On"),
+        }
 
     def pre_add(self, obj):
         obj.user = g.user
