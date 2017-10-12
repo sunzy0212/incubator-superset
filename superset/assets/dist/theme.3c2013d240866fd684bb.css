@@ -6852,16 +6852,6 @@ table .info,
 .table .info {
   color: #fff;
 }
-table .success a,
-.table .success a,
-table .warning a,
-.table .warning a,
-table .danger a,
-.table .danger a,
-table .info a,
-.table .info a {
-  color: #fff;
-}
 table .success .btn-default,
 .table .success .btn-default,
 table .warning .btn-default,
@@ -14324,16 +14314,6 @@ table .danger,
 .table .danger,
 table .info,
 .table .info {
-  color: #fff;
-}
-table .success a,
-.table .success a,
-table .warning a,
-.table .warning a,
-table .danger a,
-.table .danger a,
-table .info a,
-.table .info a {
   color: #fff;
 }
 table .success .btn-default,
