@@ -15,6 +15,8 @@ import PopoverSection from '../../../components/PopoverSection';
 const RELATIVE_TIME_OPTIONS = ['ago', 'from now'];
 const TIME_GRAIN_OPTIONS = ['seconds', 'minutes', 'days', 'weeks', 'months', 'years'];
 
+import { t } from '../../../locales';
+
 const propTypes = {
   animation: PropTypes.bool,
   name: PropTypes.string.isRequired,
@@ -95,7 +97,7 @@ export default class DateFilterControl extends React.Component {
       <Popover id="filter-popover">
         <div style={{ width: '240px' }}>
           <PopoverSection
-            title="Fixed"
+            title="固定"
             isSelected={this.state.type === 'fix'}
             onSelect={this.setType.bind(this, 'fix')}
           >
@@ -114,7 +116,7 @@ export default class DateFilterControl extends React.Component {
             </InputGroup>
           </PopoverSection>
           <PopoverSection
-            title="Relative"
+            title="相对"
             isSelected={this.state.type === 'rel'}
             onSelect={this.setType.bind(this, 'rel')}
           >
@@ -132,7 +134,7 @@ export default class DateFilterControl extends React.Component {
                   onFocus={this.setType.bind(this, 'rel')}
                   value={this.state.grain}
                   clearable={false}
-                  options={TIME_GRAIN_OPTIONS.map(s => ({ label: s, value: s }))}
+                  options={TIME_GRAIN_OPTIONS.map(s => ({ label: t(s), value: s }))}
                   onChange={this.onControlChange.bind(this, 'grain')}
                 />
               </div>
@@ -148,7 +150,7 @@ export default class DateFilterControl extends React.Component {
             </div>
           </PopoverSection>
           <PopoverSection
-            title="Free form"
+            title="自定义"
             isSelected={this.state.type === 'free'}
             onSelect={this.setType.bind(this, 'free')}
             info={
@@ -170,7 +172,7 @@ export default class DateFilterControl extends React.Component {
               bsStyle="primary"
               onClick={this.close.bind(this)}
             >
-              Ok
+              确定
             </Button>
             <ButtonGroup
               className="float-right"
@@ -179,13 +181,13 @@ export default class DateFilterControl extends React.Component {
                 bsSize="small"
                 onClick={this.setValue.bind(this, 'now')}
               >
-                now
+                现在
               </Button>
               <Button
                 bsSize="small"
                 onClick={this.setValue.bind(this, '')}
               >
-                clear
+                清空
               </Button>
             </ButtonGroup>
           </div>

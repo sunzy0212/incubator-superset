@@ -3664,3 +3664,25 @@ msgstr "3个月前"
 
 msgid "1 year ago"
 msgstr "一年前"
+
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx: 16
+msgid "seconds"
+msgstr "秒"
+
+msgid "minutes"
+msgstr "分"
+
+msgid "hours"
+msgstr "时"
+
+msgid "days"
+msgstr "天"
+
+msgid "weeks"
+msgstr "周"
+
+msgid "months"
+msgstr "月"
+
+msgid "years"
+msgstr "年"
