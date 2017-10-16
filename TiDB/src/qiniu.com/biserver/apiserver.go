@@ -429,6 +429,83 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 	return
 }
 
+func (s *ApiServer) PostAdmin_Dbs_Tables_(args *cmdArgs) (err error) {
+
+	appId, dbName, tableName := args.CmdArgs[0], args.CmdArgs[1], args.CmdArgs[2]
+
+	schemas, err := s.getDbs_tables_schema(constructUserDBName(appId, dbName), tableName)
+	if err != nil {
+		return
+	}
+
+	//insert column value sql
+	insertColumnValueSql := `insert into table_columns(
+created_on,
+changed_on,
+table_id,
+column_name,
+is_dttm,
+is_active,
+type,
+groupby,
+count_distinct,
+sum,
+max,
+min,
+filterable,
+created_by_fk,
+changed_by_fk,
+avg
+) values`
+	for i, schema := range schemas {
+		columnValue, err1 := generateTableColumns(schema.Field, schema.Type, appId, dbName, tableName)
+		if err1 != nil {
+			return err1
+		}
+		insertColumnValueSql += columnValue
+		if i != len(schemas)-1 {
+			insertColumnValueSql += ","
+		}
+	}
+
+	_, err = s.SuperMySQLClient.Exec(insertColumnValueSql)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	//insert sql metrics sql
+	insertSqlMetricSql := `insert into sql_metrics (
+created_on,
+changed_on,
+metric_name,
+verbose_name,
+metric_type,
+table_id,
+expression,
+created_by_fk,
+changed_by_fk
+) values`
+
+	for i, schema := range schemas {
+		metricValue, err1 := generateSqlMetrics(schema.Field, schema.Type, appId, dbName, tableName)
+		if err1 != nil {
+			return err1
+		}
+		insertSqlMetricSql += metricValue
+		if i != len(schemas)-1 {
+			insertSqlMetricSql += ","
+		}
+	}
+
+	_, err = s.SuperMySQLClient.Exec(insertSqlMetricSql)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	return
+}
+
 // POST /v1/dbs/<DB_Name>/tables/<TableName>
 // Content-Type: application/json
 // X-Appid: <AppId>
