@@ -20,7 +20,7 @@ const DefaultHttpTemplateSource string = "/tmp/" + DefaultTemplateName
 
 // TemplateService: try to put data interface{} into templateSource.
 // return a *bytes.Buffer as a result
-// templateSource is either a http url or file url which can get a xxx.html(golang html template)
+// templateSource is either a http apiUrl or file apiUrl which can get a xxx.html(golang html template)
 func TemplateService(templateSource string, data interface{}) (templateBuff *bytes.Buffer, err error) {
 	if templateSource == "" {
 		templateSource = os.Getenv("EMAIL_TEMPLATE_NAME")

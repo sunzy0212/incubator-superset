@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"flag"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	handler "qiniu.com/email-report/handlers"
@@ -11,7 +11,7 @@ import (
 func main() {
 	var listenPort string
 
-	flag.StringVar(&listenPort,"p",os.Getenv("PORT_HTTP"),"listen port")
+	flag.StringVar(&listenPort, "p", os.Getenv("PORT_HTTP"), "listen port")
 	flag.Parse()
 
 	if listenPort == "" {
@@ -23,6 +23,7 @@ func main() {
 	v1 := router.Group("/v1")
 	{
 		v1.POST("/mail", handler.CoreHandler)
+		v1.GET("/user", handler.UserHandler)
 	}
 
 	// admin interface

@@ -2,6 +2,25 @@
 
 Pandora Mail Service is used for easily sending mail with `report theme`. 
 
+# 增加uid查询用户信息的接口
+
+    Request:
+
+    curl 'localhost:6080/v1/user?uid=<UID>'
+
+    Response:
+
+    {
+      "code": 200,
+      "data": {
+        "uid": 1380013800,
+        "email": "example@qiniu.com",
+        "fullname": "七牛",
+        "is_enterprise": false,
+        "is_certified": true
+      }
+    }
+
 目前部署在nb1684:6080(192.168.77.25:6080)
 # Example
 
