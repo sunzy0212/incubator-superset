@@ -132,14 +132,6 @@ class QuerySearch extends React.PureComponent {
         <div id="search-header" className="row space-1">
           <div className="col-sm-2">
             <AsyncSelect
-              dataEndpoint="/users/api/read"
-              mutator={this.userMutator}
-              value={this.state.userId}
-              onChange={this.changeUser.bind(this)}
-            />
-          </div>
-          <div className="col-sm-2">
-            <AsyncSelect
               onChange={this.onChange.bind(this)}
               dataEndpoint="/databaseasync/api/read?_flt_0_expose_in_sqllab=1"
               value={this.state.databaseId}
