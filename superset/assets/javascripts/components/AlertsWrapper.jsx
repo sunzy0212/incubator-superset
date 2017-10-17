@@ -28,7 +28,7 @@ export default class AlertsWrapper extends React.PureComponent {
         }}
         offset={14}
         position="top right"
-        theme="dark"
+        theme="light"
         time={5000}
         transition="fade"
       />);
