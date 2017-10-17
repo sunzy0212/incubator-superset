@@ -5,6 +5,4 @@
 
 !superset
 superset/assets/node_modules/*
-!superset/assets/node_modules/font-awesome
-!superset/assets/node_modules/react-alert
 *.pyc
