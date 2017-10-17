@@ -5554,9 +5554,8 @@ react-addons-test-utils@^15.6.2:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/react-addons-test-utils/-/react-addons-test-utils-15.6.2.tgz#c12b6efdc2247c10da7b8770d185080a7b047156"
 
-react-alert@^2.3.0:
+"react-alert@file:./modified_modules/react-alert":
   version "2.3.0"
-  resolved "https://registry.yarnpkg.com/react-alert/-/react-alert-2.3.0.tgz#f2db4574d478e5b88b02c868257380824eb27493"
   dependencies:
     glamor "^2.20.24"
     glamorous "^3.13.1"
@@ -5588,11 +5587,12 @@ react-bootstrap@^0.31.2:
     uncontrollable "^4.1.0"
     warning "^3.0.0"
 
-react-datetime@2.9.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/react-datetime/-/react-datetime-2.9.0.tgz#9ec80060cbb8e5c5d8f98f0acebb6f4712ce449a"
+react-datetime@2.10.0:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/react-datetime/-/react-datetime-2.10.0.tgz#fa7e341f727865ab60d90329e60517800f450259"
   dependencies:
     "@types/react" ">=15"
+    create-react-class "^15.5.2"
     object-assign "^3.0.0"
     prop-types "^15.5.7"
     react-onclickoutside "^5.9.0"
