@@ -224,8 +224,17 @@ func generateTableColumns(columnName, columnType, appId, databaseName, tableName
 	case "DATETIME":
 		dict[IS_ACTIVE] = 1
 		dict[IS_DTTM] = 1
-	case "INT", "DOUBLE", "BIGINT":
+	case "INT":
 		dict[IS_ACTIVE] = 1
+		dict[GROUPBY] = 1
+		dict[FILTERABLE] = 1
+		dict[SUM] = 1
+		dict[MIN] = 1
+		dict[MAX] = 1
+		dict[AVG] = 1
+	case "DOUBLE", "BIGINT":
+		dict[IS_ACTIVE] = 1
+		dict[FILTERABLE] = 1
 		dict[SUM] = 1
 		dict[MIN] = 1
 		dict[MAX] = 1
