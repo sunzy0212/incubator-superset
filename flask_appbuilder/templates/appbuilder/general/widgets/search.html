@@ -1,0 +1,14 @@
+{% import 'appbuilder/general/lib.html' as lib %}
+
+<script>
+	(function($) {
+	var filter = new AdminFilters(
+                    '#filter_form',
+                    {{ label_columns | tojson | safe }},
+                    {{ form_fields | tojson | safe }},
+                    {{ search_filters | tojson | safe }},
+                    {{ active_filters | tojson | safe }}                                        
+                );
+	})(jQuery);
+	
+</script>
