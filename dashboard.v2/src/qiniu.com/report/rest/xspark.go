@@ -1,3 +1,0 @@
-package rest
-
-//For XSpark
