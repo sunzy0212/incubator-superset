@@ -22,7 +22,7 @@ const propTypes = {
   onDbClicked: PropTypes.func,
 };
 const defaultProps = {
-  columns: ['started', 'duration', 'rows'],
+  columns: [{key:'started', label:"开始"}, {key:'duration', label:"时长"}, {key:'rows', label:"行数"}],
   queries: [],
   onUserClicked: () => {},
   onDbClicked: () => {},

@@ -32,7 +32,7 @@ const defaultProps = {
   multi: false,
   onChange: () => {},
   showHeader: true,
-  optionRenderer: opt => opt.label,
+  optionRenderer: opt => t(opt.label),
   valueRenderer: opt => opt.label,
   valueKey: 'value',
 };

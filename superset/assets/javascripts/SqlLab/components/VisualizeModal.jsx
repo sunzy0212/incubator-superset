@@ -269,7 +269,7 @@ class VisualizeModal extends React.PureComponent {
             <hr />
             <Table
               className="table table-condensed"
-              columns={['column', 'is_dimension', 'is_date', 'agg_func']}
+              columns={[{key:'column', label:"列"}, {key:'is_dimension', label:"是否是维度"}, {key:'is_date', label:"是否是日期"}, {key:'agg_func', label:"聚合函数"}]}
               data={tableData}
             />
             <Button
