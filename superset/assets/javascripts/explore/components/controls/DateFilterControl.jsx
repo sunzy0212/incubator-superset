@@ -153,10 +153,7 @@ export default class DateFilterControl extends React.Component {
             title="自定义"
             isSelected={this.state.type === 'free'}
             onSelect={this.setType.bind(this, 'free')}
-            info={
-              'Superset supports smart date parsing. Strings like `last sunday` or ' +
-              '`last october` can be used.'
-            }
+            info={'支持智能的时间解析。例如：`last sunday` `last october`'}
           >
             <FormControl
               onFocus={this.setType.bind(this, 'free')}

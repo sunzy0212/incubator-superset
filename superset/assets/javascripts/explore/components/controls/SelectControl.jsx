@@ -70,7 +70,7 @@ function pasteSelect(props) {
               props.isValidNewOption ? props.isValidNewOption({ label: value }) : !!value,
             )
             .map(value => ({
-              [props.labelKey]: value,
+              [props.labelKey]: t(value),
               [props.valueKey]: value,
             }));
           if (options.length) {

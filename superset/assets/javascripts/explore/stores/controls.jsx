@@ -690,7 +690,7 @@ export const controls = {
     type: 'CheckboxControl',
     label: t('Sort Descending'),
     default: true,
-    description: 'Whether to sort descending or ascending',
+    description: t('Whether to sort descending or ascending'),
   },
 
   rolling_type: {

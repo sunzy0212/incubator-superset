@@ -199,7 +199,7 @@ class SqlEditorLeftBar extends React.PureComponent {
               async
               name="async-select-table"
               ref="selectTable"
-              value={this.state.tableName}
+              value={t(this.state.tableName)}
               placeholder={t('Type to search ...')}
               autosize={false}
               onChange={this.changeTable.bind(this)}

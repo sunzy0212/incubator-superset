@@ -23,7 +23,7 @@ var AdminActions = function() {
         var selected = $('input.action_check:checked').size();
 
         if (selected == 0) {
-            ab_alert('No row selected');
+            ab_alert('请选择记录!');
             return false;
         }
 

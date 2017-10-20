@@ -230,6 +230,9 @@ msgstr "时间序列-折线图"
 msgid "Pick a time granularity for your time series"
 msgstr ""
 
+msgid "Time Series Table"
+msgstr "时间序列表"
+
 #: superset/viz.py:1001
 msgid "Time Series - Dual Axis Line Chart"
 msgstr "时间序列-双轴线图"
@@ -692,7 +695,10 @@ msgstr "添加一个表 %s"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:203
 msgid "Type to search ..."
-msgstr "类型搜索 ..."
+msgstr "搜索 ..."
+
+msgid "Type to search"
+msgstr "搜索"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:226
 msgid "Reset State"
@@ -1166,7 +1172,7 @@ msgstr "获取数据源列表时出错"
 
 #: superset/assets/javascripts/explore/components/controls/DatasourceControl.jsx:95
 msgid "Click to point to another datasource"
-msgstr ""
+msgstr "点击改变数据源"
 
 #: superset/assets/javascripts/explore/components/controls/DatasourceControl.jsx:106
 msgid "Edit the datasource's configuration"
@@ -1319,7 +1325,7 @@ msgstr ""
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:130
 msgid "Error while fetching annotation layers"
-msgstr ""
+msgstr "读取注解时出错"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:141
 #: superset/assets/javascripts/explore/stores/visTypes.js:832
@@ -1798,7 +1804,7 @@ msgid ""
 "The text in this box gets included in your query's HAVING clause, as an "
 "AND to other criteria. You can include complex expression, parenthesis "
 "and anything else supported by the backend it is directed towards."
-msgstr ""
+msgstr "语句将包含到HAVING子句中，并用AND连接到其他条件。您可以包括复杂的表达式，括号和其后面所支持的其他任何东西"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:831
 msgid "Comparison Period Lag"
@@ -3701,3 +3707,28 @@ msgstr "月"
 
 msgid "years"
 msgstr "年"
+
+msgid "Sort Descending"
+msgstr "降序"
+
+msgid "Whether to sort descending or ascending"
+msgstr "是否需要按升/降排序"
+
+#: assets/javascripts/addSlice/AddSliceContainer.jsx:59
+msgid "Choose a datasource"
+msgstr "选择数据库"
+
+#: assets/javascripts/addSlice/AddSliceContainer.jsx:59
+msgid "Create a new slice"
+msgstr "创建图表"
+
+msgid "Create new slice"
+msgstr "创建图表"
+
+msgid "Choose a visualization type"
+msgstr "选择图表类型"
+
+
+#: superset/viz.py:108
+msgid "No data."
+msgstr "选择图表类型"
