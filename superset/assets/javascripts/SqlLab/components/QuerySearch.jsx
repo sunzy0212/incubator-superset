@@ -192,8 +192,8 @@ class QuerySearch extends React.PureComponent {
               >
                 <QueryTable
                   columns={[
-                    'state', 'db', 'user', 'time',
-                    'progress', 'rows', 'sql', 'querylink',
+                    {key:'state', label:"状态"},  {key:'db', label:"数据库"}, {key:'user', label:"用户"}, {key:'time', label:"时间"},
+                    {key:'progress', label:"进度"}, {key:'rows', label:"返回结果条数"}, {key:'sql', label:"查询语句"}, {key:'querylink', label:"打开链接"},
                   ]}
                   onUserClicked={this.onUserClicked.bind(this)}
                   onDbClicked={this.onDbClicked.bind(this)}

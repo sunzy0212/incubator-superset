@@ -773,6 +773,9 @@ msgstr "仅使用字母数字和下划线"
 msgid "Creating a data source and popping a new tab"
 msgstr "创建数据源并弹出新标签"
 
+msgid "No results found"
+msgstr "没有结果"
+
 #: superset/assets/javascripts/SqlLab/components/VisualizeModal.jsx:196
 msgid "No results available for this query"
 msgstr "此查询没有可用的结果"
@@ -876,7 +879,7 @@ msgstr "错误"
 #: superset/assets/javascripts/dashboard/Dashboard.jsx:354
 #, python-format
 msgid "Sorry, there was an error adding slices to this dashboard: %s"
-msgstr "抱歉，在仪表盘: %s 上添加切片出错"
+msgstr "抱歉，在仪表盘: %s 上添加图表出错"
 
 #: superset/assets/javascripts/dashboard/components/CodeModal.jsx:35
 msgid "Active Dashboard Filters"
@@ -1124,7 +1127,7 @@ msgstr "不要添加到仪表盘"
 
 #: superset/assets/javascripts/explore/components/SaveModal.jsx:189
 msgid "Add slice to existing dashboard"
-msgstr "将切片添加到现有仪表盘"
+msgstr "将图表添加到现有仪表盘"
 
 #: superset/assets/javascripts/explore/components/SaveModal.jsx:205
 msgid "Add to new dashboard"
@@ -1219,6 +1222,10 @@ msgstr "编辑"
 #: superset/assets/javascripts/explore/components/controls/TextAreaControl.jsx:81
 msgid "in modal"
 msgstr "在模型中"
+
+#: superset/assets/javascripts/explore/components/controls/VizTypeControl.jsx:95
+msgid "Click to change visualization type"
+msgstr "点击选择可视化类型"
 
 #: superset/assets/javascripts/explore/components/controls/VizTypeControl.jsx:110
 msgid "Select a visualization type"
@@ -2228,7 +2235,7 @@ msgstr "图表ID"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:1355
 msgid "The id of the active slice"
-msgstr "切片ID"
+msgstr "图表ID"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:1360
 msgid "Cache Timeout (seconds)"
@@ -2883,7 +2890,7 @@ msgid ""
 "that slices need to point to a datasource, so this form will fail at "
 "saving if removing slices from a datasource. If you want to change the "
 "datasource for a slice, overwrite the slice from the 'explore view'"
-msgstr "与此表关联的切片列表。通过更改此数据源，您可以更改相关的切片。还要注意，切片需要指向数据源，因此如果从数据源中删除切片，则此形式将无法保存。如果要更改切片的数据源，请从`浏览视图`覆盖切片，"
+msgstr "与此表关联的图表列表。通过更改此数据源，您可以更改相关的图表。还要注意，图表需要指向数据源，因此如果从数据源中删除图表，则此形式将无法保存。如果要更改图表的数据源，请从`浏览视图`覆盖图表，"
 
 #: superset/connectors/druid/views.py:204 superset/connectors/sqla/views.py:184
 msgid "Timezone offset (in hours) for this datasource"
@@ -3645,6 +3652,14 @@ msgstr "等待中"
 #: superset/assets/javascripts/SqlLab/components/QuerySearch.jsx:162
 msgid "now"
 msgstr "现在"
+
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx:15
+msgid "from now"
+msgstr "从现在"
+
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx:15
+msgid "ago"
+msgstr "前"
 
 msgid "1 hour ago"
 msgstr "1小时前"
