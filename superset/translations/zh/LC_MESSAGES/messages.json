@@ -127,6 +127,9 @@
          "Pick a time granularity for your time series": [
             ""
          ],
+         "Time Series Table": [
+            "时间序列表"
+         ],
          "Time Series - Dual Axis Line Chart": [
             "时间序列-双轴线图"
          ],
@@ -443,7 +446,10 @@
             "添加一个表 %s"
          ],
          "Type to search ...": [
-            "类型搜索 ..."
+            "搜索 ..."
+         ],
+         "Type to search": [
+            "搜索"
          ],
          "Reset State": [
             "重置状态"
@@ -764,7 +770,7 @@
             "获取数据源列表时出错"
          ],
          "Click to point to another datasource": [
-            ""
+            "点击改变数据源"
          ],
          "Edit the datasource's configuration": [
             "编辑数据源配置"
@@ -866,7 +872,7 @@
             ""
          ],
          "Error while fetching annotation layers": [
-            ""
+            "读取注解时出错"
          ],
          "Metric": [
             "度量"
@@ -1181,7 +1187,7 @@
             "HAVING语句"
          ],
          "The text in this box gets included in your query's HAVING clause, as an AND to other criteria. You can include complex expression, parenthesis and anything else supported by the backend it is directed towards.": [
-            ""
+            "语句将包含到HAVING子句中，并用AND连接到其他条件。您可以包括复杂的表达式，括号和其后面所支持的其他任何东西"
          ],
          "Comparison Period Lag": [
             "滞后比较周期"
@@ -2490,6 +2496,27 @@
          ],
          "years": [
             "年"
+         ],
+         "Sort Descending": [
+            "降序"
+         ],
+         "Whether to sort descending or ascending": [
+            "是否需要按升/降排序"
+         ],
+         "Choose a datasource": [
+            "选择数据库"
+         ],
+         "Create a new slice": [
+            "创建图表"
+         ],
+         "Create new slice": [
+            "创建图表"
+         ],
+         "Choose a visualization type": [
+            "选择图表类型"
+         ],
+         "No data.": [
+            "选择图表类型"
          ]
       }
    }

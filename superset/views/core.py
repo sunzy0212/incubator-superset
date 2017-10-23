@@ -1,3 +1,4 @@
+#coding=utf-8
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -462,7 +463,7 @@ class AccessRequestsModelView(SupersetModelView, DeleteMixin):
 #     icon='fa-table',)
 
 
-class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
+class SliceModelView(SupersetModelView, DeleteMixin, BaseSupersetView):  # noqa
     datamodel = SQLAInterface(models.Slice)
 
     list_title = _('List Slices')
@@ -532,6 +533,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
             "superset/add_slice.html",
             bootstrap_data=json.dumps({
                 'datasources': sorted(datasources, key=lambda d: d["label"]),
+                'common': self.common_bootsrap_payload(),
             }),
         )
 
@@ -1355,7 +1357,7 @@ class Superset(BaseSupersetView):
 
     def save_slice(self, slc):
         session = db.session()
-        msg = "Slice [{}] has been saved".format(slc.slice_name)
+        msg = "图表 [{}] 保存成功".format(slc.slice_name)
         session.add(slc)
         session.commit()
         flash(msg, "info")
@@ -1364,7 +1366,7 @@ class Superset(BaseSupersetView):
         session = db.session()
         session.merge(slc)
         session.commit()
-        msg = "Slice [{}] has been overwritten".format(slc.slice_name)
+        msg = "图表 [{}] 被覆写".format(slc.slice_name)
         flash(msg, "info")
 
     @api
