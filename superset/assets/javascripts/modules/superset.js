@@ -157,10 +157,10 @@ const px = function (state) {
         }
         if (xhr) {
           if (xhr.statusText === 'timeout') {
-            errHtml += (
+            errHtml += t(
               '<div class="alert alert-warning">' +
-              'Query timeout - visualization query are set to time out ' +
-              `at ${timeout} seconds.</div>`);
+              '查询失败 - 可视化查询的超时时间是 ' +
+              `at ${timeout} 秒.</div>`);
           } else {
             const extendedMsg = this.getErrorMsg(xhr);
             if (extendedMsg) {
