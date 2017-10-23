@@ -1253,9 +1253,9 @@ class Superset(BaseSupersetView):
             if datasource_type == 'table' \
             else datasource.datasource_name
         if slc:
-            title = "[slice] " + slc.slice_name
+            title = "[" + __("slice") + "] " + slc.slice_name
         else:
-            title = "[explore] " + table_name
+            title = "[" + __("explore") + "] " + table_name
         return self.render_template(
             "superset/basic.html",
             bootstrap_data=json.dumps(bootstrap_data),
@@ -1913,7 +1913,7 @@ class Superset(BaseSupersetView):
             "superset/dashboard.html",
             entry='dashboard',
             standalone_mode=standalone_mode,
-            title='[dashboard] ' + dash.dashboard_title,
+            title='[' + __("dashboard") + '] ' + dash.dashboard_title,
             bootstrap_data=json.dumps(bootstrap_data),
         )
 
