@@ -164,6 +164,9 @@ msgstr ""
 msgid "Markup"
 msgstr "标记"
 
+msgid "explore"
+msgstr "查询"
+
 #: superset/assets/javascripts/explore/stores/visTypes.js:411
 #: superset/viz.py:502
 msgid "Separator"
@@ -389,15 +392,15 @@ msgstr "事件流"
 
 #: superset/viz.py:1706
 msgid "Time Series - Paired t-test"
-msgstr ""
+msgstr "时间序列-配对T检验"
 
 #: superset/assets/javascripts/SqlLab/actions.js:57
 msgid "Your query was saved"
-msgstr "已保存你的查询"
+msgstr "已保存你的SQL"
 
 #: superset/assets/javascripts/SqlLab/actions.js:58
 msgid "Your query could not be saved"
-msgstr "不能保存你的查询"
+msgstr "不能保存你的SQL"
 
 #: superset/assets/javascripts/SqlLab/actions.js:111
 msgid "Failed at retrieving results from the results backend"
@@ -632,11 +635,11 @@ msgstr "取消"
 
 #: superset/assets/javascripts/SqlLab/components/SaveQuery.jsx:123
 msgid "Save Query"
-msgstr "保存查询"
+msgstr "保存SQL"
 
 #: superset/assets/javascripts/SqlLab/components/SouthPane.jsx:52
 msgid "Run a query to display results here"
-msgstr "运行查询以在此显示结果"
+msgstr "点击`执行`按钮，将在此展示SQL执行结果"
 
 #: superset/assets/javascripts/SqlLab/components/SouthPane.jsx:57
 #, python-format
@@ -682,7 +685,7 @@ msgstr "选择一个数据库"
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:170
 #, python-format
 msgid "Select a schema (%s)"
-msgstr "选择一个模式 %s"
+msgstr "选择一个数据 %s"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:175
 msgid "Schema:"
@@ -2683,6 +2686,9 @@ msgstr "仪表盘"
 msgid "Slices"
 msgstr "图表"
 
+msgid "slice"
+msgstr "图表"
+
 #: superset/assets/javascripts/profile/components/Favorites.jsx:34
 msgid "No favorite slices yet, go click on stars!"
 msgstr "没有收藏的图表，去点击星星收藏！"
@@ -2980,7 +2986,7 @@ msgstr ""
 
 #: superset/assets/javascripts/explore/components/DisplayQueryButton.jsx:113
 msgid "View Query"
-msgstr "查看查询"
+msgstr "查看SQL语句"
 
 #: superset/connectors/sqla/models.py:401
 msgid "Metric '{}' is not valid"
@@ -3468,6 +3474,9 @@ msgstr "“所有者”是一组可以修改看板的用户列表"
 
 #: superset/views/core.py:474 superset/views/core.py:541
 msgid "Dashboard"
+msgstr "报表"
+
+msgid "dashboard"
 msgstr "报表"
 
 #: superset/views/core.py:476
