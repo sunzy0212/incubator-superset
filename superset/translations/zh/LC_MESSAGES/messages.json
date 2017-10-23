@@ -239,10 +239,10 @@
             "时间序列-配对T检验"
          ],
          "Your query was saved": [
-            "已保存你的SQL"
+            "保存SQL成功"
          ],
          "Your query could not be saved": [
-            "不能保存你的SQL"
+            "保存SQL失败"
          ],
          "Failed at retrieving results from the results backend": [
             "解析后端数据失败"
@@ -404,7 +404,7 @@
             "取消"
          ],
          "Save Query": [
-            "保存SQL"
+            "保存SQL语句"
          ],
          "Run a query to display results here": [
             "点击`执行`按钮，将在此展示SQL执行结果"

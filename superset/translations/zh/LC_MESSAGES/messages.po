@@ -396,11 +396,11 @@ msgstr "时间序列-配对T检验"
 
 #: superset/assets/javascripts/SqlLab/actions.js:57
 msgid "Your query was saved"
-msgstr "已保存你的SQL"
+msgstr "保存SQL成功"
 
 #: superset/assets/javascripts/SqlLab/actions.js:58
 msgid "Your query could not be saved"
-msgstr "不能保存你的SQL"
+msgstr "保存SQL失败"
 
 #: superset/assets/javascripts/SqlLab/actions.js:111
 msgid "Failed at retrieving results from the results backend"
@@ -635,7 +635,7 @@ msgstr "取消"
 
 #: superset/assets/javascripts/SqlLab/components/SaveQuery.jsx:123
 msgid "Save Query"
-msgstr "保存SQL"
+msgstr "保存SQL语句"
 
 #: superset/assets/javascripts/SqlLab/components/SouthPane.jsx:52
 msgid "Run a query to display results here"
