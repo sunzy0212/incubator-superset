@@ -137,13 +137,13 @@
             "时间序列-双轴线图"
          ],
          "Pick a metric for left axis!": [
-            ""
+            "请为左轴选择一个度量"
          ],
          "Pick a metric for right axis!": [
-            ""
+            "请为右轴选择一个度量"
          ],
          "Please choose different metrics on left and right axis": [
-            ""
+            "请给左/右轴分别选择一个不同的度量"
          ],
          "Time Series - Bar Chart": [
             "时间序列-柱状图"
@@ -884,7 +884,7 @@
             "选择指标"
          ],
          "Right Axis Metric": [
-            "右轴指制"
+            "右轴格式"
          ],
          "Choose a metric for right axis": [
             "为右轴选择一个指标"
@@ -2526,6 +2526,9 @@
          ],
          "No data.": [
             "选择图表类型"
+         ],
+         "This section contains validation errors": [
+            "请处理未通过的验证错误"
          ]
       }
    }
