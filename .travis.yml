@@ -13,7 +13,7 @@ script:
   - mkdir $QBOXROOT/../qiniu.com/
   - mv $TRAVIS_BUILD_DIR $QBOXROOT/../qiniu.com/
   - go get -u github.com/kardianos/govendor
-  - cd $QBOXROOT/../qiniu.com/report/TiDB/src/qiniu.com/biserver
+  - cd $QBOXROOT/../qiniu.com/report/biserver/src/qiniu.com/biserver
   - export DEFAULT_EXCEPT_PKGS=vendor
   - if [[ $GOPATH == :* ]]; then export GOPATH=`echo $GOPATH | sed "s/://"`; fi
   - go get github.com/pingcap/tidb

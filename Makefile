@@ -20,7 +20,7 @@ GOVERALLS := goveralls
 ARCH      := "`uname -s`"
 LINUX     := "Linux"
 MAC       := "Darwin"
-PACKAGES  := $(CURDIR)/TiDB/src/qiniu.com/biserver
+PACKAGES  := $(CURDIR)/biserver/src/qiniu.com/biserver
 FILES     := $$(find . -name '*.go' | grep -vE 'vendor')
 
 LDFLAGS += -X "github.com/pingcap/tidb/util/printer.TiDBBuildTS=$(shell date -u '+%Y-%m-%d %I:%M:%S')"

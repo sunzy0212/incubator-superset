@@ -5,7 +5,7 @@ import AddSliceContainer from './AddSliceContainer';
 
 appSetup();
 
-const addSliceContainer = document.getElementById('js-add-slice-container');
+const addSliceContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(addSliceContainer.getAttribute('data-bootstrap'));
 
 ReactDOM.render(

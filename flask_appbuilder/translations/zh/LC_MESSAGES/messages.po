@@ -655,3 +655,9 @@ msgstr "请选择"
 
 msgid "Detail"
 msgstr "详细"
+
+msgid "OK"
+msgstr "确认"
+
+msgid "Cancel"
+msgstr "取消"

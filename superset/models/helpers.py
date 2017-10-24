@@ -18,6 +18,9 @@ from flask_appbuilder.models.decorators import renders
 from superset.utils import QueryStatus
 from superset import sm
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 class ImportMixin(object):
     def override(self, obj):
@@ -86,11 +89,13 @@ class AuditMixinNullable(AuditMixin):
 
     @renders('changed_on')
     def changed_on_(self):
+        humanize.i18n.activate("zh_CN")
         return Markup(
-            '<span class="no-wrap">{}</span>'.format(self.changed_on))
+            '<span class="no-wrap">{}</span>'.format(humanize.naturaltime(self.changed_on)))
 
     @renders('changed_on')
     def modified(self):
+        humanize.i18n.activate("zh_CN")
         s = humanize.naturaltime(datetime.now() - self.changed_on)
         return Markup('<span class="no-wrap">{}</span>'.format(s))
 

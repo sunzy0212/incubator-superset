@@ -42,8 +42,8 @@ export default function chartReducer(state = {}, action) {
       return Object.assign({}, state, {
         chartStatus: 'failed',
         chartAlert: (
-          '<strong>Query timeout</strong> - visualization query are set to timeout at ' +
-          `${action.timeout} seconds. ` +
+          '<strong>查询超时</strong> - 可视化查询的超时时间是 ' +
+          `${action.timeout} 秒. ` +
           t('Perhaps your data has grown, your database is under unusual load, ' +
           'or you are simply querying a data source that is to large ' +
           'to be processed within the timeout range. ' +
