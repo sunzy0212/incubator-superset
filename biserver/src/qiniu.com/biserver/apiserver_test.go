@@ -28,6 +28,15 @@ func Test_NewServer(t *testing.T) {
 			Address:  "10.200.20.39:5000",
 			MetaDB:   "report_dev_test",
 		},
+		SuperMysqlConfig: MysqlConfig{
+			User:     "root",
+			Password: "",
+			Protocol: "tcp",
+			Address:  "10.200.20.40:3306",
+			MetaDB:   "super_dev_test",
+		},
+		SampleDatabase:    "example_dev_test",
+		SupersetSecretKey: "02017468697369736d7973637265746b657901025c655c795c795c68",
 	}
 	server, err := New(&cfg)
 	if err != nil {
@@ -56,6 +65,15 @@ func Test_apiserver(t *testing.T) {
 			Address:  "10.200.20.39:5000",
 			MetaDB:   "report_dev_test",
 		},
+		SuperMysqlConfig: MysqlConfig{
+			User:     "root",
+			Password: "",
+			Protocol: "tcp",
+			Address:  "10.200.20.40:3306",
+			MetaDB:   "super_dev_test",
+		},
+		SampleDatabase:    "example_dev_test",
+		SupersetSecretKey: "02017468697369736d7973637265746b657901025c655c795c795c68",
 	}
 	svr, err := New(&cfg)
 	if err != nil {
@@ -271,6 +289,12 @@ func clean() error {
 	db.Exec("drop database report_dev_test")
 	db.Exec("drop database 123_dbone")
 	db.Exec("drop user '123'")
+
+	db, err = sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s)/%s", "root", "", "tcp", "10.200.20.40.3306", "super_dev_test"))
+	if err != nil {
+		return err
+	}
+	db.Exec("delete from dbs where database_name='dbone';")
 
 	return nil
 }
