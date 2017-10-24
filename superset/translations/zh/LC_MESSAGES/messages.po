@@ -242,15 +242,15 @@ msgstr "时间序列-双轴线图"
 
 #: superset/viz.py:1011
 msgid "Pick a metric for left axis!"
-msgstr ""
+msgstr "请为左轴选择一个度量"
 
 #: superset/viz.py:1013
 msgid "Pick a metric for right axis!"
-msgstr ""
+msgstr "请为右轴选择一个度量"
 
 #: superset/viz.py:1015
 msgid "Please choose different metrics on left and right axis"
-msgstr ""
+msgstr "请给左/右轴分别选择一个不同的度量"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:238
 #: superset/viz.py:1076
@@ -685,11 +685,11 @@ msgstr "选择一个数据库"
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:170
 #, python-format
 msgid "Select a schema (%s)"
-msgstr "选择一个数据 %s"
+msgstr "选择一个数据库 %s"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:175
 msgid "Schema:"
-msgstr "模式:"
+msgstr "数据库:"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:190
 #, python-format
@@ -1342,7 +1342,7 @@ msgstr "选择指标"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:156
 msgid "Right Axis Metric"
-msgstr "右轴指制"
+msgstr "右轴格式"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:160
 msgid "Choose a metric for right axis"
@@ -3737,7 +3737,12 @@ msgstr "创建图表"
 msgid "Choose a visualization type"
 msgstr "选择图表类型"
 
-
 #: superset/viz.py:108
 msgid "No data."
 msgstr "选择图表类型"
+
+#: assets/javascripts/explore/components/ControlPanelSection.jsx:46
+msgid "This section contains validation errors"
+msgstr "请处理未通过的验证错误"
+
+

@@ -211,7 +211,7 @@ class ChartContainer extends React.PureComponent {
       <div>
         <Alert
           bsStyle="warning"
-          onClick={() => this.setState({ showStackTrace: !this.state.showStackTrace })}
+          //onClick={() => this.setState({ showStackTrace: !this.state.showStackTrace })}
         >
           {msg}
         </Alert>
