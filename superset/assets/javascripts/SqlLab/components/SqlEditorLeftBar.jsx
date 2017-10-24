@@ -141,29 +141,6 @@ class SqlEditorLeftBar extends React.PureComponent {
     const tableMetaDataHeight = this.props.height - 130; // 130 is the height of the selects above
     return (
       <div className="clearfix sql-toolbar">
-        <div>
-          <AsyncSelect
-            dataEndpoint={
-              '/databaseasync/api/' +
-              'read?_flt_0_expose_in_sqllab=1&' +
-              '_oc_DatabaseAsync=database_name&' +
-              '_od_DatabaseAsync=asc'
-            }
-            onChange={this.onDatabaseChange.bind(this)}
-            onAsyncError={() => notify.error(t('Error while fetching database list'))}
-            value={this.props.queryEditor.dbId}
-            databaseId={this.props.queryEditor.dbId}
-            actions={this.props.actions}
-            valueRenderer={o => (
-              <div>
-                <span className="text-muted">{t('Database:')}</span> {o.label}
-              </div>
-            )}
-            mutator={this.dbMutator.bind(this)}
-            placeholder={t('Select a database')}
-            autoSelect
-          />
-        </div>
         <div className="m-t-5">
           <Select
             name="select-schema"
@@ -199,7 +176,7 @@ class SqlEditorLeftBar extends React.PureComponent {
               async
               name="async-select-table"
               ref="selectTable"
-              value={this.state.tableName}
+              value={t(this.state.tableName)}
               placeholder={t('Type to search ...')}
               autosize={false}
               onChange={this.changeTable.bind(this)}

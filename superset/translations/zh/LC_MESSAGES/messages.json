@@ -85,6 +85,9 @@
          "Markup": [
             "标记"
          ],
+         "explore": [
+            "查询"
+         ],
          "Separator": [
             "分隔符"
          ],
@@ -127,17 +130,20 @@
          "Pick a time granularity for your time series": [
             ""
          ],
+         "Time Series Table": [
+            "时间序列表"
+         ],
          "Time Series - Dual Axis Line Chart": [
             "时间序列-双轴线图"
          ],
          "Pick a metric for left axis!": [
-            ""
+            "请为左轴选择一个度量"
          ],
          "Pick a metric for right axis!": [
-            ""
+            "请为右轴选择一个度量"
          ],
          "Please choose different metrics on left and right axis": [
-            ""
+            "请给左/右轴分别选择一个不同的度量"
          ],
          "Time Series - Bar Chart": [
             "时间序列-柱状图"
@@ -230,13 +236,13 @@
             "事件流"
          ],
          "Time Series - Paired t-test": [
-            ""
+            "时间序列-配对T检验"
          ],
          "Your query was saved": [
-            "已保存你的查询"
+            "保存SQL成功"
          ],
          "Your query could not be saved": [
-            "不能保存你的查询"
+            "保存SQL失败"
          ],
          "Failed at retrieving results from the results backend": [
             "解析后端数据失败"
@@ -398,10 +404,10 @@
             "取消"
          ],
          "Save Query": [
-            "保存查询"
+            "保存SQL语句"
          ],
          "Run a query to display results here": [
-            "运行查询以在此显示结果"
+            "点击`执行`按钮，将在此展示SQL执行结果"
          ],
          "Preview for %s": [
             "预览 %s"
@@ -434,16 +440,19 @@
             "选择一个数据库"
          ],
          "Select a schema (%s)": [
-            "选择一个模式 %s"
+            "选择一个数据库 %s"
          ],
          "Schema:": [
-            "模式:"
+            "数据库:"
          ],
          "Add a table (%s)": [
             "添加一个表 %s"
          ],
          "Type to search ...": [
-            "类型搜索 ..."
+            "搜索 ..."
+         ],
+         "Type to search": [
+            "搜索"
          ],
          "Reset State": [
             "重置状态"
@@ -501,6 +510,9 @@
          ],
          "Creating a data source and popping a new tab": [
             "创建数据源并弹出新标签"
+         ],
+         "No results found": [
+            "没有结果"
          ],
          "No results available for this query": [
             "此查询没有可用的结果"
@@ -572,7 +584,7 @@
             "错误"
          ],
          "Sorry, there was an error adding slices to this dashboard: %s": [
-            "抱歉，在仪表盘: %s 上添加切片出错"
+            "抱歉，在仪表盘: %s 上添加图表出错"
          ],
          "Active Dashboard Filters": [
             "仪表盘过滤器"
@@ -734,7 +746,7 @@
             "不要添加到仪表盘"
          ],
          "Add slice to existing dashboard": [
-            "将切片添加到现有仪表盘"
+            "将图表添加到现有仪表盘"
          ],
          "Add to new dashboard": [
             "添加到新的仪表盘"
@@ -761,7 +773,7 @@
             "获取数据源列表时出错"
          ],
          "Click to point to another datasource": [
-            ""
+            "点击改变数据源"
          ],
          "Edit the datasource's configuration": [
             "编辑数据源配置"
@@ -801,6 +813,9 @@
          ],
          "in modal": [
             "在模型中"
+         ],
+         "Click to change visualization type": [
+            "点击选择可视化类型"
          ],
          "Select a visualization type": [
             "选择可视化类型"
@@ -860,7 +875,7 @@
             ""
          ],
          "Error while fetching annotation layers": [
-            ""
+            "读取注解时出错"
          ],
          "Metric": [
             "度量"
@@ -869,7 +884,7 @@
             "选择指标"
          ],
          "Right Axis Metric": [
-            "右轴指制"
+            "右轴格式"
          ],
          "Choose a metric for right axis": [
             "为右轴选择一个指标"
@@ -1175,7 +1190,7 @@
             "HAVING语句"
          ],
          "The text in this box gets included in your query's HAVING clause, as an AND to other criteria. You can include complex expression, parenthesis and anything else supported by the backend it is directed towards.": [
-            ""
+            "语句将包含到HAVING子句中，并用AND连接到其他条件。您可以包括复杂的表达式，括号和其后面所支持的其他任何东西"
          ],
          "Comparison Period Lag": [
             "滞后比较周期"
@@ -1487,7 +1502,7 @@
             "图表ID"
          ],
          "The id of the active slice": [
-            "切片ID"
+            "图表ID"
          ],
          "Cache Timeout (seconds)": [
             "缓存超时（秒）"
@@ -1780,6 +1795,9 @@
          "Slices": [
             "图表"
          ],
+         "slice": [
+            "图表"
+         ],
          "No favorite slices yet, go click on stars!": [
             "没有收藏的图表，去点击星星收藏！"
          ],
@@ -1925,7 +1943,7 @@
             "编辑Druid数据源"
          ],
          "The list of slices associated with this table. By altering this datasource, you may change how these associated slices behave. Also note that slices need to point to a datasource, so this form will fail at saving if removing slices from a datasource. If you want to change the datasource for a slice, overwrite the slice from the 'explore view'": [
-            "与此表关联的切片列表。通过更改此数据源，您可以更改相关的切片。还要注意，切片需要指向数据源，因此如果从数据源中删除切片，则此形式将无法保存。如果要更改切片的数据源，请从`浏览视图`覆盖切片，"
+            "与此表关联的图表列表。通过更改此数据源，您可以更改相关的图表。还要注意，图表需要指向数据源，因此如果从数据源中删除图表，则此形式将无法保存。如果要更改图表的数据源，请从`浏览视图`覆盖图表，"
          ],
          "Timezone offset (in hours) for this datasource": [
             "数据源的时差(单位：小时)"
@@ -1979,7 +1997,7 @@
             ""
          ],
          "View Query": [
-            "查看查询"
+            "查看SQL语句"
          ],
          "Metric '{}' is not valid": [
             "'{}'是无效的"
@@ -2308,6 +2326,9 @@
          "Dashboard": [
             "报表"
          ],
+         "dashboard": [
+            "报表"
+         ],
          "Slug": [
             "可读的URL"
          ],
@@ -2440,6 +2461,12 @@
          "now": [
             "现在"
          ],
+         "from now": [
+            "从现在"
+         ],
+         "ago": [
+            "前"
+         ],
          "1 hour ago": [
             "1小时前"
          ],
@@ -2478,6 +2505,30 @@
          ],
          "years": [
             "年"
+         ],
+         "Sort Descending": [
+            "降序"
+         ],
+         "Whether to sort descending or ascending": [
+            "是否需要按升/降排序"
+         ],
+         "Choose a datasource": [
+            "选择数据库"
+         ],
+         "Create a new slice": [
+            "创建图表"
+         ],
+         "Create new slice": [
+            "创建图表"
+         ],
+         "Choose a visualization type": [
+            "选择图表类型"
+         ],
+         "No data.": [
+            "选择图表类型"
+         ],
+         "This section contains validation errors": [
+            "请处理未通过的验证错误"
          ]
       }
    }

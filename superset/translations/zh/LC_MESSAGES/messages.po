@@ -164,6 +164,9 @@ msgstr ""
 msgid "Markup"
 msgstr "标记"
 
+msgid "explore"
+msgstr "查询"
+
 #: superset/assets/javascripts/explore/stores/visTypes.js:411
 #: superset/viz.py:502
 msgid "Separator"
@@ -230,21 +233,24 @@ msgstr "时间序列-折线图"
 msgid "Pick a time granularity for your time series"
 msgstr ""
 
+msgid "Time Series Table"
+msgstr "时间序列表"
+
 #: superset/viz.py:1001
 msgid "Time Series - Dual Axis Line Chart"
 msgstr "时间序列-双轴线图"
 
 #: superset/viz.py:1011
 msgid "Pick a metric for left axis!"
-msgstr ""
+msgstr "请为左轴选择一个度量"
 
 #: superset/viz.py:1013
 msgid "Pick a metric for right axis!"
-msgstr ""
+msgstr "请为右轴选择一个度量"
 
 #: superset/viz.py:1015
 msgid "Please choose different metrics on left and right axis"
-msgstr ""
+msgstr "请给左/右轴分别选择一个不同的度量"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:238
 #: superset/viz.py:1076
@@ -386,15 +392,15 @@ msgstr "事件流"
 
 #: superset/viz.py:1706
 msgid "Time Series - Paired t-test"
-msgstr ""
+msgstr "时间序列-配对T检验"
 
 #: superset/assets/javascripts/SqlLab/actions.js:57
 msgid "Your query was saved"
-msgstr "已保存你的查询"
+msgstr "保存SQL成功"
 
 #: superset/assets/javascripts/SqlLab/actions.js:58
 msgid "Your query could not be saved"
-msgstr "不能保存你的查询"
+msgstr "保存SQL失败"
 
 #: superset/assets/javascripts/SqlLab/actions.js:111
 msgid "Failed at retrieving results from the results backend"
@@ -629,11 +635,11 @@ msgstr "取消"
 
 #: superset/assets/javascripts/SqlLab/components/SaveQuery.jsx:123
 msgid "Save Query"
-msgstr "保存查询"
+msgstr "保存SQL语句"
 
 #: superset/assets/javascripts/SqlLab/components/SouthPane.jsx:52
 msgid "Run a query to display results here"
-msgstr "运行查询以在此显示结果"
+msgstr "点击`执行`按钮，将在此展示SQL执行结果"
 
 #: superset/assets/javascripts/SqlLab/components/SouthPane.jsx:57
 #, python-format
@@ -679,11 +685,11 @@ msgstr "选择一个数据库"
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:170
 #, python-format
 msgid "Select a schema (%s)"
-msgstr "选择一个模式 %s"
+msgstr "选择一个数据库 %s"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:175
 msgid "Schema:"
-msgstr "模式:"
+msgstr "数据库:"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:190
 #, python-format
@@ -692,7 +698,10 @@ msgstr "添加一个表 %s"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:203
 msgid "Type to search ..."
-msgstr "类型搜索 ..."
+msgstr "搜索 ..."
+
+msgid "Type to search"
+msgstr "搜索"
 
 #: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:226
 msgid "Reset State"
@@ -772,6 +781,9 @@ msgstr "仅使用字母数字和下划线"
 #: superset/assets/javascripts/SqlLab/components/VisualizeModal.jsx:166
 msgid "Creating a data source and popping a new tab"
 msgstr "创建数据源并弹出新标签"
+
+msgid "No results found"
+msgstr "没有结果"
 
 #: superset/assets/javascripts/SqlLab/components/VisualizeModal.jsx:196
 msgid "No results available for this query"
@@ -876,7 +888,7 @@ msgstr "错误"
 #: superset/assets/javascripts/dashboard/Dashboard.jsx:354
 #, python-format
 msgid "Sorry, there was an error adding slices to this dashboard: %s"
-msgstr "抱歉，在仪表盘: %s 上添加切片出错"
+msgstr "抱歉，在仪表盘: %s 上添加图表出错"
 
 #: superset/assets/javascripts/dashboard/components/CodeModal.jsx:35
 msgid "Active Dashboard Filters"
@@ -1124,7 +1136,7 @@ msgstr "不要添加到仪表盘"
 
 #: superset/assets/javascripts/explore/components/SaveModal.jsx:189
 msgid "Add slice to existing dashboard"
-msgstr "将切片添加到现有仪表盘"
+msgstr "将图表添加到现有仪表盘"
 
 #: superset/assets/javascripts/explore/components/SaveModal.jsx:205
 msgid "Add to new dashboard"
@@ -1163,7 +1175,7 @@ msgstr "获取数据源列表时出错"
 
 #: superset/assets/javascripts/explore/components/controls/DatasourceControl.jsx:95
 msgid "Click to point to another datasource"
-msgstr ""
+msgstr "点击改变数据源"
 
 #: superset/assets/javascripts/explore/components/controls/DatasourceControl.jsx:106
 msgid "Edit the datasource's configuration"
@@ -1219,6 +1231,10 @@ msgstr "编辑"
 #: superset/assets/javascripts/explore/components/controls/TextAreaControl.jsx:81
 msgid "in modal"
 msgstr "在模型中"
+
+#: superset/assets/javascripts/explore/components/controls/VizTypeControl.jsx:95
+msgid "Click to change visualization type"
+msgstr "点击选择可视化类型"
 
 #: superset/assets/javascripts/explore/components/controls/VizTypeControl.jsx:110
 msgid "Select a visualization type"
@@ -1312,7 +1328,7 @@ msgstr ""
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:130
 msgid "Error while fetching annotation layers"
-msgstr ""
+msgstr "读取注解时出错"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:141
 #: superset/assets/javascripts/explore/stores/visTypes.js:832
@@ -1326,7 +1342,7 @@ msgstr "选择指标"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:156
 msgid "Right Axis Metric"
-msgstr "右轴指制"
+msgstr "右轴格式"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:160
 msgid "Choose a metric for right axis"
@@ -1791,7 +1807,7 @@ msgid ""
 "The text in this box gets included in your query's HAVING clause, as an "
 "AND to other criteria. You can include complex expression, parenthesis "
 "and anything else supported by the backend it is directed towards."
-msgstr ""
+msgstr "语句将包含到HAVING子句中，并用AND连接到其他条件。您可以包括复杂的表达式，括号和其后面所支持的其他任何东西"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:831
 msgid "Comparison Period Lag"
@@ -2228,7 +2244,7 @@ msgstr "图表ID"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:1355
 msgid "The id of the active slice"
-msgstr "切片ID"
+msgstr "图表ID"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:1360
 msgid "Cache Timeout (seconds)"
@@ -2670,6 +2686,9 @@ msgstr "仪表盘"
 msgid "Slices"
 msgstr "图表"
 
+msgid "slice"
+msgstr "图表"
+
 #: superset/assets/javascripts/profile/components/Favorites.jsx:34
 msgid "No favorite slices yet, go click on stars!"
 msgstr "没有收藏的图表，去点击星星收藏！"
@@ -2883,7 +2902,7 @@ msgid ""
 "that slices need to point to a datasource, so this form will fail at "
 "saving if removing slices from a datasource. If you want to change the "
 "datasource for a slice, overwrite the slice from the 'explore view'"
-msgstr "与此表关联的切片列表。通过更改此数据源，您可以更改相关的切片。还要注意，切片需要指向数据源，因此如果从数据源中删除切片，则此形式将无法保存。如果要更改切片的数据源，请从`浏览视图`覆盖切片，"
+msgstr "与此表关联的图表列表。通过更改此数据源，您可以更改相关的图表。还要注意，图表需要指向数据源，因此如果从数据源中删除图表，则此形式将无法保存。如果要更改图表的数据源，请从`浏览视图`覆盖图表，"
 
 #: superset/connectors/druid/views.py:204 superset/connectors/sqla/views.py:184
 msgid "Timezone offset (in hours) for this datasource"
@@ -2967,7 +2986,7 @@ msgstr ""
 
 #: superset/assets/javascripts/explore/components/DisplayQueryButton.jsx:113
 msgid "View Query"
-msgstr "查看查询"
+msgstr "查看SQL语句"
 
 #: superset/connectors/sqla/models.py:401
 msgid "Metric '{}' is not valid"
@@ -3457,6 +3476,9 @@ msgstr "“所有者”是一组可以修改看板的用户列表"
 msgid "Dashboard"
 msgstr "报表"
 
+msgid "dashboard"
+msgstr "报表"
+
 #: superset/views/core.py:476
 msgid "Slug"
 msgstr "可读的URL"
@@ -3646,6 +3668,14 @@ msgstr "等待中"
 msgid "now"
 msgstr "现在"
 
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx:15
+msgid "from now"
+msgstr "从现在"
+
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx:15
+msgid "ago"
+msgstr "前"
+
 msgid "1 hour ago"
 msgstr "1小时前"
 
@@ -3686,3 +3716,33 @@ msgstr "月"
 
 msgid "years"
 msgstr "年"
+
+msgid "Sort Descending"
+msgstr "降序"
+
+msgid "Whether to sort descending or ascending"
+msgstr "是否需要按升/降排序"
+
+#: assets/javascripts/addSlice/AddSliceContainer.jsx:59
+msgid "Choose a datasource"
+msgstr "选择数据库"
+
+#: assets/javascripts/addSlice/AddSliceContainer.jsx:59
+msgid "Create a new slice"
+msgstr "创建图表"
+
+msgid "Create new slice"
+msgstr "创建图表"
+
+msgid "Choose a visualization type"
+msgstr "选择图表类型"
+
+#: superset/viz.py:108
+msgid "No data."
+msgstr "选择图表类型"
+
+#: assets/javascripts/explore/components/ControlPanelSection.jsx:46
+msgid "This section contains validation errors"
+msgstr "请处理未通过的验证错误"
+
+

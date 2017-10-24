@@ -142,7 +142,7 @@ export default class DatasourceControl extends React.PureComponent {
             }
             {this.state.datasources &&
               <Table
-                columns={['name', 'type', 'schema', 'connection', 'creator']}
+                columns={[{key:'name', label:"名称"}, {key:'type', label:"类型"}, {key:'schema', label:"模式"},{key: 'connection', label:"连接"},{key: 'creator', label:"创建者"}]}
                 className="table table-condensed"
                 data={this.state.datasources}
                 itemsPerPage={20}

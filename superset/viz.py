@@ -24,6 +24,7 @@ import pandas as pd
 import numpy as np
 from flask import request
 from flask_babel import lazy_gettext as _
+from flask_babel import gettext as __
 from markdown import markdown
 import simplejson as json
 from six import string_types, PY3
@@ -108,7 +109,7 @@ class BaseViz(object):
         if df is None or df.empty:
             self.status = utils.QueryStatus.FAILED
             if not self.error_message:
-                self.error_message = "No data."
+                self.error_message = __("No data.")
             return pd.DataFrame()
         else:
             if DTTM_ALIAS in df.columns:

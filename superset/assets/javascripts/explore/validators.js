@@ -7,14 +7,14 @@
 
 export function numeric(v) {
   if (v && isNaN(v)) {
-    return 'is expected to be a number';
+    return '请提供数值类型';
   }
   return false;
 }
 
 export function integer(v) {
   if (v && (isNaN(v) || parseInt(v, 10) !== +(v))) {
-    return 'is expected to be an integer';
+    return '请提供整形参数';
   }
   return false;
 }
@@ -26,7 +26,7 @@ export function nonEmpty(v) {
       v === '' ||
       (Array.isArray(v) && v.length === 0)
   ) {
-    return 'cannot be empty';
+    return '不能为空';
   }
   return false;
 }
