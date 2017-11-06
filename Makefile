@@ -55,14 +55,14 @@ gotest:
 
 server:
 ifeq ($(TARGET), "")
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/tidb-server TiDB/tidb-server/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/tidb-server biserver/tidb-server/main.go
 else
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' TiDB/tidb-server/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' biserver/tidb-server/main.go
 endif
 
 biserver:
 ifeq ($(TARGET), "")
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/pandora-biserver TiDB/cmd/apiserver/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/pandora-biserver biserver/cmd/apiserver/main.go
 else
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' TiDB/cmd/apiserver/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' biserver/cmd/apiserver/main.go
 endif
