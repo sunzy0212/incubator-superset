@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/rbwsam/ferry/mysql"
+	"github.com/mengjinglei/ferry/mysql"
 )
 
 func copyTables(srcCfg *mysql.Config, destCfg *mysql.Config) (err error) {

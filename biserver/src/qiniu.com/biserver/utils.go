@@ -203,7 +203,7 @@ func generateSqlMetrics(columnName, columnType, appId, databaseName, tableName s
 			)
 
 		}
-	case "VARCHAR", "DATETIME":
+	case "VARCHAR", "DATETIME", "DATE", "TEXT":
 		//do nothing
 	default:
 		err = fmt.Errorf("unknown column type %s", columnType)
@@ -217,11 +217,11 @@ func generateTableColumns(columnName, columnType, appId, databaseName, tableName
 	columnType = strings.Split(strings.ToUpper(columnType), "(")[0]
 
 	switch columnType {
-	case "VARCHAR":
+	case "VARCHAR", "TEXT":
 		dict[GROUPBY] = 1
 		dict[FILTERABLE] = 1
 		dict[IS_ACTIVE] = 1
-	case "DATETIME":
+	case "DATETIME", "DATE":
 		dict[IS_ACTIVE] = 1
 		dict[IS_DTTM] = 1
 	case "INT":
@@ -232,7 +232,7 @@ func generateTableColumns(columnName, columnType, appId, databaseName, tableName
 		dict[MIN] = 1
 		dict[MAX] = 1
 		dict[AVG] = 1
-	case "DOUBLE", "BIGINT":
+	case "DOUBLE", "BIGINT", "FLOAT":
 		dict[IS_ACTIVE] = 1
 		dict[FILTERABLE] = 1
 		dict[SUM] = 1

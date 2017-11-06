@@ -1,9 +1,11 @@
 package biserver
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 
@@ -17,9 +19,13 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
+	mysqlclient "github.com/mengjinglei/ferry/mysql"
 	"github.com/qiniu/http/rpcutil.v1"
 	"github.com/qiniu/log.v1"
-	mysqlclient "github.com/rbwsam/ferry/mysql"
+)
+
+const (
+	EXAMPLEDATABASENAME = "example"
 )
 
 type ApiServerConfig struct {
@@ -217,44 +223,57 @@ func (s *ApiServer) PostLoadexamples(env *rpcutil.Env) (err error) {
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
+	databaseName := "example_database"
 
-	//ensure appid is valid
-	result, err := s.MySQLClient.Query(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
+	err = s.PostDbs_(&cmdArgs{CmdArgs: []string{databaseName}}, env)
 	if err != nil {
 		return
 	}
 
-	var password string
+	result, err := s.MySQLClient.Query("show tables from example")
+	if err != nil {
+		return err
+	}
+
+	tableName := ""
 	for result.Next() {
-		err = result.Scan(&password)
+		err = result.Scan(&tableName)
 		if err != nil {
-			err = errors.Info(ErrInternalServerError, err.Error())
 			return
-		} else {
-			break
 		}
-	}
-	//exits, return last passwords
-	if password == "" {
-		err = errors.Info(ErrInvalidAppIdError)
-		return
-	}
-
-	//create database
-	userDBName := constructUserDBName(appId, "example_database")
-	_, err = s.MySQLClient.Exec(getCreateUserDBSQL(userDBName))
-	if err != nil {
-		err = translateMysqlError(err)
-		return
-	}
-
-	log.Info(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
-	_, err = s.MySQLClient.Exec(fmt.Sprintf("GRANT SELECT,DELETE,INSERT,DROP,CREATE ON %s.* TO '%s' IDENTIFIED BY '%s'", userDBName, appId, password))
-	if err != nil {
-		return
+		ret, err := s.MySQLClient.Query(fmt.Sprintf("show create table %s.%s", EXAMPLEDATABASENAME, tableName))
+		if err != nil {
+			return err
+		}
+		createTableSQL := ""
+		for ret.Next() {
+			err = ret.Scan(&tableName, &createTableSQL)
+			if err != nil {
+				return err
+			} else {
+				break
+			}
+		}
+		cmd := Command{CMD: createTableSQL}
+		cmdBytes, err := json.Marshal(cmd)
+		if err != nil {
+			return err
+		}
+		req, err := http.NewRequest("POST", "", bytes.NewReader(cmdBytes))
+		if err != nil {
+			return err
+		}
+		req.Header.Set(X_APPID, env.Req.Header.Get(X_APPID))
+		env.Req = req
+		err = s.PostDbs_Tables_(&cmdArgs{CmdArgs: []string{databaseName, tableName}}, env)
+		if err != nil {
+			return err
+		}
+		log.Infof("load example.%s success", tableName)
 	}
 
 	//copy sample data to destination database
+	userDBName := constructUserDBName(appId, databaseName)
 	items := strings.Split(s.Config.MysqlConfig.Address, ":")
 	if len(items) != 2 {
 		err = errors.Info(ErrInternalServerError)

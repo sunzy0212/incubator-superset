@@ -3,10 +3,10 @@ package biserver
 import (
 	"testing"
 
-	"github.com/rbwsam/ferry/mysql"
+	"github.com/mengjinglei/ferry/mysql"
 )
 
-func Test_copyTables(t *testing.T) {
+func test_copyTables(t *testing.T) {
 	src := &mysql.Config{
 		Host:     "10.200.20.39",
 		Port:     "5000",

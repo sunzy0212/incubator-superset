@@ -117,7 +117,6 @@ func Test_apiserver(t *testing.T) {
         # test create db
         post http://bi.com/v1/dbs/dbone
 		header X-Appid 123
-        ret 200
 
 		post http://bi.com/v1/dbs/dbone
 		header X-Appid 123
@@ -148,14 +147,12 @@ func Test_apiserver(t *testing.T) {
         # test create table
         post http://bi.com/v1/dbs/dbone
 		header X-Appid 123
-        ret 200
 
         post http://bi.com/v1/dbs/dbone/tables/tableone
 		header X-Appid 123
         json '{
             "cmd":"create table tableone(a TEXT, b TEXT)"
         }'
-        ret 200
 
 		post http://bi.com/v1/dbs/dbone/tables/tableone
 		header X-Appid 123
@@ -192,7 +189,6 @@ func Test_apiserver(t *testing.T) {
         json '{
             "cmd":"create table tableone(id TEXT, name TEXT, age INT)"
         }'
-        ret 200
 
 		get http://bi.com/v1/dbs/dbone/tables/tableone
 		header X-Appid 123
