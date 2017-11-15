@@ -34,3 +34,12 @@ target
 node_modules/
 *.pyc
 .DS_Store
+
+/*
+.idea
+!.gitignore
+!flask_appBuilder
+
+!superset
+superset/assets/node_modules/*
+*.pyc

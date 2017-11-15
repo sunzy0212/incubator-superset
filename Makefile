@@ -20,7 +20,7 @@ GOVERALLS := goveralls
 ARCH      := "`uname -s`"
 LINUX     := "Linux"
 MAC       := "Darwin"
-PACKAGES  := $(CURDIR)/TiDB/src/qiniu.com/biserver
+PACKAGES  := $(CURDIR)/biserver/src/qiniu.com/biserver
 FILES     := $$(find . -name '*.go' | grep -vE 'vendor')
 
 LDFLAGS += -X "github.com/pingcap/tidb/util/printer.TiDBBuildTS=$(shell date -u '+%Y-%m-%d %I:%M:%S')"
@@ -55,14 +55,14 @@ gotest:
 
 server:
 ifeq ($(TARGET), "")
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/tidb-server TiDB/tidb-server/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/tidb-server biserver/tidb-server/main.go
 else
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' TiDB/tidb-server/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' biserver/tidb-server/main.go
 endif
 
 biserver:
 ifeq ($(TARGET), "")
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/pandora-biserver TiDB/cmd/apiserver/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o bin/pandora-biserver biserver/cmd/apiserver/main.go
 else
-	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' TiDB/cmd/apiserver/main.go
+	$(GOBUILD) $(RACE_FLAG) -ldflags '$(LDFLAGS)' -o '$(TARGET)' biserver/cmd/apiserver/main.go
 endif
