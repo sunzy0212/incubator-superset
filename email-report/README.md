@@ -17,7 +17,8 @@ Pandora Mail Service is used for easily sending mail with `report theme`.
         "email": "example@qiniu.com",
         "fullname": "七牛",
         "is_enterprise": false,
-        "is_certified": true
+        "is_certified": true,
+        "is_internal": true  
       }
     }
 

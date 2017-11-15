@@ -15,6 +15,7 @@ type user struct {
 	FullName     string `json:"full_name"`
 	IsEnterprise bool   `json:"is_enterprise"`
 	IsCertified  bool   `json:"is_certified"`
+	IsInternal   bool   `json:"is_internal"`
 }
 
 type userRes struct {
