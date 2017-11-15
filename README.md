@@ -15,17 +15,25 @@ superset -> TiDB
 
 ## 使用方式
 
-1. 在portal创建bi sudtio的数据库和数据表（也可以在创建导出任务的时候自动创建） 
+1. 在workflow在创建导出任务的时候创建bi sudtio的数据库和数据表
 2. 在workflow创建导出任务，将数据导出到bi studio节点
-3. 在superset中增加数据源、数据表
-4. 根据业务生成superset的slice（slice是单张图表）
-5. 创建dashboard,将前一步生成的slice添加进dashboard
+3. 打开supserset可以看到在workflow上已经创建好的数据库和数据表
+4. 根据业务生成superset的图表（报表）
+5. 创建看板,将前一步生成的报表添加进看板
 
 ## 部署地址
 
-1. TiDB: cs19:5000(10.200.20.39:5000)
-2. Bi-Studio apiserver: cs19:2308(workflow --http--> Bi-Studio),cs19:2306(superset --tcp--> Bi-Studio)
-3. superset: cs19:8080
+### cs staging 地址
+
+1. TiDB: cs57:5000(10.200.20.68:5000)
+2. Bi-Studio apiserver: cs57:2308(workflow --http--> Bi-Studio),cs57:2306(superset --tcp--> Bi-Studio)
+3. superset: cs19:7070
+
+### 线上地址
+
+1. TiDB: nb1188:5000, nb1191:5000, nb1194:5000
+2. Bi-Studio apiserver: nb1188:2308(workflow --http--> Bi-Studio),nb1188:2306(superset --tcp--> Bi-Studio)
+3. superset: nb1188:8080
 
 ## API文档
 
@@ -39,85 +47,59 @@ superset本身有账户系统，需要和七牛的账户系统对接上。
 
 superset通过OAuth2的方式连接到七牛系统。
 
-### 怎么多租户
+### 多租户的实现原理
 
-首先superset的数据管理方式是这样的
-
-1. 在配置文件中指定一个MYSQL的uri和数据库，用来存放各种用户的元数据
-2. 在添加数据源的时候，可以指定不同的MYSQL地址和数据库
-
-解决多租户的方式为
-
-1. 每个注册用户都有一个自己的MYSQL数据库
-
-这个数据库用来存放各种元数据，比如权限信息，dashboard信息，数据源信息等
-在用户登录进去superset之后，连接的数据库需要自动连接对应用户的数据库，比如以用户uid命名的数据库.
-
-具体实现方式
-
-flask-appbuilder的构造函数是这样的
-
-```
-  def __init__(self, app=None,
-                 session=None,
-                 menu=None,
-                 indexview=None,
-                 base_template='appbuilder/baselayout.html',
-                 static_folder='static/appbuilder',
-                 static_url_path='/appbuilder',
-                 security_manager_class=None):
-
-```
-
-app: 是一个Flask app
-session： 是一个sqlalchemy的DB_Session对象
-
-```
-DB_CONNECT_STRING = 'mysql+mysqldb://100.100.32.234:3306/sqlalchemy1?charset=utf8'
-engine = create_engine(DB_CONNECT_STRING, echo=True)
-DB_Session = sessionmaker(bind=engine)
-session = DB_Session()
-```
-
-这个session是和database绑定的，一旦创建就不能修改database
-
-为了实现多租户，需要在superset内部维护一个uid到session的映射关系
-每当用户登录之后，创建一个session，在登录期间进行的所有操作都用这个session来进行；
-每当用户登出之后，销毁这个session；
-
-整个get session的入口在 flask-appbuiler/base.py
-这个文件的get session返回了初始化 appbuilder的时候传入的session
-之后这个函数被sm里面的flask-appbuilder/security/sqla/manager.py引用，用来正在的对数据库进行各种数据的操作
-
-为此，在base.py增加根据uid获取session的接口
-在sqla/manager.py里面对base的get session接口进行引用就可以达到根据uid修改各种数据的目的。
-
-2. 自动添加用户相关的数据源，在打开添加数据源页面的时候，自动请求后端，拿到对应的数据源，不允许用户自定义添加
-
-
+在superset本身的元数据管理方式上，增加了一个qiniu uid字段，根据oauth登录拿到的uid进行数据的操作。
 
 ## TiDB多租户
 
-以数据库为单位，一个用户可以根据业务的不同创建多个数据库
+1. 以数据库为单位，一个用户可以根据业务的不同创建多个数据库
 
-原声的TiDB是直接用mysql协议来进行各种操作的，比如资源创建、数据写入、数据查询等。
+2. 原生的TiDB是直接用mysql协议来进行各种操作的，比如资源创建、数据写入、数据查询等。
 
 我们不能直接沿用mysql协议，因为没有办法使用当前的这套鉴权系统，所以需要使用熟悉的http协议，在apiserver的内部进行转化。
+
+3. 每个数据库以`用户APPID_`开头
+
+4. 每个用户在第一次使用的时候，会被系统生成一个以用户appid为用户名的账户，密码是随机生成的，这个用户名和密码可以用作apiserver和superset连接TiDB的依据。
 
 
 ## superset和TiDB的连接
 
 ### 怎么连接
 
-superset通过http协议连接Pandora TiDB进行查询
+1. superset通过http协议连接Pandora TiDB进行元数据的管理
+2. superset通过tcp协议连接Pandora TiDB进行数据的读取
 
 ### 如何鉴权
 
 通过ak，sk鉴权
 
-## 主要的任务
+## biserver和TiDB的连接
 
-* TiDB的多租户(complete)
-* supserset接入七牛的用户账户体系(complete)
-* supserset增加Pandora TiDB数据源(走http协议，而不是mysql协议)(complete)
-* Pandora TiDB需要一个简易Portal，用来创建资源
+### 怎么连接
+
+1. biserver通过http协议连接TiDB进行元数据的管理
+2. 离线导出和实时导出通过tcp协议连接TiDB进行打点操作
+
+### 如何鉴权
+
+1. 元数据管理通过ak sk鉴权
+2. 打点操作通过多租户生成的用户名和密码鉴权
+
+
+## 开发环境搭建
+
+### superset环境搭建
+
+1. 依照这个文档[安装superset](https://superset.incubator.apache.org/installation.html)进行安装，直到`superset runserver`这一步执行成功。
+
+2. 替换superset和flask appbuilder，进入上一步安装成功的superset目录，克隆https://gitlab.qiniu.io/mengjinglei/superset.git 覆盖相应目录
+
+3. 执行`superset runserver`，开发环境既可工作。
+
+注意，开发环境和staging环境共用一套元数据，在本地开发环境添加数据库，数据表和报表会同步到staging环境。
+
+### biserver环境搭建
+
+直接clone本repo即可
