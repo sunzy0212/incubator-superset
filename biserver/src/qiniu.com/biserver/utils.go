@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -285,4 +286,8 @@ func generateTableColumns(columnName, columnType, appId, databaseName, tableName
 		appId,
 		dict[AVG],
 	), nil
+}
+
+func toMs(t time.Duration) string {
+	return strconv.FormatInt(t.Nanoseconds()/1000/1000, 10)
 }

@@ -309,6 +309,15 @@ func (s *ApiServer) PostDbs_(args *cmdArgs, env *rpcutil.Env) (err error) {
 		return
 	}
 
+	defer func(start time.Time) {
+		defer func(start time.Time) {
+			env.W.Header().Set(API_AUDIT_ACTION, "CREATE_DBS")
+			env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+			env.W.Header().Set(API_AUDIT_Appid, appId)
+			env.W.Header().Set(API_AUDIT_DBName, dbName)
+		}(time.Now())
+	}(time.Now())
+
 	//ensure appid is valid
 	result, err := s.MySQLClient.Query(fmt.Sprintf("SELECT password from %s.users where user='%s'", s.MetaDB, appId))
 	if err != nil {
@@ -407,6 +416,12 @@ func (s *ApiServer) GetDbs(env *rpcutil.Env) (dbs []string, err error) {
 		return
 	}
 
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "LIST_DBS")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+	}(time.Now())
+
 	//create database
 	sql := fmt.Sprintf("SELECT SCHEMA_NAME from information_schema.schemata where SCHEMA_NAME like '%s%%'", appId)
 	log.Println(sql)
@@ -439,6 +454,13 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 		return
 	}
 
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "DELETE_DB")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
+
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("DROP DATABASE %s", constructUserDBName(appId, dbName)))
 	if err != nil {
 		err = translateMysqlError(err)
@@ -448,9 +470,16 @@ func (s *ApiServer) DeleteDbs_(args *cmdArgs, env *rpcutil.Env) (dbs []string, e
 	return
 }
 
-func (s *ApiServer) PostAdmin_Dbs_Tables_(args *cmdArgs) (err error) {
+func (s *ApiServer) PostAdmin_Dbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error) {
 
 	appId, dbName, tableName := args.CmdArgs[0], args.CmdArgs[1], args.CmdArgs[2]
+
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "INSERT_TABLE")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
 
 	schemas, err := s.getDbs_tables_schema(constructUserDBName(appId, dbName), tableName)
 	if err != nil {
@@ -529,12 +558,19 @@ changed_by_fk
 // Content-Type: application/json
 // X-Appid: <AppId>
 func (s *ApiServer) PostDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error) {
-
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
+
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "INSERT_TABLE")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
+
 	data, err := ioutil.ReadAll(env.Req.Body)
 	if err != nil {
 		err = errors.Info(ErrInternalServerError, err.Error())
@@ -685,12 +721,18 @@ changed_by_fk
 // Content-Type: application/json
 // X-Appid: <AppId>
 func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err error) {
-
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
+
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "DELETE_DB_TABLES")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
 
 	//cmd need verify
 	_, err = s.MySQLClient.Exec(fmt.Sprintf("drop table %s.%s", constructUserDBName(appId, dbName), args.CmdArgs[1]))
@@ -706,13 +748,18 @@ func (s *ApiServer) DeleteDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (err erro
 // Content-Type: application/json
 // X-Appid: <AppId>
 func (s *ApiServer) GetDbs_Tables(args *cmdArgs, env *rpcutil.Env) (tables []string, err error) {
-
 	tables = make([]string, 0)
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "GET_DB_TABLES")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
 	//ensure appid is valid
 
 	//create database
@@ -748,9 +795,14 @@ func (s *ApiServer) GetDbs_Tables_(args *cmdArgs, env *rpcutil.Env) (schemas []T
 		err = errors.Info(ErrHeaderAppIdError)
 		return
 	}
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "GET_TABLE_SCHEMA")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
 
 	tableName := args.CmdArgs[1]
-
 	userDBName := constructUserDBName(appId, dbName)
 
 	return s.getDbs_tables_schema(userDBName, tableName)
@@ -787,6 +839,15 @@ func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err er
 		schema,
 		values,
 	)
+
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "INSERT_TABLE")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_SQL, sql)
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
+
 	err = conn.Exec(sql)
 	if err != nil {
 		err = errors.Info(ErrInternalServerError, err.Error())
@@ -800,7 +861,6 @@ func (s *ApiServer) PostDbs_Tables_Data(args *cmdArgs, env *rpcutil.Env) (err er
 // Content-Type: application/json
 // X-Appid: <AppId>
 func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet, err error) {
-
 	appId, dbName, err := getAppidAndDBName(args, env)
 	if err != nil {
 		err = errors.Info(ErrHeaderAppIdError)
@@ -843,6 +903,14 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 		return
 	}
 	sql := fmt.Sprintf(req.CMD)
+	defer func(start time.Time) {
+		env.W.Header().Set(API_AUDIT_ACTION, "POST_DB_QUERY")
+		env.W.Header().Set(API_AUDIT_Cost, toMs(time.Since(start)))
+		env.W.Header().Set(API_AUDIT_SQL, sql)
+		env.W.Header().Set(API_AUDIT_Appid, appId)
+		env.W.Header().Set(API_AUDIT_DBName, dbName)
+	}(time.Now())
+
 	result, err := conn.FetchAll(sql, 10000)
 	if err != nil {
 		err = errors.Info(ErrInternalServerError, err.Error())
@@ -854,8 +922,14 @@ func (s *ApiServer) PostDbs_Query(args *cmdArgs, env *rpcutil.Env) (ret QueryRet
 }
 
 func (s *ApiServer) getDbs_tables_schema(userDBName, tableName string) (schemas []TableSchema, err error) {
+	query := fmt.Sprintf("describe %s.%s", userDBName, tableName)
 
-	result, err := s.MySQLClient.Query(fmt.Sprintf("describe %s.%s", userDBName, tableName))
+	defer func(start time.Time) {
+		elapsed := toMs(time.Since(start))
+		log.Info(fmt.Sprintf("GET_TABLE_SCHEMA\t%v\t%s\t%s\t%s", elapsed, query, userDBName, tableName))
+	}(time.Now())
+
+	result, err := s.MySQLClient.Query(query)
 	if err != nil {
 		if strings.Contains(err.Error(), "Error 1146") {
 			err = errors.Info(ErrTableNotFoundError)

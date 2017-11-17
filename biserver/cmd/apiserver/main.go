@@ -15,7 +15,6 @@ import (
 	"github.com/qiniu/xlog.v1"
 	"qbox.us/cc/config"
 	"qiniu.com/biserver"
-	"qiniupkg.com/trace.v1"
 )
 
 type MysqlConfig struct {
@@ -112,7 +111,7 @@ func main() {
 	}
 	defer logf.Close()
 
-	mux := trace.NewServeMuxWith(servestk.New(restrpc.NewServeMux(), requestLogger, al.Handler))
+	mux := servestk.New(restrpc.NewServeMux(), requestLogger, al.Handler)
 
 	router := restrpc.Router{
 		Factory:       restrpc.Factory,

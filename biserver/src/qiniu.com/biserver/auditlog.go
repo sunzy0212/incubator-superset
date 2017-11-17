@@ -221,6 +221,11 @@ func (r PointdDecoder) DecodeResponse(header http.Header, bodyThumb []byte, h, p
 	set(h, header, "X-Req-Body-Length")
 	set(h, header, "X-Sql-Complexity")
 	set(h, header, "X-Sql-Scanned-Bytes")
+	set(h, header, API_AUDIT_ACTION)
+	set(h, header, API_AUDIT_SQL)
+	set(h, header, API_AUDIT_Cost)
+	set(h, header, API_AUDIT_Appid)
+	set(h, header, API_AUDIT_DBName)
 
 	if ok && ct[0] == "application/json" && header.Get("Content-Encoding") != "gzip" {
 		if -1 == bytes.IndexAny(bodyThumb, "\n\r") {

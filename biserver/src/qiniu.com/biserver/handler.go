@@ -151,8 +151,12 @@ func (th *TiDBHandler) ComInitDB(s *driver.Session, db string) error {
 
 // ComQuery impl.
 func (th *TiDBHandler) ComQuery(s *driver.Session, query string) (*sqltypes.Result, error) {
-	th.log.Debug("test.handler.ComQuery: %v", query)
 	query = strings.ToLower(query)
+
+	defer func(start time.Time) {
+		elapsed := toMs(time.Since(start))
+		th.log.Info(fmt.Sprintf("SQL\t%v\t%s\t%s\t%s", elapsed, query, s.User(), s.ID()))
+	}(time.Now())
 
 	th.mu.Lock()
 	th.queryCalled[query]++
