@@ -31,6 +31,49 @@ else:
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
+SUPERSET_WEBSERVER_PORT = 8080
+SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'  # noqa
+BISERVER_BACKEND_URL = 'http://10.200.20.68:2308'
+TIDB_BACKEND_URL = "10.200.20.68:5000"
+SQLALCHEMY_DATABASE_URI = 'mysql://root:@10.200.20.40:3306/super'
+
+SUPERSET_OAUTH_CONSUMER_KEY = "uNoStPw55GyGjBGJfdrrR4y9"
+SUPERSET_OAUTH_CONSUMER_SECRET = "jmFi9oTg1xhcL9Bd4y3XU95GylehVMhhIwUoNui7"
+SUPERSET_OAUTH_BASE_URL = 'https://portalv4-dev.qiniu.io/oauth/v2/api/account/info'
+SUPERSET_OAUTH_ACCESS_TOKEN = 'https://portalv4-dev.qiniu.io/oauth/v2/token'
+SUPERSET_OAUTH_AUTHRIZE_URL = 'https://portalv4-dev.qiniu.io/oauth/v2/authorize'
+
+# get config from environ
+if 'SUPERSET_WEBSERVER_PORT' in os.environ:
+    SUPERSET_WEBSERVER_PORT = os.environ['SUPERSET_WEBSERVER_PORT']
+
+if 'SUPERSET_SECRET_KEY' in os.environ:
+    SECRET_KEY = os.environ['SUPERSET_SECRET_KEY']
+
+if 'SUPERSET_SQLALCHEMY_DATABASE_URI' in os.environ:
+    SQLALCHEMY_DATABASE_URI = os.environ['SUPERSET_SQLALCHEMY_DATABASE_URI']
+
+if 'SUPERSET_BISERVER_BACKEND_URL' in os.environ:
+    BISERVER_BACKEND_URL = os.environ['SUPERSET_BISERVER_BACKEND_URL']
+
+if 'SUPERSET_TIDB_BACKEND_URL' in os.environ:
+    TIDB_BACKEND_URL = os.environ['SUPERSET_TIDB_BACKEND_URL']
+
+if 'SUPERSET_OAUTH_CONSUMER_KEY' in os.environ:
+    SUPERSET_OAUTH_CONSUMER_KEY = os.environ['SUPERSET_OAUTH_CONSUMER_KEY']
+
+if 'SUPERSET_OAUTH_CONSUMER_SECRET' in os.environ:
+    SUPERSET_OAUTH_CONSUMER_SECRET = os.environ['SUPERSET_OAUTH_CONSUMER_SECRET']
+
+if 'SUPERSET_OAUTH_BASE_URL' in os.environ:
+    SUPERSET_OAUTH_BASE_URL = os.environ['SUPERSET_OAUTH_BASE_URL']
+
+if 'SUPERSET_OAUTH_ACCESS_TOKEN' in os.environ:
+    SUPERSET_OAUTH_ACCESS_TOKEN = os.environ['SUPERSET_OAUTH_ACCESS_TOKEN']
+
+if 'SUPERSET_OAUTH_AUTHRIZE_URL' in os.environ:
+    SUPERSET_OAUTH_AUTHRIZE_URL = os.environ['SUPERSET_OAUTH_AUTHRIZE_URL']
+
 # ---------------------------------------------------------
 # Superset specific config
 # ---------------------------------------------------------
@@ -45,7 +88,7 @@ SUPERSET_WORKERS = 2
 SUPERSET_CELERY_WORKERS = 32
 
 SUPERSET_WEBSERVER_ADDRESS = '0.0.0.0'
-SUPERSET_WEBSERVER_PORT = 8080
+# SUPERSET_WEBSERVER_PORT = 8080
 SUPERSET_WEBSERVER_TIMEOUT = 60
 EMAIL_NOTIFICATIONS = False
 CUSTOM_SECURITY_MANAGER = None
@@ -53,14 +96,14 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 # ---------------------------------------------------------
 
 # Your App secret key
-SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'  # noqa
+# SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'  # noqa
 
 # The SQLAlchemy connection string.
 # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(DATA_DIR, 'superset.db')
-SQLALCHEMY_DATABASE_URI = 'mysql://root:@10.200.20.40:3306/super'
+# SQLALCHEMY_DATABASE_URI = 'mysql://root:@10.200.20.40:3306/super'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
-BISERVER_BACKEND_URL = 'http://10.200.20.68:2308'
-TIDB_BACKEND_URL = "10.200.20.68:5000"
+# BISERVER_BACKEND_URL = 'http://10.200.20.68:2308'
+# TIDB_BACKEND_URL = "10.200.20.68:5000"
 
 # In order to hook up a custom password store for all SQLACHEMY connections
 # implement a function that takes a single argument of type 'sqla.engine.url',
@@ -123,14 +166,19 @@ AUTH_TYPE = AUTH_OAUTH
 OAUTH_PROVIDERS = [
     {'name': 'qiniu', 'icon': 'fa-qiniu', 'token_key': 'access_token',
         'remote_app': {
-            'consumer_key': "uNoStPw55GyGjBGJfdrrR4y9",
-            'consumer_secret': "jmFi9oTg1xhcL9Bd4y3XU95GylehVMhhIwUoNui7",
-            'base_url': 'https://portalv4-dev.qiniu.io/oauth/v2/api/account/info',
+            # 'consumer_key': "uNoStPw55GyGjBGJfdrrR4y9",
+            # 'consumer_secret': "jmFi9oTg1xhcL9Bd4y3XU95GylehVMhhIwUoNui7",
+            # 'base_url': 'https://portalv4-dev.qiniu.io/oauth/v2/api/account/info',
+            'consumer_key': SUPERSET_OAUTH_CONSUMER_KEY,
+            'consumer_secret': SUPERSET_OAUTH_CONSUMER_SECRET,
+            'base_url': SUPERSET_OAUTH_BASE_URL,
             'request_token_params': {
             },
             'request_token_url': None,
-            'access_token_url': 'https://portalv4-dev.qiniu.io/oauth/v2/token',
-            'authorize_url': 'https://portalv4-dev.qiniu.io/oauth/v2/authorize'}
+            # 'access_token_url': 'https://portalv4-dev.qiniu.io/oauth/v2/token',
+            # 'authorize_url': 'https://portalv4-dev.qiniu.io/oauth/v2/authorize'
+            'access_token_url': SUPERSET_OAUTH_ACCESS_TOKEN,
+            'authorize_url': SUPERSET_OAUTH_AUTHRIZE_URL}
     }]
 
 # Uncomment to setup Full admin role name
