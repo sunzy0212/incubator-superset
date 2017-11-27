@@ -123,7 +123,7 @@ msgstr "[Superset] 允许访问数据源 %(name)s "
 
 #: superset/viz.py:50
 msgid "Viz is missing a datasource"
-msgstr ""
+msgstr "找不到数据源"
 
 #: superset/viz.py:181
 msgid "From date cannot be larger than to date"
@@ -3739,7 +3739,7 @@ msgstr "选择图表类型"
 
 #: superset/viz.py:108
 msgid "No data."
-msgstr "选择图表类型"
+msgstr "没有数据."
 
 #: assets/javascripts/explore/components/ControlPanelSection.jsx:46
 msgid "This section contains validation errors"

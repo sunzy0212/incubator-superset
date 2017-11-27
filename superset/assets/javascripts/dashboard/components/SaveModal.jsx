@@ -22,7 +22,7 @@ class SaveModal extends React.PureComponent {
       dashboard: props.dashboard,
       css: props.css,
       saveType: 'overwrite',
-      newDashName: props.dashboard.dashboard_title + ' [copy]',
+      newDashName: props.dashboard.dashboard_title + ' [' + t("copy") + ']',
       duplicateSlices: false,
     };
     this.modal = null;
@@ -142,7 +142,7 @@ class SaveModal extends React.PureComponent {
                 checked={this.state.duplicateSlices}
                 onChange={this.toggleDuplicateSlices.bind(this)}
               />
-              <span className="m-l-5">also copy (duplicate) slices</span>
+              <span className="m-l-5">同时复制图表</span>
             </div>
           </FormGroup>
         }

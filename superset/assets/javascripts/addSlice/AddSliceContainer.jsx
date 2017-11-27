@@ -74,7 +74,7 @@ export default class AddSliceContainer extends React.PureComponent {
                     name="select-vis-type"
                     onChange={this.changeVisType.bind(this)}
                     options={this.vizTypeOptions}
-                    placeholder={('Choose a visualization type')}
+                    placeholder={t('Choose a visualization type')}
                     value={this.state.visType}
                   />
                 </div>

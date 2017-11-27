@@ -59,8 +59,8 @@ SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'  # noqa
 # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(DATA_DIR, 'superset.db')
 SQLALCHEMY_DATABASE_URI = 'mysql://root:@10.200.20.40:3306/super'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
-BISERVER_BACKEND_URL = 'http://10.200.20.39:2308'
-TIDB_BACKEND_URL = "10.200.20.39:5000"
+BISERVER_BACKEND_URL = 'http://10.200.20.68:2308'
+TIDB_BACKEND_URL = "10.200.20.68:5000"
 
 # In order to hook up a custom password store for all SQLACHEMY connections
 # implement a function that takes a single argument of type 'sqla.engine.url',

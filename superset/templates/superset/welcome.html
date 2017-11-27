@@ -3,7 +3,8 @@
 {% block title %}{{ _("Welcome!") }}{% endblock %}
 
 {% block body %}
-
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="/static/assets/dist/libs/progressbar.js"></script>
 <div id="confirmLoadData" class="modal fade">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -91,6 +92,7 @@
                 $.ajax({
                     url: "/biserverbackendview/load_examples",
                     method: "POST",
+                    headers: {'X-CSRF-Token': csrftoken},
                     success: function() {
                         handleResult(true);
                     },
