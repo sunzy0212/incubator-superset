@@ -65,19 +65,19 @@
             "表视图"
          ],
          "Pick a granularity in the Time section or uncheck 'Include Time'": [
-            ""
+            "请在时间区域选择时间粒度选项"
          ],
          "Choose either fields to [Group By] and [Metrics] or [Columns], not both": [
-            ""
+            "[查询] 和 [分组查询] 只能使用其中一个"
          ],
          "Pivot Table": [
             "透视表"
          ],
          "Please choose at least one \"Group by\" field ": [
-            ""
+            "请至少选择一个分组(Group by)字段"
          ],
          "Please choose at least one metric": [
-            ""
+            "请至少选择一个指标"
          ],
          "'Group By' and 'Columns' can't overlap": [
             ""
@@ -113,13 +113,13 @@
             "子弹图"
          ],
          "Pick a metric to display": [
-            ""
+            "选择一个需要展示的指标"
          ],
          "Big Number with Trendline": [
             "数字和趋势线"
          ],
          "Pick a metric!": [
-            ""
+            "选择指标"
          ],
          "Big Number": [
             "数字"
@@ -128,7 +128,7 @@
             "时间序列-折线图"
          ],
          "Pick a time granularity for your time series": [
-            ""
+            "给时间序列选择一个时间粒度"
          ],
          "Time Series Table": [
             "时间序列表"
@@ -680,13 +680,13 @@
             "是否显示图表描述"
          ],
          "Edit chart": [
-            "编辑图表"
+            "修改图表属性"
          ],
          "Export CSV": [
-            "检索图表"
+            "导出CSV"
          ],
          "Explore chart": [
-            "检索图表"
+            "编辑图表"
          ],
          "Remove chart from dashboard": [
             "从仪表盘删除图表"
@@ -836,7 +836,7 @@
             ""
          ],
          "Group by": [
-            "Group by"
+            "字段"
          ],
          "One or many controls to group by": [
             "一个或多个控件组合。如果分组，纬度和经度列必须存在。"
@@ -851,7 +851,7 @@
             "要显示的可视化类型"
          ],
          "Metrics": [
-            "指标"
+            "函数"
          ],
          "One or many metrics to display": [
             "显示的一个或多个指标"
@@ -1001,7 +1001,7 @@
             "Superset期望在[country]列中找到国家/地区的代码标准"
          ],
          "Columns": [
-            "列"
+            "字段"
          ],
          "One or many controls to pivot as columns": [
             ""
@@ -1589,16 +1589,16 @@
             "轴"
          ],
          "GROUP BY": [
-            "GROUP BY"
+            "分组查询(group by)"
          ],
          "Use this section if you want a query that aggregates": [
-            "进行聚合查询"
+            "在这里进行分组聚合查询, 即GROUP BY操作"
          ],
          "NOT GROUPED BY": [
-            "NOT GROUPED BY"
+            "查询"
          ],
          "Use this section if you want to query atomic rows": [
-            "进行原始行查询"
+            "这里进行原始行查询"
          ],
          "Options": [
             "选项"

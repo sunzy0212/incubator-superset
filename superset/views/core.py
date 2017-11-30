@@ -59,7 +59,7 @@ DAR = models.DatasourceAccessRequest
 
 ALL_DATASOURCE_ACCESS_ERR = __(
     "This endpoint requires the `all_datasource_access` permission")
-DATASOURCE_MISSING_ERR = __("The datasource seems to have been deleted")
+DATASOURCE_MISSING_ERR = _("The datasource seems to have been deleted")
 ACCESS_REQUEST_MISSING_ERR = __(
     "The access requests seem to have been deleted")
 USER_MISSING_ERR = __("The user seems to have been deleted")

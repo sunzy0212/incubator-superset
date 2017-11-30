@@ -136,11 +136,11 @@ msgstr "表视图"
 
 #: superset/viz.py:381
 msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
-msgstr ""
+msgstr "请在时间区域选择时间粒度选项"
 
 #: superset/viz.py:391
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
-msgstr ""
+msgstr "[查询] 和 [分组查询] 只能使用其中一个"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:386
 #: superset/viz.py:430
@@ -149,11 +149,11 @@ msgstr "透视表"
 
 #: superset/viz.py:444
 msgid "Please choose at least one \"Group by\" field "
-msgstr ""
+msgstr "请至少选择一个分组(Group by)字段"
 
 #: superset/viz.py:446
 msgid "Please choose at least one metric"
-msgstr ""
+msgstr "请至少选择一个指标"
 
 #: superset/viz.py:450
 msgid "'Group By' and 'Columns' can't overlap"
@@ -208,7 +208,7 @@ msgstr "子弹图"
 
 #: superset/viz.py:786
 msgid "Pick a metric to display"
-msgstr ""
+msgstr "选择一个需要展示的指标"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:597
 #: superset/viz.py:809
@@ -217,7 +217,7 @@ msgstr "数字和趋势线"
 
 #: superset/viz.py:817 superset/viz.py:846
 msgid "Pick a metric!"
-msgstr ""
+msgstr "选择指标"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:622
 #: superset/viz.py:838
@@ -231,7 +231,7 @@ msgstr "时间序列-折线图"
 
 #: superset/viz.py:913 superset/viz.py:1058
 msgid "Pick a time granularity for your time series"
-msgstr ""
+msgstr "给时间序列选择一个时间粒度"
 
 msgid "Time Series Table"
 msgstr "时间序列表"
@@ -1024,15 +1024,15 @@ msgstr "是否显示图表描述"
 
 #: superset/assets/javascripts/dashboard/components/SliceCell.jsx:54
 msgid "Edit chart"
-msgstr "编辑图表"
+msgstr "修改图表属性"
 
 #: superset/assets/javascripts/dashboard/components/SliceCell.jsx:62
 msgid "Export CSV"
-msgstr "检索图表"
+msgstr "导出CSV"
 
 #: superset/assets/javascripts/dashboard/components/SliceCell.jsx:70
 msgid "Explore chart"
-msgstr "检索图表"
+msgstr "编辑图表"
 
 #: superset/assets/javascripts/dashboard/components/SliceCell.jsx:77
 msgid "Remove chart from dashboard"
@@ -1268,7 +1268,7 @@ msgstr ""
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:50
 msgid "Group by"
-msgstr "Group by"
+msgstr "字段"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:53
 msgid "One or many controls to group by"
@@ -1291,7 +1291,7 @@ msgstr "要显示的可视化类型"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:90
 msgid "Metrics"
-msgstr "指标"
+msgstr "函数"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:99
 #: superset/assets/javascripts/explore/stores/controls.jsx:116
@@ -1513,7 +1513,7 @@ msgstr "Superset期望在[country]列中找到国家/地区的代码标准"
 #: superset/assets/javascripts/explore/stores/controls.jsx:412
 #: superset/assets/javascripts/explore/stores/controls.jsx:419
 msgid "Columns"
-msgstr "列"
+msgstr "字段"
 
 #: superset/assets/javascripts/explore/stores/controls.jsx:413
 msgid "One or many controls to pivot as columns"
@@ -2388,19 +2388,19 @@ msgstr "轴"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:337
 msgid "GROUP BY"
-msgstr "GROUP BY"
+msgstr "分组查询(group by)"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:338
 msgid "Use this section if you want a query that aggregates"
-msgstr "进行聚合查询"
+msgstr "在这里进行分组聚合查询, 即GROUP BY操作"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:346
 msgid "NOT GROUPED BY"
-msgstr "NOT GROUPED BY"
+msgstr "查询"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:347
 msgid "Use this section if you want to query atomic rows"
-msgstr "进行原始行查询"
+msgstr "这里进行原始行查询"
 
 #: superset/assets/javascripts/explore/stores/visTypes.js:354
 #: superset/assets/javascripts/explore/stores/visTypes.js:755

@@ -335,6 +335,14 @@ export const visTypes = {
     label: t('Table View'),
     controlPanelSections: [
       {
+        label: t('NOT GROUPED BY'),
+        description: t('Use this section if you want to query atomic rows'),
+        controlSetRows: [
+          ['all_columns'],
+          ['order_by_cols'],
+        ],
+      },
+      {
         label: t('GROUP BY'),
         description: t('Use this section if you want a query that aggregates'),
         controlSetRows: [
@@ -343,14 +351,7 @@ export const visTypes = {
           ['timeseries_limit_metric', 'order_desc'],
         ],
       },
-      {
-        label: t('NOT GROUPED BY'),
-        description: t('Use this section if you want to query atomic rows'),
-        controlSetRows: [
-          ['all_columns'],
-          ['order_by_cols'],
-        ],
-      },
+
       {
         label: t('Options'),
         controlSetRows: [

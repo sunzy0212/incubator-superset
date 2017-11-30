@@ -16,10 +16,6 @@
         </th>
         {% endif %}
 
-        {% if can_show or can_edit or can_delete %}
-            <th class="col-md-1 col-lg-1 col-sm-1" ></th>
-        {% endif %}
-
         {% for item in include_columns %}
             {% if item in order_columns %}
                 {% set res = item | get_link_order(modelview_name) %}
@@ -38,6 +34,11 @@
                 <th>{{label_columns.get(item)}}</th>
             {% endif %}
         {% endfor %}
+
+        {% if can_show or can_edit or can_delete %}
+            <th class="col-md-1 col-lg-1 col-sm-1" >操作</th>
+        {% endif %}
+
         </tr>
         </thead>
     {% endblock %}
@@ -51,11 +52,6 @@
                     <input id="{{pk}}" class="action_check" name="rowid" value="{{pk}}" type="checkbox">
                 </td>
                 {% endif %}
-                {% if can_show or can_edit or can_delete %}
-                    <td><center>
-                    {{ lib.btn_crud(can_show, can_edit, can_delete, pk, modelview_name, filters) }}
-                    </center></td>
-                {% endif %}
                 {% for value in include_columns %}
                     {% set formatter = formatters_columns.get(value) %}
                     {% if formatter %}
@@ -64,6 +60,11 @@
                         <td>{{ item[value]|safe }}</td>
                     {% endif %}
                 {% endfor %}
+                {% if can_show or can_edit or can_delete %}
+                    <td><center>
+                    {{ lib.btn_crud(can_show, can_edit, can_delete, pk, modelview_name, filters) }}
+                    </center></td>
+                {% endif %}
             </tr>
         {% endfor %}
     {% endblock %}
