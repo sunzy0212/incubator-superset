@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Table, Tr, Td, Thead, Th, unsafe } from 'reactable';
+import { t } from '../locales';
 
 import '../../stylesheets/reactable-pagination.css';
 
@@ -39,9 +40,9 @@ export default class DashboardTable extends React.PureComponent {
           itemsPerPage={50}
           hideFilterInput
           columns={[
-            { key: 'dashboard', label: 'Dashboard' },
-            { key: 'creator', label: 'Creator' },
-            { key: 'modified', label: 'Modified' },
+            { key: 'dashboard', label: t('Dashboard') },
+            { key: 'creator', label: t('Creator') },
+            { key: 'modified', label: t('Modified') },
           ]}
           defaultSort={{ column: 'modified', direction: 'desc' }}
         >
