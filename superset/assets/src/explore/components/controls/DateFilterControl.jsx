@@ -10,6 +10,7 @@ import 'react-datetime/css/react-datetime.css';
 import moment from 'moment';
 
 import ControlHeader from '../ControlHeader';
+import { t } from '../../../locales'
 import PopoverSection from '../../../components/PopoverSection';
 
 const RELATIVE_TIME_OPTIONS = ['ago', 'from now'];
@@ -92,7 +93,7 @@ export default class DateFilterControl extends React.Component {
       <Popover id="filter-popover">
         <div style={{ width: '250px' }}>
           <PopoverSection
-            title="Fixed"
+            title={t("Fixed")}
             isSelected={this.state.type === 'fix'}
             onSelect={this.setType.bind(this, 'fix')}
           >
@@ -111,7 +112,7 @@ export default class DateFilterControl extends React.Component {
             </InputGroup>
           </PopoverSection>
           <PopoverSection
-            title="Relative"
+            title={t("Relative")}
             isSelected={this.state.type === 'rel'}
             onSelect={this.setType.bind(this, 'rel')}
           >
@@ -138,19 +139,19 @@ export default class DateFilterControl extends React.Component {
                   value={this.state.rel}
                   onFocus={this.setType.bind(this, 'rel')}
                   clearable={false}
-                  options={RELATIVE_TIME_OPTIONS.map(s => ({ label: s, value: s }))}
+                  options={RELATIVE_TIME_OPTIONS.map(s => ({ label: t(s), value: s }))}
                   onChange={this.onControlChange.bind(this, 'rel')}
                 />
               </div>
             </div>
           </PopoverSection>
           <PopoverSection
-            title="Free form"
+            title={("Free form")}
             isSelected={this.state.type === 'free'}
             onSelect={this.setType.bind(this, 'free')}
             info={
-              'Superset supports smart date parsing. Strings like `last sunday` or ' +
-              '`last october` can be used.'
+              t('Superset supports smart date parsing. Strings like `last sunday` or ' +
+              '`last october` can be used.')
             }
           >
             <FormControl
@@ -167,7 +168,7 @@ export default class DateFilterControl extends React.Component {
               bsStyle="primary"
               onClick={this.close.bind(this)}
             >
-              Ok
+              {t("Ok")}
             </Button>
             <ButtonGroup
               className="float-right"
@@ -177,14 +178,14 @@ export default class DateFilterControl extends React.Component {
                 className="now"
                 onClick={this.setValueAndClose.bind(this, 'now')}
               >
-                now
+                t{("now")}
               </Button>
               <Button
                 bsSize="small"
                 className="clear"
                 onClick={this.setValueAndClose.bind(this, '')}
               >
-                clear
+                t{("clear")}
               </Button>
             </ButtonGroup>
           </div>

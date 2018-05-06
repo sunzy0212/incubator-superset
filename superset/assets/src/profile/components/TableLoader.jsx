@@ -46,7 +46,6 @@ export default class TableLoader extends React.PureComponent {
         {this.state.data.map((row, i) => (
           <Tr key={i}>
             {columns.map((col) => {
-              console.log('col: ', col)
               if (row.hasOwnProperty('_' + col)) {
                 return (
                   <Td key={col} column={t(col)} value={row['_' + col]}>

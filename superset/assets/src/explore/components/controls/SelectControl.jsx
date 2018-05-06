@@ -40,7 +40,7 @@ const defaultProps = {
   onChange: () => {},
   onFocus: () => {},
   showHeader: true,
-  optionRenderer: opt => opt.label,
+  optionRenderer: opt => t(opt.label),
   valueRenderer: opt => opt.label,
   valueKey: 'value',
 };

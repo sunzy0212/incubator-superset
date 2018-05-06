@@ -87,11 +87,11 @@ msgstr "周一为一周开始"
 
 #: superset/db_engine_specs.py:386 superset/db_engine_specs.py:922
 msgid "week_ending_saturday"
-msgstr "周日为一周开始"
+msgstr "周六为一周结束"
 
 #: superset/db_engine_specs.py:389 superset/db_engine_specs.py:925
 msgid "week_start_sunday"
-msgstr "周日为一周结束"
+msgstr "周日为一周开始"
 
 #: superset/db_engine_specs.py:844 superset/db_engine_specs.py:956
 msgid "5 minute"
@@ -122,17 +122,45 @@ msgstr "起始时间不可以大于当前时间"
 msgid "Table View"
 msgstr "表视图"
 
-#: superset/viz.py:381
-msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
-msgstr "在“时间”部分选择一个粒度，或取消选中“包括时间”"
+#: superset/views.py:299
+msgid "Login count"
+msgstr "登录次数"
+
+#: superset/views.py:299
+msgid "Failed login count"
+msgstr "登录失败次数"
+
+#: superset/views.py:299
+msgid "Login Count"
+msgstr "登录次数"
+
+#: superset/views.py:299
+msgid "Failed Login Count"
+msgstr "登录失败次数"
+
+#: superset/core.py:2730
+msgid "Upload a CSV"
+msgstr "上传CSV文件"
+
+#: superset/core.py:421
+msgid "List Charts"
+msgstr "图表列表"
+
+#: superset/core.py:421
+msgid "Show Chart"
+msgstr "显示图表"
+
+#: superset/core.py:421
+msgid "Add Chart"
+msgstr "添加图表"
+
+#: superset/core.py:421
+msgid "Edit Chart"
+msgstr "编辑图表"
 
 #: superset/viz.py:391
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
 msgstr "为[分组]和[指标]或[列]选择任何的字段，或者两个都不选"
-
-#: superset/assets/src/welcome/App.jsx:37
-msgid "Search"
-msgstr "搜索"
 
 #: superset/assets/src/welcome/App.jsx:47
 msgid "Recently Viewed"
@@ -152,6 +180,10 @@ msgstr "时间"
 
 #: superset/assets/src/profile/dashboard/components/Favorites.jsx:62
 msgid "Charts"
+msgstr "图表"
+
+#: 
+msgid "Chart"
 msgstr "图表"
 
 #: superset/assets/src/profile/dashboard/components/Favorites.jsx:50
@@ -1266,7 +1298,6 @@ msgstr "Y 轴界限"
 msgid ""
 "Bounds for the Y axis. When left empty, the bounds are dynamically defined based on the min/max of "
 "the data. Note that this feature will only expand the axis range. It won't narrow the data's extent."
-msgstr ""
 msgstr "Y轴的边界。当左侧空时，根据数据的min / max动态定义边界。注意，这个特性只会扩展轴的范围。它不会缩小数据的范围"
 
 #: superset/assets/src/explore/stores/controls.jsx:114
@@ -3060,7 +3091,7 @@ msgstr "表名"
 
 #: superset/connectors/sqla/views.py:224
 msgid "Fetch Values Predicate"
-msgstr "取值谓词"
+msgstr "预加载数据"
 
 #: superset/connectors/sqla/views.py:226
 msgid "Main Datetime Column"
@@ -3251,7 +3282,7 @@ msgstr "作者"
 
 #: superset/views/core.py:250
 msgid "SQLAlchemy URI"
-msgstr "SQLAlchemy URI"
+msgstr "数据库 URI"
 
 #: superset/views/core.py:252
 msgid "Extra"
@@ -3394,7 +3425,7 @@ msgstr "报表"
 
 #: superset/views/core.py:476
 msgid "Slug"
-msgstr "Slug"
+msgstr "可读的URL"
 
 #: superset/views/core.py:481
 msgid "Position JSON"
@@ -3528,12 +3559,228 @@ msgstr "编辑保存的查询"
 
 #: superset/views/sql_lab.py:59
 msgid "Pop Tab Link"
-msgstr "流行标签链接"
-
-#: superset/views/sql_lab.py:60
-msgid "Changed on"
-msgstr "改变为"
+msgstr "打开查询链接"
 
 #: superset/views/sql_lab.py:79
 msgid "Saved Queries"
 msgstr "已保存查询"
+
+#: superset/views/core.py:311
+msgid "tables"
+msgstr "表"
+
+#: superset/views/core.py:312
+msgid "Created By"
+msgstr "创建者"
+
+#: superset/views/core.py:315
+#: superset/views/sql_lab.py:60
+msgid "Changed On"
+msgstr "修改时间"
+
+#: superset/assets/javascripts/SqlLab/constants.js:12
+#: superset/assets/javascripts/SqlLab/components/QuerySearch.jsx:180
+msgid "success"
+msgstr "成功"
+
+msgid "failed"
+msgstr "失败"
+
+msgid "running"
+msgstr "执行中"
+
+msgid "pending"
+msgstr "等待中"
+
+#: superset/assets/javascripts/SqlLab/constants.js:19
+#: superset/assets/javascripts/SqlLab/components/QuerySearch.jsx:162
+msgid "now"
+msgstr "现在"
+
+msgid "1 hour ago"
+msgstr "1小时前"
+
+msgid "1 day ago"
+msgstr "1天前"
+
+msgid "28 days ago"
+msgstr "28天前"
+
+msgid "90 days ago"
+msgstr "3个月前"
+
+msgid "1 year ago"
+msgstr "一年前"
+
+
+#: superset/templates/index.html
+msgid "Previous"
+msgstr "上一页"
+
+msgid "Next"
+msgstr "下一页"
+
+#: superset/assets/src/explore/components/ControlPanelsContainer.jsx:122
+msgid "Data"
+msgstr "数据"
+
+#: superset/assets/src/explore/components/ControlPanelsContainer.jsx:126
+msgid "Style"
+msgstr "样式"
+
+#: superset/assets/src/explore/components/ControlPanelsContainer.jsx:126
+msgid "Fixed"
+msgstr "固定"
+
+#: superset/assets/src/explore/components/ControlPanelsContainer.jsx:126
+msgid "Relative"
+msgstr "相对"
+
+#: superset/assets/src/explore/components/ControlPanelsContainer.jsx:126
+msgid "Free form"
+msgstr "自定义"
+
+#: superset/assets/src/explore/components/ControlPanelsContainer.jsx:126
+msgid "Ok"
+msgstr "确定"
+
+#: superset/assets/src/explore/components/ControlPanelsContainer.jsx:126
+msgid "clear"
+msgstr "清空"
+
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx: 16
+msgid "seconds"
+msgstr "秒"
+
+msgid "minutes"
+msgstr "分"
+
+msgid "hours"
+msgstr "时"
+
+msgid "days"
+msgstr "天"
+
+msgid "weeks"
+msgstr "周"
+
+msgid "months"
+msgstr "月"
+
+msgid "years"
+msgstr "年"
+
+#: superset/assets/javascripts/SqlLab/components/QuerySearch.jsx: 220
+msgid "state"
+msgstr "状态"
+
+msgid "db"
+msgstr "数据库"
+
+msgid "user"
+msgstr "用户"
+
+msgid "progress"
+msgstr "进度"
+
+msgid "rows"
+msgstr "返回结果条数"
+
+msgid "sql"
+msgstr "查询语句"
+
+msgid "querylink"
+msgstr "打开链接"
+
+#: superset/assets/javascripts/SqlLab/components/QuerySearch.jsx: 220
+msgid "started"
+msgstr "开始"
+
+msgid "duration"
+msgstr "时长"
+
+#: superset/assets/javascripts/SqlLab/components/VisualizeModal.jsx: 277
+msgid "column"
+msgstr "列"
+
+msgid "is_dimension"
+msgstr "是否是维度"
+
+msgid "is_date"
+msgstr "是否是日期"
+
+msgid "agg_func"
+msgstr "聚合函数"
+
+#: superset/assets/javascripts/explore/components/controls/DatasourceControl.jsx
+msgid "schema"
+msgstr "模式"
+
+msgid "connection"
+msgstr "连接"
+
+msgid "creator"
+msgstr "创建者"
+
+#: superset/assets/javascripts/explore/components/controls/VizTypeControl.jsx
+msgid "Click to change visualization type"
+msgstr "点击选择可视化类型"
+
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx:15
+msgid "from now"
+msgstr "从现在"
+
+#: superset/assets/javascripts/explore/components/controls/DateFilterControl.jsx:15
+msgid "ago"
+msgstr "前"
+
+#: superset/assets/javascripts/addSlice/AddSliceContainer.jsx
+msgid "Superset supports smart date parsing. Strings like `last sunday` or `last october` can be used."
+msgstr "支持智能的时间解析。例如：`last sunday` `last october`"
+
+msgid "Time Series Table"
+msgstr "时间序列表"
+
+#: superset/assets/javascripts/SqlLab/components/SqlEditorLeftBar.jsx:203
+msgid "Type to search"
+msgstr "搜索"
+
+msgid "Sort Descending"
+msgstr "降序"
+
+msgid "Whether to sort descending or ascending"
+msgstr "是否需要按升/降排序"
+
+#: assets/javascripts/addSlice/AddSliceContainer.jsx:59
+msgid "Choose a datasource"
+msgstr "选择数据库"
+
+#: assets/javascripts/addSlice/AddSliceContainer.jsx:59
+msgid "Create a new slice"
+msgstr "创建图表"
+
+msgid "Create new slice"
+msgstr "创建图表"
+
+msgid "Choose a visualization type"
+msgstr "选择图表类型"
+
+#: superset/viz.py:108
+msgid "No data"
+msgstr "没有数据"
+
+#: assets/javascripts/addSlice/AddSliceContainer.jsx:59
+msgid "output"
+msgstr "输出"
+
+msgid "actions"
+msgstr "操作"
+
+msgid "explore"
+msgstr "查询"
+
+msgid "slice"
+msgstr "图表"
+
+msgid "dashboard"
+msgstr "报表"

@@ -38,10 +38,10 @@
             "周一为一周开始"
          ],
          "week_ending_saturday": [
-            "周日为一周开始"
+            "周六为一周结束"
          ],
          "week_start_sunday": [
-            "周日为一周结束"
+            "周日为一周开始"
          ],
          "5 minute": [
             "5 分钟"
@@ -64,14 +64,35 @@
          "Table View": [
             "表视图"
          ],
-         "Pick a granularity in the Time section or uncheck 'Include Time'": [
-            "在“时间”部分选择一个粒度，或取消选中“包括时间”"
+         "Login count": [
+            "登录次数"
+         ],
+         "Failed login count": [
+            "登录失败次数"
+         ],
+         "Login Count": [
+            "登录次数"
+         ],
+         "Failed Login Count": [
+            "登录失败次数"
+         ],
+         "Upload a CSV": [
+            "上传CSV文件"
+         ],
+         "List Charts": [
+            "图表列表"
+         ],
+         "Show Chart": [
+            "显示图表"
+         ],
+         "Add Chart": [
+            "添加图表"
+         ],
+         "Edit Chart": [
+            "编辑图表"
          ],
          "Choose either fields to [Group By] and [Metrics] or [Columns], not both": [
             "为[分组]和[指标]或[列]选择任何的字段，或者两个都不选"
-         ],
-         "Search": [
-            "搜索"
          ],
          "Recently Viewed": [
             "最近查看"
@@ -86,6 +107,9 @@
             "时间"
          ],
          "Charts": [
+            "图表"
+         ],
+         "Chart": [
             "图表"
          ],
          "No favorite dashboards yet, go click on stars!": [
@@ -336,6 +360,9 @@
          ],
          "[Query Status]": [
             "[查询状态]"
+         ],
+         "Search": [
+            "搜索"
          ],
          "Open in SQL Editor": [
             "在 SQL 编辑器中打开"
@@ -863,7 +890,6 @@
             "Y 轴界限"
          ],
          "Bounds for the Y axis. When left empty, the bounds are dynamically defined based on the min/max of the data. Note that this feature will only expand the axis range. It won't narrow the data's extent.": [
-            "",
             "Y轴的边界。当左侧空时，根据数据的min / max动态定义边界。注意，这个特性只会扩展轴的范围。它不会缩小数据的范围"
          ],
          "Ordering": [
@@ -2103,7 +2129,7 @@
             "表名"
          ],
          "Fetch Values Predicate": [
-            "取值谓词"
+            "预加载数据"
          ],
          "Main Datetime Column": [
             "时间字段"
@@ -2235,7 +2261,7 @@
             "作者"
          ],
          "SQLAlchemy URI": [
-            "SQLAlchemy URI"
+            "数据库 URI"
          ],
          "Extra": [
             "扩展"
@@ -2334,7 +2360,7 @@
             "报表"
          ],
          "Slug": [
-            "Slug"
+            "可读的URL"
          ],
          "Position JSON": [
             "位置参数"
@@ -2430,13 +2456,199 @@
             "编辑保存的查询"
          ],
          "Pop Tab Link": [
-            "流行标签链接"
-         ],
-         "Changed on": [
-            "改变为"
+            "打开查询链接"
          ],
          "Saved Queries": [
             "已保存查询"
+         ],
+         "tables": [
+            "表"
+         ],
+         "Created By": [
+            "创建者"
+         ],
+         "Changed On": [
+            "修改时间"
+         ],
+         "success": [
+            "成功"
+         ],
+         "failed": [
+            "失败"
+         ],
+         "running": [
+            "执行中"
+         ],
+         "pending": [
+            "等待中"
+         ],
+         "now": [
+            "现在"
+         ],
+         "1 hour ago": [
+            "1小时前"
+         ],
+         "1 day ago": [
+            "1天前"
+         ],
+         "28 days ago": [
+            "28天前"
+         ],
+         "90 days ago": [
+            "3个月前"
+         ],
+         "1 year ago": [
+            "一年前"
+         ],
+         "Previous": [
+            "上一页"
+         ],
+         "Next": [
+            "下一页"
+         ],
+         "Data": [
+            "数据"
+         ],
+         "Style": [
+            "样式"
+         ],
+         "Fixed": [
+            "固定"
+         ],
+         "Relative": [
+            "相对"
+         ],
+         "Free form": [
+            "自定义"
+         ],
+         "Ok": [
+            "确定"
+         ],
+         "clear": [
+            "清空"
+         ],
+         "seconds": [
+            "秒"
+         ],
+         "minutes": [
+            "分"
+         ],
+         "hours": [
+            "时"
+         ],
+         "days": [
+            "天"
+         ],
+         "weeks": [
+            "周"
+         ],
+         "months": [
+            "月"
+         ],
+         "years": [
+            "年"
+         ],
+         "state": [
+            "状态"
+         ],
+         "db": [
+            "数据库"
+         ],
+         "user": [
+            "用户"
+         ],
+         "progress": [
+            "进度"
+         ],
+         "rows": [
+            "返回结果条数"
+         ],
+         "sql": [
+            "查询语句"
+         ],
+         "querylink": [
+            "打开链接"
+         ],
+         "started": [
+            "开始"
+         ],
+         "duration": [
+            "时长"
+         ],
+         "column": [
+            "列"
+         ],
+         "is_dimension": [
+            "是否是维度"
+         ],
+         "is_date": [
+            "是否是日期"
+         ],
+         "agg_func": [
+            "聚合函数"
+         ],
+         "schema": [
+            "模式"
+         ],
+         "connection": [
+            "连接"
+         ],
+         "creator": [
+            "创建者"
+         ],
+         "Click to change visualization type": [
+            "点击选择可视化类型"
+         ],
+         "from now": [
+            "从现在"
+         ],
+         "ago": [
+            "前"
+         ],
+         "Superset supports smart date parsing. Strings like `last sunday` or `last october` can be used.": [
+            "支持智能的时间解析。例如：`last sunday` `last october`"
+         ],
+         "Time Series Table": [
+            "时间序列表"
+         ],
+         "Type to search": [
+            "搜索"
+         ],
+         "Sort Descending": [
+            "降序"
+         ],
+         "Whether to sort descending or ascending": [
+            "是否需要按升/降排序"
+         ],
+         "Choose a datasource": [
+            "选择数据库"
+         ],
+         "Create a new slice": [
+            "创建图表"
+         ],
+         "Create new slice": [
+            "创建图表"
+         ],
+         "Choose a visualization type": [
+            "选择图表类型"
+         ],
+         "No data": [
+            "没有数据"
+         ],
+         "output": [
+            "输出"
+         ],
+         "actions": [
+            "操作"
+         ],
+         "explore": [
+            "查询"
+         ],
+         "slice": [
+            "图表"
+         ],
+         "dashboard": [
+            "报表"
          ]
       }
    }

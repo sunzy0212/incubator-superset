@@ -95,6 +95,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'python_date_format': _('Datetime Format'),
         'database_expression': _('Database Expression'),
         'type': _('Type'),
+        'modified': _("Modified"),
     }
 
 
@@ -141,6 +142,7 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'd3format': _('D3 Format'),
         'is_restricted': _('Is Restricted'),
         'warning_text': _('Warning Message'),
+        'modified': _("Modified"),
     }
 
     def post_add(self, metric):
@@ -237,6 +239,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'owner': _('Owner'),
         'main_dttm_col': _('Main Datetime Column'),
         'description': _('Description'),
+        'modified': _("Modified"),
         'is_sqllab_view': _('SQL Lab View'),
     }
 

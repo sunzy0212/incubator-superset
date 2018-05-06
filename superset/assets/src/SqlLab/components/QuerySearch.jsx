@@ -176,7 +176,7 @@ class QuerySearch extends React.PureComponent {
               name="select-from"
               placeholder={t('[From]-')}
               options={TIME_OPTIONS
-                .slice(1, TIME_OPTIONS.length).map(xt => ({ value: xt, label: xt }))}
+                .slice(1, TIME_OPTIONS.length).map(xt => ({ value: xt, label: t(xt) }))}
               value={this.state.from}
               autosize={false}
               onChange={this.changeFrom}
@@ -185,7 +185,7 @@ class QuerySearch extends React.PureComponent {
             <Select
               name="select-to"
               placeholder={t('[To]-')}
-              options={TIME_OPTIONS.map(xt => ({ value: xt, label: xt }))}
+              options={TIME_OPTIONS.map(xt => ({ value: xt, label: t(xt) }))}
               value={this.state.to}
               autosize={false}
               onChange={this.changeTo}
@@ -194,7 +194,7 @@ class QuerySearch extends React.PureComponent {
             <Select
               name="select-status"
               placeholder={t('[Query Status]')}
-              options={STATUS_OPTIONS.map(s => ({ value: s, label: s }))}
+              options={STATUS_OPTIONS.map(s => ({ value: s, label: t(s) }))}
               value={this.state.status}
               isLoading={false}
               autosize={false}
@@ -217,8 +217,14 @@ class QuerySearch extends React.PureComponent {
               >
                 <QueryTable
                   columns={[
-                    'state', 'db', 'user', 'time',
-                    'progress', 'rows', 'sql', 'querylink',
+                    {key:'state', label: t("state")}, 
+                    {key:'db', label: t("db")}, 
+                    {key:'user', label: t("user")}, 
+                    {key:'time', label: t("time")},
+                    {key:'progress', label: t("progress")}, 
+                    {key:'rows', label: t("rows")},
+                    {key:'sql', label: t("sql")}, 
+                    {key:'querylink', label: t("querylink")},
                   ]}
                   onUserClicked={this.onUserClicked}
                   onDbClicked={this.onDbClicked}

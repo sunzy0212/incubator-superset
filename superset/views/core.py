@@ -415,7 +415,7 @@ if config.get('ENABLE_ACCESS_REQUEST'):
         icon='fa-table')
 
 
-class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
+class SliceModelView(SupersetModelView, DeleteMixin, BaseSupersetView):  # noqa
     datamodel = SQLAInterface(models.Slice)
 
     list_title = _('List Charts')
@@ -439,8 +439,8 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
     base_order = ('changed_on', 'desc')
     description_columns = {
         'description': Markup(
-            'The content here can be displayed as widget headers in the '
-            'dashboard view. Supports '
+            'The content here can be displayed as widget headers in the dashboard view'
+            'Supports '
             '<a href="https://daringfireball.net/projects/markdown/"">'
             'markdown</a>'),
         'params': _(
@@ -490,6 +490,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
             'superset/add_slice.html',
             bootstrap_data=json.dumps({
                 'datasources': sorted(datasources, key=lambda d: d['label']),
+                'common': self.common_bootsrap_payload(),
             }),
         )
 
