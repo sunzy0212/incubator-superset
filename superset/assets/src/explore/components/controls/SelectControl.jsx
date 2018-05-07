@@ -41,7 +41,7 @@ const defaultProps = {
   onFocus: () => {},
   showHeader: true,
   optionRenderer: opt => t(opt.label),
-  valueRenderer: opt => opt.label,
+  valueRenderer: opt => t(opt.label),
   valueKey: 'value',
 };
 
@@ -109,6 +109,8 @@ export default class SelectControl extends React.PureComponent {
   render() {
     //  Tab, comma or Enter will trigger a new option created for FreeFormSelect
     const placeholder = this.props.placeholder || t('%s option(s)', this.state.options.length);
+    const optionRenderer = this.props.noLocale ? (opt) => opt.label : this.props.optionRenderer
+    const valueRenderer = this.props.noLocale ? (opt) => opt.label : this.props.valueRenderer
     const selectProps = {
       multi: this.props.multi,
       name: `select-${this.props.name}`,
@@ -122,8 +124,8 @@ export default class SelectControl extends React.PureComponent {
       isLoading: this.props.isLoading,
       onChange: this.onChange,
       onFocus: this.props.onFocus,
-      optionRenderer: VirtualizedRendererWrap(this.props.optionRenderer),
-      valueRenderer: this.props.valueRenderer,
+      optionRenderer: VirtualizedRendererWrap(optionRenderer),
+      valueRenderer,
       selectComponent: this.props.freeForm ? Creatable : Select,
       disabled: this.props.disabled,
     };

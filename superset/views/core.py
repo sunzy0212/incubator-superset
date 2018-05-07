@@ -225,11 +225,11 @@ class DatabaseView(SupersetModelView, DeleteMixin, YamlExportMixin):  # noqa
     base_order = ('changed_on', 'desc')
     description_columns = {
         'sqlalchemy_uri': utils.markdown(
-            'Refer to the '
+            '关于如何构造URI，请参考'
             '[SqlAlchemy docs]'
             '(http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html#'
-            'database-urls) '
-            'for more information on how to structure your URI.', True),
+            'database-urls) ', 
+            True),
         'expose_in_sqllab': _('Expose this DB in SQL Lab'),
         'allow_run_sync': _(
             'Allow users to run synchronous queries, this is the default '
@@ -248,14 +248,14 @@ class DatabaseView(SupersetModelView, DeleteMixin, YamlExportMixin):  # noqa
             'When allowing CREATE TABLE AS option in SQL Lab, '
             'this option forces the table to be created in this schema'),
         'extra': utils.markdown(
-            'JSON string containing extra configuration elements. '
-            'The ``engine_params`` object gets unpacked into the '
+            '包含额外配置元素的JSON字符串。 '
+            '``engine_params``被解压到'
             '[sqlalchemy.create_engine]'
             '(http://docs.sqlalchemy.org/en/latest/core/engines.html#'
-            'sqlalchemy.create_engine) call, while the ``metadata_params`` '
-            'gets unpacked into the [sqlalchemy.MetaData]'
+            'sqlalchemy.create_engine) 调用中, 而 ``metadata_params`` '
+            '被解压到 [sqlalchemy.MetaData]'
             '(http://docs.sqlalchemy.org/en/rel_1_0/core/metadata.html'
-            '#sqlalchemy.schema.MetaData) call. ', True),
+            '#sqlalchemy.schema.MetaData) 调用中. ', True),
         'impersonate_user': _(
             'If Presto, all the queries in SQL Lab are going to be executed as the '
             'currently logged on user who must have permission to run them.<br/>'
@@ -278,6 +278,14 @@ class DatabaseView(SupersetModelView, DeleteMixin, YamlExportMixin):  # noqa
         'sqlalchemy_uri': _('SQLAlchemy URI'),
         'cache_timeout': _('Cache Timeout'),
         'extra': _('Extra'),
+        'tables': _('Tables'),
+        'created_by': _('Created By'),
+        'created_on': _('Created On'),
+        'changed_by': _('Changed By'),
+        'changed_on': _('Changed On'),
+        'backend': _('Backend'),
+        'modified': _('Modified'),
+        'allow_multi_schema_metadata_fetch': _('Allow Multi Schema Metadata Fetch'),
         'allow_run_sync': _('Allow Run Sync'),
         'allow_run_async': _('Allow Run Async'),
         'impersonate_user': _('Impersonate the logged on user'),

@@ -2067,6 +2067,7 @@ export const controls = {
     type: 'SelectControl',
     label: t('Lines column'),
     default: null,
+    noLocale: true,
     description: t('The database columns that contains lines information'),
     mapStateToProps: state => ({
       choices: (state.datasource) ? state.datasource.all_cols : [],

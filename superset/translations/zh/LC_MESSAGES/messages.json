@@ -1070,7 +1070,7 @@
             "每个区域表示的时间段"
          ],
          "Subdomain": [
-            "方块"
+            "子区域"
          ],
          "The time unit for each block. Should be a smaller unit than domain_granularity. Should be larger or equal to Time Grain": [
             "每个区域内方块表示的时间段。必须比区域时间段小，比时间粒度大。"
@@ -1087,7 +1087,7 @@
          "Charge in the force layout": [
             "在有向图中缩放大小"
          ],
-         "The time column for the visualization. Note that you can define arbitrary expression that return a DATETIME column in the table or. Also note that the filter below is applied against this column or expression": [
+         "The time column for the visualization. Note that you can define arbitrary expression that return a DATETIME column in the table. Also note that the filter below is applied against this column or expression": [
             "图表中的时间字段。可以在表格编辑器中返回任意DATETIME列。另请注意，下面的过滤方式应用于此列或表达"
          ],
          "Time Grain": [
@@ -2649,6 +2649,354 @@
          ],
          "dashboard": [
             "报表"
+         ],
+         "Lines column": [
+            "列"
+         ],
+         "The database columns that contains lines information": [
+            "包含行信息的数据库列"
+         ],
+         "Lines encoding": [
+            "格式"
+         ],
+         "The encoding format of the lines": [
+            "行的编码格式"
+         ],
+         "Fixed Color": [
+            "颜色"
+         ],
+         "Use this to define a static color for all circles": [
+            "通过这个选项来定义所有圆的静态颜色"
+         ],
+         "Line width": [
+            "线宽"
+         ],
+         "The width of the lines": [
+            "曲线的宽度"
+         ],
+         "Reverse Lat & Long": [
+            "翻转经纬度"
+         ],
+         "Auto Zoom": [
+            "自动缩放"
+         ],
+         "Map": [
+            "地图"
+         ],
+         "Advanced": [
+            "高级设置"
+         ],
+         "Extra data for JS": [
+            "数据列"
+         ],
+         "List of extra columns made available in Javascript functions": [
+            "供javascript函数使用的数据列"
+         ],
+         "Javascript tooltip generator": [
+            "Javascript提示生成器"
+         ],
+         "Define a function that receives the input and outputs the content for a tooltip": [
+            "定义一个函数生成提示，函数接入数据列"
+         ],
+         "Javascript onClick href": [
+            "Javascript跳转"
+         ],
+         "Javascript data interceptor": [
+            "Javascript数据截获器"
+         ],
+         "Define a javascript function that receives the data array used in the visualization and is expected to return a modified version of that array. This can be used to alter properties of the data, filter, or enrich the array.": [
+            "定一个接收可视化中使用到数据数组的函数，该函数返回一个被修改过的数值。可以被用来修改数据的属性、过滤数据或者丰富数组等。"
+         ],
+         "Show datasource configuration": [
+            "显示数据源配置"
+         ],
+         "Grid Size": [
+            "网格大小"
+         ],
+         "Defines the grid size in pixel": [
+            "定义网格的大小，单位为像素"
+         ],
+         "This section contains validation errors": [
+            "请处理未通过的验证错误"
+         ],
+         "is expected to be a number": [
+            "期望是数值类型"
+         ],
+         "is expected to be an integer": [
+            "期望是整数类型"
+         ],
+         "cannot be empty": [
+            "不能为空"
+         ],
+         "Start Longitude & Latitude": [
+            "起始经度和纬度"
+         ],
+         "Point to your spatial columns": [
+            "指定到空间的列"
+         ],
+         "End Longitude & Latitude": [
+            "结束经度和纬度"
+         ],
+         "Stroke Width": [
+            "描边宽度"
+         ],
+         "Longitude & Latitude columns": [
+            "经纬度列"
+         ],
+         "Delimited long & lat single column": [
+            "单列指定经纬度"
+         ],
+         "Reverse lat/long": [
+            "保留经纬度"
+         ],
+         "Polygon Settings": [
+            "多边形设置"
+         ],
+         "Fill Color": [
+            "填充色"
+         ],
+         "Stroke Color": [
+            "描边色"
+         ],
+         "Filled": [
+            "填充"
+         ],
+         "Stroke": [
+            "描边"
+         ],
+         "Point Radius Scale": [
+            "点半径比例"
+         ],
+         "Arcs": [
+            "弧"
+         ],
+         "Longitude & Latitude": [
+            "经纬度"
+         ],
+         "Weight": [
+            "指标"
+         ],
+         "Point Size": [
+            "点大小"
+         ],
+         "Fixed point radius": [
+            "固定半径"
+         ],
+         "Point Unit": [
+            "单位"
+         ],
+         "Minimum Radius": [
+            "最小半径"
+         ],
+         "Maximum Radius": [
+            "最大半径"
+         ],
+         "Multiplier": [
+            "乘数"
+         ],
+         "Point Color": [
+            "颜色"
+         ],
+         "Legend Position": [
+            "图标位置"
+         ],
+         "Categorical Color": [
+            "颜色分类纬度"
+         ],
+         "Pick a dimension from which categorical colors are defined": [
+            "选择一个颜色分类纬度"
+         ],
+         "Import the dashboards.": [
+            "导入仪表盘。"
+         ],
+         "Impersonate the logged on user": [
+            "模拟登录的用户"
+         ],
+         "Allow Multi Schema Metadata Fetch": [
+            "允许多模式提取元数据"
+         ],
+         "Allow SQL Lab to fetch a list of all tables and all views across all database schemas. For large data warehouse with thousands of tables, this can be expensive and put strain on the system.": [
+            "允许SQL Lab跨数据库获取所有表和所有视图的列表。 对于拥有数千个表的大型数据仓库来说，这可能很昂贵并且会给系统带来压力。"
+         ],
+         "If Presto, all the queries in SQL Lab are going to be executed as the currently logged on user who must have permission to run them.<br/>If Hive and hive.server2.enable.doAs is enabled, will run the queries as service account, but impersonate the currently logged on user via hive.server2.proxy.user property.": [
+            "如果启用，SQL Lab中的所有查询都将以当前登录的用户身份执行，他们必须有权运行它们。如果启用了Hive且hive.server2.enable.doAs为true，则会将查询作为服务帐户运行，但通过hive.server2.proxy.user属性模拟当前登录的用户。"
+         ],
+         "Refer to the [SqlAlchemy docs](http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html#database-urls) for more information on how to structure your URI.": [
+            "关于如何构造URI，请参考[SqlAlchemy docs](http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html#database-urls) "
+         ],
+         "Backend": [
+            "后台"
+         ],
+         "CSV to Database configuration": [
+            "CSV导入到数据库配置"
+         ],
+         "CSV File": [
+            "CSV文件"
+         ],
+         "Delimiter": [
+            "分隔符"
+         ],
+         "Table Exists": [
+            "表格添加模式"
+         ],
+         "Header Row": [
+            "表头行号"
+         ],
+         "Index Column": [
+            "标签列号"
+         ],
+         "Mangle Duplicate Columns": [
+            "处理重复列"
+         ],
+         "Skip Initial Space": [
+            "忽略初始空格"
+         ],
+         "Skip Rows": [
+            "跳过行"
+         ],
+         "Rows to Read": [
+            "读入的行数"
+         ],
+         "Skip Blank Lines": [
+            "跳过空行"
+         ],
+         "Parse Dates": [
+            "解析时间"
+         ],
+         "Infer Datetime Format": [
+            "推断日期时间格式"
+         ],
+         "Decimal Character": [
+            "小数字符"
+         ],
+         "Dataframe Index": [
+            "数据帧索引"
+         ],
+         "Column Label(s)": [
+            "列标签"
+         ],
+         "Name of table to be created from csv data.": [
+            "用于存放csv文件中数据的数据库表名。"
+         ],
+         "Select a CSV file to be uploaded to a database.": [
+            "选择一个CSV文件上传到数据库。"
+         ],
+         "Delimiter used by CSV file.": [
+            "CSV文件使用的分隔符。"
+         ],
+         "If table exists do one of the following: Fail (do nothing), Replace (drop and recreate table) or Append (insert data).": [
+            "如果存在表，将执行以下操作之一：失败（不执行任何操作），替换（删除并重新创建表）或追加（插入数据）。"
+         ],
+         "Specify a schema (if database flavour supports this).": [
+            "指定一个模式（如果数据库风格支持这个）。"
+         ],
+         "Append": [
+            "追加"
+         ],
+         "Replace": [
+            "替换"
+         ],
+         "Fail": [
+            "失败"
+         ],
+         "Row containing the headers to use as column names (0 is first line of data). Leave empty if there is no header row.": [
+            "包含要用作列名称的标题行（0是第一行数据）。 如果没有标题行，请留空。"
+         ],
+         "Column to use as the row labels of the dataframe. Leave empty if no index column.": [
+            "用作数据框的行标签的列。 如果没有索引列，请留空。"
+         ],
+         "Specify duplicate columns as X.0, X.1.": [
+            "指定重复列形式: X.0, X.1"
+         ],
+         "Skip spaces after delimiter.": [
+            "跳过分隔符后的空格。"
+         ],
+         "Number of rows to skip at start of file.": [
+            "跳过文件开头的行数。"
+         ],
+         "Number of rows of file to read.": [
+            "要读入的文件行数"
+         ],
+         "Skip blank lines rather than interpreting them as NaN values.": [
+            "跳过空行而不是将它们解释为NaN值。"
+         ],
+         "A comma separated list of columns that should be parsed as dates.": [
+            "逗号分隔的列应该被解析为日期。"
+         ],
+         "Use Pandas to interpret the datetime format automatically.": [
+            "使用Pandas来自动解释日期时间格式。"
+         ],
+         "Character to interpret as decimal point.": [
+            "字符解释为小数点。"
+         ],
+         "Write dataframe index as a column.": [
+            "将数据框索引写入列。"
+         ],
+         "Column label for index column(s). If None is given and Dataframe Index is True, Index Names are used.": [
+            "索引列的列标签。 如果没有给出并且数据帧索引为真，则使用索引名称。"
+         ],
+         "Associated Charts": [
+            "相关图表"
+         ],
+         "Refresh Metadata": [
+            "刷新元数据"
+         ],
+         "Export to YAML": [
+            "导出到YAML"
+         ],
+         "List Query": [
+            "查询列表"
+         ],
+         "Show Query": [
+            "显示查询"
+         ],
+         "Edit Query": [
+            "编辑查询"
+         ],
+         "Limit Used": [
+            "是否使用过"
+         ],
+         "Tab Name": [
+            "标签名称"
+         ],
+         "Select Sql": [
+            "查询语句"
+         ],
+         "Rows": [
+            "行"
+         ],
+         "Results Key": [
+            "结果Key"
+         ],
+         "End Result Backend Time": [
+            "结束时间"
+         ],
+         "Sql Editor Id": [
+            "Sql编辑器ID"
+         ],
+         "Progress": [
+            "进展"
+         ],
+         "Client Id": [
+            "客户端ID"
+         ],
+         "Tracking Url": [
+            "跟踪URL"
+         ],
+         "Executed Sql": [
+            "执行SQL"
+         ],
+         "Error Message": [
+            "错误消息"
+         ],
+         "Limit": [
+            "限制"
+         ],
+         "Start Running Time": [
+            "开始时间"
+         ],
+         "Tmp Table Name": [
+            "临时表名称"
          ]
       }
    }

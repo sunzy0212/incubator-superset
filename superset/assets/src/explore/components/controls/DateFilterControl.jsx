@@ -130,7 +130,7 @@ export default class DateFilterControl extends React.Component {
                   onFocus={this.setType.bind(this, 'rel')}
                   value={this.state.grain}
                   clearable={false}
-                  options={TIME_GRAIN_OPTIONS.map(s => ({ label: s, value: s }))}
+                  options={TIME_GRAIN_OPTIONS.map(s => ({ label: t(s), value: s }))}
                   onChange={this.onControlChange.bind(this, 'grain')}
                 />
               </div>

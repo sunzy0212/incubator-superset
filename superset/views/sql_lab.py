@@ -17,6 +17,9 @@ from .base import BaseSupersetView, DeleteMixin, SupersetModelView
 
 
 class QueryView(SupersetModelView):
+    list_title = _('List Query')
+    show_title = _('Show Query')
+    edit_title = _('Edit Query')
     datamodel = SQLAInterface(Query)
     list_columns = ['user', 'database', 'status', 'start_time', 'end_time']
     label_columns = {
@@ -25,6 +28,25 @@ class QueryView(SupersetModelView):
         'status': _('Status'),
         'start_time': _('Start Time'),
         'end_time': _('End Time'),
+        'limit_used': _('Limit Used'),
+        'tab_name': _('Tab Name'),
+        'changed_on': _('Changed On'),
+        'select_sql': _('Select Sql'),
+        'rows': _('Rows'),
+        'results_key': _('Results Key'),
+        'end_result_backend_time': _('End Result Backend Time'),
+        'sql_editor_id': _('Sql Editor Id'),
+        'progress': _('Progress'),
+        'schema': _('Schema'),
+        'select_as_cta_used': _('Select As Cta Used'),
+        'client_id': _('Client Id'),
+        'tracking_url': _('Tracking Url'),
+        'executed_sql': _('Executed Sql'),
+        'error_message': _('Error Message'),
+        'limit': _('Limit'),
+        'start_running_time': _('Start Running Time'),
+        'select_as_cta': _('Select As Cta'),
+        'tmp_table_name': _('Tmp Table Name'),
     }
 
 

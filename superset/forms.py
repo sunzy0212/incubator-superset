@@ -68,7 +68,7 @@ class CsvToDatabaseForm(DynamicForm):
         get_pk=lambda a: a.id, get_label=lambda a: a.database_name)
     sep = StringField(
         _('Delimiter'),
-        description=_('Delimiter used by CSV file (for whitespace use \s+).'),
+        description=_('Delimiter used by CSV file.'),
         validators=[DataRequired()],
         widget=BS3TextFieldWidget())
     if_exists = SelectField(
@@ -106,7 +106,7 @@ class CsvToDatabaseForm(DynamicForm):
         filters=[lambda x: x or None])
     mangle_dupe_cols = BooleanField(
         _('Mangle Duplicate Columns'),
-        description=_('Specify duplicate columns as "X.0, X.1".'))
+        description=_('Specify duplicate columns as X.0, X.1.'))
     skipinitialspace = BooleanField(
         _('Skip Initial Space'),
         description=_('Skip spaces after delimiter.'))

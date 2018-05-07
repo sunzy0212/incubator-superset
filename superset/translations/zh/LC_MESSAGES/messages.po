@@ -1556,7 +1556,7 @@ msgstr "每个区域表示的时间段"
 
 #: superset/assets/src/explore/stores/controls.jsx:515
 msgid "Subdomain"
-msgstr "方块"
+msgstr "子区域"
 
 #: superset/assets/src/explore/stores/controls.jsx:518
 msgid ""
@@ -1582,9 +1582,10 @@ msgstr "在有向图中缩放大小"
 
 #: superset/assets/src/explore/stores/controls.jsx:556
 msgid ""
-"The time column for the visualization. Note that you can define arbitrary expression that return a "
-"DATETIME column in the table or. Also note that the filter below is applied against this column or "
-"expression"
+"The time column for the visualization. Note that you "
+"can define arbitrary expression that return a DATETIME "
+"column in the table. Also note that the "
+"filter below is applied against this column or expression"
 msgstr "图表中的时间字段。可以在表格编辑器中返回任意DATETIME列。另请注意，下面的过滤方式应用于此列或表达"
 
 #: superset/assets/src/explore/stores/controls.jsx:568
@@ -3784,3 +3785,393 @@ msgstr "图表"
 
 msgid "dashboard"
 msgstr "报表"
+
+#: assets/src/explore/controls.jsx:59
+msgid "Lines column"
+msgstr "列"
+
+msgid "The database columns that contains lines information"
+msgstr "包含行信息的数据库列"
+
+msgid "Lines encoding"
+msgstr "格式"
+
+msgid "The encoding format of the lines"
+msgstr "行的编码格式"
+
+msgid "Fixed Color"
+msgstr "颜色"
+
+msgid "Use this to define a static color for all circles"
+msgstr "通过这个选项来定义所有圆的静态颜色"
+
+msgid "Line width"
+msgstr "线宽"
+
+msgid "The width of the lines"
+msgstr "曲线的宽度"
+
+msgid "Reverse Lat & Long"
+msgstr "翻转经纬度"
+
+msgid "Auto Zoom"
+msgstr "自动缩放"
+
+msgid "Map"
+msgstr "地图"
+
+msgid "Advanced"
+msgstr "高级设置"
+
+msgid "Extra data for JS"
+msgstr "数据列"
+
+msgid "List of extra columns made available in Javascript functions"
+msgstr "供javascript函数使用的数据列"
+
+msgid "Javascript tooltip generator"
+msgstr "Javascript提示生成器"
+
+msgid "Define a function that receives the input and outputs the content for a tooltip"
+msgstr "定义一个函数生成提示，函数接入数据列"
+
+msgid "Javascript onClick href"
+msgstr "Javascript跳转"
+
+msgid "Javascript data interceptor"
+msgstr "Javascript数据截获器"
+
+msgid ""
+"Define a javascript function that receives the data array used in the visualization "
+"and is expected to return a modified version of that array. This can be used "
+"to alter properties of the data, filter, or enrich the array."
+msgstr "定一个接收可视化中使用到数据数组的函数，该函数返回一个被修改过的数值。可以被用来修改数据的属性、过滤数据或者丰富数组等。"
+
+msgid "Show datasource configuration"
+msgstr "显示数据源配置"
+
+msgid "Grid Size"
+msgstr "网格大小"
+
+msgid "Defines the grid size in pixel"
+msgstr "定义网格的大小，单位为像素"
+
+#: assets/javascripts/explore/components/ControlPanelSection.jsx:46
+msgid "This section contains validation errors"
+msgstr "请处理未通过的验证错误"
+
+#: assets/javascripts/explore/components/ControlPanelSection.jsx:46
+msgid "is expected to be a number"
+msgstr "期望是数值类型"
+
+msgid "is expected to be an integer"
+msgstr "期望是整数类型"
+
+msgid "cannot be empty"
+msgstr "不能为空"
+
+msgid "Start Longitude & Latitude"
+msgstr "起始经度和纬度"
+
+msgid "Point to your spatial columns"
+msgstr "指定到空间的列"
+
+msgid "End Longitude & Latitude"
+msgstr "结束经度和纬度"
+
+msgid "Stroke Width"
+msgstr "描边宽度"
+
+msgid "Longitude & Latitude columns"
+msgstr "经纬度列"
+
+msgid "Delimited long & lat single column"
+msgstr "单列指定经纬度"
+
+msgid "Reverse lat/long"
+msgstr "保留经纬度"
+
+msgid "Polygon Settings"
+msgstr "多边形设置"
+
+msgid "Fill Color"
+msgstr "填充色"
+
+msgid "Stroke Color"
+msgstr "描边色"
+
+msgid "Filled"
+msgstr "填充"
+
+msgid "Stroke"
+msgstr "描边"
+
+msgid "Point Radius Scale"
+msgstr "点半径比例"
+
+msgid "Arcs"
+msgstr "弧"
+
+msgid "Longitude & Latitude"
+msgstr "经纬度"
+
+msgid "Weight"
+msgstr "指标"
+
+msgid "Point Size"
+msgstr "点大小"
+
+msgid "Fixed point radius"
+msgstr "固定半径"
+
+msgid "Point Unit"
+msgstr "单位"
+
+msgid "Minimum Radius"
+msgstr "最小半径"
+
+msgid "Maximum Radius"
+msgstr "最大半径"
+
+msgid "Multiplier"
+msgstr "乘数"
+
+msgid "Point Color"
+msgstr "颜色"
+
+msgid "Legend Position"
+msgstr "图标位置"
+
+msgid "Categorical Color"
+msgstr "颜色分类纬度"
+
+#: superset/assets/javascripts/explore/stores/visTypes.js:674
+msgid "Pick a dimension from which categorical colors are defined"
+msgstr "选择一个颜色分类纬度"
+
+msgid "Import the dashboards."
+msgstr "导入仪表盘。"
+
+msgid "Impersonate the logged on user"
+msgstr "模拟登录的用户"
+
+msgid "Allow Multi Schema Metadata Fetch"
+msgstr "允许多模式提取元数据"
+
+msgid ""
+"Allow SQL Lab to fetch a list of all tables and all views across "
+"all database schemas. For large data warehouse with thousands of "
+"tables, this can be expensive and put strain on the system."
+msgstr "允许SQL Lab跨数据库获取所有表和所有视图的列表。 对于拥有数千个表的大型数据仓库来说，这可能很昂贵并且会给系统带来压力。"
+
+msgid ""
+"If Presto, all the queries in SQL Lab are going to be executed as the "
+"currently logged on user who must have permission to run them.<br/>"
+"If Hive and hive.server2.enable.doAs is enabled, will run the queries as "
+"service account, but impersonate the currently logged on user "
+"via hive.server2.proxy.user property."
+msgstr ""
+"如果启用，SQL Lab中的所有查询都将以当前登录的用户身份执行，他们必须有权运行它们。"
+"如果启用了Hive且hive.server2.enable.doAs为true，则会将查询作为服务帐户运行，但通过hive.server2.proxy.user属性模拟当前登录的用户。"
+
+msgid ""
+"Refer to the "
+"[SqlAlchemy docs]"
+"(http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html#"
+"database-urls) "
+"for more information on how to structure your URI."
+msgstr ""
+"关于如何构造URI，请参考"
+"[SqlAlchemy docs]"
+"(http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html#"
+"database-urls) "
+
+msgid "Backend"
+msgstr "后台"
+
+msgid "CSV to Database configuration"
+msgstr "CSV导入到数据库配置"
+
+msgid "CSV File"
+msgstr "CSV文件"
+
+msgid "Delimiter"
+msgstr "分隔符"
+
+msgid "Table Exists"
+msgstr "表格添加模式"
+
+msgid "Header Row"
+msgstr "表头行号"
+
+msgid "Index Column"
+msgstr "标签列号"
+
+msgid "Mangle Duplicate Columns"
+msgstr "处理重复列"
+
+msgid "Skip Initial Space"
+msgstr "忽略初始空格"
+
+msgid "Skip Rows"
+msgstr "跳过行"
+
+msgid "Rows to Read"
+msgstr "读入的行数"
+
+msgid "Skip Blank Lines"
+msgstr "跳过空行"
+
+msgid "Parse Dates"
+msgstr "解析时间"
+
+msgid "Infer Datetime Format"
+msgstr "推断日期时间格式"
+
+msgid "Decimal Character"
+msgstr "小数字符"
+
+msgid "Dataframe Index"
+msgstr "数据帧索引"
+
+msgid "Column Label(s)"
+msgstr "列标签"
+
+msgid "Name of table to be created from csv data."
+msgstr "用于存放csv文件中数据的数据库表名。"
+
+msgid "Select a CSV file to be uploaded to a database."
+msgstr "选择一个CSV文件上传到数据库。"
+
+msgid "Delimiter used by CSV file."
+msgstr "CSV文件使用的分隔符。"
+
+msgid ""
+"If table exists do one of the following: "
+"Fail (do nothing), Replace (drop and recreate table) "
+"or Append (insert data)."
+msgstr "如果存在表，将执行以下操作之一：失败（不执行任何操作），替换（删除并重新创建表）或追加（插入数据）。"
+
+msgid "Specify a schema (if database flavour supports this)."
+msgstr "指定一个模式（如果数据库风格支持这个）。"
+
+msgid "Append"
+msgstr "追加"
+
+msgid "Replace"
+msgstr "替换"
+
+msgid "Fail"
+msgstr "失败"
+
+msgid ""
+"Row containing the headers to use as "
+"column names (0 is first line of data). "
+"Leave empty if there is no header row."
+msgstr "包含要用作列名称的标题行（0是第一行数据）。 如果没有标题行，请留空。"
+
+msgid ""
+"Column to use as the row labels of the "
+"dataframe. Leave empty if no index column."
+msgstr "用作数据框的行标签的列。 如果没有索引列，请留空。"
+
+msgid "Specify duplicate columns as X.0, X.1."
+msgstr "指定重复列形式: X.0, X.1"
+
+msgid "Skip spaces after delimiter."
+msgstr "跳过分隔符后的空格。"
+
+msgid "Number of rows to skip at start of file."
+msgstr "跳过文件开头的行数。"
+
+msgid "Number of rows of file to read."
+msgstr "要读入的文件行数"
+
+msgid ""
+"Skip blank lines rather than interpreting them "
+"as NaN values."
+msgstr "跳过空行而不是将它们解释为NaN值。"
+
+msgid ""
+"A comma separated list of columns that should be "
+"parsed as dates."
+msgstr "逗号分隔的列应该被解析为日期。"
+
+msgid ""
+"Use Pandas to interpret the datetime format "
+"automatically."
+msgstr "使用Pandas来自动解释日期时间格式。"
+
+msgid "Character to interpret as decimal point."
+msgstr "字符解释为小数点。"
+
+msgid "Write dataframe index as a column."
+msgstr "将数据框索引写入列。"
+
+msgid ""
+"Column label for index column(s). If None is given "
+"and Dataframe Index is True, Index Names are used."
+msgstr "索引列的列标签。 如果没有给出并且数据帧索引为真，则使用索引名称。"
+
+msgid "Associated Charts"
+msgstr "相关图表"
+
+msgid "Refresh Metadata"
+msgstr "刷新元数据"
+
+msgid "Export to YAML"
+msgstr "导出到YAML"
+
+msgid "List Query"
+msgstr "查询列表"
+
+msgid "Show Query"
+msgstr "显示查询"
+
+msgid "Edit Query"
+msgstr "编辑查询"
+
+msgid "Limit Used"
+msgstr "是否使用过"
+
+msgid "Tab Name"
+msgstr "标签名称"
+
+msgid "Select Sql"
+msgstr "查询语句"
+
+msgid "Rows"
+msgstr "行"
+
+msgid "Results Key"
+msgstr "结果Key"
+
+msgid "End Result Backend Time"
+msgstr "结束时间"
+
+msgid "Sql Editor Id"
+msgstr "Sql编辑器ID"
+
+msgid "Progress"
+msgstr "进展"
+
+msgid "Client Id"
+msgstr "客户端ID"
+
+msgid "Tracking Url"
+msgstr "跟踪URL"
+
+msgid "Executed Sql"
+msgstr "执行SQL"
+
+msgid "Error Message"
+msgstr "错误消息"
+
+msgid "Limit"
+msgstr "限制"
+
+msgid "Start Running Time"
+msgstr "开始时间"
+
+msgid "Tmp Table Name"
+msgstr "临时表名称"
