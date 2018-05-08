@@ -329,7 +329,7 @@
             "%s 的副本"
          ],
          "share query": [
-            "分享查询"
+            "复制查询"
          ],
          "copy URL to clipboard": [
             "拷贝 URL 到剪切板"
@@ -3024,6 +3024,42 @@
          ],
          "Long Description": [
             "完整描述"
+         ],
+         "List Log": [
+            "日志列表"
+         ],
+         "Show Log": [
+            "显示日志"
+         ],
+         "Edit Log": [
+            "编辑列表"
+         ],
+         "Referrer": [
+            "参照网页地址"
+         ],
+         "Dashboard Id": [
+            "仪表盘ID"
+         ],
+         "Duration Ms": [
+            "持续时间（毫秒）"
+         ],
+         "Slice Id": [
+            "图表ID"
+         ],
+         "Datasource Id": [
+            "数据源ID"
+         ],
+         "Datasource Type": [
+            "数据源类型"
+         ],
+         "Add new slice": [
+            "添加图表"
+         ],
+         "If the datasource your are looking for is not available in the list, follow the instructions on the how to add it on the ": [
+            "如果无法在列表中找到数据源，请参考说明"
+         ],
+         "Superset tutorial": [
+            "Superset文档"
          ]
       }
    }

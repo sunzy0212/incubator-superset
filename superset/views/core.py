@@ -466,6 +466,13 @@ class SliceModelView(SupersetModelView, DeleteMixin, BaseSupersetView):  # noqa
         'creator': _('Creator'),
         'dashboards': _('Dashboards'),
         'datasource_link': _('Datasource'),
+        'datasource_id': _('Datasource Id'),
+        'changed_by': _('Changed By'),
+        'created_by': _('Created By'),
+        'datasource_type': _('Datasource Type'),
+        'created_on': _('Created On'),
+        'datasource_name': _('Datasource Name'),
+        'changed_on': _('Changed On'),
         'description': _('Description'),
         'modified': _('Last Modified'),
         'owners': _('Owners'),
@@ -498,6 +505,7 @@ class SliceModelView(SupersetModelView, DeleteMixin, BaseSupersetView):  # noqa
             'superset/add_slice.html',
             bootstrap_data=json.dumps({
                 'datasources': sorted(datasources, key=lambda d: d['label']),
+                'user': bootstrap_user_data(),
                 'common': self.common_bootsrap_payload(),
             }),
         )
@@ -668,6 +676,10 @@ appbuilder.add_view_no_menu(DashboardAddView)
 
 
 class LogModelView(SupersetModelView):
+    list_title = _('List Log')
+    show_title = _('Show Log')
+    add_title = _('Edit Log')
+
     datamodel = SQLAInterface(models.Log)
     list_columns = ('user', 'action', 'dttm')
     edit_columns = ('user', 'action', 'dttm', 'json')
@@ -677,6 +689,10 @@ class LogModelView(SupersetModelView):
         'action': _('Action'),
         'dttm': _('dttm'),
         'json': _('JSON'),
+        'slice_id': _('Slice Id'),
+        'referrer': _('Referrer'),
+        'dashboard_id': _('Dashboard Id'),
+        'duration_ms': _('Duration Ms'),
     }
 
 
