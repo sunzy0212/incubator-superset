@@ -1,10 +1,18 @@
 /* eslint-disable global-require */
 import $ from 'jquery';
 import { t } from './locales';
+import { Base64 } from 'js-base64'
+import qs from 'query-string'
 
 const utils = require('./modules/utils');
 
 $(document).ready(function () {
+  const query = qs.parse(window.location.search)
+  const qn_querystring = query.qn_querystring
+  if (qn_querystring) {
+    window.sessionStorage.setItem('qn_querystring', qn_querystring)
+  }
+
   $(':checkbox[data-checkbox-api-prefix]').change(function () {
     const $this = $(this);
     const prefix = $this.data('checkbox-api-prefix');
@@ -22,7 +30,17 @@ $(document).ready(function () {
         location.reload();
       });
   });
-});
+
+  $('#qn-logdb-link').click(function name(ev) {
+    const data = $(ev.target).data()
+    const qn_querystring = window.sessionStorage.getItem('qn_querystring')
+    let url = data.logdbUrl
+    if (qn_querystring) {
+      url += ('/search/log' + Base64.decode(qn_querystring))
+    }
+    window.location.href = url
+  })
+})
 
 export function appSetup() {
   // A set of hacks to allow apps to run within a FAB template
