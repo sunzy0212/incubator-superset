@@ -1,7 +1,6 @@
 /* eslint-disable global-require */
 import $ from 'jquery';
 import { t } from './locales';
-import { Base64 } from 'js-base64'
 import qs from 'query-string'
 
 const utils = require('./modules/utils');
@@ -36,7 +35,7 @@ $(document).ready(function () {
     const qn_querystring = window.sessionStorage.getItem('qn_querystring')
     let url = data.logdbUrl
     if (qn_querystring) {
-      url += ('/search/log' + Base64.decode(qn_querystring))
+      url += ('/search/log' + window.atob(qn_querystring))
     }
     window.location.href = url
   })
