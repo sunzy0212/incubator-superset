@@ -4202,3 +4202,42 @@ msgstr "摘要"
 
 msgid "Long Description"
 msgstr "完整描述"
+
+msgid "List Log"
+msgstr "日志列表"
+
+msgid "Show Log"
+msgstr "显示日志"
+
+msgid "Edit Log"
+msgstr "编辑列表"
+
+msgid "Referrer"
+msgstr "参照网页地址"
+
+msgid "Dashboard Id"
+msgstr "仪表盘ID"
+
+msgid "Duration Ms"
+msgstr "持续时间（毫秒）"
+
+msgid "Slice Id"
+msgstr "图表ID"
+
+msgid "Datasource Id"
+msgstr "数据源ID"
+
+msgid "Datasource Type"
+msgstr "数据源类型"
+
+msgid "Add new slice"
+msgstr "添加图表"
+
+msgid ""
+"If the datasource your are looking for is not "
+"available in the list, "
+"follow the instructions on the how to add it on the "
+msgstr "如果无法在列表中找到数据源，请参考说明"
+
+msgid "Superset tutorial"
+msgstr "Superset文档"
