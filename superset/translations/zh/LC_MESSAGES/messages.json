@@ -2997,6 +2997,33 @@
          ],
          "Tmp Table Name": [
             "临时表名称"
+         ],
+         "List Annotation Layer": [
+            "注解层列表"
+         ],
+         "Add Annotation Layer": [
+            "添加注解层"
+         ],
+         "Edit Annotation Layer": [
+            "编辑注解层"
+         ],
+         "List Annotation": [
+            "注解列表"
+         ],
+         "Add Annotation": [
+            "添加注解"
+         ],
+         "Edit Annotation": [
+            "编辑注解"
+         ],
+         "Layer": [
+            "层"
+         ],
+         "Short Description": [
+            "摘要"
+         ],
+         "Long Description": [
+            "完整描述"
          ]
       }
    }

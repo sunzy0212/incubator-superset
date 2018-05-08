@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext as __
+from flask_babel import lazy_gettext as _
 
 from superset import appbuilder
 from superset.models.annotations import Annotation, AnnotationLayer
@@ -14,11 +15,20 @@ from .base import DeleteMixin, SupersetModelView
 
 
 class AnnotationModelView(SupersetModelView, DeleteMixin):  # noqa
+    list_title = _('List Annotation')
+    add_title = _('Add Annotation')
+    edit_title = _('Edit Annotation')
+    
     datamodel = SQLAInterface(Annotation)
     list_columns = ['layer', 'short_descr', 'start_dttm', 'end_dttm']
     edit_columns = [
         'layer', 'short_descr', 'long_descr', 'start_dttm', 'end_dttm']
     add_columns = edit_columns
+    label_columns = {
+        'layer': _('Layer'),
+        'short_descr': _('Short Description'),
+        'long_descr': _('Long Description'),
+    }
 
     def pre_add(self, obj):
         if not obj.layer:
@@ -37,12 +47,18 @@ class AnnotationModelView(SupersetModelView, DeleteMixin):  # noqa
 
 
 class AnnotationLayerModelView(SupersetModelView, DeleteMixin):
+    list_title = _('List Annotation Layer')
+    add_title = _('Add Annotation Layer')
+    edit_title = _('Edit Annotation Layer')
     datamodel = SQLAInterface(AnnotationLayer)
     list_columns = ['id', 'name']
     edit_columns = ['name', 'descr']
     add_columns = edit_columns
-
-
+    label_columns = {
+        'name': _('Name'),
+        'descr': _('Description'),
+    }
+        
 appbuilder.add_view(
     AnnotationLayerModelView,
     'Annotation Layers',

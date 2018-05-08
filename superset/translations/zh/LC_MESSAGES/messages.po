@@ -478,7 +478,7 @@ msgstr "%s 的副本"
 
 #: superset/assets/src/SqlLab/components/CopyQueryTabUrl.jsx:30
 msgid "share query"
-msgstr "分享查询"
+msgstr "复制查询"
 
 #: superset/assets/src/SqlLab/components/CopyQueryTabUrl.jsx:33
 msgid "copy URL to clipboard"
@@ -4175,3 +4175,30 @@ msgstr "开始时间"
 
 msgid "Tmp Table Name"
 msgstr "临时表名称"
+
+msgid "List Annotation Layer"
+msgstr "注解层列表"
+
+msgid "Add Annotation Layer"
+msgstr "添加注解层"
+
+msgid "Edit Annotation Layer"
+msgstr "编辑注解层"
+
+msgid "List Annotation"
+msgstr "注解列表"
+
+msgid "Add Annotation"
+msgstr "添加注解"
+
+msgid "Edit Annotation"
+msgstr "编辑注解"
+
+msgid "Layer"
+msgstr "层"
+
+msgid "Short Description"
+msgstr "摘要"
+
+msgid "Long Description"
+msgstr "完整描述"
