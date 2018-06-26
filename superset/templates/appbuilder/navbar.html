@@ -2,6 +2,8 @@
 {% set languages = appbuilder.languages %}
 {% set WARNING_MSG = appbuilder.app.config.get('WARNING_MSG') %}
 {% set LOGDB_URL = appbuilder.app.config.get('LOGDB_URL') %}
+{% set SYNC_URL = appbuilder.app.config.get('SYNC_URL') %}
+
 
 <div class="navbar navbar-static-top {{menu.extra_classes}}" role="navigation">
   <div class="container-fluid">
@@ -25,6 +27,12 @@
             {{ WARNING_MSG | safe }}
           </li>
         {% endif %}
+        <li class="dropdown">
+          <a class="dropdown-toggle" id="qn-sync-link" data-sync-url="{{SYNC_URL}}" data-toggle="dropdown" href="javascript:void(0)">
+            <i class="fa fa-exchange"></i>&nbsp;
+            数据库同步系统
+          </a>
+        </li>
         <li class="dropdown">
           <a class="dropdown-toggle" id="qn-logdb-link" data-logdb-url="{{LOGDB_URL}}" data-toggle="dropdown" href="javascript:void(0)">
             <i class="fa fa-table"></i>&nbsp;

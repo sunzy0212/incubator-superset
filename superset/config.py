@@ -414,6 +414,8 @@ SQL_QUERY_MUTATOR = None
 ENABLE_FLASK_COMPRESS = True
 
 LOGDB_URL = 'https://portal.qiniu.com/pandora/logdb'
+SYNC_URL = 'https://portal.qiniu.com'
+
 
 try:
     if CONFIG_PATH_ENV_VAR in os.environ:
