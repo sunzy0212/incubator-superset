@@ -38,7 +38,13 @@ $(document).ready(function () {
       url += ('/search/log' + window.atob(qn_querystring))
     }
     window.location.href = url
-  })
+  });
+
+  $('#qn-sync-link').click(function name(ev) {
+    const data = $(ev.target).data()
+    let url = data.syncUrl
+    window.location.href = url
+  });
 })
 
 export function appSetup() {
