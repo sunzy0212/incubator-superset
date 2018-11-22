@@ -236,6 +236,8 @@ TabbedSqlEditors.propTypes = propTypes;
 TabbedSqlEditors.defaultProps = defaultProps;
 
 function mapStateToProps(state) {
+  const appContainer = document.getElementById('app');
+  const bootstrapData = JSON.parse(appContainer.getAttribute('data-bootstrap'));
   return {
     databases: state.databases,
     queryEditors: state.queryEditors,
@@ -243,8 +245,8 @@ function mapStateToProps(state) {
     tabHistory: state.tabHistory,
     tables: state.tables,
     defaultDbId: state.defaultDbId,
-    defaultQueryLimit: common.conf.DEFAULT_SQLLAB_LIMIT,
-    maxRow: common.conf.SQL_MAX_ROW,
+    defaultQueryLimit: bootstrapData.common.conf.DEFAULT_SQLLAB_LIMIT,
+    maxRow: bootstrapData.common.conf.SQL_MAX_ROW,
   };
 }
 function mapDispatchToProps(dispatch) {

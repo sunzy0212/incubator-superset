@@ -39,7 +39,7 @@ import sqlparse
 import unicodecsv
 from werkzeug.utils import secure_filename
 
-from superset import app, cache_util, conf, db, utils
+from superset import app, cache_util, conf, db, utils, sql_parse
 from superset.exceptions import SupersetTemplateException
 from superset.utils import QueryStatus
 
@@ -55,6 +55,7 @@ class LimitMethod(object):
     """Enum the ways that limits can be applied"""
     FETCH_MANY = 'fetch_many'
     WRAP_SQL = 'wrap_sql'
+    FORCE_LIMIT = 'force_limit'
 
 
 class BaseEngineSpec(object):
@@ -68,6 +69,31 @@ class BaseEngineSpec(object):
     limit_method = LimitMethod.FETCH_MANY
     time_secondary_columns = False
     inner_joins = True
+    limit_method = LimitMethod.FORCE_LIMIT
+    
+    
+    @classmethod
+    def apply_limit_to_sql(cls, sql, limit, database):
+        """Alters the SQL statement to apply a LIMIT clause"""
+        if cls.limit_method == LimitMethod.WRAP_SQL:
+            sql = sql.strip('\t\n ;')
+            qry = (
+                select('*')
+                .select_from(
+                    TextAsFrom(text(sql), ['*']).alias('inner_qry'),
+                )
+                .limit(limit)
+            )
+            return database.compile_sqla_query(qry)
+        elif LimitMethod.FORCE_LIMIT:
+            parsed_query = sql_parse.SupersetQuery(sql)
+            sql = parsed_query.get_query_with_new_limit(limit)
+        return sql
+
+    @classmethod
+    def get_limit_from_sql(cls, sql):
+        parsed_query = sql_parse.SupersetQuery(sql)
+        return parsed_query.limit
 
     @classmethod
     def fetch_data(cls, cursor, limit):
@@ -361,6 +387,7 @@ class RedshiftEngineSpec(PostgresBaseEngineSpec):
 
 class OracleEngineSpec(PostgresBaseEngineSpec):
     engine = 'oracle'
+    limit_method = LimitMethod.WRAP_SQL
 
     time_grains = (
         Grain('Time Column', _('Time Column'), '{col}', None),
@@ -382,6 +409,7 @@ class OracleEngineSpec(PostgresBaseEngineSpec):
 
 class Db2EngineSpec(BaseEngineSpec):
     engine = 'ibm_db_sa'
+    limit_method = LimitMethod.WRAP_SQL
     time_grains = (
         Grain('Time Column', _('Time Column'), '{col}', None),
         Grain('second', _('second'),
@@ -1105,6 +1133,7 @@ class HiveEngineSpec(PrestoEngineSpec):
 
 class MssqlEngineSpec(BaseEngineSpec):
     engine = 'mssql'
+    limit_method = LimitMethod.WRAP_SQL
     epoch_to_dttm = "dateadd(S, {col}, '1970-01-01')"
 
     time_grains = (

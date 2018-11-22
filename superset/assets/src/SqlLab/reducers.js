@@ -5,7 +5,7 @@ import { addToObject, alterInObject, alterInArr, removeFromArr, getFromArr, addT
   from '../reduxUtils';
 import { t } from '../locales';
 
-export function getInitialState(defaultDbId) {
+export function getInitialState(defaultDbId, common) {
   const defaultQueryEditor = {
     id: shortid.generate(),
     title: t('Untitled Query'),
@@ -14,7 +14,7 @@ export function getInitialState(defaultDbId) {
     latestQueryId: null,
     autorun: false,
     dbId: defaultDbId,
-    queryLimit: restBootstrapData.common.conf.DEFAULT_SQLLAB_LIMIT,
+    queryLimit: common.conf.DEFAULT_SQLLAB_LIMIT,
   };
 
   return {

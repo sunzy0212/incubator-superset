@@ -136,7 +136,7 @@ export function runQuery(query) {
       tmp_table_name: query.tempTableName,
       select_as_cta: query.ctas,
       templateParams: query.templateParams,
-      ueryLimit: query.queryLimit,
+      queryLimit: query.queryLimit,
     };
     const sqlJsonUrl = '/superset/sql_json/' + location.search;
     $.ajax({

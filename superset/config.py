@@ -254,7 +254,7 @@ SQL_MAX_ROW = 1000000
 DISPLAY_SQL_MAX_ROW = 1000
 
 # Default row limit for SQL Lab queries
-DEFAULT_SQLLAB_LIMIT = 1000
+DEFAULT_SQLLAB_LIMIT = 100
 
 # Maximum number of tables/views displayed in the dropdown window in SQL Lab.
 MAX_TABLE_NAMES = 3000
@@ -295,7 +295,7 @@ HTTP_HEADERS = {'X-Frame-Options': 'SAMEORIGIN'}
 DEFAULT_DB_ID = None
 
 # Timeout duration for SQL Lab synchronous queries
-SQLLAB_TIMEOUT = 30
+SQLLAB_TIMEOUT = 120
 
 # SQLLAB_DEFAULT_DBID
 SQLLAB_DEFAULT_DBID = None
