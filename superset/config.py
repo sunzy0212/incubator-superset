@@ -253,6 +253,9 @@ MAPBOX_API_KEY = os.environ.get('MAPBOX_API_KEY', '')
 SQL_MAX_ROW = 1000000
 DISPLAY_SQL_MAX_ROW = 1000
 
+# Default row limit for SQL Lab queries
+DEFAULT_SQLLAB_LIMIT = 1000
+
 # Maximum number of tables/views displayed in the dropdown window in SQL Lab.
 MAX_TABLE_NAMES = 3000
 

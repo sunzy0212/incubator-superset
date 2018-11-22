@@ -27,6 +27,8 @@ from superset.translations.utils import get_language_pack
 FRONTEND_CONF_KEYS = (
     'SUPERSET_WEBSERVER_TIMEOUT',
     'ENABLE_JAVASCRIPT_CONTROLS',
+    'DEFAULT_SQLLAB_LIMIT',
+    'SQL_MAX_ROW',
 )
 
 
@@ -182,6 +184,42 @@ class DeleteMixin(object):
 
             flash(*self.datamodel.message)
             self.update_redirect()
+
+    def delete_permission_views(self, pk):
+        """
+            Delete permission views of database
+            deletes the record with primary_key = pk
+
+            :param pk:
+                record primary key to delete
+        """
+        item = self.datamodel.get(pk, self._base_filters)
+        if not item:
+            return
+
+        view_menu = security_manager.find_view_menu(item.perm)
+        pvs = security_manager.get_session.query(
+            security_manager.permissionview_model).filter_by(
+            view_menu=view_menu).all()
+
+        schema_view_menu = None
+        if hasattr(item, 'schema_perm'):
+            schema_view_menu = security_manager.find_view_menu(item.schema_perm)
+
+            pvs.extend(security_manager.get_session.query(
+                security_manager.permissionview_model).filter_by(
+                view_menu=schema_view_menu).all())
+
+        for pv in pvs:
+            security_manager.get_session.delete(pv)
+
+        if view_menu:
+            security_manager.get_session.delete(view_menu)
+
+        if schema_view_menu:
+            security_manager.get_session.delete(schema_view_menu)
+
+        security_manager.get_session.commit()
 
     @action(
         'muldelete',

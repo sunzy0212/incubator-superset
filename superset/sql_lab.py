@@ -179,7 +179,7 @@ def execute_sql(
         query.select_as_cta_used = True
     elif (query.limit and superset_query.is_select() and
             db_engine_spec.limit_method == LimitMethod.WRAP_SQL):
-        executed_sql = database.wrap_sql_limit(executed_sql, query.limit)
+        executed_sql = database.apply_limit_to_sql(executed_sql, query.limit)
         query.limit_used = True
 
     # Hook to allow environment-specific mutation (usually comments) to the SQL
