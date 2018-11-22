@@ -210,7 +210,7 @@ class SupersetTestCase(unittest.TestCase):
             '/superset/sql_json/',
             raise_on_error=False,
             data=dict(database_id=dbid, sql=sql, select_as_create_as=False,
-                      client_id=client_id),
+                      client_id=client_id, queryLimit=query_limit),
         )
         if raise_on_error and 'error' in resp:
             raise Exception('run_sql failed')
