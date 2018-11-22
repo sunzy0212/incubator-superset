@@ -293,13 +293,23 @@ class DatabaseView(SupersetModelView, DeleteMixin, YamlExportMixin):  # noqa
 
     def pre_add(self, db):
         db.set_sqlalchemy_uri(db.sqlalchemy_uri)
+
+    def post_add(self, db):
         security_manager.merge_perm('database_access', db.perm)
         for schema in db.all_schema_names():
             security_manager.merge_perm(
                 'schema_access', security_manager.get_schema_perm(db, schema))
 
     def pre_update(self, db):
-        self.pre_add(db)
+        db.set_sqlalchemy_uri(db.sqlalchemy_uri)
+        if db.perm != db.get_perm():
+            DeleteMixin.delete_permission_views(self, db.id)
+
+    def post_update(self, db):
+        security_manager.merge_perm('database_access', db.perm)
+        for schema in db.all_schema_names():
+            security_manager.merge_perm(
+                'schema_access', security_manager.get_schema_perm(db, schema))
 
     def _delete(self, pk):
         DeleteMixin._delete(self, pk)
